@@ -99,12 +99,22 @@ def fetch(world, out):
     print(json.dumps(man, indent=1))
 
 
+REPO = "Astheno-sphere/offshore_simulations"
+
+
 def pull(world, dest=None):
+    """Download release `world-<name>` via the REST API (works where GraphQL is blocked) and unzip it."""
     dest = Path(dest or ROOT / "data/worlds" / world)
     dest.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["gh", "release", "download", f"world-{world}", "--repo", "Astheno-sphere/computational_logistics",
-                    "--pattern", "*.zip", "--dir", str(dest), "--clobber"], check=True)
-    for z in dest.glob("*.zip"):
+    rel = json.loads(subprocess.run(["gh", "api", f"repos/{REPO}/releases/tags/world-{world}"],
+                                    check=True, capture_output=True, text=True).stdout)
+    for asset in rel["assets"]:
+        if not asset["name"].endswith(".zip"):
+            continue
+        z = dest / asset["name"]
+        with open(z, "wb") as fh:
+            subprocess.run(["gh", "api", "-H", "Accept: application/octet-stream",
+                            f"repos/{REPO}/releases/assets/{asset['id']}"], check=True, stdout=fh)
         subprocess.run(["unzip", "-o", "-q", str(z), "-d", str(dest)], check=True)
         z.unlink()
     print(f"world {world} -> {dest}")

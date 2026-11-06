@@ -10,6 +10,8 @@ paper → scenario.yaml → solve → replay → contract + corrector gates → 
   New tools go in `catalog/tools.yaml` via the `tool-scout` skill; then rebuild `docs/TOOLS.md`.
 - The Claude workspace cannot reach Kartverket, Kystverket, Sodir, Overpass or tile servers. Data comes
   in via the `fetch-world` workflow → GitHub release → `python -m offsim.worlds.fetch_world --pull <world>`.
+- Agents render as characters (`style.json` agent_mode: sprite | model). Vessels route on sea lanes
+  (`offsim.worlds.sealanes`), never straight across land; report quay snaps.
 - Heavy renders (1080p, Blender) go to the `render` workflow; drafts and stills are fine here.
 - GPL tools run as separate processes, never imported. Data is never committed (see `.gitignore`).
 - PyVRP 0.14: use `offsim/solve/pyvrp_adapter.py`; it handles `is_client()` and client index offsets.

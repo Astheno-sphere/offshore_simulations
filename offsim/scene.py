@@ -18,7 +18,8 @@ def polygons(geom):
 
 
 def build_scene(traj: pd.DataFrame, agents: pd.DataFrame, report: Report, *, camera: dict, overlay: dict,
-                land=None, lanes=None, sites=None, accent=(), kpi_track=None, seconds=20, trail_s=None) -> dict:
+                land=None, lanes=None, sites=None, accent=(), kpi_track=None, seconds=20, trail_s=None,
+                land_relief_m=None) -> dict:
     """camera: deck.gl view state {longitude, latitude, zoom, pitch, bearing}.
     overlay: {kicker, title, legend: [[hex, label]], source, watermark}. accent: agent ids drawn in the accent.
     kpi_track: [[label, [[t, display_value], ...]], ...] values shown over time (from offsim.contract.kpis only)."""
@@ -32,7 +33,7 @@ def build_scene(traj: pd.DataFrame, agents: pd.DataFrame, report: Report, *, cam
                     "path": [[float(x), float(y), float(z)] for x, y, z in zip(g["lon"], g["lat"], alt if hasattr(alt, "__iter__") else [alt] * len(g))],
                     "ts": [float(t) for t in g["t"]], "states": list(g["state"])})
     t0, t1 = float(traj["t"].min()), float(traj["t"].max())
-    return {"t0": t0, "t1": t1, "seconds": seconds, "trail_s": trail_s or (t1 - t0) / 6,
+    return {"t0": t0, "t1": t1, "land_relief_m": land_relief_m, "seconds": seconds, "trail_s": trail_s or (t1 - t0) / 6,
             "camera": camera, "overlay": {**overlay, "kpi_track": kpi_track or []},
             "world": {"land": polygons(land), "lanes": lanes or [], "sites": sites or []},
             "agents": out}

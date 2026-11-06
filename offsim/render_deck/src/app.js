@@ -1,7 +1,9 @@
 // Frame-exact 2.5D renderer for a studio scene. render.py injects window.SCENE and calls
 // window.draw(t) once per frame; nothing animates on its own, so every frame is reproducible.
 import {Deck, WebMercatorViewport} from '@deck.gl/core';
-import {PolygonLayer, ScatterplotLayer, ColumnLayer, PathLayer, TextLayer} from '@deck.gl/layers';
+import {PolygonLayer, ScatterplotLayer, ColumnLayer, PathLayer, TextLayer, IconLayer} from '@deck.gl/layers';
+import {ScenegraphLayer} from '@deck.gl/mesh-layers';
+import {GLTFLoader} from '@loaders.gl/gltf';
 import {TripsLayer} from '@deck.gl/geo-layers';
 
 const S = window.SCENE;
@@ -33,7 +35,13 @@ function positions(t) {
     if (t >= ts[hi]) i = hi; else { while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ts[m] <= t) lo = m; else hi = m; } i = lo; }
     const j = Math.min(i + 1, ts.length - 1), f = ts[j] > ts[i] ? (t - ts[i]) / (ts[j] - ts[i]) : 0;
     const p = a.path[i], q = a.path[j];
-    out.push({id: a.id, cls: a.cls, accent: a.accent, state: a.states[i],
+    // heading from the leg being sailed (or the last one); degrees clockwise from north
+    let k = j > i ? i : Math.max(0, i - 1), dx = 0, dy = 0;
+    while (k < ts.length - 1 && dx === 0 && dy === 0) { dx = a.path[k + 1][0] - a.path[k][0]; dy = a.path[k + 1][1] - a.path[k][1]; if (!dx && !dy) k++; }
+    if (!dx && !dy && a._heading !== undefined) { dx = Math.sin(a._heading * Math.PI / 180); dy = Math.cos(a._heading * Math.PI / 180); }
+    const heading = Math.atan2(dx * Math.cos(p[1] * Math.PI / 180), dy) * 180 / Math.PI;
+    a._heading = heading;
+    out.push({id: a.id, cls: a.cls, accent: a.accent, state: a.states[i], heading,
               pos: [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f, (p[2] || 0) + ((q[2] || 0) - (p[2] || 0)) * f]});
   }
   return out;
@@ -55,22 +63,53 @@ const deck = new Deck({
 
 const fmtClock = (s) => { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; };
 
+function agentLayers(now, t) {
+  const mode = st.agent_mode, sprites = S.assets.sprites || {}, models = S.assets.models || {};
+  const dot = (data, id) => new ScatterplotLayer({id, data, getPosition: (d) => d.pos, radiusUnits: 'pixels', getRadius: st.agent_px,
+    stroked: true, getLineColor: hex(st.ink), lineWidthMinPixels: 2, getFillColor: (d) => hex(d.accent ? st.accent : (st.cls[d.cls] || st.paper)),
+    updateTriggers: {getPosition: t}});
+  if (mode === 'model') {
+    const layers = Object.entries(models).map(([cls, url]) => new ScenegraphLayer({id: `agent-${cls}`, data: now.filter((d) => d.cls === cls),
+      scenegraph: url, loaders: [GLTFLoader], getPosition: (d) => d.pos, getOrientation: (d) => [0, -d.heading, 90],
+      getScale: [st.agent_model_scale, st.agent_model_scale, st.agent_model_scale], _lighting: 'pbr', updateTriggers: {getPosition: t, getOrientation: t}}));
+    return [...layers, dot(now.filter((d) => !models[d.cls]), 'agents-dot')];
+  }
+  if (mode === 'sprite') {
+    // sprites face west; mirror for eastbound so the bow leads
+    const icon = (d) => { const key = st.sprites[d.cls]; const side = d.heading > 0 && d.heading < 180 ? 'E' : 'W'; return key && sprites[`${key}_${side}`] ? `${key}_${side}` : null; };
+    const withIcon = now.filter((d) => icon(d));
+    return [
+      new ScatterplotLayer({id: 'agent-ring', data: withIcon.filter((d) => d.accent), getPosition: (d) => d.pos, radiusUnits: 'pixels',
+        getRadius: st.sprite_px * 0.62, filled: true, getFillColor: hex(st.accent, 70), stroked: true, getLineColor: hex(st.accent), lineWidthMinPixels: 2,
+        updateTriggers: {getPosition: t}}),
+      new IconLayer({id: 'agent-sprites', data: withIcon, getPosition: (d) => d.pos, sizeUnits: 'pixels', getSize: st.sprite_px,
+        getIcon: (d) => ({id: icon(d), url: sprites[icon(d)], width: 256, height: 256, anchorY: 160}), billboard: true,
+        updateTriggers: {getPosition: t, getIcon: t}}),
+      dot(now.filter((d) => !icon(d)), 'agents-dot')];
+  }
+  return [dot(now, 'agents-dot')];
+}
+
+// textures and models load asynchronously: wait until every layer reports loaded before capture
+const allLoaded = () => (deck.layerManager ? deck.layerManager.getLayers() : []).every((l) => l.isLoaded);
 window.draw = (t) => new Promise((resolve) => {
   const now = positions(t);
   const layers = [
-    new PolygonLayer({id: 'land', data: S.world.land || [], getPolygon: (d) => d, extruded: true, getElevation: st.land_relief_m,
+    new PolygonLayer({id: 'land', data: S.world.land || [], getPolygon: (d) => d, extruded: true, getElevation: S.land_relief_m ?? st.land_relief_m,
       getFillColor: hex(st.land), getLineColor: hex(st.paper, 140), stroked: true, lineWidthMinPixels: 1, material: {ambient: 0.6, diffuse: 0.5}}),
     new PathLayer({id: 'lanes', data: S.world.lanes || [], getPath: (d) => d, getColor: hex(st.faint_line), widthMinPixels: 1}),
-    new ColumnLayer({id: 'sites', data: S.world.sites || [], getPosition: (d) => d.pos, diskResolution: 6, radius: st.site_radius_m,
+    ...Object.entries(S.assets.models || {}).map(([kind, url]) => new ScenegraphLayer({id: `site-${kind}`,
+      data: (S.world.sites || []).filter((d) => d.kind === kind), scenegraph: url, loaders: [GLTFLoader],
+      getPosition: (d) => d.pos, getOrientation: (d) => [0, d.yaw || 0, 90],
+      getScale: (d) => { const k = d.scale || st.site_model_scale; return [k, k, k]; }, _lighting: 'pbr'})),
+    new ColumnLayer({id: 'sites', data: (S.world.sites || []).filter((d) => !(S.assets.models || {})[d.kind]), getPosition: (d) => d.pos, diskResolution: 6, radius: st.site_radius_m,
       extruded: true, getElevation: (d) => d.height_m || st.site_height_m, getFillColor: (d) => hex(d.accent ? st.accent : st.paper)}),
     new TextLayer({id: 'site-labels', data: (S.world.sites || []).filter((d) => d.label), getPosition: (d) => [d.pos[0], d.pos[1], (d.height_m || st.site_height_m) * 1.3],
       getText: (d) => d.label, getColor: hex(st.dim), getSize: st.label_px, fontFamily: st.font, getTextAnchor: 'start', getPixelOffset: [8, 0]}),
     new TripsLayer({id: 'trails', data: S.agents, getPath: (d) => d.path, getTimestamps: (d) => d.ts, currentTime: t,
       trailLength: S.trail_s, fadeTrail: true, capRounded: true, jointRounded: true, widthMinPixels: st.trail_px,
       getColor: (d) => hex(d.accent ? st.accent : (st.cls[d.cls] || st.paper))}),
-    new ScatterplotLayer({id: 'agents', data: now, getPosition: (d) => d.pos, radiusUnits: 'pixels', getRadius: st.agent_px,
-      stroked: true, getLineColor: hex(st.ink), lineWidthMinPixels: 2,
-      getFillColor: (d) => hex(d.accent ? st.accent : (st.cls[d.cls] || st.paper)), updateTriggers: {getPosition: t}}),
+    ...agentLayers(now, t),
     new ScatterplotLayer({id: 'halo', data: now.filter((d) => st.state[d.state]), getPosition: (d) => d.pos, radiusUnits: 'pixels',
       getRadius: st.agent_px * 2.2, filled: false, stroked: true, lineWidthMinPixels: 2, getLineColor: (d) => hex(st.state[d.state])}),
   ];
@@ -79,7 +118,11 @@ window.draw = (t) => new Promise((resolve) => {
     let v = series[0][1]; for (const [ts, val] of series) { if (ts <= t) v = val; else break; } return `<div><b>${v}</b>${label}</div>`;
   });
   document.getElementById('kpis').innerHTML = k.join('');
-  deck.setProps({layers, onAfterRender: () => resolve()});
+  let tries = 0;
+  deck.setProps({layers, onAfterRender: () => {
+    if (allLoaded() || tries++ > 200) resolve(); else setTimeout(() => deck.redraw(true), 15);
+  }});
   deck.redraw(true);
 });
+window.__layers = () => deck.layerManager.getLayers().map((l) => [l.id, l.isLoaded, (l.props.data || []).length]);
 window.ready = true;

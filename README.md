@@ -52,9 +52,22 @@ unfair baseline. Both would have looked fine on screen.
 | [`opt-model`](skills/opt-model/SKILL.md) | Exact LP/MIP models (Pyomo, HiGHS); certifies heuristic plans on small instances |
 | [`tool-scout`](skills/tool-scout/SKILL.md) | Finds, vets and records tools in the catalog |
 
+## What the videos look like
+
+Agents are characters, not blocks: cartoony ships, ferries, helicopters, boats and workers (Fluent Emoji,
+MIT) that turn to face their heading, or our own low-poly 3D models (PSV, ferry, platform, wind turbine,
+made with Blender in this repo). Vessels follow sea lanes computed from the real coastline, so the land
+check passes on real geography. First real world fetched: the Oslofjord (4,753 coastline ways).
+
+```bash
+python -m offsim.worlds.fetch_world --pull oslofjord
+python -m offsim.examples.oslofjord_demo --out out/oslofjord     # synthetic timetable, real coastline
+python offsim/render_deck/render.py --scene out/oslofjord/scene.json --out out/oslofjord/still.png --format square --still --at 5400
+```
+
 ## Tool catalog
 
-[`docs/TOOLS.md`](docs/TOOLS.md) lists 60+ open-source tools, datasets, MCP servers and skills across 15
+[`docs/TOOLS.md`](docs/TOOLS.md) lists 70+ open-source tools, datasets, MCP servers and skills across 15
 layers: world data, AIS traffic, metocean (MET Norway NORA3), solvers, weather routing, simulation,
 offshore wind models (NREL WOMBAT, ORBIT), emissions, rendering, video, CC0 3D assets, maritime UI design,
 MCP connectors, Claude skills and benchmark papers. Each entry has its licence, whether it was tested here,
@@ -84,8 +97,10 @@ Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and publish
 |---|---|
 | Trajectory contract, SimPy replay, PyVRP adapter, exact MIP check | runs, tested (CI) |
 | Four agent skills + router + tool scout | written |
-| Worlds: Oslofjord, North Sea off Stavanger | configured; first Actions fetch pending |
-| Renderer (deck.gl, headless) | draft and still tested; style v0 |
+| Worlds | Oslofjord fetched and used; North Sea off Stavanger configured |
+| Sea lanes from the coastline | runs, tested (real Oslofjord demo passes the land check) |
+| Renderer (deck.gl, headless) | sprites, glTF models, trails, overlays tested; style v0 |
+| Intro animation (Manim), 3D inspection (PyVista) | run here |
 | First reproduced paper | next ([roadmap](docs/ROADMAP.md)) |
 
 ## Repository map
