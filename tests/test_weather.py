@@ -10,7 +10,7 @@ import sys
 
 import numpy as np
 import pytest
-import xarray as xr
+xr = pytest.importorskip("xarray")  # weather extras (requirements-weather.txt); CI installs them
 from PIL import Image
 from shapely.geometry import box
 
