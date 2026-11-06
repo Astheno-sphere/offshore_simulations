@@ -2,3 +2,5 @@
 -r requirements.txt
 playwright
 trimesh
+pydelatin
+scikit-image

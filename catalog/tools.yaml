@@ -248,9 +248,11 @@ tools:
    role: "15 arc-sec global gap filler only."}
 - {id: copernicus-dem-glo30, name: "Copernicus DEM GLO-30", url: "https://registry.opendata.aws/copernicus-dem/", layer: world, licence: "Copernicus free and open (attribution)", status: watch, runs: actions, priority: later,
    role: "30 m surface model (includes buildings/trees); gap filler only."}
+- {id: scikit-image, name: scikit-image (find_contours), url: "https://github.com/scikit-image/scikit-image", layer: world, licence: BSD-3-Clause, status: tested, runs: here, priority: now, evidence: "offsim/worlds/depth.py tests/test_depth.py requirements-render.txt",
+   role: "Isobath extraction on smoothed DEMs where the GDAL CLI is absent (depth.py isobaths)."}
 - {id: gdal-tools, name: "GDAL gdaldem / gdal_contour", url: "https://gdal.org/programs/gdaldem.html", layer: world, licence: MIT, status: candidate, runs: here, priority: now,
    role: "Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths)."}
-- {id: pydelatin, name: "pydelatin (Delatin TIN mesher)", url: "https://pypi.org/project/pydelatin", layer: world, licence: MIT, status: candidate, runs: here, priority: now,
+- {id: pydelatin, name: "pydelatin (Delatin TIN mesher)", url: "https://pypi.org/project/pydelatin", layer: world, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/worlds/depth.py tests/test_depth.py requirements-render.txt",
    role: "Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh)."}
 - {id: martini-rtin, name: "Martini (RTIN)", url: "https://github.com/mapbox/martini", layer: render, licence: check, status: watch, runs: browser, priority: later,
    role: "TerrainLayer's internal mesher; needs 2^k+1 grids; we mesh offline instead."}

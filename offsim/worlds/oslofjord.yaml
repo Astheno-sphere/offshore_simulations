@@ -2,6 +2,17 @@
 bbox: [10.20, 58.95, 11.05, 59.95]   # west, south, east, north (WGS84)
 osm_land: true
 sodir_keywords: []                    # no petroleum installations in the fjord
+# Depth (fetch_world --depth). crs = merge grid. kartverket_dtm.metadata_uuid is the Geonorge dataset UUID of "DTM 10
+# Terrengmodell (UTM32)" (the Oslofjord and the Rogaland coast both lie in zone 32); the fetcher checks it against
+# /api/capabilities at run time and stops with "endpoint unverified" if Geonorge does not know it.
+depth:
+  crs: EPSG:25832
+  emodnet: {}                          # coverage id discovered from GetCapabilities (newest emodnet__mean*)
+  kartverket_dtm:
+    metadata_uuid: fd851873-f363-46f9-9fc6-bb1b403575df
+    projection_code: "25832"
+    name: Kartverket DTM 10 (UTM32)
+    licence: CC BY 4.0
 manual:
   - name: NGU bathymetry, inner Oslofjord, 1 m grid
     where: geonorge.no (search "Dybdedata Oslofjorden 1m")

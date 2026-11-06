@@ -3,6 +3,14 @@
 bbox: [1.50, 57.80, 6.20, 60.20]
 osm_land: true
 sodir_keywords: [facility, field, pipeline, discovery, wellbore]   # matched against FactMaps layer names
+depth:
+  crs: EPSG:4326                       # 1.5-6.2 E is far from any one UTM zone; merge on a lon/lat grid
+  emodnet: {}
+  kartverket_dtm:
+    metadata_uuid: fd851873-f363-46f9-9fc6-bb1b403575df   # DTM 10 UTM32 (Rogaland is zone 32); see oslofjord.yaml
+    projection_code: "25832"
+    name: Kartverket DTM 10 (UTM32)
+    licence: CC BY 4.0
 manual:
   - name: Kystverket Historic AIS (HAIS), ship type offshore/supply
     where: https://hais.kystverket.no/

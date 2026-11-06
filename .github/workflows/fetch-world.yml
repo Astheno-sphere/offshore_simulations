@@ -10,6 +10,11 @@ on:
         default: oslofjord
         type: choice
         options: [oslofjord, north-sea-stavanger]
+      depth:
+        description: "Also fetch raw DEM (EMODnet WCS + Kartverket DTM via Geonorge) -> release world-<name>-dem-raw"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -35,4 +40,20 @@ jobs:
             gh release upload "$tag" "$tag.zip" --clobber && gh release edit "$tag" --notes "$notes"
           else
             gh release create "$tag" "$tag.zip" --title "World: ${{ inputs.world }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+          fi
+      - name: Fetch raw DEM (after the main zip, so dem_raw stays out of it)
+        if: ${{ inputs.depth }}
+        timeout-minutes: 40
+        run: python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world --depth-only
+      - name: Publish release world-${{ inputs.world }}-dem-raw
+        if: ${{ inputs.depth }}
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          tag=world-${{ inputs.world }}-dem-raw
+          (cd world && zip -q -r ../$tag.zip dem_raw)
+          notes="Raw DEM fetched $(date -u +%FT%TZ). Sources, licences and datums: dem_raw/sources.json. Process with: python -m offsim.worlds.depth --world ${{ inputs.world }} --tier <fjord|port|shelf>"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$tag.zip" --clobber && gh release edit "$tag" --notes "$notes"
+          else
+            gh release create "$tag" "$tag.zip" --title "Raw DEM: ${{ inputs.world }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
           fi

@@ -8,14 +8,29 @@ Claude workspace cannot reach these hosts, so it pulls the packaged world from a
 
 Worlds are fetched, never committed (OSM is ODbL; see data/osm/README.md). Each package carries
 manifest.json with sources, licences, query time and feature counts.
+
+Depth (`--depth`, docs/VISUAL_SPEC.md §2) additionally downloads raw DEM tiles into <out>/dem_raw/ plus
+dem_raw/sources.json (the source list merge_dem takes); the workflow publishes them as release `world-<name>-dem-raw`.
+Process them anywhere with `python -m offsim.worlds.depth --world <name> --tier fjord`.
+
+Endpoint status (see docs/TESTLOG.md; the sandbox cannot reach these hosts, so nothing here has run live yet):
+  EMODnet Bathymetry  WCS 2.0.1  https://ows.emodnet-bathymetry.eu/wcs   host/protocol confirmed from the EMODnet R client and the
+                      EMODnet catalogue; coverage id and axis labels are DISCOVERED at run time (GetCapabilities/DescribeCoverage).
+  Kartverket DTM      Geonorge download API https://nedlasting.geonorge.no/api   paths/schemas confirmed from its swagger.json;
+                      the dataset metadata UUID comes from the world YAML and is checked against /capabilities at run time.
+  Kartverket seabed   WCS - URL not confirmed -> NotImplementedError.
 """
 import argparse
+import io
 import json
+import re
 import subprocess
 import sys
 import time
 import urllib.parse
+import urllib.error
 import urllib.request
+import zipfile
 from pathlib import Path
 
 import yaml
@@ -99,14 +114,190 @@ def fetch(world, out):
     print(json.dumps(man, indent=1))
 
 
+# ---------------------------------------------------------------------------------------------------------------
+# Depth: raw DEM download (runs on Actions / laptop). Processing lives in offsim/worlds/depth.py.
+# ---------------------------------------------------------------------------------------------------------------
+EMODNET_WCS = "https://ows.emodnet-bathymetry.eu/wcs"
+GEONORGE_DL = "https://nedlasting.geonorge.no/api"
+
+
+def _is_tiff(b):
+    return b[:4] in (b"II*\x00", b"MM\x00*", b"II+\x00", b"MM\x00+")
+
+
+def emodnet_coverage_ids(base=EMODNET_WCS):
+    """WCS 2.0.1 GetCapabilities -> list of coverage ids (the ids are not hard-coded: EMODnet re-versions yearly)."""
+    xml = get(f"{base}?service=WCS&version=2.0.1&request=GetCapabilities", timeout=120).decode("utf-8", "replace")
+    return re.findall(r"<(?:\w+:)?CoverageId>\s*([^<\s]+)\s*</(?:\w+:)?CoverageId>", xml)
+
+
+def emodnet_pick_coverage(ids, want=None):
+    """Explicit `want` wins; else the newest `emodnet__mean*` (year suffix), else plain `emodnet__mean`."""
+    if want:
+        if want not in ids:
+            raise RuntimeError(f"EMODnet coverage {want!r} not offered; available: {ids[:20]}")
+        return want
+    cand = [i for i in ids if re.fullmatch(r"emodnet__mean(_\d{4})?", i)]
+    if not cand:
+        raise NotImplementedError(f"endpoint unverified: no 'emodnet__mean*' coverage in GetCapabilities ({ids[:20]})")
+    return sorted(cand, key=lambda i: (int(i[-4:]) if i[-4:].isdigit() else 0))[-1]
+
+
+def emodnet_bathymetry(bbox, out, cfg=None):
+    """EMODnet Bathymetry DTM (1/16 arc-minute, LAT) for the bbox via WCS 2.0.1 -> out/dem_raw/emodnet.tif.
+    One GeoTIFF request per box; boxes up to ~5 x 3 degrees are ~10 MB. Axis labels come from DescribeCoverage."""
+    cfg = cfg or {}
+    base = cfg.get("url", EMODNET_WCS)
+    cov = emodnet_pick_coverage(emodnet_coverage_ids(base), cfg.get("coverage"))
+    desc = get(f"{base}?service=WCS&version=2.0.1&request=DescribeCoverage&coverageId={urllib.parse.quote(cov)}",
+               timeout=120).decode("utf-8", "replace")
+    m = re.search(r'axisLabels="([^"]+)"', desc)
+    if not m:
+        raise NotImplementedError("endpoint unverified: DescribeCoverage returned no axisLabels for " + cov)
+    labels = m.group(1).split()
+    lat_l = next((a for a in labels if a.lower().startswith("lat")), None)
+    lon_l = next((a for a in labels if a.lower().startswith(("lon", "long"))), None)
+    if not (lat_l and lon_l):
+        raise NotImplementedError(f"endpoint unverified: axis labels {labels} are not lat/lon")
+    w, s, e, n = bbox
+    q = [("service", "WCS"), ("version", "2.0.1"), ("request", "GetCoverage"), ("coverageId", cov),
+         ("format", "image/tiff"), ("subset", f"{lat_l}({s},{n})"), ("subset", f"{lon_l}({w},{e})")]
+    body = get(f"{base}?{urllib.parse.urlencode(q)}", timeout=600)
+    if not _is_tiff(body):
+        raise RuntimeError("EMODnet GetCoverage did not return a TIFF: " + body[:300].decode("utf-8", "replace"))
+    dst = out / "dem_raw" / "emodnet.tif"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_bytes(body)
+    return {"file": "emodnet.tif", "name": f"EMODnet Bathymetry DTM ({cov})", "priority": 3, "datum": "LAT",
+            "licence": "EMODnet open data, attribution required (licence text to be confirmed on the EMODnet portal)",
+            "credit": "EMODnet Bathymetry Consortium (emodnet.ec.europa.eu)", "coverage": cov, "bytes": len(body),
+            "endpoint": base}
+
+
+def _geonorge_json(path, payload=None, method=None, timeout=120):
+    data = None if payload is None else json.dumps(payload).encode()
+    req = urllib.request.Request(f"{GEONORGE_DL}{path}", data=data, method=method or ("POST" if data else "GET"),
+                                 headers={**UA, "Accept": "application/json", "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read() or b"null")
+
+
+def geonorge_order_files(uuid, line, wait_s=1800, poll_s=15, email=""):
+    """POST /api/order with one order line, poll GET /api/order/{referenceNumber} until every file is ready.
+    Returns the order receipt. Raises TimeoutError after wait_s, RuntimeError on a failed file."""
+    receipt = _geonorge_json("/order", {"email": email, "orderLines": [{"metadataUuid": uuid, **line}],
+                                        "usageGroup": "Visualisering", "softwareClient": "offshore-simulations",
+                                        "softwareClientVersion": "1"})
+    ref = receipt.get("referenceNumber")
+    t0 = time.time()
+    while True:
+        files = receipt.get("files") or []
+        states = [str(f.get("status") or "") for f in files]
+        if any(re.search(r"fail|error|reject", st, re.I) for st in states):
+            raise RuntimeError(f"Geonorge order {ref} failed: {states}")
+        if files and all(st == "ReadyForDownload" and f.get("downloadUrl") for st, f in zip(states, files)):
+            return receipt
+        if time.time() - t0 > wait_s:
+            raise TimeoutError(f"Geonorge order {ref} not ready after {wait_s}s (states: {states})")
+        time.sleep(poll_s)
+        receipt = _geonorge_json(f"/order/{ref}")
+
+
+def kartverket_dtm(bbox, out, cfg=None, wait_s=1800, poll_s=15):
+    """Kartverket DTM (land) clipped to the bbox via the Geonorge download API (order -> poll -> download -> unzip)
+    -> out/dem_raw/kartverket_dtm*.tif. Needs depth.kartverket_dtm.metadata_uuid in the world YAML."""
+    from pyproj import Transformer
+
+    cfg = cfg or {}
+    uuid = cfg.get("metadata_uuid")
+    if not uuid:
+        raise NotImplementedError("endpoint unverified: depth.kartverket_dtm.metadata_uuid not set in the world YAML")
+    try:
+        cap = _geonorge_json(f"/capabilities/{uuid}")
+    except urllib.error.HTTPError as ex:
+        raise NotImplementedError(f"endpoint unverified: Geonorge /capabilities/{uuid} -> HTTP {ex.code}") from ex
+    code = str(cfg.get("projection_code", "25832"))
+    fmt = cfg.get("format")
+    if not fmt:                                     # pick a GeoTIFF-like format from the dataset's own codelist
+        names = [f.get("name", "") for f in _geonorge_json(f"/codelists/format/{uuid}") or []]
+        fmt = next((n for n in names if re.search(r"tif", n, re.I)), None)
+        if not fmt:
+            raise NotImplementedError(f"endpoint unverified: no GeoTIFF format in {names}")
+    if not cap.get("supportsPolygonSelection"):
+        raise NotImplementedError("endpoint unverified: dataset has no polygon selection; configure depth."
+                                  "kartverket_dtm.areas ([{code,name,type}]) instead")
+    tr = Transformer.from_crs(4326, int(code), always_xy=True).transform
+    w, s, e, n = bbox
+    ring = [tr(x, y) for x, y in ((w, s), (e, s), (e, n), (w, n), (w, s))]
+    line = {"coordinates": " ".join(f"{x:.0f} {y:.0f}" for x, y in ring), "coordinatesystem": code,
+            "projections": [{"code": code}], "formats": [{"name": fmt}], "usagePurpose": ["Visualisering"]}
+    receipt = geonorge_order_files(uuid, line, wait_s=wait_s, poll_s=poll_s)
+    dst = out / "dem_raw"
+    dst.mkdir(parents=True, exist_ok=True)
+    tifs = []
+    for f in receipt["files"]:
+        blob = get(f["downloadUrl"], timeout=900)
+        if zipfile.is_zipfile(io.BytesIO(blob)):
+            with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                for nme in z.namelist():
+                    if nme.lower().endswith((".tif", ".tiff")):
+                        target = dst / f"kartverket_dtm_{len(tifs)}.tif"
+                        target.write_bytes(z.read(nme))
+                        tifs.append(target.name)
+        elif _is_tiff(blob):
+            target = dst / f"kartverket_dtm_{len(tifs)}.tif"
+            target.write_bytes(blob)
+            tifs.append(target.name)
+    if not tifs:
+        raise RuntimeError(f"Geonorge order {receipt.get('referenceNumber')} delivered no GeoTIFF")
+    return {"files": tifs, "name": cfg.get("name", "Kartverket DTM"), "priority": 1, "datum": "NN2000",
+            "licence": cfg.get("licence", "CC BY 4.0"), "credit": "© Kartverket (CC BY 4.0)", "metadata_uuid": uuid,
+            "order": receipt.get("referenceNumber"), "endpoint": GEONORGE_DL}
+
+
+def kartverket_seabed(bbox, out, cfg=None):
+    """Kartverket seabed terrain 5/25/50 m (WCS)."""
+    raise NotImplementedError("endpoint unverified: Kartverket seabed terrain WCS URL/coverage ids not confirmed; "
+                              "download by hand from geonorge.no into dem_raw/ and list it in sources.json")
+
+
+def fetch_depth(world, out):
+    """Raw DEM for one world into out/dem_raw/ + sources.json; merges its provenance into out/manifest.json."""
+    cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
+    dcfg = cfg.get("depth") or {}
+    out.mkdir(parents=True, exist_ok=True)
+    srcs, prov = [], []
+    todo = [("emodnet", emodnet_bathymetry), ("kartverket_dtm", kartverket_dtm), ("kartverket_seabed", kartverket_seabed)]
+    for key, fn in todo:
+        sc = dcfg.get(key)
+        if not sc or (isinstance(sc, dict) and sc.get("enabled") is False):
+            continue
+        r = fn(cfg["bbox"], out, sc if isinstance(sc, dict) else {})
+        prov.append({k: v for k, v in r.items() if k != "bytes"} | {"source_key": key})
+        for i, f in enumerate(r.get("files") or [r["file"]]):
+            srcs.append({"name": r["name"] + (f" [{i}]" if "files" in r and len(r["files"]) > 1 else ""),
+                         "path": f, "priority": r["priority"], "datum": r["datum"], "licence": r["licence"],
+                         "credit": r["credit"]})
+    (out / "dem_raw").mkdir(parents=True, exist_ok=True)
+    (out / "dem_raw" / "sources.json").write_text(json.dumps({"crs": dcfg.get("crs", "EPSG:25832"), "sources": srcs}, indent=1))
+    mp = out / "manifest.json"
+    man = json.loads(mp.read_text()) if mp.exists() else {"world": world, "bbox": cfg["bbox"], "sources": []}
+    man["depth_sources"] = prov
+    mp.write_text(json.dumps(man, indent=1))
+    print(json.dumps(prov, indent=1))
+    return srcs
+
+
 REPO = "Astheno-sphere/offshore_simulations"
 
 
-def pull(world, dest=None):
-    """Download release `world-<name>` via the REST API (works where GraphQL is blocked) and unzip it."""
+def pull(world, dest=None, raw_dem=False):
+    """Download release `world-<name>` (or `world-<name>-dem-raw` with raw_dem) via the REST API (works where GraphQL
+    is blocked) and unzip it."""
     dest = Path(dest or ROOT / "data/worlds" / world)
     dest.mkdir(parents=True, exist_ok=True)
-    rel = json.loads(subprocess.run(["gh", "api", f"repos/{REPO}/releases/tags/world-{world}"],
+    tag = f"world-{world}" + ("-dem-raw" if raw_dem else "")
+    rel = json.loads(subprocess.run(["gh", "api", f"repos/{REPO}/releases/tags/{tag}"],
                                     check=True, capture_output=True, text=True).stdout)
     for asset in rel["assets"]:
         if not asset["name"].endswith(".zip"):
@@ -125,8 +316,15 @@ if __name__ == "__main__":
     ap.add_argument("--world")
     ap.add_argument("--out")
     ap.add_argument("--pull")
+    ap.add_argument("--depth", action="store_true",
+                    help="also fetch raw DEM (EMODnet, Kartverket DTM) into <out>/dem_raw; with --pull: pull world-<name>-dem-raw")
+    ap.add_argument("--depth-only", action="store_true", help="fetch only the raw DEM (skip OSM/Sodir)")
     a = ap.parse_args()
     if a.pull:
-        pull(a.pull, a.out)
+        pull(a.pull, a.out, raw_dem=a.depth)
     else:
-        fetch(a.world, Path(a.out or ROOT / "data/worlds" / a.world))
+        dest = Path(a.out or ROOT / "data/worlds" / a.world)
+        if not a.depth_only:
+            fetch(a.world, dest)
+        if a.depth or a.depth_only:
+            fetch_depth(a.world, dest)
