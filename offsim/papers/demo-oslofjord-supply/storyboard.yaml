@@ -17,10 +17,12 @@ shots:
     trail_s: 3600
     camera:
       pitch: 45
-      keys:
-        - {at: 0.00, fit: [[10.40, 59.10], [10.75, 59.47]], pitch: 30, bearing: 0}
-        - {at: 0.35, fit: [[10.45, 59.13], [10.72, 59.36]], pitch: 50, bearing: -15}
-        - {at: 1.00, fit: [[10.42, 59.10], [10.74, 59.46]], pitch: 40, bearing: -5}
+      keys:                         # at = fraction of the 14 s shot; equal keys are holds (0.4 s in, 0.8 s out)
+        - {at: 0.000, fit: [[10.40, 59.10], [10.75, 59.47]], pitch: 30, bearing: 0}
+        - {at: 0.029, fit: [[10.40, 59.10], [10.75, 59.47]], pitch: 30, bearing: 0}
+        - {at: 0.350, fit: [[10.45, 59.13], [10.72, 59.36]], pitch: 50, bearing: -8}
+        - {at: 0.943, fit: [[10.42, 59.10], [10.74, 59.46]], pitch: 40, bearing: -5}
+        - {at: 1.000, fit: [[10.42, 59.10], [10.74, 59.46]], pitch: 40, bearing: -5}
     overlay:
       title: "Two supply vessels, six sites"
       legend: [["#FF5B3A", "optimised routes (PyVRP, sea lanes)"]]
