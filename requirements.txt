@@ -5,6 +5,8 @@ simpy>=4.1
 pyvrp>=0.14
 networkx
 scipy
+xarray
+netCDF4
 Pillow
 shapely>=2
 geopandas
