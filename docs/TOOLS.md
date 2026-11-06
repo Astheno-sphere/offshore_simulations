@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-123 tools · 17 tested · 1 wired · 1 installed · 54 candidate · 4 manual · 46 watch.
+124 tools · 19 tested · 1 wired · 1 installed · 53 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -11,7 +11,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 
 | Layer | tested | wired | installed | candidate | manual | watch | total |
 |---|---|---|---|---|---|---|---|
-| world | 1 | 1 | 0 | 8 | 3 | 8 | 21 |
+| world | 3 | 1 | 0 | 7 | 3 | 8 | 22 |
 | traffic | 0 | 0 | 0 | 2 | 1 | 2 | 5 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
 | solver | 2 | 0 | 0 | 2 | 0 | 4 | 8 |
@@ -54,8 +54,9 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [Kartverket DTM 10 m terrain model](https://nedlasting.geonorge.no/api/capabilities/) | world | candidate | actions | 10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py). |
 | [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | world | candidate | actions | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
 | [EMODnet Bathymetry DTM (1/16 arc-min)](https://emodnet.ec.europa.eu/en/bathymetry) | world | candidate | actions | ~115 m North Sea bathymetry tiles (LAT, MSL variant): the shelf tier off Stavanger. |
+| [scikit-image (find_contours)](https://github.com/scikit-image/scikit-image) | world | tested | here | Isobath extraction on smoothed DEMs where the GDAL CLI is absent (depth.py isobaths). |
 | [GDAL gdaldem / gdal_contour](https://gdal.org/programs/gdaldem.html) | world | candidate | here | Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths). |
-| [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | world | candidate | here | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). |
+| [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | world | tested | here | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). |
 | [deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer](https://deck.gl/docs/api-reference/geo-layers/terrain-layer) | render | candidate | here | Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders. |
 | [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | render | candidate | here | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | render | candidate | here | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
@@ -74,7 +75,8 @@ _Geography the scenario runs in (land, depth, lanes, installations)_
 | [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | open per Geonorge record (check) | candidate | actions | now | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
 | [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | NLOD-2.0 | wired | actions | now | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. Evidence: `offsim/worlds/fetch_world.py` `offsim/worlds/north-sea-stavanger.yaml` |
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | ODbL-1.0 | tested | actions | now | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). Evidence: `offsim/worlds/fetch_world.py` `docs/TESTLOG.md` |
-| [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | MIT | candidate | here | now | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). |
+| [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | MIT | tested | here | now | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). Evidence: `offsim/worlds/depth.py` `tests/test_depth.py` `requirements-render.txt` |
+| [scikit-image (find_contours)](https://github.com/scikit-image/scikit-image) | BSD-3-Clause | tested | here | now | Isobath extraction on smoothed DEMs where the GDAL CLI is absent (depth.py isobaths). Evidence: `offsim/worlds/depth.py` `tests/test_depth.py` `requirements-render.txt` |
 | [Kartverket Sjøkart Dybdedata (WFS)](https://wfs.geonorge.no/skwms1/wfs.dybdedata?service=WFS&request=GetCapabilities) | CC-BY-4.0 | watch | actions | next | Vector depth contours and soundings (sjøkartnull) as ready CAD-style isobaths; maintenance status: check. |
 | [Kartverket Sjøkart – Dybdedata](https://data.norge.no/en/datasets/48cc18ef-1317-3ddd-9ca4-a06d8ffa0196) | open (Kartverket terms) | manual | laptop | next | Depth areas and contours; not approved for navigation. Lanes and seabed relief. |
 | [Kystverket reference routes for navigation](https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation) | NLOD-2.0 | manual | actions | next | Fairway graph so vessels follow lanes, not straight lines. |
