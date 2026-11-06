@@ -5,6 +5,10 @@ Claude workspace cannot reach these hosts, so it pulls the packaged world from a
 
     python -m offsim.worlds.fetch_world --world oslofjord --out data/worlds/oslofjord   # fetch (Actions/laptop)
     python -m offsim.worlds.fetch_world --pull oslofjord                               # download release (anywhere)
+    python -m offsim.worlds.fetch_world --world oslofjord --out w --metocean 2024-01-10T00:00 48   # + wind/wave/current
+
+`--metocean START_UTC HOURS` adds metocean/<YYYYMMDD-HH>_<hours>h_<dataset>.nc (regular lon/lat, int16 scaled; MET Norway
+CC BY 4.0) inside the world package. A dataset that fails is recorded in the manifest (not fatal); needs xarray, netCDF4, scipy.
 
 Worlds are fetched, never committed (OSM is ODbL; see data/osm/README.md). Each package carries
 manifest.json with sources, licences, query time and feature counts.
@@ -82,7 +86,29 @@ def sodir_layers(bbox, keywords, out):
     return counts
 
 
-def fetch(world, out):
+METOCEAN_DATASETS = ("nora3_wind", "nora3_wave", "norkyst_v3")
+
+
+def metocean(bbox, out, start_utc, hours, datasets=METOCEAN_DATASETS):
+    """NORA3 wind/wave + NorKyst v3 currents for the world bbox -> out/metocean/. Returns manifest entries."""
+    from offsim.weather.fetch import LICENCE, subset
+
+    md = Path(out) / "metocean"
+    md.mkdir(parents=True, exist_ok=True)
+    stamp = time.strftime("%Y%m%d-%H", time.strptime(start_utc[:13], "%Y-%m-%dT%H"))
+    entries = []
+    for name in datasets:
+        path = md / f"{stamp}_{hours}h_{name}.nc"
+        try:
+            e = subset(name, tuple(bbox), start_utc, hours, str(path))
+            e["file"] = f"metocean/{path.name}"
+        except Exception as exc:  # one failing server must not lose the land/offshore data
+            e = {"dataset": name, "licence": LICENCE, "error": f"{type(exc).__name__}: {exc}"}
+        entries.append(e)
+    return entries
+
+
+def fetch(world, out, metocean_args=None):
     cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
     out.mkdir(parents=True, exist_ok=True)
     man = {"world": world, "bbox": cfg["bbox"], "fetched_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "sources": []}
@@ -94,6 +120,10 @@ def fetch(world, out):
         c = sodir_layers(cfg["bbox"], cfg["sodir_keywords"], out)
         man["sources"].append({"name": "Norwegian Offshore Directorate FactMaps (WGS84)", "licence": "NLOD 2.0",
                                "credit": "Source: Norwegian Offshore Directorate", "layers": c})
+    if metocean_args:
+        man["sources"].append({"name": "MET Norway NORA3 wind/wave + NorKyst v3 currents (THREDDS OPeNDAP)",
+                               "licence": "CC BY 4.0 — MET Norway", "credit": "MET Norway (CC BY 4.0)",
+                               "datasets": metocean(cfg["bbox"], out, metocean_args[0], int(metocean_args[1]))})
     man["manual"] = cfg.get("manual", [])
     (out / "manifest.json").write_text(json.dumps(man, indent=1))
     print(json.dumps(man, indent=1))
@@ -125,8 +155,9 @@ if __name__ == "__main__":
     ap.add_argument("--world")
     ap.add_argument("--out")
     ap.add_argument("--pull")
+    ap.add_argument("--metocean", nargs=2, metavar=("START_UTC", "HOURS"), help="also subset wind/wave/current, e.g. 2024-01-10T00:00 48")
     a = ap.parse_args()
     if a.pull:
         pull(a.pull, a.out)
     else:
-        fetch(a.world, Path(a.out or ROOT / "data/worlds" / a.world))
+        fetch(a.world, Path(a.out or ROOT / "data/worlds" / a.world), a.metocean)

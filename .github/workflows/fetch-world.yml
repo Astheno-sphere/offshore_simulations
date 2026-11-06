@@ -10,6 +10,14 @@ on:
         default: oslofjord
         type: choice
         options: [oslofjord, north-sea-stavanger]
+      metocean_start:
+        description: "Optional: metocean start, UTC ISO (e.g. 2024-01-10T00:00). Empty = no weather data. NorKyst v3 only 2012-01-05..2025-12-31"
+        required: false
+        default: ""
+      metocean_hours:
+        description: "Metocean length in hours (used when metocean_start is set)"
+        required: false
+        default: "48"
 
 permissions:
   contents: write
@@ -22,9 +30,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12", cache: pip}
-      - run: pip install geopandas shapely pyproj pyyaml numpy
+      - run: pip install geopandas shapely pyproj pyyaml numpy xarray netCDF4 scipy
       - name: Fetch
-        run: python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world
+        env:
+          MO_START: ${{ inputs.metocean_start }}
+          MO_HOURS: ${{ inputs.metocean_hours }}
+        run: |
+          if [ -n "$MO_START" ]; then
+            python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world --metocean "$MO_START" "$MO_HOURS"
+          else
+            python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world
+          fi
       - name: Publish release world-${{ inputs.world }}
         env: {GH_TOKEN: "${{ github.token }}"}
         run: |

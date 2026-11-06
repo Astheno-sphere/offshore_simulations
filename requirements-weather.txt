@@ -1,0 +1,6 @@
+# Weather extras (offsim/weather/fetch.py runs on GitHub Actions; the visual layer needs only core requirements)
+-r requirements.txt
+xarray
+netCDF4
+scipy
+# optional, for fetch.point_series: pip install metocean-api

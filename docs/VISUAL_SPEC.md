@@ -44,7 +44,7 @@ Pipeline (fetch on Actions → process → render offline):
 4. **Later:** Protomaps bbox extract (PMTiles) for roads, buildings, ports, labels; MapLibre interleaved only if
    its idle event can gate frames.
 
-## 3. Weather — data *defined* (`offsim/weather/fetch.py`), simulation *partly built*, visuals *defined*
+## 3. Weather — data *built, not yet live-checked* (`offsim/weather/fetch.py`), simulation *partly built* (`effects.py`), visuals *built* (`visual.py`, `render_deck/src/layers/weather.js`)
 
 | Layer | Source | On screen | In the simulation |
 |---|---|---|---|
