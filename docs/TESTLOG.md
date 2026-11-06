@@ -17,3 +17,4 @@ catalog id · environment · what ran · result. Automated evidence lives in `te
 | 2026-11-06 | osm-coastline | GitHub Actions `fetch-world` (oslofjord) | Overpass coastline → land polygons → release `world-oslofjord` | 4,753 ways; pulled and used by the demo |
 | 2026-11-06 | trimesh | trimesh 5.2 | `python -m offsim.assets.lineart` | plan lines: psv 210, ferry 132, platform 66, turbine 61 |
 | 2026-11-06 | ffmpeg | system ffmpeg | frames → H.264 veryfast; xfade chain defined | MP4 written |
+| 2026-11-07 | deckgl | Chrome + SwiftShader | demo map still at t=9000 with camera track, display tracks, line-art symbols, wake, haze | vessels and platforms legible at 1080²; world edge hidden; reviewed by eye |

@@ -14,7 +14,7 @@ shots:
     seconds: 14
     agents: lineart
     sites: lineart
-    trail_s: 3600
+    trail_s: 9000
     camera:
       pitch: 45
       keys:                         # at = fraction of the 14 s shot; equal keys are holds (0.4 s in, 0.8 s out)

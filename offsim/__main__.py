@@ -2,6 +2,7 @@
 
     python -m offsim run <scenario.yaml> [--out DIR] [--seconds S]     # gated pipeline -> report.json
     python -m offsim story <storyboard.yaml> [--dry-run]               # motion: shots -> final video
+    python -m offsim resume [--tests]                                  # after any interruption: state + next step
     python -m offsim film <storyboard.yaml> [--muse unlisted]          # everything: run -> check -> render -> grade -> upload
 """
 import argparse
@@ -18,6 +19,8 @@ def main(argv=None):
     s = sub.add_parser("story", help="storyboard.yaml -> shots -> final video")
     s.add_argument("storyboard")
     s.add_argument("--dry-run", action="store_true")
+    rs = sub.add_parser("resume", help="where are we: branch, unpushed, worktrees, open roadmap, risks, next command")
+    rs.add_argument("--tests", action="store_true", help="also run the test suite")
     f = sub.add_parser("film", help="scenario -> gates -> storyboard -> MP4 [-> muse.ai]: the whole brain in one command")
     f.add_argument("storyboard")
     f.add_argument("--seconds", type=float, default=2.0, help="solver time")
@@ -27,6 +30,9 @@ def main(argv=None):
         from offsim.pipeline import run
         rep = run(a.scenario, a.out, a.seconds)
         return 0 if all(g["pass"] for k, g in rep["gates"].items() if k != "4_paper") else 1
+    if a.cmd == "resume":
+        from offsim.resume import main as resume
+        return resume(a.tests)
     if a.cmd == "film":
         import yaml
         from pathlib import Path

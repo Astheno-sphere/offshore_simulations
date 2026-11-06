@@ -79,5 +79,8 @@
   "lineart_scale": 8,
   "site_lineart_scale": 12,
   "line_px": 1.3,
-  "site_mode": "model"
+  "site_mode": "model",
+  "lineart_px": 34,
+  "site_lineart_px": 30,
+  "wake_len_ships": 10
 }

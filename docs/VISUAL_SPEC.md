@@ -23,7 +23,7 @@ Status per item: **built** (runs, tested) · **defined** (interface + contract i
    (CC BY 4.0) · Norwegian Offshore Directorate (NLOD) · EMODnet/GEBCO when used · "illustrative bathymetry,
    not for navigation" · "SYNTHETIC" for any invented input · status word from the report.
 
-## 2. Map depth — *defined* (`offsim/worlds/depth.py`)
+## 2. Map depth — *built* (`offsim/worlds/depth.py`, `render_deck/src/layers/terrain.js`; live DEM fetch pending)
 
 | Tier | Use | Grid | Exaggeration land / sea | Mesh max error | Isobaths (m) |
 |---|---|---|---|---|---|
@@ -59,7 +59,7 @@ Particles: `seed_particles` (Poisson-disc in water) → `integrate_streamlines` 
 PSV weather bands (Gribkovskaia 2022, approximate): Hs < 2.5 m normal · 2.5–3.5 m service +20% ·
 3.5–4.5 m −2 kn, service +30% · ≥ 4.5 m wait on weather.
 
-## 4. Camera — rules *built as data* (`offsim/cinema/rules.py`), functions *defined* (`camera.py`)
+## 4. Camera — *built* (`offsim/cinema/camera.py`: per-frame track + `shot_plan` in `story --dry-run`)
 
 Shot grammar: **establish** (zoom 7–9, pitch 0–30) → **descend** (pitch → 50–60) → **follow** (track a vessel,
 lead space 30–35%, look-ahead 4–6 s) → **event** (push-in or orbit on the moment that matters) → **reveal**
@@ -74,18 +74,22 @@ lead space 30–35%, look-ahead 4–6 s) → **event** (push-in or orbit on the 
 | cuts | only when < 2°/s and < 0.1 zoom/s; else 6–10 frame crossfade |
 | 30° / 180° rules | consecutive shots change bearing 0° or ≥ 30°; vessels keep screen direction |
 
-Interpolation: centripetal Catmull-Rom through keys (velocity continuous; the current smoothstep-per-segment
-renderer stops at every key — to be replaced by `camera_spline`), van Wijk fly only for moves ≥ 2 zoom levels or ≥ 1
+Interpolation: centripetal Catmull-Rom through keys (velocity continuous; the old smoothstep-per-segment path is only a fallback when no track is given), van Wijk fly only for moves ≥ 2 zoom levels or ≥ 1
 screen width, critically damped spring (closed form) for follow-cam. `shot_plan` will refuse storyboards that
 break these limits.
 
-## 5. Vessel and aircraft motion — *defined* (`offsim/cinema/vessel.py`), display-only
+## 5. Vessel and aircraft motion — *built* (`offsim/cinema/vessel.py`, `layers/vessel.js`), display-only
 
 PSV rate of turn ≤ 20°/min at service speed (45°/min manoeuvring), filleted turns of 2–3 ship lengths; linear
 speed ramp to zero over the last 300–500 m to a quay, 20 s departure ramp; DP jitter < 1.5 m RMS, < 0.5° heading
 (3 sines, 7–40 s); Kelvin wake half-angle 19.47°, 8–12 ship lengths, alpha ∝ speed; bob from local Hs/Tp:
 heave 0.25·Hs, roll min(6°, 1.2·Hs), pitch min(3°, 0.6·Hs). Helicopter: climb 8–10 m/s, cruise 140 kn, descent
 3–5 m/s, 30 s deck hover, 100 m flare — the same phase table must drive the simulation.
+
+## 5b. Symbols
+Vessel line art and site drawings are cartographic symbols: drawn at a fixed screen size (`lineart_px` 34,
+`site_lineart_px` 30) whatever the zoom, so they read at fjord scale; wakes scale with them. Horizon haze (CSS overlay)
+fades the far field and hides the world's data edge under pitched cameras.
 
 ## 6. Look — presets *built as data* (`offsim/cinema/look.py`)
 

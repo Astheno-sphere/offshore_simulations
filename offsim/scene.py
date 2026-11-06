@@ -19,7 +19,7 @@ def polygons(geom):
 
 def build_scene(traj: pd.DataFrame, agents: pd.DataFrame, report: Report, *, camera: dict, overlay: dict,
                 land=None, lanes=None, sites=None, accent=(), kpi_track=None, seconds=20, trail_s=None,
-                land_relief_m=None) -> dict:
+                land_relief_m=None, display=None, terrain=None, weather=None, camera_track=None) -> dict:
     """camera: deck.gl view state {longitude, latitude, zoom, pitch, bearing}.
     overlay: {kicker, title, legend: [[hex, label]], source, watermark}. accent: agent ids drawn in the accent.
     kpi_track: [[label, [[t, display_value], ...]], ...] values shown over time (from offsim.contract.kpis only)."""
@@ -28,6 +28,11 @@ def build_scene(traj: pd.DataFrame, agents: pd.DataFrame, report: Report, *, cam
     cls = agents.set_index("agent_id")["cls"].to_dict()
     out = []
     for aid, g in traj.groupby("agent_id", sort=False):
+        if display and aid in display:     # display-only copy (offsim.cinema.vessel); truth was validated above
+            d = display[aid]
+            out.append({"id": str(aid), "cls": cls[aid], "accent": aid in accent, **{k: d[k] for k in
+                        ("path", "ts", "states", "heading", "roll", "pitch", "heave") if k in d}})
+            continue
         alt = g["alt_m"] if "alt_m" in g else 0.0
         out.append({"id": str(aid), "cls": cls[aid], "accent": aid in accent,
                     "path": [[float(x), float(y), float(z)] for x, y, z in zip(g["lon"], g["lat"], alt if hasattr(alt, "__iter__") else [alt] * len(g))],
@@ -35,8 +40,25 @@ def build_scene(traj: pd.DataFrame, agents: pd.DataFrame, report: Report, *, cam
     t0, t1 = float(traj["t"].min()), float(traj["t"].max())
     return {"t0": t0, "t1": t1, "land_relief_m": land_relief_m, "seconds": seconds, "trail_s": trail_s or (t1 - t0) / 6,
             "camera": camera, "overlay": {**overlay, "kpi_track": kpi_track or []},
-            "world": {"land": polygons(land), "lanes": lanes or [], "sites": sites or []},
-            "agents": out}
+            "world": {"land": polygons(land), "lanes": lanes or [], "sites": sites or [], "terrain": terrain},
+            "weather": weather, "agents": out,
+            "domains": agents.set_index("cls")["domain"].to_dict() if "domain" in agents else {},
+            "display_max_offset_m": (display or {}).get("max_offset_m")} | ({"camera": {**camera, "track": camera_track}} if camera_track else {})
+
+
+def load_terrain(depth_dir) -> dict | None:
+    """terrain.json + isobaths.geojson + hillshade.png (as data URL) from offsim.worlds.depth.build_world_depth output."""
+    import base64
+
+    d = Path(depth_dir)
+    if not (d / "terrain.json").exists():
+        return None
+    t = json.loads((d / "terrain.json").read_text())
+    if (d / "isobaths.geojson").exists():
+        t["isobaths"] = json.loads((d / "isobaths.geojson").read_text())
+    if (d / "hillshade.png").exists():
+        t.setdefault("texture", {})["image"] = "data:image/png;base64," + base64.b64encode((d / "hillshade.png").read_bytes()).decode()
+    return t
 
 
 def write(scene: dict, path):

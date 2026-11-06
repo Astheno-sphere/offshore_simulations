@@ -25,12 +25,12 @@ instance:
   service_s: {value: 2700, assumption: true, why: "45 min alongside per site"}
   base: {name: Moss supply base, lon: 10.6540, lat: 59.4330, assumption: true, why: "approximate quay"}
   stops:
-    - {name: S1, lon: 10.5700, lat: 59.2400, demand: {value: 3, assumption: true}, assumption: true}
-    - {name: S2, lon: 10.6200, lat: 59.1500, demand: {value: 4, assumption: true}, assumption: true}
-    - {name: S3, lon: 10.5300, lat: 59.1700, demand: {value: 2, assumption: true}, assumption: true}
-    - {name: S4, lon: 10.6600, lat: 59.2200, demand: {value: 5, assumption: true}, assumption: true}
-    - {name: S5, lon: 10.5900, lat: 59.3300, demand: {value: 3, assumption: true}, assumption: true}
-    - {name: S6, lon: 10.5000, lat: 59.2800, demand: {value: 4, assumption: true}, assumption: true}
+    - {name: S1, kind: platform, lon: 10.5700, lat: 59.2400, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: S2, kind: wind_turbine, lon: 10.6200, lat: 59.1500, demand: {value: 4, assumption: true}, assumption: true}
+    - {name: S3, kind: platform, lon: 10.5300, lat: 59.1700, demand: {value: 2, assumption: true}, assumption: true}
+    - {name: S4, kind: wind_turbine, lon: 10.6600, lat: 59.2200, demand: {value: 5, assumption: true}, assumption: true}
+    - {name: S5, kind: platform, lon: 10.5900, lat: 59.3300, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: S6, kind: wind_turbine, lon: 10.5000, lat: 59.2800, demand: {value: 4, assumption: true}, assumption: true}
 sim:
   lane_spacing_m: {value: 300, assumption: true, why: "fjord-tier lane grid (docs/VISUAL_SPEC.md §8)"}
   clearance_m: {value: 60, assumption: true, why: "shore clearance for open-water routing"}

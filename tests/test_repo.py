@@ -64,3 +64,10 @@ def test_rules_and_sourced_weather_bands():
     from offsim.weather.operability import psv_effect
     assert CAMERA["zoom_rate_max"] <= 0.35 and CAMERA["shot_min_s"] >= 2.5 and VESSEL["display_offset_max_m"] <= 25
     assert psv_effect(2.0)["service_factor"] == 1.0 and psv_effect(4.0)["speed_delta_kn"] == -2.0 and psv_effect(5.0)["wow"]
+
+
+def test_resume_reports_state():
+    import subprocess
+    import sys
+    r = subprocess.run([sys.executable, "-m", "offsim", "resume"], cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0 and "open roadmap steps" in r.stdout and "catalog:" in r.stdout

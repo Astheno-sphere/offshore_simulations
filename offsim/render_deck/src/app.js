@@ -4,6 +4,10 @@ import {Deck, WebMercatorViewport} from '@deck.gl/core';
 import {PolygonLayer, ScatterplotLayer, ColumnLayer, PathLayer, TextLayer, IconLayer} from '@deck.gl/layers';
 import {ScenegraphLayer} from '@deck.gl/mesh-layers';
 import {GLTFLoader} from '@loaders.gl/gltf';
+import {cameraAtFrame} from './layers/camera.js';
+import {terrainLayers} from './layers/terrain.js';
+import {weatherLayers} from './layers/weather.js';
+import {displayPose, wakeLayers} from './layers/vessel.js';
 import {TripsLayer} from '@deck.gl/geo-layers';
 
 const S = window.SCENE;
@@ -12,7 +16,7 @@ const hex = (h, a = 255) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5)
 
 document.body.style.background = st.water;
 const root = document.documentElement.style;
-for (const [k, v] of Object.entries({paper: st.paper, dim: st.dim, accent: st.accent, font: st.font, serif: st.serif, mono: st.mono}))
+for (const [k, v] of Object.entries({ink: st.ink, water: st.water, paper: st.paper, dim: st.dim, accent: st.accent, font: st.font, serif: st.serif, mono: st.mono}))
   root.setProperty(`--${k}`, v);
 root.setProperty('--u', `${S.height / 60}px`);
 const ov = document.getElementById('overlay');
@@ -29,6 +33,11 @@ ov.innerHTML = `
 function positions(t) {
   const out = [];
   for (const a of S.agents) {
+    if (a.heading) {                       // display track from offsim.cinema.vessel.display_agents (smoothed, bobbing)
+      const p = displayPose(a, t);
+      if (p) out.push(p);
+      continue;
+    }
     const ts = a.ts;
     if (t < ts[0]) continue;
     let i = 0, lo = 0, hi = ts.length - 1;
@@ -60,6 +69,7 @@ function view(cam) {
 const KEYS = (S.camera.keys || []).map((k) => ({at: k.at, v: view({...S.camera, ...k})})).sort((a, b) => a.at - b.at);
 const ease = (x) => x * x * (3 - 2 * x);
 function cameraAt(t) {
+  if (S.camera.track && S.camera.track.length) return cameraAtFrame(S.camera.track, t, S.t0, S.t1);
   if (!KEYS.length) return view(S.camera);
   const f = (t - S.t0) / Math.max(S.t1 - S.t0, 1e-9);
   if (f <= KEYS[0].at) return KEYS[0].v;
@@ -96,6 +106,10 @@ function lineLayer(id, items, t) {
     getWidth: st.line_px, capRounded: true, updateTriggers: {getPath: t}});
 }
 
+let VIEW = null;   // current view state, set in draw()
+const mpp = (lat) => 40075016.686 * Math.cos(lat * Math.PI / 180) / (512 * Math.pow(2, VIEW ? VIEW.zoom : 10));
+const symbolScale = (lat, lengthM, px) => (px * mpp(lat)) / lengthM;   // metres-per-metre so the hull spans `px` pixels
+
 function agentLayers(now, t) {
   const mode = st.agent_mode, sprites = S.assets.sprites || {}, models = S.assets.models || {};
   const dot = (data, id) => new ScatterplotLayer({id, data, getPosition: (d) => d.pos, radiusUnits: 'pixels', getRadius: st.agent_px,
@@ -104,13 +118,14 @@ function agentLayers(now, t) {
   if (mode === 'lineart') {
     const arts = S.assets.lineart || {};
     const items = now.filter((d) => arts[st.lineart[d.cls]]).map((d) => ({
-      segs: lineSegs(arts[st.lineart[d.cls]], d.pos, d.heading, st.lineart_scale),
+      segs: lineSegs(arts[st.lineart[d.cls]], d.pos, d.heading,
+        symbolScale(d.pos[1], arts[st.lineart[d.cls]].bbox_plan[3] - arts[st.lineart[d.cls]].bbox_plan[1], st.lineart_px || 34)),
       colour: hex(d.accent ? st.accent : st.paper)}));
     return [lineLayer('agent-lines', items, t), dot(now.filter((d) => !arts[st.lineart[d.cls]]), 'agents-dot')];
   }
   if (mode === 'model') {
     const layers = Object.entries(models).map(([cls, url]) => new ScenegraphLayer({id: `agent-${cls}`, data: now.filter((d) => d.cls === cls),
-      scenegraph: url, loaders: [GLTFLoader], getPosition: (d) => d.pos, getOrientation: (d) => [0, -d.heading, 90],
+      scenegraph: url, loaders: [GLTFLoader], getPosition: (d) => d.pos, getOrientation: (d) => [d.pitch || 0, -d.heading, 90 + (d.roll || 0)],
       getScale: [st.agent_model_scale, st.agent_model_scale, st.agent_model_scale], _lighting: 'pbr', updateTriggers: {getPosition: t, getOrientation: t}}));
     return [...layers, dot(now.filter((d) => !models[d.cls]), 'agents-dot')];
   }
@@ -133,13 +148,18 @@ function agentLayers(now, t) {
 // textures and models load asynchronously: wait until every layer reports loaded before capture
 const allLoaded = () => (deck.layerManager ? deck.layerManager.getLayers() : []).every((l) => l.isLoaded);
 window.draw = (t) => new Promise((resolve) => {
+  VIEW = cameraAt(t);
   const now = positions(t);
   const layers = [
-    new PolygonLayer({id: 'land', data: S.world.land || [], getPolygon: (d) => d, extruded: true, getElevation: S.land_relief_m ?? st.land_relief_m,
+    ...terrainLayers(S.world.terrain, st),
+    new PolygonLayer({id: 'land', data: S.world.land || [], getPolygon: (d) => d, extruded: !S.world.terrain, filled: !S.world.terrain,
+      getElevation: S.land_relief_m ?? st.land_relief_m,
       getFillColor: hex(st.land), getLineColor: hex(st.paper, 140), stroked: true, lineWidthMinPixels: 1, material: {ambient: 0.6, diffuse: 0.5}}),
+    ...weatherLayers(S.weather, t, st),
     new PathLayer({id: 'lanes', data: S.world.lanes || [], getPath: (d) => d, getColor: hex(st.faint_line), widthMinPixels: 1}),
     ...(st.site_mode === 'lineart' ? [lineLayer('site-lines', (S.world.sites || []).filter((d) => (S.assets.lineart || {})[d.kind])
-      .map((d) => ({segs: lineSegs(S.assets.lineart[d.kind], d.pos, d.yaw || 0, st.site_lineart_scale), colour: hex(d.accent ? st.accent : st.paper)})), 0)] : []),
+      .map((d) => { const a = S.assets.lineart[d.kind], L = Math.max(a.bbox_plan[2] - a.bbox_plan[0], a.bbox_plan[3] - a.bbox_plan[1]);
+        return {segs: lineSegs(a, d.pos, d.yaw || 0, symbolScale(d.pos[1], L, st.site_lineart_px || 30)), colour: hex(d.accent ? st.accent : st.paper, 200)}; }), t)] : []),
     ...Object.entries(st.site_mode === 'lineart' ? {} : (S.assets.models || {})).map(([kind, url]) => new ScenegraphLayer({id: `site-${kind}`,
       data: (S.world.sites || []).filter((d) => d.kind === kind), scenegraph: url, loaders: [GLTFLoader],
       getPosition: (d) => d.pos, getOrientation: (d) => [0, d.yaw || 0, 90],
@@ -151,6 +171,8 @@ window.draw = (t) => new Promise((resolve) => {
     new TripsLayer({id: 'trails', data: S.agents, getPath: (d) => d.path, getTimestamps: (d) => d.ts, currentTime: t,
       trailLength: S.trail_s, fadeTrail: true, capRounded: true, jointRounded: true, widthMinPixels: st.trail_px,
       getColor: (d) => hex(d.accent ? st.accent : (st.cls[d.cls] || st.paper))}),
+    ...(S.wake === false ? [] : wakeLayers(now.filter((d) => d.agent && (S.domains || {})[d.cls] !== 'air'), t,
+      {...st, wake_color: st.paper, vessel_length_m: now.length ? symbolScale(now[0].pos[1], 76, st.lineart_px || 34) * 76 : 76})),
     ...agentLayers(now, t),
     new ScatterplotLayer({id: 'halo', data: now.filter((d) => st.state[d.state]), getPosition: (d) => d.pos, radiusUnits: 'pixels',
       getRadius: st.agent_px * 2.2, filled: false, stroked: true, lineWidthMinPixels: 2, getLineColor: (d) => hex(st.state[d.state])}),
@@ -161,7 +183,7 @@ window.draw = (t) => new Promise((resolve) => {
   });
   document.getElementById('kpis').innerHTML = k.join('');
   let tries = 0;
-  deck.setProps({layers, viewState: cameraAt(t), onAfterRender: () => {
+  deck.setProps({layers, viewState: VIEW, onAfterRender: () => {
     if (allLoaded() || tries++ > 200) resolve(); else setTimeout(() => deck.redraw(true), 15);
   }});
   deck.redraw(true);

@@ -2,6 +2,15 @@
 
 Running record of weaknesses found in the flow and what was done. Newest first.
 
+## 2026-11-07 — audit 4 (first integrated still)
+
+| # | Finding | Fix |
+|---|---|---|
+| 1 | True-scale line art (~600 m) was 4–5 px at fjord zoom: vessels invisible | cartographic symbols: fixed screen size from the current zoom; wakes scale with them |
+| 2 | Pitched cameras showed the world's data edge as slabs at the horizon | horizon haze overlay (style colours) |
+| 3 | Demo sites had no `kind`, so they drew as columns | kinds on scenario stops; line-art platforms/turbines |
+| 4 | Sub-agent rate limit stopped one builder mid-task with uncommitted work | `python -m offsim resume` + `docs/RESUME.md`; worktree state shown on every resume |
+
 ## 2026-11-06 — audit 3 (depth, weather, cinema; pulled vs listed)
 
 Four research agents (weather, map depth, cinematic, repo audit) → specs and interfaces, nothing rendered.

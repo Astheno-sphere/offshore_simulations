@@ -53,6 +53,12 @@ def check(sb, report):
     failed = [g for g, r in report["gates"].items() if g != "4_paper" and not r["pass"]]
     if failed:
         probs.append(f"run did not pass gates {failed}: no video")
+    try:
+        from offsim.cinema.camera import shot_plan
+        for v in shot_plan(sb, tuple(size(sb.get("format", "square")))):
+            probs.append(f"shot_plan: {v}")
+    except Exception as e:                       # a follow shot needs its trajectory; reported, not fatal
+        probs.append(f"shot_plan could not run: {e}")
     have = tools()
     for i, shot in enumerate(sb["shots"]):
         miss = [t for t in NEEDS.get(shot["type"], ()) if not have[t]]
@@ -87,8 +93,9 @@ def shot_equation(shot, fmt, out):
         shutil.copy(next(Path(tmp).rglob("eq.mp4")), out)
 
 
-def map_scene(shot, sb, report, path):
-    """Build (not render) the map shot's scene.json from the gated run."""
+def map_scene(shot, sb, report, path, fmt=None, fps=30):
+    """Build (not render) the map shot's scene.json from the gated run: per-frame camera track, display-only vessel
+    tracks, terrain (if data/worlds/<world>/depth/<tier> exists) and weather (if a weather block or metocean files exist)."""
     import geopandas as gpd
     import pandas as pd
 
@@ -105,7 +112,39 @@ def map_scene(shot, sb, report, path):
     inst = sc["instance"]
     sites = [{"pos": [inst["base"]["lon"], inst["base"]["lat"]], "label": inst["base"].get("name", "base"), "height_m": 300}] + \
             [{"pos": [s["lon"], s["lat"]], "label": s["name"], "kind": s.get("kind")} for s in inst["stops"]]
+    fmt = fmt or sb.get("format", "square")
+    viewport = tuple(size(fmt))
+    seconds = shot.get("seconds", 12)
+    t0, t1 = float(traj["t"].min()), float(traj["t"].max())
+    from offsim.cinema.camera import camera_track
+    track = camera_track(shot["camera"], t0, t1, seconds, fps, viewport, traj=traj) if shot["camera"].get("keys") or shot["camera"].get("follow") else None
+    display = None
+    if shot.get("vessel_motion", True):
+        from offsim.cinema.vessel import display_agents
+        display = display_agents(traj, agents, seed=shot.get("seed", 0))
+    terrain = None
+    tier = shot.get("terrain_tier", "fjord")
+    if sc.get("world") not in (None, "none"):
+        from offsim.scene import load_terrain
+        terrain = load_terrain(ROOT / "data/worlds" / sc["world"] / "depth" / tier)
+    weather = None
+    if shot.get("weather"):
+        from offsim.weather.visual import weather_scene
+        w = shot["weather"]
+        lon, lat = traj["lon"], traj["lat"]
+        bbox = w.get("bbox") or [float(lon.min()) - 0.1, float(lat.min()) - 0.1, float(lon.max()) + 0.1, float(lat.max()) + 0.1]
+        ds = {}
+        mdir = ROOT / "data/worlds" / sc.get("world", "none") / "metocean"
+        if mdir.exists():
+            import xarray as xr
+            for kind in ("wind", "wave", "current"):
+                f = sorted(mdir.glob(f"*{w.get(kind, '')}*.nc")) if w.get(kind) else []
+                if f:
+                    ds[f"ds_{kind}"] = xr.open_dataset(f[0])
+        if ds:
+            weather = weather_scene(bbox, t0, t1, land=land, seed=w.get("seed", 0), n_particles=w.get("particles", 2500), **ds)
     scene = build_scene(traj, agents, rep, land=land, sites=sites, accent=tuple(agents["agent_id"]),
+                        display=display, terrain=terrain, weather=weather, camera_track=track,
                         seconds=shot.get("seconds", 12), trail_s=shot.get("trail_s"), land_relief_m=shot.get("land_relief_m", 60),
                         camera=shot["camera"], overlay={**shot.get("overlay", {}), "kicker": sc["story"]["question"]},
                         kpi_track=[[k["label"], [[0, (k.get("fmt") or "{}").format(resolve(k["value"], report))]]] for k in shot.get("kpis", [])])
@@ -123,7 +162,7 @@ def render_cmd(shot, scene_path, fmt):
 
 
 def shot_map(shot, sb, report, fmt, out):
-    sp = map_scene(shot, sb, report, out.with_suffix(".scene.json"))
+    sp = map_scene(shot, sb, report, out.with_suffix(".scene.json"), fmt)
     subprocess.run(render_cmd(shot, sp, fmt) + ["--out", str(out), "--seconds", str(shot.get("seconds", 12))], check=True)
 
 
@@ -195,7 +234,7 @@ def build(storyboard, dry_run=False):
         work = ROOT / sb["run"] / "shots"
         for i, shot in enumerate(sb["shots"]):
             if shot["type"] == "map":
-                sp = map_scene(shot, sb, report, work / f"{i:02d}_map.scene.json")
+                sp = map_scene(shot, sb, report, work / f"{i:02d}_map.scene.json", fmt)
                 r = subprocess.run(render_cmd(shot, sp, "draft") + ["--check"], capture_output=True, text=True)
                 print(f"  map {i}: renderer check", "OK" if r.returncode == 0 else "FAIL\n" + r.stdout[-600:] + r.stderr[-600:])
                 if r.returncode:
