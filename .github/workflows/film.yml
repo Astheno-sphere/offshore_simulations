@@ -39,7 +39,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q ffmpeg libpango1.0-dev dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended
-      - run: pip install -r requirements-motion.txt
+      - run: pip install -r requirements-motion.txt -r requirements-weather.txt
       - run: npm ci --prefix offsim/render_deck && npm ci --prefix offsim/motion || npm install --prefix offsim/motion
       - name: Pull world
         if: ${{ inputs.world != '' }}

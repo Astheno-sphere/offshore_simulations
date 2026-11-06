@@ -15,7 +15,7 @@ RUN apt-get update -q && apt-get install -y -q --no-install-recommends \
 ENV HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome CHROME=/usr/bin/google-chrome
 WORKDIR /app
 COPY requirements*.txt ./
-RUN pip install --no-cache-dir -r requirements-motion.txt
+RUN pip install --no-cache-dir -r requirements-motion.txt -r requirements-weather.txt
 COPY offsim/render_deck/package*.json offsim/render_deck/
 COPY offsim/motion/package*.json offsim/motion/
 RUN npm ci --prefix offsim/render_deck && (npm ci --prefix offsim/motion || npm install --prefix offsim/motion)
