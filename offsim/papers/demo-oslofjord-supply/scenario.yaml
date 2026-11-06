@@ -32,8 +32,8 @@ instance:
     - {name: S5, lon: 10.5900, lat: 59.3300, demand: {value: 3, assumption: true}, assumption: true}
     - {name: S6, lon: 10.5000, lat: 59.2800, demand: {value: 4, assumption: true}, assumption: true}
 sim:
-  lane_spacing_m: 300
-  clearance_m: 60
+  lane_spacing_m: {value: 300, assumption: true, why: "fjord-tier lane grid (docs/VISUAL_SPEC.md §8)"}
+  clearance_m: {value: 60, assumption: true, why: "shore clearance for open-water routing"}
 reported: {}
 story:
   question: "how far do two supply vessels sail to serve six sites?"

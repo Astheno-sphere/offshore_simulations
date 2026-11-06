@@ -76,7 +76,7 @@ python offsim/render_deck/render.py --scene out/oslofjord/scene.json --out out/o
 
 ## Tool catalog
 
-[`docs/TOOLS.md`](docs/TOOLS.md) lists 85+ open-source tools, datasets, MCP servers and skills across 16
+[`docs/TOOLS.md`](docs/TOOLS.md) lists 120+ open-source tools, datasets, MCP servers and skills across 16
 layers: world data, AIS traffic, metocean (MET Norway NORA3), solvers, weather routing, simulation,
 offshore wind models (NREL WOMBAT, ORBIT), emissions, rendering, video, CC0 3D assets, maritime UI design,
 MCP connectors, Claude skills and benchmark papers. Each entry has its licence, whether it was tested here,
@@ -122,7 +122,8 @@ Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and publish
 | `skills/` | Claude Code skills (also a plugin: `.claude-plugin/plugin.json`) |
 | `catalog/tools.yaml` | tool catalog source; `docs/TOOLS.md` is generated |
 | `offsim/motion/` | storyboard engine, HyperFrames card templates |
-| `docs/` | [framework](docs/FRAMEWORK.md), [audit](docs/AUDIT.md), [roadmap](docs/ROADMAP.md), [tools](docs/TOOLS.md) |
+| `offsim/cinema/`, `offsim/weather/`, `offsim/worlds/depth.py` | defined interfaces + rules for camera, vessel motion, look, weather, terrain |
+| `docs/` | [ops map](docs/OPS_MAP.md), [visual spec](docs/VISUAL_SPEC.md), [framework](docs/FRAMEWORK.md), [audit](docs/AUDIT.md), [test log](docs/TESTLOG.md), [roadmap](docs/ROADMAP.md), [tools](docs/TOOLS.md) |
 | `.github/workflows/` | tests, fetch-world, render |
 
 ## Data credits

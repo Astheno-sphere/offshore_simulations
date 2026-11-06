@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: pip install -r requirements.txt playwright
+      - run: pip install -r requirements-render.txt
       - run: python -m offsim.examples.toy_fjord --out out/toy
       - run: python offsim/render_deck/render.py --scene out/toy/scene.json --format draft --check --agents lineart
       - run: python offsim/render_deck/render.py --scene out/toy/scene.json --format draft --check --agents sprite

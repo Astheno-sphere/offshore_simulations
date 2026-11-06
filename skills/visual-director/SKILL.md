@@ -14,6 +14,10 @@ from `plate.py`): ink ground, paper linework, **one** accent.
 Draft (640×360) and stills render in this workspace (software WebGL, ~8 frames/s at draft).
 Finals: run workflow `render` (Actions), download the MP4 from the release it creates.
 
+## Spec first
+`docs/VISUAL_SPEC.md` holds the rendering rules, depth tiers, weather visuals, cinematic rulebook (numbers in
+`offsim/cinema/rules.py`), look and granularity. A storyboard that breaks a rule is wrong even if it renders.
+
 ## Agents and sites: characters, not blocks
 `style.json` → `agent_mode`:
 | Mode | Looks like | Source |

@@ -15,6 +15,9 @@ paper → scenario.yaml → `python -m offsim run` (gates 0–4, report.json) �
   (`offsim.worlds.sealanes`), never straight across land; report quay snaps.
 - Numbers on screen come only from `report:` refs. Verify renders with `render.py --check` / `story --dry-run`
   before producing video; do not render images during audits unless asked.
+- Visual work follows `docs/VISUAL_SPEC.md`; numbers are in `offsim/cinema/rules.py`. Interfaces that raise
+  NotImplementedError are specs: build them to their docstring, then add the tool's evidence to the catalog.
+- Catalog status `tested`/`wired`/`installed` needs `evidence:` paths (checked); manual runs go in `docs/TESTLOG.md`.
 - Heavy renders (1080p, Blender) go to the `render` workflow; drafts and stills are fine here.
 - GPL tools run as separate processes, never imported. Data is never committed (see `.gitignore`).
 - PyVRP 0.14: use `offsim/solve/pyvrp_adapter.py`; it handles `is_client()` and client index offsets.

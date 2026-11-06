@@ -16,6 +16,10 @@ description: Entry point for offshore_simulations - reproduce offshore and marit
 | Caption, post, README entry for a result | `sim-narrator` |
 | Which tool, dataset, MCP server or skill exists for X; add a new one | `tool-scout` (catalog: `catalog/tools.yaml`, `docs/TOOLS.md`) |
 | Map data for a study area | `offsim/worlds/` (fetch on Actions, `--pull` here) |
+| Terrain, bathymetry, hillshade, isobaths (map depth) | `offsim/worlds/depth.py` (defined) · spec `docs/VISUAL_SPEC.md` §2 |
+| Wind, waves, currents: data, operability, on-screen | `offsim/weather/` (fetch, operability, visual) · spec §3 |
+| Cinematic camera, vessel motion, look | `offsim/cinema/` (rules, camera, vessel, look) · spec §4–6 |
+| What is pulled vs listed; where each stage lives | `docs/OPS_MAP.md`, `docs/TOOLS.md` matrix |
 
 ## The flow (never skip a step)
 paper → `scenario.yaml` → **`offsim run`** (gate 0 provenance → solve → gate 1 plan → replay → gate 2 replay=plan →

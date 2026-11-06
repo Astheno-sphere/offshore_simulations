@@ -14,7 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "catalog/tools.yaml"
 OUT = ROOT / "docs/TOOLS.md"
-STATUS = ("tested", "installed", "candidate", "manual", "watch")
+STATUS = ("tested", "wired", "installed", "candidate", "manual", "watch")
 RUNS = ("here", "actions", "laptop", "browser")
 PRIORITY = ("now", "next", "later")
 FIELDS = ("id", "name", "url", "layer", "licence", "status", "runs", "priority", "role")
@@ -40,6 +40,15 @@ def problems(cat):
                 out.append(f"{t.get('id')}: {f}={t.get(f)} not in {ok}")
         if not str(t.get("url", "")).startswith("https://"):
             out.append(f"{t.get('id')}: url must be https")
+        if t.get("status") in ("tested", "wired", "installed"):
+            ev = str(t.get("evidence", "")).split()
+            if not ev:
+                out.append(f"{t.get('id')}: status {t['status']} needs evidence paths")
+            for e in ev:
+                if not (ROOT / e).exists():
+                    out.append(f"{t.get('id')}: evidence path missing: {e}")
+            if "docs/TESTLOG.md" in ev and t["id"] not in (ROOT / "docs/TESTLOG.md").read_text():
+                out.append(f"{t.get('id')}: not recorded in docs/TESTLOG.md")
     return out
 
 
@@ -49,10 +58,17 @@ def render(cat):
     lines = ["# Tool catalog", "",
              "Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.",
              f"{len(tools)} tools · " + " · ".join(f"{st[s]} {s}" for s in STATUS) + ".", "",
-             "**status** tested = ran here with a recorded result · installed = installs, not exercised · candidate = fits a planned step · "
+             "**status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · "
              "manual = order/download by hand · watch = not on the plan yet.  ",
              "**runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  ",
              "**licence** `check` = not verified: read it before copying anything. GPL code runs as a separate process, never imported.", "",
+             "## Pulled vs listed (layer × status)", "",
+             "| Layer | " + " | ".join(STATUS) + " | total |", "|---|" + "---|" * (len(STATUS) + 1)]
+    for layer in cat["layers"]:
+        c = Counter(t["status"] for t in tools if t["layer"] == layer)
+        if c:
+            lines.append(f"| {layer} | " + " | ".join(str(c[s]) or "" for s in STATUS) + f" | {sum(c.values())} |")
+    lines += ["", "Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.py). Everything else is listed only.", "",
              "## Needed for the first paper (priority: now)", "",
              "| Tool | Layer | Status | Runs | Role |", "|---|---|---|---|---|"]
     lines += [f"| [{t['name']}]({t['url']}) | {t['layer']} | {t['status']} | {t['runs']} | {t['role']} |"
@@ -64,7 +80,8 @@ def render(cat):
         lines += ["", f"## {layer}", "", f"_{desc}_", "", "| Tool | Licence | Status | Runs | Priority | Role |", "|---|---|---|---|---|---|"]
         order = {p: i for i, p in enumerate(PRIORITY)}
         for t in sorted(sel, key=lambda t: (order[t["priority"]], t["name"].lower())):
-            lines.append(f"| [{t['name']}]({t['url']}) | {t['licence']} | {t['status']} | {t['runs']} | {t['priority']} | {t['role']} |")
+            ev = " ".join(f"`{e}`" for e in str(t.get("evidence", "")).split())
+            lines.append(f"| [{t['name']}]({t['url']}) | {t['licence']} | {t['status']} | {t['runs']} | {t['priority']} | {t['role']}{' Evidence: ' + ev if ev else ''} |")
     return "\n".join(lines) + "\n"
 
 

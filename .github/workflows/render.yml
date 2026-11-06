@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: "22"}
       - run: |
-          pip install -r requirements.txt playwright
+          pip install -r requirements-render.txt
           sudo apt-get install -y -q ffmpeg
       - name: Scene
         id: scene

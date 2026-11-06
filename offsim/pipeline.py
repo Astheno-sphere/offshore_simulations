@@ -51,8 +51,11 @@ def provenance_gaps(sc):
             for i, x in enumerate(node):
                 walk(x, f"{path}[{i}]")
 
-    for key in ("fleet", "instance", "reported"):
+    for key in ("fleet", "instance", "reported", "sim"):
         walk(sc.get(key), key)
+    for k, x in (sc.get("sim") or {}).items():          # sim settings are parameters too: no bare literals
+        if isinstance(x, (int, float)) and not isinstance(x, bool):
+            gaps.append(f"sim.{k} (bare literal: use {{value, src|assumption}})")
     for i, s in enumerate(sc.get("instance", {}).get("stops", [])):
         if not (s.get("src") or s.get("assumption")):
             gaps.append(f"instance.stops[{i}] ({s.get('name')})")
@@ -135,7 +138,7 @@ def run(scenario_path, out=None, seconds=2.0, seed=1):
         lon, lat = np.array(nodes).T
         pad = 0.08
         sea = SeaGraph(land, bbox=(lon.min() - pad, lat.min() - pad, lon.max() + pad, lat.max() + pad),
-                       spacing_m=sc.get("sim", {}).get("lane_spacing_m", 300), clearance_m=sc.get("sim", {}).get("clearance_m", 60))
+                       spacing_m=v(sc.get("sim", {}).get("lane_spacing_m", 300)), clearance_m=v(sc.get("sim", {}).get("clearance_m", 60)))
         nodes = sea.snap(nodes)
         snap = dict(zip([base.get("name", "base")] + [s["name"] for s in stops], sea.snap_m))
         legs, dist = sea.legs(nodes)

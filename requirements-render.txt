@@ -1,0 +1,4 @@
+# Rendering extras (offsim/render_deck, offsim/assets/lineart.py); also Node 22, ffmpeg, Chrome
+-r requirements.txt
+playwright
+trimesh

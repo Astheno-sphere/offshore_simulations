@@ -2,6 +2,27 @@
 
 Running record of weaknesses found in the flow and what was done. Newest first.
 
+## 2026-11-06 — audit 3 (depth, weather, cinema; pulled vs listed)
+
+Four research agents (weather, map depth, cinematic, repo audit) → specs and interfaces, nothing rendered.
+
+| # | Finding | Fix |
+|---|---|---|
+| 1 | Catalog `tested` had no proof for remotion, pyvista, manim; test only checked status strings | `evidence:` paths required for tested/wired/installed and checked; manual runs recorded in `docs/TESTLOG.md` |
+| 2 | 7 entries `installed` but in no manifest (ortools, movingpandas, salabim, roughjs, searoute, lottie-web, vivus) | demoted to `candidate`; `installed` now means "in a manifest" |
+| 3 | sodir-factmaps called by code but never run on real data | new status `wired` |
+| 4 | trimesh, playwright imported but not in requirements | `requirements-render.txt`, `requirements-motion.txt`; CI uses them |
+| 5 | Gate 0 ignored `sim:` settings (bare literals passed) | gate 0 walks `sim`; demo values now `{value, assumption}` |
+| 6 | No map depth: flat extruded land | `offsim/worlds/depth.py` defined: 3 tiers (fjord 50 m, port 10/5/1 m, shelf ~115 m), datum-first merge, pydelatin mesh, baked hillshade, CAD isobaths |
+| 7 | No weather | `offsim/weather/` defined: NORA3 + NorKyst v3 subsetting (Actions), sourced PSV Hs bands (built), seeded particle trails (frame-exact) |
+| 8 | Camera eased per segment (stops at every key); vessels snap heading | `offsim/cinema/` rules as data + defined camera spline/fly/follow/orbit, `shot_plan` inspector, heading smoothing, wake, bob, DP jitter, heli profile, display-offset inspector |
+| 9 | No look discipline | one sun, one grade (ffmpeg presets), ≤ 2 luma.gl passes; no bloom/LUT in luma.gl → ffmpeg |
+| 10 | 17 of 123 tools pulled; weather, energy, AIS layers all listed-only | visible in `docs/TOOLS.md` matrix and `docs/OPS_MAP.md` |
+
+Open from audit 3: helicopter/crane limits unsourced (CAP 437, DNV-ST-N001, NORSOK R-003); NORA3 variable names and
+wave grid unverified; GEBCO/EMODnet/rio-rgbify licences "check"; TerrainLayer offline worker untested; sound licences
+per clip.
+
 ## 2026-11-06 — audit 2 (flow, motion, vectors)
 
 | # | Finding | Risk | Fix |

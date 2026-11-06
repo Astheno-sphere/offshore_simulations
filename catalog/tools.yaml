@@ -2,7 +2,8 @@
 # regenerates docs/TOOLS.md. Scanned 2026-11-06 (GitHub search by stars/topics + web). Stars are not stored: they go stale.
 #
 # status:  tested    = ran in this repo's workspace, result recorded
-#          installed = pip/npm installs here, not exercised yet
+#          wired     = called by repo code/workflow, not yet run end-to-end on real data
+#          installed = declared in a repo manifest (requirements*.txt, package.json), not exercised yet
 #          candidate = fits a planned step; read code + licence before adopting
 #          manual    = data you order/download by hand
 #          watch     = interesting, not on the plan yet
@@ -30,9 +31,9 @@ layers:
 
 tools:
 # ---------------- world ----------------
-- {id: osm-coastline, name: OpenStreetMap coastline via Overpass, url: "https://overpass-api.de", layer: world, licence: ODbL-1.0, status: tested, runs: actions, priority: now,
+- {id: osm-coastline, name: OpenStreetMap coastline via Overpass, url: "https://overpass-api.de", layer: world, licence: ODbL-1.0, status: tested, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py docs/TESTLOG.md",
    role: "Land polygons for every world (offsim/worlds/fetch_world.py + coast.py)."}
-- {id: sodir-factmaps, name: Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer), url: "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer", layer: world, licence: NLOD-2.0, status: installed, runs: actions, priority: now,
+- {id: sodir-factmaps, name: Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer), url: "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer", layer: world, licence: NLOD-2.0, status: wired, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py offsim/worlds/north-sea-stavanger.yaml",
    role: "Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'."}
 - {id: kartverket-depth, name: Kartverket Sjøkart – Dybdedata, url: "https://data.norge.no/en/datasets/48cc18ef-1317-3ddd-9ca4-a06d8ffa0196", layer: world, licence: open (Kartverket terms), status: manual, runs: laptop, priority: next,
    role: "Depth areas and contours; not approved for navigation. Lanes and seabed relief."}
@@ -40,7 +41,7 @@ tools:
    role: "High-resolution seabed for inner Oslofjord hero shots."}
 - {id: kystverket-routes, name: Kystverket reference routes for navigation, url: "https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation", layer: world, licence: NLOD-2.0, status: manual, runs: actions, priority: next,
    role: "Fairway graph so vessels follow lanes, not straight lines."}
-- {id: searoute-py, name: searoute-py, url: "https://github.com/genthalili/searoute-py", layer: world, licence: Apache-2.0, status: installed, runs: here, priority: later,
+- {id: searoute-py, name: searoute-py, url: "https://github.com/genthalili/searoute-py", layer: world, licence: Apache-2.0, status: candidate, runs: here, priority: later,
    role: "Shortest global sea route for long-haul legs; its README says visualisation, not navigation."}
 - {id: osm-ship-routing, name: OpenStreetMap-Ship-Routing, url: "https://github.com/sibmr/OpenStreetMap-Ship-Routing", layer: world, licence: check, status: watch, runs: here, priority: later,
    role: "Ocean routing graph built from OSM; reference for our own lane graph."}
@@ -50,7 +51,7 @@ tools:
    role: "Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes."}
 - {id: pyais, name: pyais, url: "https://github.com/M0r13n/pyais", layer: traffic, licence: MIT, status: candidate, runs: here, priority: later,
    role: "Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet."}
-- {id: movingpandas, name: MovingPandas, url: "https://github.com/movingpandas/movingpandas", layer: traffic, licence: BSD-3-Clause, status: installed, runs: here, priority: next,
+- {id: movingpandas, name: MovingPandas, url: "https://github.com/movingpandas/movingpandas", layer: traffic, licence: BSD-3-Clause, status: candidate, runs: here, priority: next,
    role: "Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows."}
 - {id: aisdb, name: AISdb (Dalhousie MERIDIAN), url: "https://pypi.org/project/aisdb/", layer: traffic, licence: check, status: watch, runs: here, priority: later,
    role: "SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices."}
@@ -70,11 +71,11 @@ tools:
    role: "Drift of objects/spills; a different video genre (emergency response logistics)."}
 
 # ---------------- solver ----------------
-- {id: pyvrp, name: PyVRP, url: "https://github.com/PyVRP/PyVRP", layer: solver, licence: MIT, status: tested, runs: here, priority: now,
+- {id: pyvrp, name: PyVRP, url: "https://github.com/PyVRP/PyVRP", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/solve/pyvrp_adapter.py tests/test_opt_model.py",
    role: "State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py."}
-- {id: opt-model, name: opt-model (Pyomo + HiGHS), url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model", layer: solver, licence: MIT, status: tested, runs: here, priority: now,
+- {id: opt-model, name: opt-model (Pyomo + HiGHS), url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "skills/opt-model/scripts/models.py tests/test_opt_model.py",
    role: "Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py)."}
-- {id: ortools, name: Google OR-Tools, url: "https://github.com/google/or-tools", layer: solver, licence: Apache-2.0, status: installed, runs: here, priority: next,
+- {id: ortools, name: Google OR-Tools, url: "https://github.com/google/or-tools", layer: solver, licence: Apache-2.0, status: candidate, runs: here, priority: next,
    role: "Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers)."}
 - {id: alns, name: ALNS (N-Wouda), url: "https://github.com/N-Wouda/ALNS", layer: solver, licence: MIT, status: candidate, runs: here, priority: next,
    role: "Adaptive large neighbourhood search framework: re-implement a paper's metaheuristic faithfully when PyVRP cannot express it."}
@@ -98,10 +99,10 @@ tools:
    role: "Instance-matched benchmark for weather-routing papers."}
 
 # ---------------- simulation ----------------
-- {id: simpy, name: SimPy, url: "https://gitlab.com/team-simpy/simpy", layer: simulation, licence: MIT, status: tested, runs: here, priority: now,
+- {id: simpy, name: SimPy, url: "https://gitlab.com/team-simpy/simpy", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/sim/replay.py tests/test_offsim.py",
    role: "Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows."}
-- {id: salabim, name: salabim, url: "https://github.com/salabim/salabim", layer: simulation, licence: MIT, status: installed, runs: here, priority: later,
-   role: "DES with built-in 2D/3D animation and video export; quick explainer clips of queues at a base."}
+- {id: salabim, name: salabim, url: "https://github.com/salabim/salabim", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "pip-installed once in a session, not in a manifest. DES with built-in 2D/3D animation and video export; quick explainer clips of queues at a base."}
 - {id: mesa, name: Mesa, url: "https://github.com/projectmesa/mesa", layer: simulation, licence: check, status: watch, runs: here, priority: later,
    role: "Agent-based models (crew, workers, fleets with behaviour)."}
 - {id: fossen-pvs, name: PythonVehicleSimulator (Fossen), url: "https://github.com/cybergalactic/PythonVehicleSimulator", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
@@ -126,23 +127,23 @@ tools:
    role: "Port emission inventories from tracks (transit, manoeuvring, hotelling)."}
 
 # ---------------- render ----------------
-- {id: deckgl, name: "deck.gl (TripsLayer, IconLayer, ScenegraphLayer)", url: "https://github.com/visgl/deck.gl", layer: render, licence: MIT, status: tested, runs: here, priority: now,
+- {id: deckgl, name: "deck.gl (TripsLayer, IconLayer, ScenegraphLayer)", url: "https://github.com/visgl/deck.gl", layer: render, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/render_deck/package.json offsim/render_deck/src/app.js .github/workflows/tests.yml",
    role: "2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck)."}
 - {id: lonboard, name: lonboard, url: "https://github.com/developmentseed/lonboard", layer: render, licence: check, status: watch, runs: here, priority: later,
    role: "deck.gl from Python/Jupyter with TripsLayer from MovingPandas; interactive exploration."}
 - {id: keplergl, name: kepler.gl, url: "https://github.com/keplergl/kepler.gl", layer: render, licence: MIT, status: watch, runs: browser, priority: later,
    role: "Drag-and-drop exploration of trajectories before scripting a video."}
-- {id: blender-bpy, name: Blender as Python module (bpy 5.2), url: "https://pypi.org/project/bpy/", layer: render, licence: GPL, status: tested, runs: actions, priority: later,
+- {id: blender-bpy, name: Blender as Python module (bpy 5.2), url: "https://pypi.org/project/bpy/", layer: render, licence: GPL, status: tested, runs: actions, priority: later, evidence: "offsim/assets/models/make_models.py docs/TESTLOG.md",
    role: "Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process."}
 - {id: blendergis, name: BlenderGIS, url: "https://github.com/domlysz/BlenderGIS", layer: render, licence: GPL-3.0, status: candidate, runs: laptop, priority: later,
    role: "Import DEM, shapefiles, OSM into Blender."}
 
 # ---------------- video ----------------
-- {id: ffmpeg, name: FFmpeg, url: "https://ffmpeg.org", layer: video, licence: LGPL/GPL, status: tested, runs: here, priority: now,
+- {id: ffmpeg, name: FFmpeg, url: "https://ffmpeg.org", layer: video, licence: LGPL/GPL, status: tested, runs: here, priority: now, evidence: "offsim/render_deck/render.py offsim/motion/story.py docs/TESTLOG.md",
    role: "Frames to H.264 (veryfast preset)."}
-- {id: remotion, name: Remotion, url: "https://github.com/remotion-dev/remotion", layer: video, licence: Remotion licence (free for individuals/small teams), status: tested, runs: here, priority: later,
+- {id: remotion, name: Remotion, url: "https://github.com/remotion-dev/remotion", layer: video, licence: Remotion licence (free for individuals/small teams), status: tested, runs: here, priority: later, evidence: "docs/TESTLOG.md",
    role: "React video; works here with system Chrome. Secondary to HyperFrames (Apache-2.0, no company-licence question) for cards."}
-- {id: manim, name: Manim Community, url: "https://github.com/ManimCommunity/manim", layer: video, licence: MIT, status: tested, runs: here, priority: next,
+- {id: manim, name: Manim Community, url: "https://github.com/ManimCommunity/manim", layer: video, licence: MIT, status: tested, runs: here, priority: next, evidence: "offsim/motion/story.py docs/TESTLOG.md",
    role: "Animated maths (LaTeX objective and constraints) as the intro before the map. Tested here (0.22): needs apt libpango1.0-dev + dvisvgm, then pip install manim."}
 
 # ---------------- assets ----------------
@@ -153,11 +154,11 @@ tools:
 - {id: polyhaven, name: Poly Haven, url: "https://polyhaven.com", layer: assets, licence: CC0, status: watch, runs: here, priority: later,
    role: "CC0 HDRIs and textures for sea/sky lighting in Blender."}
 
-- {id: fluentui-emoji, name: Microsoft Fluent Emoji (3D style), url: "https://github.com/microsoft/fluentui-emoji", layer: assets, licence: MIT, status: tested, runs: here, priority: now,
+- {id: fluentui-emoji, name: Microsoft Fluent Emoji (3D style), url: "https://github.com/microsoft/fluentui-emoji", layer: assets, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/assets/sprites/LICENSE-fluentui-emoji.txt tests/test_sealanes_assets.py",
    role: "Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more."}
 - {id: fluentui-emoji-animated, name: Fluent Emoji Animated, url: "https://github.com/microsoft/fluentui-emoji-animated", layer: assets, licence: MIT, status: candidate, runs: here, priority: later,
    role: "Animated versions (spinning rotor, waves) for title cards and Remotion overlays."}
-- {id: offsim-models, name: offsim low-poly glTF models (ours), url: "https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/assets/models", layer: assets, licence: MIT, status: tested, runs: here, priority: now,
+- {id: offsim-models, name: offsim low-poly glTF models (ours), url: "https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/assets/models", layer: assets, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/assets/models/psv.glb tests/test_sealanes_assets.py",
    role: "PSV, ferry, platform with helideck and flare, wind turbine; generated by make_models.py with bpy here; rendered by ScenegraphLayer."}
 - {id: noto-emoji-svg, name: Noto Color Emoji (SVG), url: "https://github.com/adobe-fonts/noto-emoji-svg", layer: assets, licence: Apache-2.0 / OFL-1.1, status: candidate, runs: here, priority: later,
    role: "Flat cartoony vector emoji (ship, helicopter, worker) when vector sprites are needed at any size."}
@@ -171,13 +172,13 @@ tools:
    role: "Kenney assets on GitHub, reachable via raw downloads here; verify the pack contains the watercraft glTF before relying on it."}
 - {id: gltf-cc0-samples, name: CC0 glTF sample assets, url: "https://github.com/Kibsgaard/gltf-sample-assets", layer: assets, licence: CC0-1.0, status: watch, runs: here, priority: later,
    role: "Test models for the glTF pipeline."}
-- {id: pyvista, name: PyVista, url: "https://github.com/pyvista/pyvista", layer: render, licence: MIT, status: tested, runs: here, priority: later,
+- {id: pyvista, name: PyVista, url: "https://github.com/pyvista/pyvista", layer: render, licence: MIT, status: tested, runs: here, priority: later, evidence: "docs/TESTLOG.md",
    role: "Off-screen VTK rendering works here: inspect glTF models, seabed meshes from depth grids, 3D stills without a browser."}
 
 # ---------------- motion ----------------
-- {id: hyperframes, name: HyperFrames (HeyGen), url: "https://github.com/heygen-com/hyperframes", layer: motion, licence: Apache-2.0, status: tested, runs: here, priority: now,
+- {id: hyperframes, name: HyperFrames (HeyGen), url: "https://github.com/heygen-com/hyperframes", layer: motion, licence: Apache-2.0, status: tested, runs: here, priority: now, evidence: "offsim/motion/package.json offsim/motion/story.py docs/TESTLOG.md",
    role: "HTML + GSAP compositions -> deterministic MP4; agent skills; lint/check gate. Our KPI cards (offsim/motion). Here: needs HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome and GSAP served locally (CDN blocked)."}
-- {id: gsap, name: GSAP (GreenSock), url: "https://github.com/greensock/GSAP", layer: motion, licence: GreenSock standard no-charge licence (not OSI), status: tested, runs: here, priority: now,
+- {id: gsap, name: GSAP (GreenSock), url: "https://github.com/greensock/GSAP", layer: motion, licence: GreenSock standard no-charge licence (not OSI), status: tested, runs: here, priority: now, evidence: "offsim/motion/package.json offsim/motion/templates/kpi_card/index.html",
    role: "Timelines, easing, count-ups, MotionPath, SplitText (all plugins now free). Used inside HyperFrames cards; vendored from npm, never from CDN."}
 - {id: gsap-skills, name: GSAP AI skills, url: "https://github.com/greensock/gsap-skills", layer: skills, licence: MIT, status: candidate, runs: here, priority: next,
    role: "Official agent skills for correct GSAP timelines; install with npx skills add when writing new card templates."}
@@ -187,22 +188,100 @@ tools:
    role: "TypeScript, generator-based animation with a timeline editor; strong for diagram/vector explainers (network graphs, routes drawn on)."}
 - {id: revideo, name: Revideo, url: "https://github.com/midrender/revideo", layer: motion, licence: MIT, status: watch, runs: here, priority: later,
    role: "Motion Canvas fork with headless rendering API; if we need server-side parametrised explainers at scale."}
-- {id: lottie-web, name: lottie-web, url: "https://github.com/airbnb/lottie-web", layer: motion, licence: MIT, status: installed, runs: here, priority: later,
+- {id: lottie-web, name: lottie-web, url: "https://github.com/airbnb/lottie-web", layer: motion, licence: MIT, status: candidate, runs: here, priority: later,
    role: "Play After Effects/LottieFiles vector animations (icons, transitions) inside HyperFrames or deck overlays."}
-- {id: vivus, name: Vivus, url: "https://github.com/maxwellito/vivus", layer: motion, licence: MIT, status: installed, runs: here, priority: next,
+- {id: vivus, name: Vivus, url: "https://github.com/maxwellito/vivus", layer: motion, licence: MIT, status: candidate, runs: here, priority: next,
    role: "Animated SVG line drawing (stroke reveal): draw CAD-style elevations of a vessel or platform line by line in cards."}
-- {id: roughjs, name: Rough.js, url: "https://github.com/rough-stuff/rough", layer: motion, licence: MIT, status: installed, runs: here, priority: later,
+- {id: roughjs, name: Rough.js, url: "https://github.com/rough-stuff/rough", layer: motion, licence: MIT, status: candidate, runs: here, priority: later,
    role: "Hand-drawn, sketchy rendering of lines and shapes: whiteboard-style variant of the line art."}
-- {id: theatre-js, name: Theatre.js, url: "https://github.com/theatre-js/theatre", layer: motion, licence: check, status: watch, runs: laptop, priority: later,
+- {id: theatre-js, name: Theatre.js, url: "https://github.com/theatre-js/theatre", layer: motion, licence: "core Apache-2.0; studio AGPL-3.0", status: watch, runs: laptop, priority: later,
    role: "Keyframe editor for web 3D/motion; if camera choreography needs a GUI."}
 - {id: blender-freestyle, name: Blender Freestyle + SVG exporter (bundled), url: "https://docs.blender.org/manual/en/latest/render/freestyle/index.html", layer: motion, licence: GPL, status: candidate, runs: here, priority: later,
    role: "True line rendering of 3D scenes (silhouettes, creases, hidden lines) to SVG: CAD elevations of models for cards. Separate bpy process."}
-- {id: trimesh, name: trimesh, url: "https://github.com/mikedh/trimesh", layer: render, licence: MIT, status: tested, runs: here, priority: now,
+- {id: trimesh, name: trimesh, url: "https://github.com/mikedh/trimesh", layer: render, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/assets/lineart.py requirements-render.txt tests/test_pipeline_motion.py",
    role: "Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py)."}
 - {id: anything2explainer, name: anything2explainer, url: "https://github.com/Vincentwei1021/anything2explainer", layer: motion, licence: check, status: watch, runs: here, priority: later,
    role: "Agent skill: topic in, narrated explainer out; reference for narration + motion pipelines."}
 - {id: openmontage, name: OpenMontage, url: "https://github.com/calesthio/OpenMontage", layer: motion, licence: AGPL-3.0, status: watch, runs: here, priority: later,
    role: "Agentic video production pipelines; AGPL: study only, separate process if ever used."}
+
+# ---------------- metocean (audit 3: weather) ----------------
+- {id: nora3-wind-wave, name: "NORA3 wind + wave hindcast (MET Norway)", url: "https://data.met.no/dataset/ddb4c5d1-70b5-4d09-98a8-fadbf5e2d2ba", layer: metocean, licence: CC-BY-4.0, status: candidate, runs: actions, priority: now,
+   role: "3 km hourly wind; wave hindcast (Hs, Tp, dir) via thredds.met.no nora3_subsets; OPeNDAP, no login. Primary weather source (offsim/weather/fetch.py). Variable names and wave grid: check."}
+- {id: norkyst-v3-800m, name: "NorKyst v3 800 m ocean forecast archive", url: "https://data.met.no/dataset/1250dfdf-975c-4c5e-85d4-745506402f06", layer: metocean, licence: CC-BY-4.0, status: candidate, runs: actions, priority: now,
+   role: "Hourly u/v currents, 15 depth levels, from 2024-01-01; curvilinear grid (regrid); ~160 m nest covers Oslofjord."}
+- {id: norkyst-v3-hindcast, name: "NorKyst v3 hindcast catalogue", url: "https://thredds.met.no/thredds/catalog/romshindcast/norkyst_v3/catalog.html", layer: metocean, licence: check, status: watch, runs: actions, priority: next,
+   role: "Multi-year currents for historical paper scenarios; coverage unverified."}
+- {id: mywavewam800, name: "MET Norway WAM 800 m coastal wave forecast", url: "https://thredds.met.no/thredds/fou-hi/mywavewam800.html", layer: metocean, licence: check, status: candidate, runs: actions, priority: next,
+   role: "Hs/Tp/direction at 800 m on five coastal domains; forecast archive only (NORA3 for hindcast)."}
+- {id: cmems-arctic-wav, name: "Copernicus Marine Arctic WAM forecast", url: "https://data.marine.copernicus.eu/product/ARCTIC_ANALYSIS_FORECAST_WAV_002_014", layer: metocean, licence: check, status: watch, runs: actions, priority: later,
+   role: "3 km waves; free with registration (Actions secret)."}
+- {id: era5-cds, name: "ERA5 single levels (Copernicus CDS)", url: "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels", layer: metocean, licence: "Copernicus licence (check)", status: watch, runs: actions, priority: later,
+   role: "Global 0.25° hourly u10/v10/swh fallback; CDS token as Actions secret."}
+- {id: xarray-netcdf4, name: "xarray + netCDF4 (+ zarr)", url: "https://pypi.org/project/xarray/", layer: metocean, licence: "Apache-2.0 / MIT (check)", status: candidate, runs: actions, priority: now,
+   role: "OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py."}
+- {id: cfgrib-herbie, name: "cfgrib + herbie-data (GRIB)", url: "https://pypi.org/project/herbie-data/", layer: metocean, licence: "MIT / Apache-2.0", status: watch, runs: actions, priority: later,
+   role: "GFS GRIB byte-range subsets; needs eccodes; coarse fallback only."}
+- {id: seeded-particles, name: "Seeded offline particle trails (ours, via deck.gl TripsLayer)", url: "https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction."}
+- {id: weatherlayers-gl, name: "WeatherLayers GL", url: "https://github.com/weatherlayers/weatherlayers-gl", layer: render, licence: "MPL-2.0 OR WeatherLayers terms (dual)", status: watch, runs: browser, priority: next,
+   role: "Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes."}
+- {id: deckgl-community-particle, name: "deck.gl-community ParticleLayer", url: "https://visgl.github.io/deck.gl-community/docs/modules/geo-layers/api-reference/particle-layer", layer: render, licence: MIT, status: watch, runs: browser, priority: later,
+   role: "Work in progress; rAF-advanced in examples; station-based wind."}
+- {id: mapbox-webgl-wind, name: "mapbox/webgl-wind", url: "https://github.com/mapbox/webgl-wind", layer: render, licence: ISC, status: watch, runs: browser, priority: later,
+   role: "Reference ping-pong particle shader; random respawn, not frame-exact as shipped."}
+- {id: mpl-streamplot-textures, name: "matplotlib streamplot/quiver textures", url: "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html", layer: render, licence: "PSF-style", status: candidate, runs: here, priority: next,
+   role: "Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer."}
+
+# ---------------- world depth (audit 3: terrain + bathymetry) ----------------
+- {id: kartverket-dtm10, name: "Kartverket DTM 10 m terrain model", url: "https://nedlasting.geonorge.no/api/capabilities/", layer: world, licence: CC-BY-4.0, status: candidate, runs: actions, priority: now,
+   role: "10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py)."}
+- {id: kartverket-dtm-wcs, name: "Kartverket DTM WCS (hoyde-dtm_somlos)", url: "https://wcs.geonorge.no/skwms1/wcs.hoyde-dtm_somlos", layer: world, licence: "Norge digitalt (restrictive, check)", status: watch, runs: actions, priority: later,
+   role: "Best-available lidar DTM by bbox for port close-ups; derived renders only."}
+- {id: kartverket-seabed-dtm, name: "Kartverket seabed terrain models 5/25/50 m (WCS)", url: "https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs", layer: world, licence: "open per Geonorge record (check)", status: candidate, runs: actions, priority: now,
+   role: "Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation."}
+- {id: kartverket-sjokart-wfs, name: "Kartverket Sjøkart Dybdedata (WFS)", url: "https://wfs.geonorge.no/skwms1/wfs.dybdedata?service=WFS&request=GetCapabilities", layer: world, licence: CC-BY-4.0, status: watch, runs: actions, priority: next,
+   role: "Vector depth contours and soundings (sjøkartnull) as ready CAD-style isobaths; maintenance status: check."}
+- {id: emodnet-bathymetry, name: "EMODnet Bathymetry DTM (1/16 arc-min)", url: "https://emodnet.ec.europa.eu/en/bathymetry", layer: world, licence: "free, terms of use (check)", status: candidate, runs: actions, priority: now,
+   role: "~115 m North Sea bathymetry tiles (LAT, MSL variant): the shelf tier off Stavanger."}
+- {id: gebco-grid, name: "GEBCO gridded bathymetry", url: "https://www.gebco.net/data-products/gridded-bathymetry-data", layer: world, licence: "public domain w/ attribution (check)", status: watch, runs: actions, priority: later,
+   role: "15 arc-sec global gap filler only."}
+- {id: copernicus-dem-glo30, name: "Copernicus DEM GLO-30", url: "https://registry.opendata.aws/copernicus-dem/", layer: world, licence: "Copernicus free and open (attribution)", status: watch, runs: actions, priority: later,
+   role: "30 m surface model (includes buildings/trees); gap filler only."}
+- {id: gdal-tools, name: "GDAL gdaldem / gdal_contour", url: "https://gdal.org/programs/gdaldem.html", layer: world, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths)."}
+- {id: pydelatin, name: "pydelatin (Delatin TIN mesher)", url: "https://pypi.org/project/pydelatin", layer: world, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh)."}
+- {id: martini-rtin, name: "Martini (RTIN)", url: "https://github.com/mapbox/martini", layer: render, licence: check, status: watch, runs: browser, priority: later,
+   role: "TerrainLayer's internal mesher; needs 2^k+1 grids; we mesh offline instead."}
+- {id: rio-rgbify, name: "rio-rgbify", url: "https://github.com/mapbox/rio-rgbify", layer: world, licence: check, status: watch, runs: here, priority: later,
+   role: "Terrain-RGB encoding for TerrainLayer; a few lines of numpy do the same."}
+- {id: deckgl-terrainlayer, name: "deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer", url: "https://deck.gl/docs/api-reference/geo-layers/terrain-layer", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders."}
+- {id: pmtiles, name: "PMTiles + CLI", url: "https://github.com/protomaps/PMTiles", layer: world, licence: BSD-3-Clause, status: candidate, runs: actions, priority: next,
+   role: "Single-file tiles; `pmtiles extract --bbox` makes a few-MB offline basemap of a world."}
+- {id: protomaps-builds, name: "Protomaps daily basemap builds", url: "https://maps.protomaps.com/builds/", layer: world, licence: "ODbL (OSM data)", status: candidate, runs: actions, priority: next,
+   role: "Roads, buildings, ports, labels as vector tiles for port close-ups."}
+- {id: planetiler, name: Planetiler, url: "https://github.com/onthegomap/planetiler", layer: world, licence: "Apache-2.0 (output ODbL)", status: watch, runs: actions, priority: later,
+   role: "Build own tiles from a Geofabrik Norway extract if Protomaps lacks a feature."}
+- {id: maplibre-overlay, name: "deck.gl + MapLibre (interleaved)", url: "https://deck.gl/docs/developer-guide/base-maps/using-with-maplibre", layer: render, licence: BSD-3-Clause, status: watch, runs: browser, priority: later,
+   role: "Vector basemap and labels under deck.gl; frames must wait for MapLibre idle (untested)."}
+- {id: overture-maps, name: "Overture Maps (buildings/base)", url: "https://docs.overturemaps.org/", layer: world, licence: "ODbL for buildings/base (check)", status: watch, runs: actions, priority: later,
+   role: "Building footprints with heights; OSM likely enough for harbours."}
+
+# ---------------- cinema (audit 3: camera, motion, look, sound) ----------------
+- {id: deckgl-flyto, name: "deck.gl FlyToInterpolator (interpolateProps)", url: "https://deck.gl/docs/api-reference/core/fly-to-interpolator", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly."}
+- {id: deckgl-postprocess, name: "deck.gl PostProcessEffect + LightingEffect", url: "https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers."}
+- {id: lumagl-effects, name: "@luma.gl/effects shader passes", url: "https://www.npmjs.com/package/@luma.gl/effects", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
+   role: "vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg)."}
+- {id: lottiefiles-free, name: "LottieFiles free animations", url: "https://help.lottiefiles.com/commercial-use-guide", layer: assets, licence: "Lottie Simple License", status: candidate, runs: browser, priority: next,
+   role: "Animated icons for callouts in cards (commercial use allowed per help page)."}
+- {id: pixabay-audio, name: "Pixabay music and sound effects", url: "https://pixabay.com/service/license-summary/", layer: assets, licence: "Pixabay Content License (no attribution)", status: candidate, runs: browser, priority: next,
+   role: "Music beds and SFX; no standalone redistribution."}
+- {id: freesound-cc0, name: "Freesound (CC0 only)", url: "https://freesound.org/", layer: assets, licence: "per clip: use CC0 only", status: candidate, runs: browser, priority: next,
+   role: "Engine, sea, rotor ambience; CC-BY needs credit, CC-BY-NC forbidden for the brand."}
 
 # ---------------- mcp ----------------
 - {id: blender-mcp, name: BlenderMCP, url: "https://github.com/ahujasid/blender-mcp", layer: mcp, licence: MIT, status: candidate, runs: laptop, priority: later,
@@ -221,7 +300,7 @@ tools:
    role: "SimPy patterns (resources, containers, stores) for new process models."}
 - {id: anthropic-skills, name: anthropics/skills (frontend-design, docs), url: "https://github.com/anthropics/skills", layer: skills, licence: check, status: watch, runs: here, priority: later,
    role: "Design discipline for the README site and overlays."}
-- {id: cl-skills, name: computational_Logistics skills, url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills", layer: skills, licence: MIT, status: tested, runs: here, priority: now,
+- {id: cl-skills, name: computational_Logistics skills, url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills", layer: skills, licence: MIT, status: tested, runs: here, priority: now, evidence: "skills/opt-model/SKILL.md",
    role: "Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills."}
 
 # ---------------- benchmarks / papers ----------------

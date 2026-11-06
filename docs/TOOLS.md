@@ -1,18 +1,41 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-87 tools · 16 tested · 8 installed · 29 candidate · 4 manual · 30 watch.
+123 tools · 16 tested · 1 wired · 0 installed · 56 candidate · 4 manual · 46 watch.
 
-**status** tested = ran here with a recorded result · installed = installs, not exercised · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
+**status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
 **licence** `check` = not verified: read it before copying anything. GPL code runs as a separate process, never imported.
+
+## Pulled vs listed (layer × status)
+
+| Layer | tested | wired | installed | candidate | manual | watch | total |
+|---|---|---|---|---|---|---|---|
+| world | 1 | 1 | 0 | 8 | 3 | 8 | 21 |
+| traffic | 0 | 0 | 0 | 2 | 1 | 2 | 5 |
+| metocean | 0 | 0 | 0 | 8 | 0 | 5 | 13 |
+| solver | 2 | 0 | 0 | 2 | 0 | 4 | 8 |
+| weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
+| simulation | 1 | 0 | 0 | 2 | 0 | 2 | 5 |
+| offshore-energy | 0 | 0 | 0 | 2 | 0 | 1 | 3 |
+| emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
+| render | 4 | 0 | 0 | 7 | 0 | 7 | 18 |
+| video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
+| motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
+| assets | 2 | 0 | 0 | 9 | 0 | 4 | 15 |
+| design | 0 | 0 | 0 | 1 | 0 | 0 | 1 |
+| mcp | 0 | 0 | 0 | 2 | 0 | 2 | 4 |
+| skills | 1 | 0 | 0 | 4 | 0 | 1 | 6 |
+| benchmarks | 0 | 0 | 0 | 2 | 0 | 2 | 4 |
+
+Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.py). Everything else is listed only.
 
 ## Needed for the first paper (priority: now)
 
 | Tool | Layer | Status | Runs | Role |
 |---|---|---|---|---|
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | world | tested | actions | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). |
-| [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | world | installed | actions | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. |
+| [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | world | wired | actions | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. |
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | traffic | manual | browser | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | solver | tested | here | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | solver | tested | here | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). |
@@ -24,6 +47,19 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | [HyperFrames (HeyGen)](https://github.com/heygen-com/hyperframes) | motion | tested | here | HTML + GSAP compositions -> deterministic MP4; agent skills; lint/check gate. Our KPI cards (offsim/motion). Here: needs HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome and GSAP served locally (CDN blocked). |
 | [GSAP (GreenSock)](https://github.com/greensock/GSAP) | motion | tested | here | Timelines, easing, count-ups, MotionPath, SplitText (all plugins now free). Used inside HyperFrames cards; vendored from npm, never from CDN. |
 | [trimesh](https://github.com/mikedh/trimesh) | render | tested | here | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). |
+| [NORA3 wind + wave hindcast (MET Norway)](https://data.met.no/dataset/ddb4c5d1-70b5-4d09-98a8-fadbf5e2d2ba) | metocean | candidate | actions | 3 km hourly wind; wave hindcast (Hs, Tp, dir) via thredds.met.no nora3_subsets; OPeNDAP, no login. Primary weather source (offsim/weather/fetch.py). Variable names and wave grid: check. |
+| [NorKyst v3 800 m ocean forecast archive](https://data.met.no/dataset/1250dfdf-975c-4c5e-85d4-745506402f06) | metocean | candidate | actions | Hourly u/v currents, 15 depth levels, from 2024-01-01; curvilinear grid (regrid); ~160 m nest covers Oslofjord. |
+| [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | metocean | candidate | actions | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. |
+| [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | render | candidate | here | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. |
+| [Kartverket DTM 10 m terrain model](https://nedlasting.geonorge.no/api/capabilities/) | world | candidate | actions | 10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py). |
+| [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | world | candidate | actions | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
+| [EMODnet Bathymetry DTM (1/16 arc-min)](https://emodnet.ec.europa.eu/en/bathymetry) | world | candidate | actions | ~115 m North Sea bathymetry tiles (LAT, MSL variant): the shelf tier off Stavanger. |
+| [GDAL gdaldem / gdal_contour](https://gdal.org/programs/gdaldem.html) | world | candidate | here | Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths). |
+| [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | world | candidate | here | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). |
+| [deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer](https://deck.gl/docs/api-reference/geo-layers/terrain-layer) | render | candidate | here | Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders. |
+| [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | render | candidate | here | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
+| [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | render | candidate | here | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
+| [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | render | candidate | here | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
 | [computational_Logistics skills](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills) | skills | tested | here | Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills. |
 
 ## world
@@ -32,13 +68,27 @@ _Geography the scenario runs in (land, depth, lanes, installations)_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | NLOD-2.0 | installed | actions | now | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. |
-| [OpenStreetMap coastline via Overpass](https://overpass-api.de) | ODbL-1.0 | tested | actions | now | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). |
+| [EMODnet Bathymetry DTM (1/16 arc-min)](https://emodnet.ec.europa.eu/en/bathymetry) | free, terms of use (check) | candidate | actions | now | ~115 m North Sea bathymetry tiles (LAT, MSL variant): the shelf tier off Stavanger. |
+| [GDAL gdaldem / gdal_contour](https://gdal.org/programs/gdaldem.html) | MIT | candidate | here | now | Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths). |
+| [Kartverket DTM 10 m terrain model](https://nedlasting.geonorge.no/api/capabilities/) | CC-BY-4.0 | candidate | actions | now | 10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py). |
+| [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | open per Geonorge record (check) | candidate | actions | now | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
+| [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | NLOD-2.0 | wired | actions | now | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. Evidence: `offsim/worlds/fetch_world.py` `offsim/worlds/north-sea-stavanger.yaml` |
+| [OpenStreetMap coastline via Overpass](https://overpass-api.de) | ODbL-1.0 | tested | actions | now | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). Evidence: `offsim/worlds/fetch_world.py` `docs/TESTLOG.md` |
+| [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | MIT | candidate | here | now | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). |
+| [Kartverket Sjøkart Dybdedata (WFS)](https://wfs.geonorge.no/skwms1/wfs.dybdedata?service=WFS&request=GetCapabilities) | CC-BY-4.0 | watch | actions | next | Vector depth contours and soundings (sjøkartnull) as ready CAD-style isobaths; maintenance status: check. |
 | [Kartverket Sjøkart – Dybdedata](https://data.norge.no/en/datasets/48cc18ef-1317-3ddd-9ca4-a06d8ffa0196) | open (Kartverket terms) | manual | laptop | next | Depth areas and contours; not approved for navigation. Lanes and seabed relief. |
 | [Kystverket reference routes for navigation](https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation) | NLOD-2.0 | manual | actions | next | Fairway graph so vessels follow lanes, not straight lines. |
+| [PMTiles + CLI](https://github.com/protomaps/PMTiles) | BSD-3-Clause | candidate | actions | next | Single-file tiles; `pmtiles extract --bbox` makes a few-MB offline basemap of a world. |
+| [Protomaps daily basemap builds](https://maps.protomaps.com/builds/) | ODbL (OSM data) | candidate | actions | next | Roads, buildings, ports, labels as vector tiles for port close-ups. |
+| [Copernicus DEM GLO-30](https://registry.opendata.aws/copernicus-dem/) | Copernicus free and open (attribution) | watch | actions | later | 30 m surface model (includes buildings/trees); gap filler only. |
+| [GEBCO gridded bathymetry](https://www.gebco.net/data-products/gridded-bathymetry-data) | public domain w/ attribution (check) | watch | actions | later | 15 arc-sec global gap filler only. |
+| [Kartverket DTM WCS (hoyde-dtm_somlos)](https://wcs.geonorge.no/skwms1/wcs.hoyde-dtm_somlos) | Norge digitalt (restrictive, check) | watch | actions | later | Best-available lidar DTM by bbox for port close-ups; derived renders only. |
 | [NGU bathymetry Oslofjorden 1 m grid](https://www.geonorge.no/geonetworktest/srv/api/records/80321d12-119e-4d0c-886b-4b087843b688) | check | manual | laptop | later | High-resolution seabed for inner Oslofjord hero shots. |
 | [OpenStreetMap-Ship-Routing](https://github.com/sibmr/OpenStreetMap-Ship-Routing) | check | watch | here | later | Ocean routing graph built from OSM; reference for our own lane graph. |
-| [searoute-py](https://github.com/genthalili/searoute-py) | Apache-2.0 | installed | here | later | Shortest global sea route for long-haul legs; its README says visualisation, not navigation. |
+| [Overture Maps (buildings/base)](https://docs.overturemaps.org/) | ODbL for buildings/base (check) | watch | actions | later | Building footprints with heights; OSM likely enough for harbours. |
+| [Planetiler](https://github.com/onthegomap/planetiler) | Apache-2.0 (output ODbL) | watch | actions | later | Build own tiles from a Geofabrik Norway extract if Protomaps lacks a feature. |
+| [rio-rgbify](https://github.com/mapbox/rio-rgbify) | check | watch | here | later | Terrain-RGB encoding for TerrainLayer; a few lines of numpy do the same. |
+| [searoute-py](https://github.com/genthalili/searoute-py) | Apache-2.0 | candidate | here | later | Shortest global sea route for long-haul legs; its README says visualisation, not navigation. |
 
 ## traffic
 
@@ -47,7 +97,7 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | open | manual | browser | now | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
-| [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | installed | here | next | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
+| [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | candidate | here | next | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
 | [AISdb (Dalhousie MERIDIAN)](https://pypi.org/project/aisdb/) | check | watch | here | later | SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices. |
 | [Datasets of AIS trajectories from Danish waters](https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters) | BSD-3-Clause | watch | here | later | Ready filtered AIS sets for testing trajectory code without ordering data. |
 | [pyais](https://github.com/M0r13n/pyais) | MIT | candidate | here | later | Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet. |
@@ -58,8 +108,16 @@ _Wind, waves, currents; weather windows for operations_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [NORA3 wind + wave hindcast (MET Norway)](https://data.met.no/dataset/ddb4c5d1-70b5-4d09-98a8-fadbf5e2d2ba) | CC-BY-4.0 | candidate | actions | now | 3 km hourly wind; wave hindcast (Hs, Tp, dir) via thredds.met.no nora3_subsets; OPeNDAP, no login. Primary weather source (offsim/weather/fetch.py). Variable names and wave grid: check. |
+| [NorKyst v3 800 m ocean forecast archive](https://data.met.no/dataset/1250dfdf-975c-4c5e-85d4-745506402f06) | CC-BY-4.0 | candidate | actions | now | Hourly u/v currents, 15 depth levels, from 2024-01-01; curvilinear grid (regrid); ~160 m nest covers Oslofjord. |
+| [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | Apache-2.0 / MIT (check) | candidate | actions | now | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. |
+| [MET Norway WAM 800 m coastal wave forecast](https://thredds.met.no/thredds/fou-hi/mywavewam800.html) | check | candidate | actions | next | Hs/Tp/direction at 800 m on five coastal domains; forecast archive only (NORA3 for hindcast). |
 | [metocean-api (MET Norway)](https://github.com/MET-OM/metocean-api) | check | candidate | actions | next | Time series from NORA3 wind/wave hindcast (and ERA5) at a point: weather windows for PSV, crane and helideck operations. |
+| [NorKyst v3 hindcast catalogue](https://thredds.met.no/thredds/catalog/romshindcast/norkyst_v3/catalog.html) | check | watch | actions | next | Multi-year currents for historical paper scenarios; coverage unverified. |
+| [cfgrib + herbie-data (GRIB)](https://pypi.org/project/herbie-data/) | MIT / Apache-2.0 | watch | actions | later | GFS GRIB byte-range subsets; needs eccodes; coarse fallback only. |
+| [Copernicus Marine Arctic WAM forecast](https://data.marine.copernicus.eu/product/ARCTIC_ANALYSIS_FORECAST_WAV_002_014) | check | watch | actions | later | 3 km waves; free with registration (Actions secret). |
 | [Copernicus Marine Toolbox](https://github.com/mercator-ocean/copernicus-marine-toolbox) | check | candidate | actions | later | Subset currents/waves (NetCDF/Zarr) beyond the Nordic domain; needs free login. |
+| [ERA5 single levels (Copernicus CDS)](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels) | Copernicus licence (check) | watch | actions | later | Global 0.25° hourly u10/v10/swh fallback; CDS token as Actions secret. |
 | [MET Norway oceanforecast API](https://api.met.no/doc/oceanforecast/datamodel) | CC-BY-4.0 (MET terms) | candidate | actions | later | Forecast Hs, wave direction, currents for live-looking scenarios. |
 | [metocean-stats (MET Norway)](https://github.com/MET-OM/metocean-stats) | check | candidate | actions | later | Operability statistics (Hs exceedance, windows) from those series. |
 | [OpenDrift (MET Norway)](https://github.com/OpenDrift/opendrift) | check | watch | here | later | Drift of objects/spills; a different video genre (emergency response logistics). |
@@ -70,10 +128,10 @@ _Exact and heuristic optimisation for routing and scheduling_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | MIT | tested | here | now | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). |
-| [PyVRP](https://github.com/PyVRP/PyVRP) | MIT | tested | here | now | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
+| [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | MIT | tested | here | now | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). Evidence: `skills/opt-model/scripts/models.py` `tests/test_opt_model.py` |
+| [PyVRP](https://github.com/PyVRP/PyVRP) | MIT | tested | here | now | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. Evidence: `offsim/solve/pyvrp_adapter.py` `tests/test_opt_model.py` |
 | [ALNS (N-Wouda)](https://github.com/N-Wouda/ALNS) | MIT | candidate | here | next | Adaptive large neighbourhood search framework: re-implement a paper's metaheuristic faithfully when PyVRP cannot express it. |
-| [Google OR-Tools](https://github.com/google/or-tools) | Apache-2.0 | installed | here | next | Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers). |
+| [Google OR-Tools](https://github.com/google/or-tools) | Apache-2.0 | candidate | here | next | Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers). |
 | [jsprit](https://github.com/graphhopper/jsprit) | Apache-2.0 | watch | laptop | later | Java toolkit for rich VRPs; reference implementation in older papers. |
 | [RL4CO](https://github.com/ai4co/rl4co) | MIT | watch | actions | later | Learned routing heuristics; for papers that use RL. |
 | [Timefold Solver](https://github.com/TimefoldAI/timefold-solver) | Apache-2.0 | watch | laptop | later | Java/Kotlin planning engine (vehicle routing, crew rostering); if a paper needs rich scheduling. |
@@ -96,11 +154,11 @@ _Time, queues, failures, weather delays (discrete-event, agent-based, vessel dyn
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [SimPy](https://gitlab.com/team-simpy/simpy) | MIT | tested | here | now | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. |
+| [SimPy](https://gitlab.com/team-simpy/simpy) | MIT | tested | here | now | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. Evidence: `offsim/sim/replay.py` `tests/test_offsim.py` |
 | [Mesa](https://github.com/projectmesa/mesa) | check | watch | here | later | Agent-based models (crew, workers, fleets with behaviour). |
 | [port-simulation (spartalab)](https://github.com/spartalab/port-simulation) | MIT | watch | here | later | DES of a port; reference for supply-base quay modelling. |
 | [PythonVehicleSimulator (Fossen)](https://github.com/cybergalactic/PythonVehicleSimulator) | MIT | candidate | here | later | Physical OSV model (supply.py, L=76.2 m, thrusters): DP and approach times when a paper needs them. |
-| [salabim](https://github.com/salabim/salabim) | MIT | installed | here | later | DES with built-in 2D/3D animation and video export; quick explainer clips of queues at a base. |
+| [salabim](https://github.com/salabim/salabim) | MIT | candidate | here | later | pip-installed once in a session, not in a manifest. DES with built-in 2D/3D animation and video export; quick explainer clips of queues at a base. |
 
 ## offshore-energy
 
@@ -127,13 +185,24 @@ _Maps and 3D scenes from validated trajectories_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | MIT | tested | here | now | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). |
-| [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). |
-| [Blender as Python module (bpy 5.2)](https://pypi.org/project/bpy/) | GPL | tested | actions | later | Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process. |
+| [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | MIT | candidate | here | now | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
+| [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | MIT | tested | here | now | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). Evidence: `offsim/render_deck/package.json` `offsim/render_deck/src/app.js` `.github/workflows/tests.yml` |
+| [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | MIT | candidate | here | now | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
+| [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | MIT | candidate | here | now | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
+| [deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer](https://deck.gl/docs/api-reference/geo-layers/terrain-layer) | MIT | candidate | here | now | Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders. |
+| [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | candidate | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. |
+| [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
+| [matplotlib streamplot/quiver textures](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html) | PSF-style | candidate | here | next | Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer. |
+| [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |
+| [Blender as Python module (bpy 5.2)](https://pypi.org/project/bpy/) | GPL | tested | actions | later | Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process. Evidence: `offsim/assets/models/make_models.py` `docs/TESTLOG.md` |
 | [BlenderGIS](https://github.com/domlysz/BlenderGIS) | GPL-3.0 | candidate | laptop | later | Import DEM, shapefiles, OSM into Blender. |
+| [deck.gl + MapLibre (interleaved)](https://deck.gl/docs/developer-guide/base-maps/using-with-maplibre) | BSD-3-Clause | watch | browser | later | Vector basemap and labels under deck.gl; frames must wait for MapLibre idle (untested). |
+| [deck.gl-community ParticleLayer](https://visgl.github.io/deck.gl-community/docs/modules/geo-layers/api-reference/particle-layer) | MIT | watch | browser | later | Work in progress; rAF-advanced in examples; station-based wind. |
 | [kepler.gl](https://github.com/keplergl/kepler.gl) | MIT | watch | browser | later | Drag-and-drop exploration of trajectories before scripting a video. |
 | [lonboard](https://github.com/developmentseed/lonboard) | check | watch | here | later | deck.gl from Python/Jupyter with TripsLayer from MovingPandas; interactive exploration. |
-| [PyVista](https://github.com/pyvista/pyvista) | MIT | tested | here | later | Off-screen VTK rendering works here: inspect glTF models, seabed meshes from depth grids, 3D stills without a browser. |
+| [mapbox/webgl-wind](https://github.com/mapbox/webgl-wind) | ISC | watch | browser | later | Reference ping-pong particle shader; random respawn, not frame-exact as shipped. |
+| [Martini (RTIN)](https://github.com/mapbox/martini) | check | watch | browser | later | TerrainLayer's internal mesher; needs 2^k+1 grids; we mesh offline instead. |
+| [PyVista](https://github.com/pyvista/pyvista) | MIT | tested | here | later | Off-screen VTK rendering works here: inspect glTF models, seabed meshes from depth grids, 3D stills without a browser. Evidence: `docs/TESTLOG.md` |
 
 ## video
 
@@ -141,9 +210,9 @@ _Assembling frames, captions and explainers into posts_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [FFmpeg](https://ffmpeg.org) | LGPL/GPL | tested | here | now | Frames to H.264 (veryfast preset). |
-| [Manim Community](https://github.com/ManimCommunity/manim) | MIT | tested | here | next | Animated maths (LaTeX objective and constraints) as the intro before the map. Tested here (0.22): needs apt libpango1.0-dev + dvisvgm, then pip install manim. |
-| [Remotion](https://github.com/remotion-dev/remotion) | Remotion licence (free for individuals/small teams) | tested | here | later | React video; works here with system Chrome. Secondary to HyperFrames (Apache-2.0, no company-licence question) for cards. |
+| [FFmpeg](https://ffmpeg.org) | LGPL/GPL | tested | here | now | Frames to H.264 (veryfast preset). Evidence: `offsim/render_deck/render.py` `offsim/motion/story.py` `docs/TESTLOG.md` |
+| [Manim Community](https://github.com/ManimCommunity/manim) | MIT | tested | here | next | Animated maths (LaTeX objective and constraints) as the intro before the map. Tested here (0.22): needs apt libpango1.0-dev + dvisvgm, then pip install manim. Evidence: `offsim/motion/story.py` `docs/TESTLOG.md` |
+| [Remotion](https://github.com/remotion-dev/remotion) | Remotion licence (free for individuals/small teams) | tested | here | later | React video; works here with system Chrome. Secondary to HyperFrames (Apache-2.0, no company-licence question) for cards. Evidence: `docs/TESTLOG.md` |
 
 ## motion
 
@@ -151,17 +220,17 @@ _Motion-graphics engines, animation libraries and line-art animation_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [GSAP (GreenSock)](https://github.com/greensock/GSAP) | GreenSock standard no-charge licence (not OSI) | tested | here | now | Timelines, easing, count-ups, MotionPath, SplitText (all plugins now free). Used inside HyperFrames cards; vendored from npm, never from CDN. |
-| [HyperFrames (HeyGen)](https://github.com/heygen-com/hyperframes) | Apache-2.0 | tested | here | now | HTML + GSAP compositions -> deterministic MP4; agent skills; lint/check gate. Our KPI cards (offsim/motion). Here: needs HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome and GSAP served locally (CDN blocked). |
-| [Vivus](https://github.com/maxwellito/vivus) | MIT | installed | here | next | Animated SVG line drawing (stroke reveal): draw CAD-style elevations of a vessel or platform line by line in cards. |
+| [GSAP (GreenSock)](https://github.com/greensock/GSAP) | GreenSock standard no-charge licence (not OSI) | tested | here | now | Timelines, easing, count-ups, MotionPath, SplitText (all plugins now free). Used inside HyperFrames cards; vendored from npm, never from CDN. Evidence: `offsim/motion/package.json` `offsim/motion/templates/kpi_card/index.html` |
+| [HyperFrames (HeyGen)](https://github.com/heygen-com/hyperframes) | Apache-2.0 | tested | here | now | HTML + GSAP compositions -> deterministic MP4; agent skills; lint/check gate. Our KPI cards (offsim/motion). Here: needs HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome and GSAP served locally (CDN blocked). Evidence: `offsim/motion/package.json` `offsim/motion/story.py` `docs/TESTLOG.md` |
+| [Vivus](https://github.com/maxwellito/vivus) | MIT | candidate | here | next | Animated SVG line drawing (stroke reveal): draw CAD-style elevations of a vessel or platform line by line in cards. |
 | [anything2explainer](https://github.com/Vincentwei1021/anything2explainer) | check | watch | here | later | Agent skill: topic in, narrated explainer out; reference for narration + motion pipelines. |
 | [Blender Freestyle + SVG exporter (bundled)](https://docs.blender.org/manual/en/latest/render/freestyle/index.html) | GPL | candidate | here | later | True line rendering of 3D scenes (silhouettes, creases, hidden lines) to SVG: CAD elevations of models for cards. Separate bpy process. |
-| [lottie-web](https://github.com/airbnb/lottie-web) | MIT | installed | here | later | Play After Effects/LottieFiles vector animations (icons, transitions) inside HyperFrames or deck overlays. |
+| [lottie-web](https://github.com/airbnb/lottie-web) | MIT | candidate | here | later | Play After Effects/LottieFiles vector animations (icons, transitions) inside HyperFrames or deck overlays. |
 | [Motion Canvas](https://github.com/motion-canvas/motion-canvas) | MIT | candidate | here | later | TypeScript, generator-based animation with a timeline editor; strong for diagram/vector explainers (network graphs, routes drawn on). |
 | [OpenMontage](https://github.com/calesthio/OpenMontage) | AGPL-3.0 | watch | here | later | Agentic video production pipelines; AGPL: study only, separate process if ever used. |
 | [Revideo](https://github.com/midrender/revideo) | MIT | watch | here | later | Motion Canvas fork with headless rendering API; if we need server-side parametrised explainers at scale. |
-| [Rough.js](https://github.com/rough-stuff/rough) | MIT | installed | here | later | Hand-drawn, sketchy rendering of lines and shapes: whiteboard-style variant of the line art. |
-| [Theatre.js](https://github.com/theatre-js/theatre) | check | watch | laptop | later | Keyframe editor for web 3D/motion; if camera choreography needs a GUI. |
+| [Rough.js](https://github.com/rough-stuff/rough) | MIT | candidate | here | later | Hand-drawn, sketchy rendering of lines and shapes: whiteboard-style variant of the line art. |
+| [Theatre.js](https://github.com/theatre-js/theatre) | core Apache-2.0; studio AGPL-3.0 | watch | laptop | later | Keyframe editor for web 3D/motion; if camera choreography needs a GUI. |
 
 ## assets
 
@@ -169,9 +238,12 @@ _Free 3D models and textures for the cartoony look_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | MIT | tested | here | now | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. |
-| [offsim low-poly glTF models (ours)](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/assets/models) | MIT | tested | here | now | PSV, ferry, platform with helideck and flare, wind turbine; generated by make_models.py with bpy here; rendered by ScenegraphLayer. |
+| [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | MIT | tested | here | now | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. Evidence: `offsim/assets/sprites/LICENSE-fluentui-emoji.txt` `tests/test_sealanes_assets.py` |
+| [offsim low-poly glTF models (ours)](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/assets/models) | MIT | tested | here | now | PSV, ferry, platform with helideck and flare, wind turbine; generated by make_models.py with bpy here; rendered by ScenegraphLayer. Evidence: `offsim/assets/models/psv.glb` `tests/test_sealanes_assets.py` |
+| [Freesound (CC0 only)](https://freesound.org/) | per clip: use CC0 only | candidate | browser | next | Engine, sea, rotor ambience; CC-BY needs credit, CC-BY-NC forbidden for the brand. |
 | [Kenney Watercraft Kit](https://kenney-assets.itch.io/watercraft-kit) | CC0 | candidate | laptop | next | 45+ low-poly boats/ships in glTF for model mode. itch.io is blocked here: download on a laptop, commit the .glb files you use under offsim/assets/models/ (CC0). |
+| [LottieFiles free animations](https://help.lottiefiles.com/commercial-use-guide) | Lottie Simple License | candidate | browser | next | Animated icons for callouts in cards (commercial use allowed per help page). |
+| [Pixabay music and sound effects](https://pixabay.com/service/license-summary/) | Pixabay Content License (no attribution) | candidate | browser | next | Music beds and SFX; no standalone redistribution. |
 | [CC0 glTF sample assets](https://github.com/Kibsgaard/gltf-sample-assets) | CC0-1.0 | watch | here | later | Test models for the glTF pipeline. |
 | [Fluent Emoji Animated](https://github.com/microsoft/fluentui-emoji-animated) | MIT | candidate | here | later | Animated versions (spinning rotor, waves) for title cards and Remotion overlays. |
 | [Iconify](https://github.com/iconify/iconify) | MIT | watch | here | later | One API over 200k+ icons (Noto, Twemoji, Material...); check each icon set's own licence. |
@@ -207,7 +279,7 @@ _Claude Code skills that encode know-how_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [computational_Logistics skills](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills) | MIT | tested | here | now | Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills. |
+| [computational_Logistics skills](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills) | MIT | tested | here | now | Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills. Evidence: `skills/opt-model/SKILL.md` |
 | [GSAP AI skills](https://github.com/greensock/gsap-skills) | MIT | candidate | here | next | Official agent skills for correct GSAP timelines; install with npx skills add when writing new card templates. |
 | [HyperFrames skills](https://github.com/heygen-com/hyperframes) | Apache-2.0 | candidate | here | next | Core skills (/hyperframes, /hyperframes-cli, /hyperframes-registry, /media-use): render contract, registry blocks (data charts), motion references. |
 | [remotion-dev/skills (remotion-best-practices)](https://github.com/remotion-dev/skills) | check | candidate | here | next | Frame-driven animation rules and a maps module for Remotion. |

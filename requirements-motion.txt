@@ -1,0 +1,4 @@
+# Motion extras (offsim/motion): apt libpango1.0-dev dvisvgm + a LaTeX install first; npm i in offsim/motion
+-r requirements-render.txt
+manim
+pyvista

@@ -15,9 +15,10 @@ def test_catalog_is_valid_and_docs_are_current():
     assert (ROOT / "docs/TOOLS.md").read_text() == catalog_build.render(cat), "run: python tools/catalog_build.py"
 
 
-def test_every_tested_tool_is_really_used_in_code_or_docs():
-    tested = [t["id"] for t in catalog_build.load()["tools"] if t["status"] == "tested"]
-    assert {"pyvrp", "simpy", "deckgl", "opt-model"} <= set(tested)
+def test_core_tools_are_tested_with_evidence():
+    tools = {t["id"]: t for t in catalog_build.load()["tools"]}
+    for i in ("pyvrp", "simpy", "deckgl", "opt-model"):
+        assert tools[i]["status"] == "tested" and tools[i].get("evidence"), i   # evidence paths are checked in problems()
 
 
 def frontmatter(text):
@@ -42,3 +43,29 @@ def test_router_points_only_at_existing_skills():
 def test_plugin_manifest():
     m = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
     assert m["name"] == "offshore-simulations" and m["version"]
+
+
+def test_defined_interfaces_exist_and_are_honestly_unbuilt():
+    """Defined-not-built modules import, document their contract, and raise NotImplementedError (no silent stubs)."""
+    import inspect
+
+    import pytest
+
+    from offsim.cinema import camera, vessel
+    from offsim.weather import fetch, visual
+    from offsim.worlds import depth
+    for mod in (camera, vessel, fetch, visual, depth):
+        fns = [f for n, f in inspect.getmembers(mod, inspect.isfunction) if f.__module__ == mod.__name__]
+        assert fns, mod
+        for f in fns:
+            assert (f.__doc__ or "").strip(), f"{mod.__name__}.{f.__name__} has no contract"
+            args = [None] * len([p for p in inspect.signature(f).parameters.values() if p.default is p.empty])
+            with pytest.raises(NotImplementedError):
+                f(*args)
+
+
+def test_rules_and_sourced_weather_bands():
+    from offsim.cinema.rules import CAMERA, VESSEL
+    from offsim.weather.operability import psv_effect
+    assert CAMERA["zoom_rate_max"] <= 0.35 and CAMERA["shot_min_s"] >= 2.5 and VESSEL["display_offset_max_m"] <= 25
+    assert psv_effect(2.0)["service_factor"] == 1.0 and psv_effect(4.0)["speed_delta_kn"] == -2.0 and psv_effect(5.0)["wow"]
