@@ -51,10 +51,10 @@ def test_defined_interfaces_exist_and_are_honestly_unbuilt():
 
     import pytest
 
-    from offsim.cinema import camera, vessel
+    from offsim.cinema import vessel
     from offsim.weather import fetch, visual
     from offsim.worlds import depth
-    for mod in (camera, vessel, fetch, visual, depth):
+    for mod in (vessel, fetch, visual, depth):
         fns = [f for n, f in inspect.getmembers(mod, inspect.isfunction) if f.__module__ == mod.__name__]
         assert fns, mod
         for f in fns:
