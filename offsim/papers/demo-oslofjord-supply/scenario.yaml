@@ -1,0 +1,41 @@
+# DEMO, not a paper: exercises the whole gated pipeline on the real Oslofjord coastline.
+# Every value is an explicit assumption, so the best possible status is "re-run under assumptions".
+paper:
+  id: demo-oslofjord-supply
+  title: "Demo: supply runs from Moss to six synthetic sites in the outer Oslofjord"
+  authors: []
+  year: 2026
+  doi: ""
+  licence: MIT (synthetic)
+problem:
+  class: [CVRP]
+  objective: total distance sailed
+  constraints:
+    - {name: capacity, formula_or_text: "sum of demand on a route <= vessel capacity", assumption: true}
+  solver: pyvrp
+world: oslofjord
+fleet:
+  - cls: psv
+    count: {value: 2, assumption: true, why: "demo fleet"}
+    capacity: {value: 12, unit: deck slots, assumption: true, why: "demo"}
+    speed_mps: {value: 5.66, assumption: true, why: "11 knots service speed, typical PSV"}
+    domain: sea
+instance:
+  source: synthetic (said on screen)
+  service_s: {value: 2700, assumption: true, why: "45 min alongside per site"}
+  base: {name: Moss supply base, lon: 10.6540, lat: 59.4330, assumption: true, why: "approximate quay"}
+  stops:
+    - {name: S1, lon: 10.5700, lat: 59.2400, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: S2, lon: 10.6200, lat: 59.1500, demand: {value: 4, assumption: true}, assumption: true}
+    - {name: S3, lon: 10.5300, lat: 59.1700, demand: {value: 2, assumption: true}, assumption: true}
+    - {name: S4, lon: 10.6600, lat: 59.2200, demand: {value: 5, assumption: true}, assumption: true}
+    - {name: S5, lon: 10.5900, lat: 59.3300, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: S6, lon: 10.5000, lat: 59.2800, demand: {value: 4, assumption: true}, assumption: true}
+sim:
+  lane_spacing_m: 300
+  clearance_m: 60
+reported: {}
+story:
+  question: "how far do two supply vessels sail to serve six sites?"
+  accent: optimised plan
+  comparison: ""

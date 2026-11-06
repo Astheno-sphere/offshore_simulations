@@ -44,7 +44,10 @@ def inline_assets(style):
             sprites[f"{key}_{side}"] = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
     models = {kind: "data:model/gltf-binary;base64," + base64.b64encode((assets / "models" / f"{f}.glb").read_bytes()).decode()
               for kind, f in style.get("models", {}).items() if (assets / "models" / f"{f}.glb").exists()}
-    return {"sprites": sprites, "models": models}
+    lineart = {k: json.loads((assets / "lineart" / f"{f}.json").read_text())
+               for k, f in {**style.get("lineart", {}), **{m: m for m in style.get("models", {})}}.items()
+               if (assets / "lineart" / f"{f}.json").exists()}
+    return {"sprites": sprites, "models": models, "lineart": lineart}
 
 
 def chrome():
@@ -52,6 +55,31 @@ def chrome():
         if c and Path(c).exists():
             return c
     return None  # fall back to Playwright's bundled Chromium
+
+
+async def check(scene, times=None):
+    """Headless smoke test, no images: draw frames, return layer health and page errors."""
+    from playwright.async_api import async_playwright
+
+    times = times or [scene["t0"], (scene["t0"] + scene["t1"]) / 2, scene["t1"]]
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path=chrome(),
+                                    args=["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
+        pg = await b.new_page(viewport={"width": scene["width"], "height": scene["height"]})
+        errors = []
+        pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+        pg.on("pageerror", lambda e: errors.append(str(e)))
+        await pg.add_init_script(f"window.SCENE = {json.dumps(scene)};")
+        await pg.goto((HERE / "index.html").as_uri())
+        await pg.wait_for_function("window.ready === true", timeout=60_000)
+        layers = []
+        for t in times:
+            await pg.evaluate(f"window.draw({t})")
+            await pg.wait_for_timeout(500)
+            await pg.evaluate(f"window.draw({t})")
+            layers = await pg.evaluate("window.__layers()")
+        await b.close()
+    return {"errors": errors, "layers": layers}
 
 
 async def capture(scene, frames_dir, fps, seconds, still=False):
@@ -87,22 +115,32 @@ async def capture(scene, frames_dir, fps, seconds, still=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scene", required=True)
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--out")
     ap.add_argument("--format", default="draft", choices=list(STYLE["formats"]))
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--seconds", type=float, default=None, help="video length; default scene['seconds']")
     ap.add_argument("--still", action="store_true", help="write only the last frame as PNG")
     ap.add_argument("--at", type=float, default=None, help="with --still: simulation time to draw (default: end)")
-    ap.add_argument("--agents", choices=["sprite", "model", "dot"], help="override style agent_mode")
+    ap.add_argument("--check", action="store_true", help="smoke test: draw frames headlessly, print layer health, write nothing")
+    ap.add_argument("--sites", choices=["model", "lineart"], help="override style site_mode")
+    ap.add_argument("--agents", choices=["sprite", "model", "lineart", "dot"], help="override style agent_mode")
     a = ap.parse_args()
     scene = json.loads(Path(a.scene).read_text())
     scene["width"], scene["height"] = STYLE["formats"][a.format]
     scene["style"] = {**STYLE, **scene.get("style", {})}
     if a.agents:
         scene["style"]["agent_mode"] = a.agents
+    if a.sites:
+        scene["style"]["site_mode"] = a.sites
     scene["assets"] = inline_assets(scene["style"])
     seconds = a.seconds or scene.get("seconds", 20)
     build()
+    if a.check:
+        res = asyncio.run(check(scene))
+        empty = [l[0] for l in res["layers"] if not l[1]]
+        print(json.dumps({"errors": res["errors"][:10], "not_loaded": empty,
+                          "layers": {l[0]: l[2] for l in res["layers"]}}, indent=1))
+        raise SystemExit(1 if res["errors"] or empty else 0)
     with tempfile.TemporaryDirectory() as tmp:
         fdir = Path(tmp)
         if a.still:

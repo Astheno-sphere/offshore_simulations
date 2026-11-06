@@ -21,6 +21,11 @@ copied from `offsim/papers/_template/scenario.yaml`, plus `notes.md`.
 5. List in `notes.md` what the paper does not give (instance files, speeds, service times) and how
    the scenario fills it: published benchmark, public data (Sodir, Kystverket), or assumption.
 
+## Format the runner reads
+`instance.base` {name, lon, lat, src}; `instance.stops` list of {name, lon, lat, demand {value, src}, optional
+service_s, tw {value: [early, late]}, src}; `fleet[0]` count/capacity/speed_mps as {value, src}. Supported classes:
+`offsim.pipeline.SUPPORTED` (CVRP, VRPTW today). Example: `offsim/papers/demo-oslofjord-supply/`.
+
 ## Rules
 - Units as in `offsim-foundations`: seconds, metres, kWh; coordinates WGS84 lon/lat.
 - A scenario with any `assumption: true` on a parameter that drives a `reported:` KPI can still run,

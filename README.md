@@ -40,6 +40,14 @@ match the paper's reported values within a stated tolerance. On its first run th
 change that produced a plan 35% longer than the solver's objective and an overloaded vessel, plus an
 unfair baseline. Both would have looked fine on screen.
 
+## Run it
+
+```bash
+python -m offsim run offsim/papers/demo-oslofjord-supply/scenario.yaml --out out/demo     # gates 0-4 -> report.json
+python -m offsim story offsim/papers/demo-oslofjord-supply/storyboard.yaml --dry-run      # motion plan, checked, nothing rendered
+python -m offsim story offsim/papers/demo-oslofjord-supply/storyboard.yaml                # Manim + deck.gl + HyperFrames -> one MP4
+```
+
 ## Skills (Claude Code)
 
 | Skill | What it does |
@@ -54,9 +62,10 @@ unfair baseline. Both would have looked fine on screen.
 
 ## What the videos look like
 
-Agents are characters, not blocks: cartoony ships, ferries, helicopters, boats and workers (Fluent Emoji,
-MIT) that turn to face their heading, or our own low-poly 3D models (PSV, ferry, platform, wind turbine,
-made with Blender in this repo). Vessels follow sea lanes computed from the real coastline, so the land
+Agents are characters, not blocks, in three looks: CAD-style **line art** (feature edges of our models as vector
+lines, rotated by heading), cartoony **sprites** (Fluent Emoji, MIT) that face their heading, or low-poly **3D
+models** (PSV, ferry, platform, wind turbine, made with Blender in this repo). Motion graphics come from a
+storyboard: Manim equation intro, deck.gl map with camera moves, HyperFrames + GSAP KPI card, crossfaded. Vessels follow sea lanes computed from the real coastline, so the land
 check passes on real geography. First real world fetched: the Oslofjord (4,753 coastline ways).
 
 ```bash
@@ -67,7 +76,7 @@ python offsim/render_deck/render.py --scene out/oslofjord/scene.json --out out/o
 
 ## Tool catalog
 
-[`docs/TOOLS.md`](docs/TOOLS.md) lists 70+ open-source tools, datasets, MCP servers and skills across 15
+[`docs/TOOLS.md`](docs/TOOLS.md) lists 85+ open-source tools, datasets, MCP servers and skills across 16
 layers: world data, AIS traffic, metocean (MET Norway NORA3), solvers, weather routing, simulation,
 offshore wind models (NREL WOMBAT, ORBIT), emissions, rendering, video, CC0 3D assets, maritime UI design,
 MCP connectors, Claude skills and benchmark papers. Each entry has its licence, whether it was tested here,
@@ -100,7 +109,9 @@ Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and publish
 | Worlds | Oslofjord fetched and used; North Sea off Stavanger configured |
 | Sea lanes from the coastline | runs, tested (real Oslofjord demo passes the land check) |
 | Renderer (deck.gl, headless) | sprites, glTF models, trails, overlays tested; style v0 |
-| Intro animation (Manim), 3D inspection (PyVista) | run here |
+| Gated runner `offsim run` with provenance | runs, tested |
+| Motion: storyboard → Manim / deck.gl / HyperFrames → ffmpeg | built; dry-run checked in tests; renders on demand |
+| Line-art agents and sites | runs, tested (renderer `--check` in CI) |
 | First reproduced paper | next ([roadmap](docs/ROADMAP.md)) |
 
 ## Repository map
@@ -110,7 +121,8 @@ Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and publish
 | `offsim/` | the package: `contract`, `sim/replay`, `solve/pyvrp_adapter`, `scene`, `worlds/`, `render_deck/`, `papers/`, `examples/` |
 | `skills/` | Claude Code skills (also a plugin: `.claude-plugin/plugin.json`) |
 | `catalog/tools.yaml` | tool catalog source; `docs/TOOLS.md` is generated |
-| `docs/` | [framework](docs/FRAMEWORK.md), [roadmap](docs/ROADMAP.md), [tools](docs/TOOLS.md) |
+| `offsim/motion/` | storyboard engine, HyperFrames card templates |
+| `docs/` | [framework](docs/FRAMEWORK.md), [audit](docs/AUDIT.md), [roadmap](docs/ROADMAP.md), [tools](docs/TOOLS.md) |
 | `.github/workflows/` | tests, fetch-world, render |
 
 ## Data credits

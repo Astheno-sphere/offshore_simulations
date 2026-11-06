@@ -21,6 +21,7 @@ layers:
   emissions: Fuel, energy and emissions from vessel activity
   render: Maps and 3D scenes from validated trajectories
   video: Assembling frames, captions and explainers into posts
+  motion: Motion-graphics engines, animation libraries and line-art animation
   assets: Free 3D models and textures for the cartoony look
   design: Visual systems and UI for maritime displays
   mcp: Connectors that let Claude drive desktop tools
@@ -139,8 +140,8 @@ tools:
 # ---------------- video ----------------
 - {id: ffmpeg, name: FFmpeg, url: "https://ffmpeg.org", layer: video, licence: LGPL/GPL, status: tested, runs: here, priority: now,
    role: "Frames to H.264 (veryfast preset)."}
-- {id: remotion, name: Remotion, url: "https://github.com/remotion-dev/remotion", layer: video, licence: Remotion licence (free for individuals/small teams), status: tested, runs: here, priority: next,
-   role: "Title cards, captions, compositing map clips with charts. Works here with system Chrome."}
+- {id: remotion, name: Remotion, url: "https://github.com/remotion-dev/remotion", layer: video, licence: Remotion licence (free for individuals/small teams), status: tested, runs: here, priority: later,
+   role: "React video; works here with system Chrome. Secondary to HyperFrames (Apache-2.0, no company-licence question) for cards."}
 - {id: manim, name: Manim Community, url: "https://github.com/ManimCommunity/manim", layer: video, licence: MIT, status: tested, runs: here, priority: next,
    role: "Animated maths (LaTeX objective and constraints) as the intro before the map. Tested here (0.22): needs apt libpango1.0-dev + dvisvgm, then pip install manim."}
 
@@ -172,6 +173,36 @@ tools:
    role: "Test models for the glTF pipeline."}
 - {id: pyvista, name: PyVista, url: "https://github.com/pyvista/pyvista", layer: render, licence: MIT, status: tested, runs: here, priority: later,
    role: "Off-screen VTK rendering works here: inspect glTF models, seabed meshes from depth grids, 3D stills without a browser."}
+
+# ---------------- motion ----------------
+- {id: hyperframes, name: HyperFrames (HeyGen), url: "https://github.com/heygen-com/hyperframes", layer: motion, licence: Apache-2.0, status: tested, runs: here, priority: now,
+   role: "HTML + GSAP compositions -> deterministic MP4; agent skills; lint/check gate. Our KPI cards (offsim/motion). Here: needs HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome and GSAP served locally (CDN blocked)."}
+- {id: gsap, name: GSAP (GreenSock), url: "https://github.com/greensock/GSAP", layer: motion, licence: GreenSock standard no-charge licence (not OSI), status: tested, runs: here, priority: now,
+   role: "Timelines, easing, count-ups, MotionPath, SplitText (all plugins now free). Used inside HyperFrames cards; vendored from npm, never from CDN."}
+- {id: gsap-skills, name: GSAP AI skills, url: "https://github.com/greensock/gsap-skills", layer: skills, licence: MIT, status: candidate, runs: here, priority: next,
+   role: "Official agent skills for correct GSAP timelines; install with npx skills add when writing new card templates."}
+- {id: hyperframes-skills, name: HyperFrames skills, url: "https://github.com/heygen-com/hyperframes", layer: skills, licence: Apache-2.0, status: candidate, runs: here, priority: next,
+   role: "Core skills (/hyperframes, /hyperframes-cli, /hyperframes-registry, /media-use): render contract, registry blocks (data charts), motion references."}
+- {id: motion-canvas, name: Motion Canvas, url: "https://github.com/motion-canvas/motion-canvas", layer: motion, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "TypeScript, generator-based animation with a timeline editor; strong for diagram/vector explainers (network graphs, routes drawn on)."}
+- {id: revideo, name: Revideo, url: "https://github.com/midrender/revideo", layer: motion, licence: MIT, status: watch, runs: here, priority: later,
+   role: "Motion Canvas fork with headless rendering API; if we need server-side parametrised explainers at scale."}
+- {id: lottie-web, name: lottie-web, url: "https://github.com/airbnb/lottie-web", layer: motion, licence: MIT, status: installed, runs: here, priority: later,
+   role: "Play After Effects/LottieFiles vector animations (icons, transitions) inside HyperFrames or deck overlays."}
+- {id: vivus, name: Vivus, url: "https://github.com/maxwellito/vivus", layer: motion, licence: MIT, status: installed, runs: here, priority: next,
+   role: "Animated SVG line drawing (stroke reveal): draw CAD-style elevations of a vessel or platform line by line in cards."}
+- {id: roughjs, name: Rough.js, url: "https://github.com/rough-stuff/rough", layer: motion, licence: MIT, status: installed, runs: here, priority: later,
+   role: "Hand-drawn, sketchy rendering of lines and shapes: whiteboard-style variant of the line art."}
+- {id: theatre-js, name: Theatre.js, url: "https://github.com/theatre-js/theatre", layer: motion, licence: check, status: watch, runs: laptop, priority: later,
+   role: "Keyframe editor for web 3D/motion; if camera choreography needs a GUI."}
+- {id: blender-freestyle, name: Blender Freestyle + SVG exporter (bundled), url: "https://docs.blender.org/manual/en/latest/render/freestyle/index.html", layer: motion, licence: GPL, status: candidate, runs: here, priority: later,
+   role: "True line rendering of 3D scenes (silhouettes, creases, hidden lines) to SVG: CAD elevations of models for cards. Separate bpy process."}
+- {id: trimesh, name: trimesh, url: "https://github.com/mikedh/trimesh", layer: render, licence: MIT, status: tested, runs: here, priority: now,
+   role: "Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py)."}
+- {id: anything2explainer, name: anything2explainer, url: "https://github.com/Vincentwei1021/anything2explainer", layer: motion, licence: check, status: watch, runs: here, priority: later,
+   role: "Agent skill: topic in, narrated explainer out; reference for narration + motion pipelines."}
+- {id: openmontage, name: OpenMontage, url: "https://github.com/calesthio/OpenMontage", layer: motion, licence: AGPL-3.0, status: watch, runs: here, priority: later,
+   role: "Agentic video production pipelines; AGPL: study only, separate process if ever used."}
 
 # ---------------- mcp ----------------
 - {id: blender-mcp, name: BlenderMCP, url: "https://github.com/ahujasid/blender-mcp", layer: mcp, licence: MIT, status: candidate, runs: laptop, priority: later,

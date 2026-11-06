@@ -20,11 +20,25 @@ Finals: run workflow `render` (Actions), download the MP4 from the release it cr
 |---|---|---|
 | `sprite` (default) | cartoony 3D-look billboards that flip to face their heading | `offsim/assets/sprites/` (Fluent Emoji, MIT), class → sprite in `style.sprites` |
 | `model` | low-poly glTF oriented along the course | `offsim/assets/models/*.glb` (ours, `make_models.py`), class → model in `style.models` |
+| `lineart` | CAD-style vector linework (feature edges of our models), plan view, rotated by heading, crisp at any zoom | `offsim/assets/lineart/*.json` from `python -m offsim.assets.lineart` |
 | `dot` | plain circles (debug) | — |
-Sites with a `kind` that has a model (`platform`, `wind_turbine`) render as 3D models; others as columns.
+Sites with a `kind` that has a model (`platform`, `wind_turbine`) render as 3D models (`site_mode: model`) or line art (`site_mode: lineart`); others as columns.
 Models are exaggerated on purpose (`site_model_scale`, `agent_model_scale`): at fjord zoom a true-scale
 50 m platform is 3 px. Say "not to scale" on screen when it matters. Override per render: `--agents model`.
 Assets load asynchronously; `render.py` warms up before capture (missing sprites in a frame = raise the warm-up).
+
+## Motion: storyboard → shots → video
+`offsim/papers/<id>/storyboard.yaml` lists shots; `python -m offsim story <storyboard> --dry-run` resolves every
+number against `report.json`, builds each shot's source and checks it headlessly (renderer `--check`,
+`hyperframes lint`) without rendering. Drop `--dry-run` to render shots and crossfade them with ffmpeg.
+| Shot | Engine | Use |
+|---|---|---|
+| `equation` | Manim (LaTeX) | the paper's objective and key constraint, written on |
+| `map` | deck.gl | the run on the real coast; `camera.keys` = eased fly-in / push / pull-back; `agents`/`sites` modes |
+| `card` | HyperFrames + GSAP | KPI count-ups and the status word; template `offsim/motion/templates/kpi_card` |
+Card values are `report:` refs (with `scale`, `decimals`, `unit`); literals are refused. A run that failed
+gates 0–3 cannot get a storyboard. Next engines in the catalog: Vivus (line-by-line SVG drawing), Motion
+Canvas (vector diagram explainers), Lottie (icon animation).
 
 ## Sea lanes
 Vessels must route around land: `offsim.worlds.sealanes.SeaGraph` (grid + clearance + string pulling),

@@ -1,5 +1,5 @@
 {
-  "_note": "Motion grammar v1. Same palette as skills/visual-narrative (plate.py): ink ground, paper linework, one accent. Edit here, never per video. agent_mode: sprite (Fluent 3D emoji billboards) | model (glTF from assets/models, oriented by heading) | dot. Models are exaggerated on purpose (cartoon scale): a 50 m platform would be 3 px at fjord zoom.",
+  "_note": "Motion grammar v1. Same palette as skills/visual-narrative (plate.py): ink ground, paper linework, one accent. Edit here, never per video. agent_mode: sprite (Fluent 3D emoji billboards) | model (glTF from assets/models, oriented by heading) | lineart (CAD-style vector linework from the models, assets/lineart) | dot. site_mode: model | lineart. Models are exaggerated on purpose (cartoon scale): a 50 m platform would be 3 px at fjord zoom.",
   "ink": "#10161B",
   "paper": "#E8E1CF",
   "dim": "#8C949A",
@@ -68,5 +68,16 @@
   "sprite_px": 44,
   "agent_mode": "sprite",
   "site_model_scale": 40,
-  "agent_model_scale": 30
+  "agent_model_scale": 30,
+  "lineart": {
+    "psv": "psv",
+    "ferry": "ferry",
+    "crew_boat": "psv",
+    "platform": "platform",
+    "wind_turbine": "wind_turbine"
+  },
+  "lineart_scale": 8,
+  "site_lineart_scale": 12,
+  "line_px": 1.3,
+  "site_mode": "model"
 }

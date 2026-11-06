@@ -1,0 +1,39 @@
+# Motion plan for the demo run. Numbers on cards are refs into report.json, never literals.
+id: demo-oslofjord-supply
+run: out/demo                       # python -m offsim run offsim/papers/demo-oslofjord-supply/scenario.yaml --out out/demo
+scenario: offsim/papers/demo-oslofjord-supply/scenario.yaml
+format: square                      # square | vertical | wide | draft
+transition_s: 0.5
+shots:
+  - type: equation                  # Manim: the model in one breath
+    seconds: 5
+    latex:
+      - '\min \sum_{k \in K} \sum_{(i,j) \in A} d_{ij}\, x_{ijk}'
+      - '\sum_{i \in N} q_i\, y_{ik} \le Q \quad \forall k \in K'
+  - type: map                       # deck.gl on the real coastline, CAD-style line art
+    seconds: 14
+    agents: lineart
+    sites: lineart
+    trail_s: 3600
+    camera:
+      pitch: 45
+      keys:
+        - {at: 0.00, fit: [[10.40, 59.10], [10.75, 59.47]], pitch: 30, bearing: 0}
+        - {at: 0.35, fit: [[10.45, 59.13], [10.72, 59.36]], pitch: 50, bearing: -15}
+        - {at: 1.00, fit: [[10.42, 59.10], [10.74, 59.46]], pitch: 40, bearing: -5}
+    overlay:
+      title: "Two supply vessels, six sites"
+      legend: [["#FF5B3A", "optimised routes (PyVRP, sea lanes)"]]
+      source: "Coastline © OpenStreetMap contributors (ODbL) · sites, demand and fleet SYNTHETIC · offshore_simulations"
+      watermark: "OFFSHORE SIMULATIONS"
+    kpis:
+      - {label: "km sailed", value: "report:kpis.distance_km", fmt: "{:.0f}"}
+  - type: card                      # HyperFrames + GSAP count-up
+    seconds: 5
+    kicker: "measured, not claimed"
+    title: "Demo run on the real Oslofjord"
+    kpis:
+      - {label: "km sailed", value: "report:kpis.distance_km", decimals: 0}
+      - {label: "hours, fleet makespan", value: "report:kpis.makespan_s", scale: 0.000277778, decimals: 1}
+      - {label: "vessels used", value: "report:measured.vehicles_used", decimals: 0}
+    source: "Status from the corrector's report.json · synthetic demo, not a paper result"

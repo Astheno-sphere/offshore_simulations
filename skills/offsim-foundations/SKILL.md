@@ -7,17 +7,19 @@ description: Entry point for offshore_simulations - reproduce offshore and marit
 
 | Request is about | Use |
 |---|---|
-| A paper to reproduce, simulate or visualise | `paper-extract` → then `sim-corrector` |
+| A paper to reproduce, simulate or visualise | `paper-extract` → `python -m offsim run <scenario.yaml>` → `sim-corrector` reads the report |
 | Routing/scheduling solve (VRP, PDP, multi-depot) | `offsim/solve/pyvrp_adapter.py`; exact check on small cases with `opt-model` |
 | An LP/MIP from a paper; proving a plan optimal | `opt-model` |
 | "Results look wrong", any check before showing | `sim-corrector` |
-| A video, still or LinkedIn format of a validated result | `visual-director` |
+| A video, still or LinkedIn format of a validated result | `visual-director` → `storyboard.yaml` → `python -m offsim story` (`--dry-run` first) |
+| Motion graphics: equation intro, KPI count-up card, camera moves, line-art drawing | `visual-director` (Motion section); engines: Manim, HyperFrames + GSAP, deck.gl |
 | Caption, post, README entry for a result | `sim-narrator` |
 | Which tool, dataset, MCP server or skill exists for X; add a new one | `tool-scout` (catalog: `catalog/tools.yaml`, `docs/TOOLS.md`) |
 | Map data for a study area | `offsim/worlds/` (fetch on Actions, `--pull` here) |
 
 ## The flow (never skip a step)
-paper → `scenario.yaml` → solve → replay (SimPy) → **contract + corrector gates** → scene → render → post.
+paper → `scenario.yaml` → **`offsim run`** (gate 0 provenance → solve → gate 1 plan → replay → gate 2 replay=plan →
+gate 3 contract → gate 4 paper → `report.json`) → `storyboard.yaml` → **`offsim story`** (refs into the report only) → video → post.
 `offsim.scene.build_scene` refuses a trajectory that failed `validate`; nothing reaches a video unchecked.
 
 ## Conventions

@@ -7,7 +7,7 @@ paper:
   doi: ""
   licence: ""                      # e.g. CC BY 4.0 -> figures/instances may be redistributed with credit
 problem:
-  class: []                        # e.g. [PDP, heterogeneous_fleet, multi_depot, multi_trip, synchronisation]
+  class: []                        # runner supports [CVRP, VRPTW] today (offsim/pipeline.py SUPPORTED); others stop at gate 0
   objective: ""                    # e.g. total flight time; cost; emissions
   constraints: []                  # each: {name, formula_or_text, src}
   solver: pyvrp                    # pyvrp | ortools | pyomo+highs | ampl | custom; must express every constraint above
@@ -22,9 +22,10 @@ fleet:                             # one entry per vehicle type
 instance:
   source: ""                       # paper appendix | benchmark set | public data | synthetic (must be said on screen)
   file: ""                         # path under offsim/papers/<id>/ if redistributable, else fetch recipe
-  stops: []                        # or generated from world layers
-  time_windows: {src: ""}
   service_s: {value: null, src: ""}
+  base: {name: "", lon: null, lat: null, src: ""}
+  stops:                           # each stop: name, lon, lat, demand {value, src}, optional service_s, tw {value: [early, late] s}, src
+    # - {name: "", lon: null, lat: null, demand: {value: null, src: ""}, src: ""}
 sim:
   shared_resources: {}             # e.g. {helideck_X: 1, berth_base: 2}
   weather: none                    # none | windows from <source>

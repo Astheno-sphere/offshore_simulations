@@ -27,6 +27,15 @@ per timestamp (`agent_id, t, lon, lat, alt_m, state, load`) plus an agents table
 capacity, domain`). Solvers and simulators write it; renderers only read it. A rendering bug can no
 longer change a result, and a result bug cannot reach a video.
 
+## Commands
+
+| Command | Does |
+|---|---|
+| `python -m offsim run <scenario.yaml>` | gate 0 provenance → solve → gate 1 plan → replay → gate 2 replay=plan → gate 3 contract → gate 4 paper → `report.json` with provenance |
+| `python -m offsim story <storyboard.yaml> --dry-run` | refs resolve, gates passed, tools present, each shot built and checked headlessly; nothing rendered |
+| `python -m offsim story <storyboard.yaml>` | Manim / deck.gl / HyperFrames shots → ffmpeg crossfades → one MP4 |
+| `python offsim/render_deck/render.py --scene S --check` | renderer smoke test (layers loaded, no page errors) |
+
 ## Agents (Claude Code skills in `skills/`)
 
 | Skill | Job | Blocks when |

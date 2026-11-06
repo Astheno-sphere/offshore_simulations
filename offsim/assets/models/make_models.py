@@ -59,7 +59,21 @@ def psv():
     box((14, 14, 10), (0, 26, 12), "white", "bridge")
     box((14.5, 3, 2.5), (0, 33.4, 15), "dark", "windows")
     box((14, 44, 0.6), (0, -12, 7.3), "steel", "deck")
-    cyl(1.4, 10, (4, 22, 22), "yellow")
+    cyl(1.4, 10, (4, 22, 22), "yellow")                          # mast
+    box((15, 3, 1.2), (0, 37.5, 8.2), "white", "bow_bulwark")
+    for i, y in enumerate((-30, -22, -14, -6, 2)):                # deck cargo (containers, pipes)
+        box((5, 6, 3), (-3.5 if i % 2 else 3.5, y, 9.1), "accent" if i % 2 else "blue", f"cargo{i}")
+    cyl(0.6, 30, (5.5, -12, 9.0), "steel", rot=(1.5708, 0, 0))   # pipe stack
+    cyl(0.6, 30, (6.6, -12, 9.0), "steel", rot=(1.5708, 0, 0))
+    cyl(1.2, 8, (-6, 14, 11), "yellow")                           # crane pedestal
+    box((1.2, 16, 1.2), (-6, 7, 15), "yellow", "crane_jib")
+    for y in range(-34, 18, 4):                                   # railing posts
+        box((0.3, 0.3, 1.2), (7.8, y, 8.2), "steel", "rail")
+        box((0.3, 0.3, 1.2), (-7.8, y, 8.2), "steel", "rail")
+    box((0.2, 52, 0.2), (7.8, -8, 8.8), "steel", "railtop_s")
+    box((0.2, 52, 0.2), (-7.8, -8, 8.8), "steel", "railtop_p")
+    box((3, 5, 2), (-8.6, 20, 12), "accent", "rescue_boat")
+    box((6, 2, 2), (0, 18.5, 18), "steel", "radar_bar")
     export("psv")
 
 
@@ -69,7 +83,16 @@ def ferry():
     box((20.4, 90, 1.5), (0, 0, 1.2), "accent", "band")
     box((16, 60, 9), (0, 0, 12.5), "white", "superstructure")
     box((16.5, 58, 2), (0, 0, 14), "blue", "windows")
-    cyl(2.2, 8, (0, -8, 21), "accent")
+    cyl(2.2, 8, (0, -8, 21), "accent")                           # funnel
+    box((10, 8, 3), (0, 20, 18.5), "white", "bridge")
+    box((10.5, 2, 1.2), (0, 24, 19), "dark", "bridge_windows")
+    for i, y in enumerate((-24, -12, 0, 12)):                     # lifeboats both sides
+        box((2.5, 6, 2), (9, y, 16), "accent", f"lb_s{i}")
+        box((2.5, 6, 2), (-9, y, 16), "accent", f"lb_p{i}")
+    box((14, 6, 6), (0, 45.5, 4), "white", "bow_door")
+    box((14, 6, 6), (0, -45.5, 4), "white", "stern_door")
+    for y in range(-28, 30, 4):                                   # window rows
+        box((16.6, 2.2, 0.8), (0, y, 11), "blue", "win")
     export("ferry")
 
 

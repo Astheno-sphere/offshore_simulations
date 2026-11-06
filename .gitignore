@@ -6,3 +6,4 @@ data/
 offsim/render_deck/node_modules/
 offsim/render_deck/bundle.js
 *.mp4
+offsim/motion/node_modules/

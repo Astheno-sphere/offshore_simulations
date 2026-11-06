@@ -8,6 +8,9 @@ description: Gatekeeper of offshore_simulations - checks every simulation before
 Code: `offsim/contract.py` (`validate`, `kpis`, `compare_to_paper`). Tests: `tests/test_offsim.py`.
 
 ## Gates, in order: stop at the first failure and report it
+Automated by `python -m offsim run <scenario.yaml>` (`offsim/pipeline.py`): gate 0 (provenance + supported class)
+runs first; read `report.json` → `gates`, `status`, `provenance`, `quay_snap_m`. Your job: explain failures, never edit
+parameters to make a gate pass.
 1. **Plan**: the solver's plan, re-evaluated outside the solver: every client served once, capacity,
    time windows, route length. Certify small instances exactly with `opt-model` (`cvrp_exact`).
 2. **Replay = plan**: replayed distance/duration equals the solver objective (`compare_to_paper` with

@@ -1,0 +1,57 @@
+<!doctype html>
+<!-- HyperFrames composition. story.py fills {{...}} from report.json only; never type numbers here. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width={{W}}, height={{H}}" />
+    <script src="gsap.min.js"></script>
+    <style>
+      :root { --ground: #10161B; --ink: #E8E1CF; --dim: #8C949A; --accent: #FF5B3A; --rule: #2A343C;
+              --font-display: Inter, "DejaVu Sans", sans-serif; --serif: "Liberation Serif", serif; --mono: "DejaVu Sans Mono", monospace; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: {{W}}px; height: {{H}}px; overflow: hidden; background: var(--ground); }
+      #root { width: 100%; height: 100%; position: relative; font-family: var(--font-display); color: var(--ink);
+              padding: calc({{H}}px * 0.07) calc({{W}}px * 0.07); }
+      .kicker { font-family: var(--serif); font-style: italic; color: var(--dim); font-size: calc({{H}}px * 0.03); }
+      .title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: calc({{H}}px * 0.05);
+               margin-top: .3em; max-width: 85%; }
+      .rule { position: absolute; left: 7%; right: 7%; top: 34%; height: 2px; background: var(--rule); transform-origin: left; }
+      .kpis { position: absolute; left: 7%; right: 7%; top: 40%; display: flex; gap: 6%; }
+      .kpi b { display: block; font-family: var(--mono); color: var(--accent); font-size: calc({{H}}px * 0.085); font-weight: 600; }
+      .kpi span { color: var(--dim); font-size: calc({{H}}px * 0.024); }
+      .status { position: absolute; left: 7%; top: 72%; font-size: calc({{H}}px * 0.026); letter-spacing: .12em;
+                text-transform: uppercase; border: 2px solid var(--accent); color: var(--accent); padding: .45em .9em; }
+      .source { position: absolute; left: 7%; bottom: 6%; right: 30%; color: var(--dim); font-size: calc({{H}}px * 0.017); line-height: 1.5; }
+      .mark { position: absolute; right: 7%; bottom: 6%; color: var(--accent); font-weight: 700; letter-spacing: .12em; font-size: calc({{H}}px * 0.02); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DURATION}}" data-width="{{W}}" data-height="{{H}}">
+      <div id="kicker" class="kicker clip" data-start="0" data-duration="{{DURATION}}" data-track-index="0">{{KICKER}}</div>
+      <div id="title" class="title clip" data-start="0" data-duration="{{DURATION}}" data-track-index="1">{{TITLE}}</div>
+      <div id="rule" class="rule clip" data-start="0" data-duration="{{DURATION}}" data-track-index="2"></div>
+      <div id="kpis" class="kpis clip" data-start="0" data-duration="{{DURATION}}" data-track-index="3">{{KPI_HTML}}</div>
+      <div id="status" class="status clip" data-start="0" data-duration="{{DURATION}}" data-track-index="4">{{STATUS}}</div>
+      <div id="source" class="source clip" data-start="0" data-duration="{{DURATION}}" data-track-index="5">{{SOURCE}}</div>
+      <div id="mark" class="mark clip" data-start="0" data-duration="{{DURATION}}" data-track-index="6">{{MARK}}</div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.from(".kicker", { opacity: 0, y: 12, duration: 0.5, ease: "power2.out" }, 0.1)
+        .from(".title", { opacity: 0, y: 20, duration: 0.6, ease: "power3.out" }, 0.25)
+        .from(".rule", { scaleX: 0, duration: 0.8, ease: "power2.inOut" }, 0.6);
+      // count-up: each KPI tweens from 0 to its value; seek-safe because text is derived from the tween state
+      document.querySelectorAll(".kpi b").forEach((el, i) => {
+        const end = parseFloat(el.dataset.value), dec = parseInt(el.dataset.decimals || "0"), unit = el.dataset.unit || "";
+        const st = { v: 0 };
+        el.textContent = (0).toFixed(dec) + unit;
+        tl.from(el.parentNode, { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 1.0 + i * 0.25)
+          .to(st, { v: end, duration: 1.4, ease: "power3.out", onUpdate: () => { el.textContent = st.v.toFixed(dec) + unit; } }, 1.0 + i * 0.25);
+      });
+      tl.from(".status", { opacity: 0, scale: 0.9, duration: 0.5, ease: "back.out(2)" }, 2.6)
+        .from([".source", ".mark"], { opacity: 0, duration: 0.6 }, 2.9);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

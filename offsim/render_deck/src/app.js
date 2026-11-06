@@ -49,25 +49,65 @@ function positions(t) {
 
 // camera.fit = [[west, south], [east, north]]: same extent in every output format; pitch/bearing on top
 function view(cam) {
-  if (!cam.fit) return cam;
+  if (!cam.fit) return {longitude: cam.longitude, latitude: cam.latitude, zoom: cam.zoom, pitch: cam.pitch || 0, bearing: cam.bearing || 0};
   // keep the map clear of the title block (top) and legend/source (bottom)
   const p = cam.padding ?? 0.06, H = S.height, W = S.width;
   const pad = {top: Math.round(H * (0.22 + p)), bottom: Math.round(H * (0.12 + p)), left: Math.round(W * p), right: Math.round(W * (0.12 + p))};
   const {longitude, latitude, zoom} = new WebMercatorViewport({width: S.width, height: S.height}).fitBounds(cam.fit, {padding: pad});
   return {longitude, latitude, zoom: zoom + (cam.zoom_offset || 0), pitch: cam.pitch || 0, bearing: cam.bearing || 0};
 }
+// camera.keys = [{at: 0..1, fit|longitude/latitude/zoom, pitch, bearing}, ...]: eased moves through the run
+const KEYS = (S.camera.keys || []).map((k) => ({at: k.at, v: view({...S.camera, ...k})})).sort((a, b) => a.at - b.at);
+const ease = (x) => x * x * (3 - 2 * x);
+function cameraAt(t) {
+  if (!KEYS.length) return view(S.camera);
+  const f = (t - S.t0) / Math.max(S.t1 - S.t0, 1e-9);
+  if (f <= KEYS[0].at) return KEYS[0].v;
+  for (let i = 1; i < KEYS.length; i++) {
+    if (f <= KEYS[i].at) {
+      const a = KEYS[i - 1], b = KEYS[i], u = ease((f - a.at) / Math.max(b.at - a.at, 1e-9));
+      const lerp = (k) => a.v[k] + (b.v[k] - a.v[k]) * u;
+      return {longitude: lerp('longitude'), latitude: lerp('latitude'), zoom: lerp('zoom'), pitch: lerp('pitch'), bearing: lerp('bearing')};
+    }
+  }
+  return KEYS[KEYS.length - 1].v;
+}
 const deck = new Deck({
   canvas: 'c', width: S.width, height: S.height, useDevicePixels: false, controller: false, _animate: false,
-  initialViewState: view(S.camera),
+  viewState: cameraAt(S.t0),
 });
 
 const fmtClock = (s) => { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; };
+
+// CAD-style line art: plan-view segments in metres (+y forward), rotated by heading, scaled, placed
+function lineSegs(art, pos, headingDeg, scale) {
+  const h = headingDeg * Math.PI / 180, c = Math.cos(h), sn = Math.sin(h);
+  const mLon = 1 / (111320 * Math.cos(pos[1] * Math.PI / 180)), mLat = 1 / 110540;
+  return art.plan.map((seg) => seg.map(([x, y]) => {
+    const e = (x * c + y * sn) * scale, n = (-x * sn + y * c) * scale;   // east, north in metres
+    return [pos[0] + e * mLon, pos[1] + n * mLat, (pos[2] || 0) + 2];
+  }));
+}
+function lineLayer(id, items, t) {
+  // items: [{segs, colour}] flattened into one PathLayer
+  const data = [];
+  for (const it of items) for (const p of it.segs) data.push({path: p, colour: it.colour});
+  return new PathLayer({id, data, getPath: (d) => d.path, getColor: (d) => d.colour, widthUnits: 'pixels',
+    getWidth: st.line_px, capRounded: true, updateTriggers: {getPath: t}});
+}
 
 function agentLayers(now, t) {
   const mode = st.agent_mode, sprites = S.assets.sprites || {}, models = S.assets.models || {};
   const dot = (data, id) => new ScatterplotLayer({id, data, getPosition: (d) => d.pos, radiusUnits: 'pixels', getRadius: st.agent_px,
     stroked: true, getLineColor: hex(st.ink), lineWidthMinPixels: 2, getFillColor: (d) => hex(d.accent ? st.accent : (st.cls[d.cls] || st.paper)),
     updateTriggers: {getPosition: t}});
+  if (mode === 'lineart') {
+    const arts = S.assets.lineart || {};
+    const items = now.filter((d) => arts[st.lineart[d.cls]]).map((d) => ({
+      segs: lineSegs(arts[st.lineart[d.cls]], d.pos, d.heading, st.lineart_scale),
+      colour: hex(d.accent ? st.accent : st.paper)}));
+    return [lineLayer('agent-lines', items, t), dot(now.filter((d) => !arts[st.lineart[d.cls]]), 'agents-dot')];
+  }
   if (mode === 'model') {
     const layers = Object.entries(models).map(([cls, url]) => new ScenegraphLayer({id: `agent-${cls}`, data: now.filter((d) => d.cls === cls),
       scenegraph: url, loaders: [GLTFLoader], getPosition: (d) => d.pos, getOrientation: (d) => [0, -d.heading, 90],
@@ -98,11 +138,13 @@ window.draw = (t) => new Promise((resolve) => {
     new PolygonLayer({id: 'land', data: S.world.land || [], getPolygon: (d) => d, extruded: true, getElevation: S.land_relief_m ?? st.land_relief_m,
       getFillColor: hex(st.land), getLineColor: hex(st.paper, 140), stroked: true, lineWidthMinPixels: 1, material: {ambient: 0.6, diffuse: 0.5}}),
     new PathLayer({id: 'lanes', data: S.world.lanes || [], getPath: (d) => d, getColor: hex(st.faint_line), widthMinPixels: 1}),
-    ...Object.entries(S.assets.models || {}).map(([kind, url]) => new ScenegraphLayer({id: `site-${kind}`,
+    ...(st.site_mode === 'lineart' ? [lineLayer('site-lines', (S.world.sites || []).filter((d) => (S.assets.lineart || {})[d.kind])
+      .map((d) => ({segs: lineSegs(S.assets.lineart[d.kind], d.pos, d.yaw || 0, st.site_lineart_scale), colour: hex(d.accent ? st.accent : st.paper)})), 0)] : []),
+    ...Object.entries(st.site_mode === 'lineart' ? {} : (S.assets.models || {})).map(([kind, url]) => new ScenegraphLayer({id: `site-${kind}`,
       data: (S.world.sites || []).filter((d) => d.kind === kind), scenegraph: url, loaders: [GLTFLoader],
       getPosition: (d) => d.pos, getOrientation: (d) => [0, d.yaw || 0, 90],
       getScale: (d) => { const k = d.scale || st.site_model_scale; return [k, k, k]; }, _lighting: 'pbr'})),
-    new ColumnLayer({id: 'sites', data: (S.world.sites || []).filter((d) => !(S.assets.models || {})[d.kind]), getPosition: (d) => d.pos, diskResolution: 6, radius: st.site_radius_m,
+    new ColumnLayer({id: 'sites', data: (S.world.sites || []).filter((d) => !(st.site_mode === 'lineart' ? (S.assets.lineart || {}) : (S.assets.models || {}))[d.kind]), getPosition: (d) => d.pos, diskResolution: 6, radius: st.site_radius_m,
       extruded: true, getElevation: (d) => d.height_m || st.site_height_m, getFillColor: (d) => hex(d.accent ? st.accent : st.paper)}),
     new TextLayer({id: 'site-labels', data: (S.world.sites || []).filter((d) => d.label), getPosition: (d) => [d.pos[0], d.pos[1], (d.height_m || st.site_height_m) * 1.3],
       getText: (d) => d.label, getColor: hex(st.dim), getSize: st.label_px, fontFamily: st.font, getTextAnchor: 'start', getPixelOffset: [8, 0]}),
@@ -119,7 +161,7 @@ window.draw = (t) => new Promise((resolve) => {
   });
   document.getElementById('kpis').innerHTML = k.join('');
   let tries = 0;
-  deck.setProps({layers, onAfterRender: () => {
+  deck.setProps({layers, viewState: cameraAt(t), onAfterRender: () => {
     if (allLoaded() || tries++ > 200) resolve(); else setTimeout(() => deck.redraw(true), 15);
   }});
   deck.redraw(true);

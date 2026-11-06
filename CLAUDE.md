@@ -1,7 +1,8 @@
 # offshore_simulations — instructions for Claude
 
 Start at `skills/offsim-foundations/SKILL.md` (router + conventions). The flow is fixed:
-paper → scenario.yaml → solve → replay → contract + corrector gates → scene → render → post.
+paper → scenario.yaml → `python -m offsim run` (gates 0–4, report.json) → storyboard.yaml →
+`python -m offsim story --dry-run` → `python -m offsim story` → post. See `docs/AUDIT.md` for open risks.
 
 - Never render, narrate or post a result that has not passed `offsim.contract.validate` and the
   corrector's paper comparison. `build_scene` enforces the first; you enforce the second.
@@ -12,6 +13,8 @@ paper → scenario.yaml → solve → replay → contract + corrector gates → 
   in via the `fetch-world` workflow → GitHub release → `python -m offsim.worlds.fetch_world --pull <world>`.
 - Agents render as characters (`style.json` agent_mode: sprite | model). Vessels route on sea lanes
   (`offsim.worlds.sealanes`), never straight across land; report quay snaps.
+- Numbers on screen come only from `report:` refs. Verify renders with `render.py --check` / `story --dry-run`
+  before producing video; do not render images during audits unless asked.
 - Heavy renders (1080p, Blender) go to the `render` workflow; drafts and stills are fine here.
 - GPL tools run as separate processes, never imported. Data is never committed (see `.gitignore`).
 - PyVRP 0.14: use `offsim/solve/pyvrp_adapter.py`; it handles `is_client()` and client index offsets.
