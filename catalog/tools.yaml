@@ -218,11 +218,11 @@ tools:
    role: "3 km waves; free with registration (Actions secret)."}
 - {id: era5-cds, name: "ERA5 single levels (Copernicus CDS)", url: "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels", layer: metocean, licence: "Copernicus licence (check)", status: watch, runs: actions, priority: later,
    role: "Global 0.25° hourly u10/v10/swh fallback; CDS token as Actions secret."}
-- {id: xarray-netcdf4, name: "xarray + netCDF4 (+ zarr)", url: "https://pypi.org/project/xarray/", layer: metocean, licence: "Apache-2.0 / MIT (check)", status: candidate, runs: actions, priority: now,
+- {id: xarray-netcdf4, name: "xarray + netCDF4 (+ zarr)", url: "https://pypi.org/project/xarray/", layer: metocean, licence: "Apache-2.0 / MIT (check)", status: installed, runs: actions, priority: now, evidence: "offsim/weather/fetch.py requirements-weather.txt tests/test_weather.py",
    role: "OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py."}
 - {id: cfgrib-herbie, name: "cfgrib + herbie-data (GRIB)", url: "https://pypi.org/project/herbie-data/", layer: metocean, licence: "MIT / Apache-2.0", status: watch, runs: actions, priority: later,
    role: "GFS GRIB byte-range subsets; needs eccodes; coarse fallback only."}
-- {id: seeded-particles, name: "Seeded offline particle trails (ours, via deck.gl TripsLayer)", url: "https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
+- {id: seeded-particles, name: "Seeded offline particle trails (ours, via deck.gl TripsLayer)", url: "https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py", layer: render, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/weather/visual.py offsim/render_deck/src/layers/weather.js tests/test_weather.py",
    role: "Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction."}
 - {id: weatherlayers-gl, name: "WeatherLayers GL", url: "https://github.com/weatherlayers/weatherlayers-gl", layer: render, licence: "MPL-2.0 OR WeatherLayers terms (dual)", status: watch, runs: browser, priority: next,
    role: "Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes."}

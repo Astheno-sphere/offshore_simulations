@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-123 tools · 16 tested · 1 wired · 0 installed · 56 candidate · 4 manual · 46 watch.
+123 tools · 17 tested · 1 wired · 1 installed · 54 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -13,13 +13,13 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 |---|---|---|---|---|---|---|---|
 | world | 1 | 1 | 0 | 8 | 3 | 8 | 21 |
 | traffic | 0 | 0 | 0 | 2 | 1 | 2 | 5 |
-| metocean | 0 | 0 | 0 | 8 | 0 | 5 | 13 |
+| metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
 | solver | 2 | 0 | 0 | 2 | 0 | 4 | 8 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
 | simulation | 1 | 0 | 0 | 2 | 0 | 2 | 5 |
 | offshore-energy | 0 | 0 | 0 | 2 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 4 | 0 | 0 | 7 | 0 | 7 | 18 |
+| render | 5 | 0 | 0 | 6 | 0 | 7 | 18 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 2 | 0 | 0 | 9 | 0 | 4 | 15 |
@@ -49,8 +49,8 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [trimesh](https://github.com/mikedh/trimesh) | render | tested | here | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). |
 | [NORA3 wind + wave hindcast (MET Norway)](https://data.met.no/dataset/ddb4c5d1-70b5-4d09-98a8-fadbf5e2d2ba) | metocean | candidate | actions | 3 km hourly wind; wave hindcast (Hs, Tp, dir) via thredds.met.no nora3_subsets; OPeNDAP, no login. Primary weather source (offsim/weather/fetch.py). Variable names and wave grid: check. |
 | [NorKyst v3 800 m ocean forecast archive](https://data.met.no/dataset/1250dfdf-975c-4c5e-85d4-745506402f06) | metocean | candidate | actions | Hourly u/v currents, 15 depth levels, from 2024-01-01; curvilinear grid (regrid); ~160 m nest covers Oslofjord. |
-| [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | metocean | candidate | actions | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. |
-| [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | render | candidate | here | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. |
+| [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | metocean | installed | actions | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. |
+| [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | render | tested | here | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. |
 | [Kartverket DTM 10 m terrain model](https://nedlasting.geonorge.no/api/capabilities/) | world | candidate | actions | 10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py). |
 | [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | world | candidate | actions | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
 | [EMODnet Bathymetry DTM (1/16 arc-min)](https://emodnet.ec.europa.eu/en/bathymetry) | world | candidate | actions | ~115 m North Sea bathymetry tiles (LAT, MSL variant): the shelf tier off Stavanger. |
@@ -110,7 +110,7 @@ _Wind, waves, currents; weather windows for operations_
 |---|---|---|---|---|---|
 | [NORA3 wind + wave hindcast (MET Norway)](https://data.met.no/dataset/ddb4c5d1-70b5-4d09-98a8-fadbf5e2d2ba) | CC-BY-4.0 | candidate | actions | now | 3 km hourly wind; wave hindcast (Hs, Tp, dir) via thredds.met.no nora3_subsets; OPeNDAP, no login. Primary weather source (offsim/weather/fetch.py). Variable names and wave grid: check. |
 | [NorKyst v3 800 m ocean forecast archive](https://data.met.no/dataset/1250dfdf-975c-4c5e-85d4-745506402f06) | CC-BY-4.0 | candidate | actions | now | Hourly u/v currents, 15 depth levels, from 2024-01-01; curvilinear grid (regrid); ~160 m nest covers Oslofjord. |
-| [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | Apache-2.0 / MIT (check) | candidate | actions | now | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. |
+| [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | Apache-2.0 / MIT (check) | installed | actions | now | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. Evidence: `offsim/weather/fetch.py` `requirements-weather.txt` `tests/test_weather.py` |
 | [MET Norway WAM 800 m coastal wave forecast](https://thredds.met.no/thredds/fou-hi/mywavewam800.html) | check | candidate | actions | next | Hs/Tp/direction at 800 m on five coastal domains; forecast archive only (NORA3 for hindcast). |
 | [metocean-api (MET Norway)](https://github.com/MET-OM/metocean-api) | check | candidate | actions | next | Time series from NORA3 wind/wave hindcast (and ERA5) at a point: weather windows for PSV, crane and helideck operations. |
 | [NorKyst v3 hindcast catalogue](https://thredds.met.no/thredds/catalog/romshindcast/norkyst_v3/catalog.html) | check | watch | actions | next | Multi-year currents for historical paper scenarios; coverage unverified. |
@@ -190,7 +190,7 @@ _Maps and 3D scenes from validated trajectories_
 | [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | MIT | candidate | here | now | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | MIT | candidate | here | now | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
 | [deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer](https://deck.gl/docs/api-reference/geo-layers/terrain-layer) | MIT | candidate | here | now | Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders. |
-| [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | candidate | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. |
+| [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | tested | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. Evidence: `offsim/weather/visual.py` `offsim/render_deck/src/layers/weather.js` `tests/test_weather.py` |
 | [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
 | [matplotlib streamplot/quiver textures](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html) | PSF-style | candidate | here | next | Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer. |
 | [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |

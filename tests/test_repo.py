@@ -52,9 +52,11 @@ def test_defined_interfaces_exist_and_are_honestly_unbuilt():
     import pytest
 
     from offsim.cinema import camera, vessel
-    from offsim.weather import fetch, visual
     from offsim.worlds import depth
-    for mod in (camera, vessel, fetch, visual, depth):
+    # weather.visual is built (tests/test_weather.py). weather.fetch is built too: its remaining NotImplementedError
+    # paths are data-dependent (unverified datasets, missing metocean-api), not unconditional, so they are tested
+    # there with real arguments (test_datasets_flags_and_unverified_raise, test_point_series_needs_metocean_api).
+    for mod in (camera, vessel, depth):
         fns = [f for n, f in inspect.getmembers(mod, inspect.isfunction) if f.__module__ == mod.__name__]
         assert fns, mod
         for f in fns:
