@@ -1,0 +1,16 @@
+# Core: solve, simulate, validate
+numpy
+pandas
+simpy>=4.1
+pyvrp>=0.14
+networkx
+shapely>=2
+geopandas
+pyproj
+pyyaml
+pytest
+# Exact models (opt-model)
+pyomo>=6.7
+highspy
+# Rendering (offsim/render_deck): also Node 22, ffmpeg, Chrome
+# pip install playwright

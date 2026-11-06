@@ -1,0 +1,10 @@
+{
+  "name": "offshore-simulations",
+  "displayName": "Offshore Simulations",
+  "version": "0.1.0",
+  "description": "Reproduce offshore and maritime logistics papers (PSV supply, ferries, helicopters, crew routing, offshore wind installation and O&M) on real Norwegian geography, validate every simulation against physics and the paper's numbers, and render 2.5D videos. Claude Code skills for paper extraction, simulation checks, motion graphics, narration and tool scouting.",
+  "repository": "https://github.com/Astheno-sphere/offshore_simulations",
+  "license": "MIT",
+  "keywords": ["offshore-logistics", "maritime", "vehicle-routing", "simulation", "simpy", "pyvrp", "deck-gl", "ais", "offshore-wind", "norway", "operations-research", "reproducibility", "claude-code"],
+  "author": {"name": "Arshad Akhtar Abbasia"}
+}

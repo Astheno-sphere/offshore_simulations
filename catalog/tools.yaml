@@ -1,0 +1,183 @@
+# Tool catalog for offshore_simulations. Source of truth: edit here, then `python tools/catalog_build.py`
+# regenerates docs/TOOLS.md. Scanned 2026-11-06 (GitHub search by stars/topics + web). Stars are not stored: they go stale.
+#
+# status:  tested    = ran in this repo's workspace, result recorded
+#          installed = pip/npm installs here, not exercised yet
+#          candidate = fits a planned step; read code + licence before adopting
+#          manual    = data you order/download by hand
+#          watch     = interesting, not on the plan yet
+# runs:    here (Claude workspace) | actions (GitHub runner) | laptop | browser
+# priority: now (first paper) | next (first 3 papers) | later
+# licence: "check" = not verified; read LICENSE before any copy. GPL/AGPL = separate process, never imported.
+
+layers:
+  world: Geography the scenario runs in (land, depth, lanes, installations)
+  traffic: Real vessel movements (AIS) to validate simulated routes and speeds
+  metocean: Wind, waves, currents; weather windows for operations
+  solver: Exact and heuristic optimisation for routing and scheduling
+  weather-routing: Route optimisation through forecast weather
+  simulation: Time, queues, failures, weather delays (discrete-event, agent-based, vessel dynamics)
+  offshore-energy: Domain models for offshore wind/oil and gas logistics
+  emissions: Fuel, energy and emissions from vessel activity
+  render: Maps and 3D scenes from validated trajectories
+  video: Assembling frames, captions and explainers into posts
+  assets: Free 3D models and textures for the cartoony look
+  design: Visual systems and UI for maritime displays
+  mcp: Connectors that let Claude drive desktop tools
+  skills: Claude Code skills that encode know-how
+  benchmarks: Instances and papers to reproduce
+
+tools:
+# ---------------- world ----------------
+- {id: osm-coastline, name: OpenStreetMap coastline via Overpass, url: "https://overpass-api.de", layer: world, licence: ODbL-1.0, status: tested, runs: actions, priority: now,
+   role: "Land polygons for every world (offsim/worlds/fetch_world.py + coast.py)."}
+- {id: sodir-factmaps, name: Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer), url: "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer", layer: world, licence: NLOD-2.0, status: installed, runs: actions, priority: now,
+   role: "Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'."}
+- {id: kartverket-depth, name: Kartverket Sjøkart – Dybdedata, url: "https://data.norge.no/en/datasets/48cc18ef-1317-3ddd-9ca4-a06d8ffa0196", layer: world, licence: open (Kartverket terms), status: manual, runs: laptop, priority: next,
+   role: "Depth areas and contours; not approved for navigation. Lanes and seabed relief."}
+- {id: ngu-oslofjord-1m, name: NGU bathymetry Oslofjorden 1 m grid, url: "https://www.geonorge.no/geonetworktest/srv/api/records/80321d12-119e-4d0c-886b-4b087843b688", layer: world, licence: check, status: manual, runs: laptop, priority: later,
+   role: "High-resolution seabed for inner Oslofjord hero shots."}
+- {id: kystverket-routes, name: Kystverket reference routes for navigation, url: "https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation", layer: world, licence: NLOD-2.0, status: manual, runs: actions, priority: next,
+   role: "Fairway graph so vessels follow lanes, not straight lines."}
+- {id: searoute-py, name: searoute-py, url: "https://github.com/genthalili/searoute-py", layer: world, licence: Apache-2.0, status: installed, runs: here, priority: later,
+   role: "Shortest global sea route for long-haul legs; its README says visualisation, not navigation."}
+- {id: osm-ship-routing, name: OpenStreetMap-Ship-Routing, url: "https://github.com/sibmr/OpenStreetMap-Ship-Routing", layer: world, licence: check, status: watch, runs: here, priority: later,
+   role: "Ocean routing graph built from OSM; reference for our own lane graph."}
+
+# ---------------- traffic (AIS) ----------------
+- {id: kystverket-hais, name: Kystverket Historic AIS (HAIS), url: "https://hais.kystverket.no/", layer: traffic, licence: open, status: manual, runs: browser, priority: now,
+   role: "Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes."}
+- {id: pyais, name: pyais, url: "https://github.com/M0r13n/pyais", layer: traffic, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet."}
+- {id: movingpandas, name: MovingPandas, url: "https://github.com/movingpandas/movingpandas", layer: traffic, licence: BSD-3-Clause, status: installed, runs: here, priority: next,
+   role: "Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows."}
+- {id: aisdb, name: AISdb (Dalhousie MERIDIAN), url: "https://pypi.org/project/aisdb/", layer: traffic, licence: check, status: watch, runs: here, priority: later,
+   role: "SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices."}
+- {id: danish-ais-datasets, name: Datasets of AIS trajectories from Danish waters, url: "https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters", layer: traffic, licence: BSD-3-Clause, status: watch, runs: here, priority: later,
+   role: "Ready filtered AIS sets for testing trajectory code without ordering data."}
+
+# ---------------- metocean ----------------
+- {id: metocean-api, name: metocean-api (MET Norway), url: "https://github.com/MET-OM/metocean-api", layer: metocean, licence: check, status: candidate, runs: actions, priority: next,
+   role: "Time series from NORA3 wind/wave hindcast (and ERA5) at a point: weather windows for PSV, crane and helideck operations."}
+- {id: metocean-stats, name: metocean-stats (MET Norway), url: "https://github.com/MET-OM/metocean-stats", layer: metocean, licence: check, status: candidate, runs: actions, priority: later,
+   role: "Operability statistics (Hs exceedance, windows) from those series."}
+- {id: met-oceanforecast, name: MET Norway oceanforecast API, url: "https://api.met.no/doc/oceanforecast/datamodel", layer: metocean, licence: CC-BY-4.0 (MET terms), status: candidate, runs: actions, priority: later,
+   role: "Forecast Hs, wave direction, currents for live-looking scenarios."}
+- {id: copernicusmarine, name: Copernicus Marine Toolbox, url: "https://github.com/mercator-ocean/copernicus-marine-toolbox", layer: metocean, licence: check, status: candidate, runs: actions, priority: later,
+   role: "Subset currents/waves (NetCDF/Zarr) beyond the Nordic domain; needs free login."}
+- {id: opendrift, name: OpenDrift (MET Norway), url: "https://github.com/OpenDrift/opendrift", layer: metocean, licence: check, status: watch, runs: here, priority: later,
+   role: "Drift of objects/spills; a different video genre (emergency response logistics)."}
+
+# ---------------- solver ----------------
+- {id: pyvrp, name: PyVRP, url: "https://github.com/PyVRP/PyVRP", layer: solver, licence: MIT, status: tested, runs: here, priority: now,
+   role: "State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py."}
+- {id: opt-model, name: opt-model (Pyomo + HiGHS), url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model", layer: solver, licence: MIT, status: tested, runs: here, priority: now,
+   role: "Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py)."}
+- {id: ortools, name: Google OR-Tools, url: "https://github.com/google/or-tools", layer: solver, licence: Apache-2.0, status: installed, runs: here, priority: next,
+   role: "Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers)."}
+- {id: alns, name: ALNS (N-Wouda), url: "https://github.com/N-Wouda/ALNS", layer: solver, licence: MIT, status: candidate, runs: here, priority: next,
+   role: "Adaptive large neighbourhood search framework: re-implement a paper's metaheuristic faithfully when PyVRP cannot express it."}
+- {id: vroom, name: VROOM, url: "https://github.com/VROOM-Project/vroom", layer: solver, licence: BSD-2-Clause, status: watch, runs: here, priority: later,
+   role: "Fast C++ VRP engine with JSON API; good for big instances and quick baselines."}
+- {id: timefold, name: Timefold Solver, url: "https://github.com/TimefoldAI/timefold-solver", layer: solver, licence: Apache-2.0, status: watch, runs: laptop, priority: later,
+   role: "Java/Kotlin planning engine (vehicle routing, crew rostering); if a paper needs rich scheduling."}
+- {id: jsprit, name: jsprit, url: "https://github.com/graphhopper/jsprit", layer: solver, licence: Apache-2.0, status: watch, runs: laptop, priority: later,
+   role: "Java toolkit for rich VRPs; reference implementation in older papers."}
+- {id: rl4co, name: RL4CO, url: "https://github.com/ai4co/rl4co", layer: solver, licence: MIT, status: watch, runs: actions, priority: later,
+   role: "Learned routing heuristics; for papers that use RL."}
+
+# ---------------- weather routing ----------------
+- {id: weather-routing-tool, name: 52North WeatherRoutingTool, url: "https://github.com/52North/WeatherRoutingTool", layer: weather-routing, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "Fuel-optimal routes through weather; MIT so it can sit in our pipeline."}
+- {id: visir2, name: VISIR-2, url: "https://zenodo.org/records/15497175", layer: weather-routing, licence: GPL, status: watch, runs: here, priority: later,
+   role: "Graph-search weather routing with currents/waves/wind (GMD 2024). Separate process only."}
+- {id: simroute, name: SIMROUTE, url: "https://github.com/ManelGrifoll/SIMROUTE", layer: weather-routing, licence: GPL, status: watch, runs: here, priority: later,
+   role: "A* weather routing with CMEMS (Ocean Engineering 2022). Separate process only."}
+- {id: weather-routing-benchmark, name: weather-routing-benchmark, url: "https://github.com/AhmedAredah/weather-routing-benchmark", layer: weather-routing, licence: CC-BY-4.0, status: watch, runs: here, priority: later,
+   role: "Instance-matched benchmark for weather-routing papers."}
+
+# ---------------- simulation ----------------
+- {id: simpy, name: SimPy, url: "https://gitlab.com/team-simpy/simpy", layer: simulation, licence: MIT, status: tested, runs: here, priority: now,
+   role: "Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows."}
+- {id: salabim, name: salabim, url: "https://github.com/salabim/salabim", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "DES with built-in 2D/3D animation and video export; quick explainer clips of queues at a base."}
+- {id: mesa, name: Mesa, url: "https://github.com/projectmesa/mesa", layer: simulation, licence: check, status: watch, runs: here, priority: later,
+   role: "Agent-based models (crew, workers, fleets with behaviour)."}
+- {id: fossen-pvs, name: PythonVehicleSimulator (Fossen), url: "https://github.com/cybergalactic/PythonVehicleSimulator", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "Physical OSV model (supply.py, L=76.2 m, thrusters): DP and approach times when a paper needs them."}
+- {id: port-simulation, name: port-simulation (spartalab), url: "https://github.com/spartalab/port-simulation", layer: simulation, licence: MIT, status: watch, runs: here, priority: later,
+   role: "DES of a port; reference for supply-base quay modelling."}
+
+# ---------------- offshore energy ----------------
+- {id: wombat, name: WOMBAT (NREL), url: "https://github.com/NLRWindSystems/WOMBAT", layer: offshore-energy, licence: Apache-2.0, status: candidate, runs: here, priority: next,
+   role: "SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios."}
+- {id: orbit, name: ORBIT (NREL), url: "https://github.com/WISDEM/ORBIT", layer: offshore-energy, licence: check, status: candidate, runs: here, priority: next,
+   role: "SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos."}
+- {id: waves-nrel, name: WAVES (offshore wind lifecycle), url: "https://github.com/NatLabRockies/WAVES", layer: offshore-energy, licence: Apache-2.0, status: watch, runs: here, priority: later,
+   role: "Lifecycle wrapper combining installation and O&M models."}
+- {id: openbridge-oicl, name: OpenBridge web components, url: "https://github.com/Ocean-Industries-Concept-Lab/openbridge-webcomponents", layer: design, licence: check, status: candidate, runs: here, priority: later,
+   role: "Maritime bridge UI design system (Norwegian Ocean Industries Concept Lab): instrument-style overlays that read 'offshore' at a glance."}
+
+# ---------------- emissions ----------------
+- {id: cetos, name: cetos (RISE Maritime), url: "https://github.com/RISE-Maritime/cetos", layer: emissions, licence: check, status: candidate, runs: here, priority: next,
+   role: "Fuel per IMO Fourth GHG Study, batteries/hydrogen/hybrid systems, AIS to voyage profiles: CO2 per plan, electric PSV what-ifs."}
+- {id: poeminv, name: poeminv (Navisense), url: "https://pypi.org/project/poeminv/", layer: emissions, licence: check, status: watch, runs: here, priority: later,
+   role: "Port emission inventories from tracks (transit, manoeuvring, hotelling)."}
+
+# ---------------- render ----------------
+- {id: deckgl, name: deck.gl (TripsLayer, TerrainLayer), url: "https://github.com/visgl/deck.gl", layer: render, licence: MIT, status: tested, runs: here, priority: now,
+   role: "2.5D animated trails; headless Chrome + SwiftShader works here (offsim/render_deck)."}
+- {id: lonboard, name: lonboard, url: "https://github.com/developmentseed/lonboard", layer: render, licence: check, status: watch, runs: here, priority: later,
+   role: "deck.gl from Python/Jupyter with TripsLayer from MovingPandas; interactive exploration."}
+- {id: keplergl, name: kepler.gl, url: "https://github.com/keplergl/kepler.gl", layer: render, licence: MIT, status: watch, runs: browser, priority: later,
+   role: "Drag-and-drop exploration of trajectories before scripting a video."}
+- {id: blender-bpy, name: Blender as Python module (bpy 5.2), url: "https://pypi.org/project/bpy/", layer: render, licence: GPL, status: tested, runs: actions, priority: later,
+   role: "Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process."}
+- {id: blendergis, name: BlenderGIS, url: "https://github.com/domlysz/BlenderGIS", layer: render, licence: GPL-3.0, status: candidate, runs: laptop, priority: later,
+   role: "Import DEM, shapefiles, OSM into Blender."}
+
+# ---------------- video ----------------
+- {id: ffmpeg, name: FFmpeg, url: "https://ffmpeg.org", layer: video, licence: LGPL/GPL, status: tested, runs: here, priority: now,
+   role: "Frames to H.264 (veryfast preset)."}
+- {id: remotion, name: Remotion, url: "https://github.com/remotion-dev/remotion", layer: video, licence: Remotion licence (free for individuals/small teams), status: tested, runs: here, priority: next,
+   role: "Title cards, captions, compositing map clips with charts. Works here with system Chrome."}
+- {id: manim, name: Manim Community, url: "https://github.com/ManimCommunity/manim", layer: video, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "Animated maths: show the model (objective, constraints) before the map."}
+
+# ---------------- assets ----------------
+- {id: kenney-watercraft, name: Kenney Watercraft Kit, url: "https://kenney-assets.itch.io/watercraft-kit", layer: assets, licence: CC0, status: candidate, runs: here, priority: later,
+   role: "45+ low-poly boats/ships in glTF: the cartoony vessel set."}
+- {id: quaternius-ships, name: Quaternius LowPoly Ship Pack, url: "https://opengameart.org/content/lowpoly-ship-pack", layer: assets, licence: CC0, status: candidate, runs: here, priority: later,
+   role: "Additional CC0 ships in the same visual register."}
+- {id: polyhaven, name: Poly Haven, url: "https://polyhaven.com", layer: assets, licence: CC0, status: watch, runs: here, priority: later,
+   role: "CC0 HDRIs and textures for sea/sky lighting in Blender."}
+
+# ---------------- mcp ----------------
+- {id: blender-mcp, name: BlenderMCP, url: "https://github.com/ahujasid/blender-mcp", layer: mcp, licence: MIT, status: candidate, runs: laptop, priority: later,
+   role: "Claude drives Blender on your machine (scene setup, materials, Poly Haven assets)."}
+- {id: qgis-mcp, name: QGIS MCP, url: "https://github.com/jjsantos01/qgis_mcp", layer: mcp, licence: check, status: candidate, runs: laptop, priority: next,
+   role: "Claude drives QGIS: inspect Kartverket depth and Sodir layers before packaging a world."}
+- {id: osm-mcp, name: OpenStreetMap MCP server, url: "https://github.com/jagan-shanmugam/open-streetmap-mcp", layer: mcp, licence: MIT, status: watch, runs: laptop, priority: later,
+   role: "Geocoding and Overpass queries from Claude (ports, bases, heliports)."}
+- {id: rhino-mcp, name: Rhino MCP (your existing setup), url: "https://github.com/Astheno-sphere/claude-mcp-servers", layer: mcp, licence: check, status: watch, runs: laptop, priority: later,
+   role: "Already connected for the Molde/Kristiansund model; Grasshopper stills if wanted."}
+
+# ---------------- skills ----------------
+- {id: remotion-skill, name: remotion-dev/skills (remotion-best-practices), url: "https://github.com/remotion-dev/skills", layer: skills, licence: check, status: candidate, runs: here, priority: next,
+   role: "Frame-driven animation rules and a maps module for Remotion."}
+- {id: simpy-skill, name: SimPy skill (k-dense-ai/scientific-agent-skills), url: "https://github.com/k-dense-ai/scientific-agent-skills", layer: skills, licence: check, status: candidate, runs: here, priority: next,
+   role: "SimPy patterns (resources, containers, stores) for new process models."}
+- {id: anthropic-skills, name: anthropics/skills (frontend-design, docs), url: "https://github.com/anthropics/skills", layer: skills, licence: check, status: watch, runs: here, priority: later,
+   role: "Design discipline for the README site and overlays."}
+- {id: cl-skills, name: computational_Logistics skills, url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills", layer: skills, licence: MIT, status: tested, runs: here, priority: now,
+   role: "Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills."}
+
+# ---------------- benchmarks / papers ----------------
+- {id: vrplib, name: vrplib, url: "https://github.com/PyVRP/VRPLIB", layer: benchmarks, licence: check, status: candidate, runs: here, priority: next,
+   role: "Read/write VRPLIB and Solomon instances; regression-test the adapter on known optima."}
+- {id: mirplib, name: MIRPLib.jl, url: "https://github.com/rafaelmartinelli/MIRPLib.jl", layer: benchmarks, licence: MIT, status: watch, runs: laptop, priority: later,
+   role: "Maritime inventory routing instances (Julia)."}
+- {id: nafstad-2020, name: "Nafstad et al. 2020, offshore helicopter flight scheduling (C&OR, CC BY)", url: "https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/2722282", layer: benchmarks, licence: CC-BY-4.0, status: candidate, runs: here, priority: next,
+   role: "Norwegian shelf, heterogeneous fleet, multi-depot, multi-trip, synchronisation: needs OR-Tools CP-SAT or a MIP, not PyVRP alone."}
+- {id: lubnina-2024, name: "Lubnina & Kochetov 2024, periodic pickup-delivery helicopter routing (YUJOR)", url: "https://yujor.fon.bg.ac.rs/index.php/yujor/article/view/1297", layer: benchmarks, licence: check, status: watch, runs: here, priority: later,
+   role: "VNS with split demands; reports 5-10% cost reduction."}

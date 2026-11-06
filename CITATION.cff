@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Offshore Simulations: reproducible offshore logistics research on real Norwegian geography"
+authors:
+  - family-names: "Abbasia"
+    given-names: "Arshad Akhtar"
+    orcid: "https://orcid.org/0000-0001-9461-9442"
+repository-code: "https://github.com/Astheno-sphere/offshore_simulations"
+version: "0.1.0"
+license: MIT
+date-released: "2026-11-06"
+keywords:
+  - offshore logistics
+  - vehicle routing
+  - maritime simulation
+  - reproducibility
+  - Norway
