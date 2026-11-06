@@ -219,5 +219,12 @@ def build(storyboard, dry_run=False):
         parts.append(p)
     final = ROOT / sb["run"] / f"{sb['id']}_{fmt}.mp4"
     assemble(parts, final, sb.get("transition_s", 0.5))
+    if sb.get("grade"):                       # one grade per film, applied once (offsim/cinema/look.py)
+        from offsim.cinema.look import grade
+        graded = final.with_name(final.stem + "_graded.mp4")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(final), "-vf", grade(sb["grade"]),
+                        "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p",
+                        "-movflags", "+faststart", str(graded)], check=True)
+        graded.replace(final)
     print("wrote", final.relative_to(ROOT))
     return 0

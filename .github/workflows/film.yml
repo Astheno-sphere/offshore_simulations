@@ -1,0 +1,60 @@
+name: film
+# The whole brain on a GitHub runner: pull world -> offsim run (gates) -> story (Manim, deck.gl, HyperFrames)
+# -> grade -> release `film-<id>` -> optional muse.ai upload (secret MUSE_AI_KEY). Nothing is published if a gate fails.
+on:
+  workflow_dispatch:
+    inputs:
+      storyboard:
+        description: "path to storyboard.yaml"
+        required: true
+        default: offsim/papers/demo-oslofjord-supply/storyboard.yaml
+      world:
+        description: "world release to pull (empty = none)"
+        required: false
+        default: oslofjord
+      muse:
+        description: "muse.ai visibility (empty = do not upload)"
+        required: false
+        default: ""
+        type: choice
+        options: ["", unlisted, private, public]
+
+permissions:
+  contents: write
+
+jobs:
+  film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HYPERFRAMES_BROWSER_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: System packages (ffmpeg, Manim deps, LaTeX)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ffmpeg libpango1.0-dev dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+      - run: pip install -r requirements-motion.txt
+      - run: npm ci --prefix offsim/render_deck && npm ci --prefix offsim/motion || npm install --prefix offsim/motion
+      - name: Pull world
+        if: ${{ inputs.world != '' }}
+        run: python -m offsim.worlds.fetch_world --pull ${{ inputs.world }}
+      - name: Film
+        env:
+          MUSE_AI_KEY: ${{ secrets.MUSE_AI_KEY }}
+        run: |
+          args=""
+          if [ -n "${{ inputs.muse }}" ] && [ -n "$MUSE_AI_KEY" ]; then args="--muse ${{ inputs.muse }}"; fi
+          python -m offsim film "${{ inputs.storyboard }}" $args
+      - name: Publish release
+        run: |
+          id=$(python -c "import yaml,sys;print(yaml.safe_load(open('${{ inputs.storyboard }}'))['id'])")
+          run=$(python -c "import yaml;print(yaml.safe_load(open('${{ inputs.storyboard }}'))['run'])")
+          tag=film-$id
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "Film: $id" --notes "From ${GITHUB_REF_NAME}@${GITHUB_SHA::7}; report.json attached" --prerelease --target "$GITHUB_SHA"
+          gh release upload "$tag" "$run"/*.mp4 "$run"/report.json --clobber
