@@ -1,0 +1,52 @@
+{
+  "_note": "Synthetic fixture for tests. Shape follows the Crossref /works response; content and DOIs (10.1234 test prefix) are invented.",
+  "status": "ok",
+  "message-type": "work-list",
+  "message-version": "1.0.0",
+  "message": {
+    "total-results": 4,
+    "items-per-page": 4,
+    "items": [
+      {
+        "DOI": "10.1234/PSV.2019.001",
+        "URL": "http://dx.doi.org/10.1234/PSV.2019.001",
+        "title": ["Robust planning of offshore supply vessel routes under weather uncertainty"],
+        "author": [
+          {"given": "Test", "family": "Author One", "sequence": "first"},
+          {"given": "Test", "family": "Author Two", "sequence": "additional"}
+        ],
+        "container-title": ["Test Journal of Maritime Logistics"],
+        "abstract": "<jats:p>Offshore supply vessels serve platforms on the Norwegian continental shelf.</jats:p>",
+        "issued": {"date-parts": [[2019, 3, 1]]},
+        "type": "journal-article"
+      },
+      {
+        "DOI": "10.1234/cargo.2016.007",
+        "URL": "http://dx.doi.org/10.1234/cargo.2016.007",
+        "title": ["Helicopter crew routing for offshore installations"],
+        "author": [{"given": "Test", "family": "Author Four", "sequence": "first"}],
+        "container-title": ["Test Transport Research"],
+        "abstract": "<jats:sec><jats:title>Abstract</jats:title><jats:p>Helicopters carry crew to offshore installations. We solve a <jats:italic>vehicle routing</jats:italic> problem with time windows by column generation.</jats:p></jats:sec>",
+        "issued": {"date-parts": [[2016, 9]]},
+        "type": "journal-article"
+      },
+      {
+        "DOI": "10.1234/old.1999.001",
+        "URL": "http://dx.doi.org/10.1234/old.1999.001",
+        "title": ["Early offshore supply vessel scheduling"],
+        "author": [],
+        "container-title": [],
+        "issued": {"date-parts": [[1999]]},
+        "type": "journal-article"
+      },
+      {
+        "DOI": "10.1234/notitle.2020.002",
+        "URL": "http://dx.doi.org/10.1234/notitle.2020.002",
+        "title": [],
+        "author": [],
+        "issued": {"date-parts": [[2020]]},
+        "type": "journal-article"
+      }
+    ]
+  }
+}

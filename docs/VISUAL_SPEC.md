@@ -116,3 +116,14 @@ Freesound **CC0 only** (per-clip licence; CC-BY needs credit, CC-BY-NC forbidden
 | Sea lanes | 300 m grid, 60 m clearance (fjord); planned 50 m grid near quays |
 | Terrain | tiers in §2 |
 | Video | 30 fps; square 1080², vertical 1080×1350, wide 1920×1080; drafts 640×360 |
+
+## 9. Finding shots — *specified* (`offsim/motion/findings.py`)
+Map shots show one run; finding shots show what the ensemble says: `ghost_tracks`, `fan`, `paired`,
+`state_gantt`, `weather_year`. They read only `report["ensemble"]` and refuse a report without it. Whenever a
+single number is on screen, its spread is too, and every comparison carries its status word.
+
+## 10. Style reference — *open*
+Target grade: the reference set Arshad supplies (Abhinav Bhardwaj's work, to be provided as stills/clips with
+notes on what to take: palette, line weight, typography, pacing). Until then the house style is section 1 + 6.
+When the reference arrives, extract it as data (palette, stroke widths, type scale, easing, shot lengths) into
+`offsim/cinema/look.py` and `rules.py`, so the style is reproducible and checkable, not imitated by eye.

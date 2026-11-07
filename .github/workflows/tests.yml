@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -r requirements-render.txt -r requirements-weather.txt
+      - run: pip install -r requirements-render.txt -r requirements-weather.txt -r requirements-engines.txt -r requirements-gis.txt
       - run: python tools/catalog_build.py --check
       - run: python -m pytest -q tests
 

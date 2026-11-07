@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-124 tools · 19 tested · 1 wired · 1 installed · 53 candidate · 4 manual · 46 watch.
+136 tools · 24 tested · 9 wired · 2 installed · 51 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -11,22 +11,22 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 
 | Layer | tested | wired | installed | candidate | manual | watch | total |
 |---|---|---|---|---|---|---|---|
-| world | 3 | 1 | 0 | 7 | 3 | 8 | 22 |
-| traffic | 0 | 0 | 0 | 2 | 1 | 2 | 5 |
+| world | 4 | 2 | 1 | 7 | 3 | 8 | 25 |
+| traffic | 1 | 1 | 0 | 1 | 1 | 2 | 6 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
-| solver | 2 | 0 | 0 | 2 | 0 | 4 | 8 |
+| solver | 2 | 1 | 0 | 2 | 0 | 4 | 9 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
-| simulation | 1 | 0 | 0 | 2 | 0 | 2 | 5 |
-| offshore-energy | 0 | 0 | 0 | 2 | 0 | 1 | 3 |
+| simulation | 2 | 0 | 0 | 3 | 0 | 2 | 7 |
+| offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
 | render | 5 | 0 | 0 | 6 | 0 | 7 | 18 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 2 | 0 | 0 | 9 | 0 | 4 | 15 |
 | design | 0 | 0 | 0 | 1 | 0 | 0 | 1 |
-| mcp | 0 | 0 | 0 | 2 | 0 | 2 | 4 |
+| mcp | 0 | 1 | 0 | 2 | 0 | 2 | 5 |
 | skills | 1 | 0 | 0 | 4 | 0 | 1 | 6 |
-| benchmarks | 0 | 0 | 0 | 2 | 0 | 2 | 4 |
+| benchmarks | 0 | 4 | 0 | 2 | 0 | 2 | 8 |
 
 Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.py). Everything else is listed only.
 
@@ -34,12 +34,18 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 
 | Tool | Layer | Status | Runs | Role |
 |---|---|---|---|---|
+| [Geofabrik Norway OSM extract](https://download.geofabrik.de/europe/norway.html) | world | wired | actions | Full OSM for quays, ferry routes, roads, buildings, helipads (fetch-world --osm). |
+| [pyrosm](https://github.com/HTenkanen/pyrosm) | world | tested | actions | Reads .osm.pbf into GeoDataFrames; post-processing tested, live pbf read pending first Actions run. |
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | world | tested | actions | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). |
 | [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | world | wired | actions | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. |
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | traffic | manual | browser | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
+| [MovingPandas](https://github.com/movingpandas/movingpandas) | traffic | tested | here | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | solver | tested | here | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | solver | tested | here | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). |
+| [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | simulation | tested | here | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | simulation | tested | here | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. |
+| [WOMBAT (NREL)](https://github.com/NLRWindSystems/WOMBAT) | offshore-energy | tested | here | SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios. |
+| [ORBIT (NREL)](https://github.com/WISDEM/ORBIT) | offshore-energy | tested | here | SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos. |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | render | tested | here | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). |
 | [FFmpeg](https://ffmpeg.org) | video | tested | here | Frames to H.264 (veryfast preset). |
 | [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | assets | tested | here | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. |
@@ -62,6 +68,8 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | render | candidate | here | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
 | [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | render | candidate | here | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
 | [computational_Logistics skills](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills) | skills | tested | here | Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills. |
+| [OpenAlex works API](https://api.openalex.org) | benchmarks | wired | actions | Paper feed (L6): search, author filters, abstracts; not yet run live. |
+| [Crossref REST API](https://api.crossref.org) | benchmarks | wired | actions | DOI metadata for the feed; not yet run live. |
 
 ## world
 
@@ -71,15 +79,18 @@ _Geography the scenario runs in (land, depth, lanes, installations)_
 |---|---|---|---|---|---|
 | [EMODnet Bathymetry DTM (1/16 arc-min)](https://emodnet.ec.europa.eu/en/bathymetry) | free, terms of use (check) | candidate | actions | now | ~115 m North Sea bathymetry tiles (LAT, MSL variant): the shelf tier off Stavanger. |
 | [GDAL gdaldem / gdal_contour](https://gdal.org/programs/gdaldem.html) | MIT | candidate | here | now | Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths). |
+| [Geofabrik Norway OSM extract](https://download.geofabrik.de/europe/norway.html) | ODbL-1.0 | wired | actions | now | Full OSM for quays, ferry routes, roads, buildings, helipads (fetch-world --osm). Evidence: `offsim/worlds/fetch_world.py` `offsim/worlds/osm.py` `.github/workflows/fetch-world.yml` |
 | [Kartverket DTM 10 m terrain model](https://nedlasting.geonorge.no/api/capabilities/) | CC-BY-4.0 | candidate | actions | now | 10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py). |
 | [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | open per Geonorge record (check) | candidate | actions | now | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
 | [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | NLOD-2.0 | wired | actions | now | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. Evidence: `offsim/worlds/fetch_world.py` `offsim/worlds/north-sea-stavanger.yaml` |
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | ODbL-1.0 | tested | actions | now | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). Evidence: `offsim/worlds/fetch_world.py` `docs/TESTLOG.md` |
 | [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | MIT | tested | here | now | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). Evidence: `offsim/worlds/depth.py` `tests/test_depth.py` `requirements-render.txt` |
+| [pyrosm](https://github.com/HTenkanen/pyrosm) | MIT | tested | actions | now | Reads .osm.pbf into GeoDataFrames; post-processing tested, live pbf read pending first Actions run. Evidence: `offsim/worlds/osm.py` `tests/test_osm.py` |
 | [scikit-image (find_contours)](https://github.com/scikit-image/scikit-image) | BSD-3-Clause | tested | here | now | Isobath extraction on smoothed DEMs where the GDAL CLI is absent (depth.py isobaths). Evidence: `offsim/worlds/depth.py` `tests/test_depth.py` `requirements-render.txt` |
 | [Kartverket Sjøkart Dybdedata (WFS)](https://wfs.geonorge.no/skwms1/wfs.dybdedata?service=WFS&request=GetCapabilities) | CC-BY-4.0 | watch | actions | next | Vector depth contours and soundings (sjøkartnull) as ready CAD-style isobaths; maintenance status: check. |
 | [Kartverket Sjøkart – Dybdedata](https://data.norge.no/en/datasets/48cc18ef-1317-3ddd-9ca4-a06d8ffa0196) | open (Kartverket terms) | manual | laptop | next | Depth areas and contours; not approved for navigation. Lanes and seabed relief. |
 | [Kystverket reference routes for navigation](https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation) | NLOD-2.0 | manual | actions | next | Fairway graph so vessels follow lanes, not straight lines. |
+| [OSMnx](https://github.com/gboeing/osmnx) | MIT | installed | here | next | Street networks for land legs (worker commute, truck to quay); declared, not yet called. Evidence: `requirements-gis.txt` |
 | [PMTiles + CLI](https://github.com/protomaps/PMTiles) | BSD-3-Clause | candidate | actions | next | Single-file tiles; `pmtiles extract --bbox` makes a few-MB offline basemap of a world. |
 | [Protomaps daily basemap builds](https://maps.protomaps.com/builds/) | ODbL (OSM data) | candidate | actions | next | Roads, buildings, ports, labels as vector tiles for port close-ups. |
 | [Copernicus DEM GLO-30](https://registry.opendata.aws/copernicus-dem/) | Copernicus free and open (attribution) | watch | actions | later | 30 m surface model (includes buildings/trees); gap filler only. |
@@ -99,7 +110,8 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | open | manual | browser | now | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
-| [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | candidate | here | next | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
+| [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | tested | here | now | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. Evidence: `offsim/traffic/ais.py` `tests/test_traffic.py` |
+| [BarentsWatch AIS API](https://www.barentswatch.no/) | NLOD-2.0 (check) | wired | actions | next | Live/recent AIS via OAuth2 (secrets BW_CLIENT_ID/BW_CLIENT_SECRET); endpoints unverified live. Evidence: `offsim/traffic/barentswatch.py` `.github/workflows/fetch-world.yml` |
 | [AISdb (Dalhousie MERIDIAN)](https://pypi.org/project/aisdb/) | check | watch | here | later | SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices. |
 | [Datasets of AIS trajectories from Danish waters](https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters) | BSD-3-Clause | watch | here | later | Ready filtered AIS sets for testing trajectory code without ordering data. |
 | [pyais](https://github.com/M0r13n/pyais) | MIT | candidate | here | later | Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet. |
@@ -130,9 +142,10 @@ _Exact and heuristic optimisation for routing and scheduling_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | MIT | tested | here | now | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). Evidence: `skills/opt-model/scripts/models.py` `tests/test_opt_model.py` |
-| [PyVRP](https://github.com/PyVRP/PyVRP) | MIT | tested | here | now | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. Evidence: `offsim/solve/pyvrp_adapter.py` `tests/test_opt_model.py` |
+| [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | MIT | tested | here | now | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). Evidence: `skills/opt-model/scripts/models.py` `offsim/solve/pyomo_solver.py` `tests/test_opt_model.py` `tests/test_engines_core.py` |
+| [PyVRP](https://github.com/PyVRP/PyVRP) | MIT | tested | here | now | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. Evidence: `offsim/solve/pyvrp_adapter.py` `offsim/solve/pyvrp_solver.py` `tests/test_opt_model.py` `tests/test_engines_core.py` |
 | [ALNS (N-Wouda)](https://github.com/N-Wouda/ALNS) | MIT | candidate | here | next | Adaptive large neighbourhood search framework: re-implement a paper's metaheuristic faithfully when PyVRP cannot express it. |
+| [AMPL (amplpy) with HiGHS/CBC](https://ampl.com) | proprietary (academic licence); amplpy BSD-3 | wired | actions | next | Exact models from .mod files on Actions (secret AMPL_LICENSE_UUID); Pyomo twin cross-checks. Evidence: `offsim/solve/ampl_adapter.py` `offsim/solve/ampl/cvrp.mod` `tests/test_ampl.py` `.github/workflows/solve.yml` |
 | [Google OR-Tools](https://github.com/google/or-tools) | Apache-2.0 | candidate | here | next | Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers). |
 | [jsprit](https://github.com/graphhopper/jsprit) | Apache-2.0 | watch | laptop | later | Java toolkit for rich VRPs; reference implementation in older papers. |
 | [RL4CO](https://github.com/ai4co/rl4co) | MIT | watch | actions | later | Learned routing heuristics; for papers that use RL. |
@@ -156,8 +169,10 @@ _Time, queues, failures, weather delays (discrete-event, agent-based, vessel dyn
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | MIT | tested | here | now | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. Evidence: `offsim/engines/openclsim_adapter.py` `tests/test_engines_core.py` `tests/test_engine_crosscheck.py` |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | MIT | tested | here | now | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. Evidence: `offsim/sim/replay.py` `tests/test_offsim.py` |
 | [Mesa](https://github.com/projectmesa/mesa) | check | watch | here | later | Agent-based models (crew, workers, fleets with behaviour). |
+| [OpenTNSim (TU Delft)](https://github.com/TUDelft-CITG/OpenTNSim) | MIT | candidate | here | later | Waterway/port traffic networks on top of OpenCLSim; fairway congestion, locks, energy. |
 | [port-simulation (spartalab)](https://github.com/spartalab/port-simulation) | MIT | watch | here | later | DES of a port; reference for supply-base quay modelling. |
 | [PythonVehicleSimulator (Fossen)](https://github.com/cybergalactic/PythonVehicleSimulator) | MIT | candidate | here | later | Physical OSV model (supply.py, L=76.2 m, thrusters): DP and approach times when a paper needs them. |
 | [salabim](https://github.com/salabim/salabim) | MIT | candidate | here | later | pip-installed once in a session, not in a manifest. DES with built-in 2D/3D animation and video export; quick explainer clips of queues at a base. |
@@ -168,8 +183,8 @@ _Domain models for offshore wind/oil and gas logistics_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
-| [ORBIT (NREL)](https://github.com/WISDEM/ORBIT) | check | candidate | here | next | SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos. |
-| [WOMBAT (NREL)](https://github.com/NLRWindSystems/WOMBAT) | Apache-2.0 | candidate | here | next | SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios. |
+| [ORBIT (NREL)](https://github.com/WISDEM/ORBIT) | Apache-2.0 | tested | here | now | SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos. Evidence: `offsim/engines/orbit_adapter.py` `tests/test_wind_engines.py` |
+| [WOMBAT (NREL)](https://github.com/NLRWindSystems/WOMBAT) | Apache-2.0 | tested | here | now | SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios. Evidence: `offsim/engines/wombat_adapter.py` `tests/test_wind_engines.py` |
 | [WAVES (offshore wind lifecycle)](https://github.com/NatLabRockies/WAVES) | Apache-2.0 | watch | here | later | Lifecycle wrapper combining installation and O&M models. |
 
 ## emissions
@@ -270,6 +285,7 @@ _Connectors that let Claude drive desktop tools_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [ampl_mcp (our MCP server for AMPL)](https://github.com/Astheno-sphere/offshore_simulations/tree/main/tools/ampl_mcp) | MIT | wired | laptop | next | Claude desktop drives the laptop AMPL install: solve, variables, duals; guarded statement filter. Evidence: `tools/ampl_mcp/server.py` `tools/ampl_mcp/README.md` `tests/test_ampl.py` |
 | [QGIS MCP](https://github.com/jjsantos01/qgis_mcp) | check | candidate | laptop | next | Claude drives QGIS: inspect Kartverket depth and Sodir layers before packaging a world. |
 | [BlenderMCP](https://github.com/ahujasid/blender-mcp) | MIT | candidate | laptop | later | Claude drives Blender on your machine (scene setup, materials, Poly Haven assets). |
 | [OpenStreetMap MCP server](https://github.com/jagan-shanmugam/open-streetmap-mcp) | MIT | watch | laptop | later | Geocoding and Overpass queries from Claude (ports, bases, heliports). |
@@ -294,7 +310,11 @@ _Instances and papers to reproduce_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [Crossref REST API](https://api.crossref.org) | check | wired | actions | now | DOI metadata for the feed; not yet run live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` |
+| [OpenAlex works API](https://api.openalex.org) | CC0-1.0 | wired | actions | now | Paper feed (L6): search, author filters, abstracts; not yet run live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` `.github/workflows/papers.yml` |
+| [arXiv API](https://info.arxiv.org/help/api/index.html) | check | wired | actions | next | Preprints for the feed; not yet run live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` |
 | [Nafstad et al. 2020, offshore helicopter flight scheduling (C&OR, CC BY)](https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/2722282) | CC-BY-4.0 | candidate | here | next | Norwegian shelf, heterogeneous fleet, multi-depot, multi-trip, synchronisation: needs OR-Tools CP-SAT or a MIP, not PyVRP alone. |
+| [NVA (Norwegian research archive) API](https://api.nva.unit.no) | check | wired | actions | next | Norwegian publications incl. HiMolde; field names unverified live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` |
 | [vrplib](https://github.com/PyVRP/VRPLIB) | check | candidate | here | next | Read/write VRPLIB and Solomon instances; regression-test the adapter on known optima. |
 | [Lubnina & Kochetov 2024, periodic pickup-delivery helicopter routing (YUJOR)](https://yujor.fon.bg.ac.rs/index.php/yujor/article/view/1297) | check | watch | here | later | VNS with split demands; reports 5-10% cost reduction. |
 | [MIRPLib.jl](https://github.com/rafaelmartinelli/MIRPLib.jl) | MIT | watch | laptop | later | Maritime inventory routing instances (Julia). |

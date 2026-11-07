@@ -1,0 +1,71 @@
+# TEMPLATE: offshore-wind O&M with the WOMBAT engine (offsim/engines/wombat_adapter.py).
+# Copy to offsim/papers/<id>/scenario.yaml (paper-extract skill). Every value: {value, src: page/table/eq} or
+# {value, assumption: true, why}. Region, coordinates, vessels and failure data below are PLACEHOLDERS (all
+# assumptions) around Hywind Tampen; replace each with the paper's values and a src before reporting anything.
+#
+# How it maps: `sim.wombat` is unwrapped (value of every {value, ..} leaf) into problem.extra["wombat"]. The Plan is
+# trivial (empty routes): WOMBAT dispatches vessels itself. The pipeline hook that does this unwrapping and lifts
+# SUPPORTED to include WIND-OM is not part of this template.
+# Library items named below are WOMBAT's bundled DEFAULT library (COWER 2024 cost/performance set): an
+# "ORBIT/WOMBAT default" is still an assumption until a paper value replaces it.
+paper:
+  id: author-year-wind-om           # folder name
+  title: ""
+  authors: []
+  year: null
+  doi: ""
+  licence: ""
+problem:
+  class: [WIND-OM]
+  objective: "availability and O&M cost over the simulated period"
+  constraints:
+    - {name: weather_limits, formula_or_text: "CTV transfers/transit need Hs <= 2 m; jack-up repairs need wind <= 10 m/s", assumption: true, why: "WOMBAT default vessel files ctv.yaml / hlv.yaml"}
+  solver: none                      # WOMBAT dispatches itself: Plan.routes is empty
+world: north-sea-stavanger          # offsim/worlds/<name>.yaml (Utsira Nord / Hywind Tampen are placeholders)
+fleet:                              # inventory shown on screen; the engine reads sim.wombat.vessels
+  - cls: crew_boat
+    count: {value: 1, assumption: true, why: "placeholder: one CTV"}
+    speed_mps: {value: 10.3, assumption: true, why: "WOMBAT default ctv.yaml, 37.04 km/h (20 kn)"}
+    domain: sea
+    base: "Mongstad (placeholder)"
+  - cls: jackup
+    count: {value: 1, assumption: true, why: "placeholder: one heavy-lift vessel on charter"}
+    speed_mps: {value: 5.66, assumption: true, why: "WOMBAT default hlv.yaml, 20.37 km/h (11 kn)"}
+    domain: sea
+    base: "Mongstad (placeholder)"
+instance:
+  source: "synthetic placeholder layout (said on screen)"
+  file: ""
+  base: {name: "O&M base (placeholder)", lon: 5.03, lat: 60.81, assumption: true, why: "approximate Mongstad quay"}
+  stops: []                         # turbines are listed in sim.wombat.layout
+sim:
+  weather: {value: "NORA3 hourly hs_m, wind_mps at the farm", assumption: true, why: "set when the world/weather is pulled"}
+  wombat:
+    layout:                         # one entry per turbine; strings default to one string in list order
+      - {id: T1, lon: {value: 2.2700, assumption: true, why: "placeholder near Hywind Tampen"}, lat: {value: 61.3300, assumption: true, why: "placeholder"}}
+      - {id: T2, lon: {value: 2.2850, assumption: true, why: "placeholder"}, lat: {value: 61.3350, assumption: true, why: "placeholder"}}
+      - {id: T3, lon: {value: 2.3000, assumption: true, why: "placeholder"}, lat: {value: 61.3400, assumption: true, why: "placeholder"}}
+      - {id: T4, lon: {value: 2.3150, assumption: true, why: "placeholder"}, lat: {value: 61.3450, assumption: true, why: "placeholder"}}
+    port: {lon: {value: 5.03, assumption: true, why: "approximate Mongstad quay"}, lat: {value: 60.81, assumption: true, why: "approximate Mongstad quay"}}
+    substation: {value: null, assumption: true, why: "null = centroid of turbines (reported in meta)"}
+    library: {value: DEFAULT, assumption: true, why: "WOMBAT bundled library (COWER 2024)"}
+    turbine: {value: 12MW_osw_fixed.yaml, assumption: true, why: "placeholder; Hywind Tampen is floating 8.6 MW, replace with the paper's turbine + failure data"}
+    array_cable: {value: osw_array.yaml, assumption: true, why: "WOMBAT default"}
+    export_cable: {value: osw_export.yaml, assumption: true, why: "WOMBAT default"}
+    substation_file: {value: osw_substation.yaml, assumption: true, why: "WOMBAT default"}
+    fixed_costs: {value: fixed_costs_osw_fixed.yaml, assumption: true, why: "WOMBAT default"}
+    failure_rate_factor: {value: 1.0, assumption: true, why: "1 = library failure rates; scenario sensitivity knob"}
+    vessels:
+      - {file: {value: ctv.yaml, assumption: true, why: "WOMBAT default CTV (Hs <= 2 m)"}, count: {value: 1, assumption: true, why: "see fleet"}}
+      - {file: {value: hlv.yaml, assumption: true, why: "WOMBAT default heavy-lift, 10-day mobilization"}, count: {value: 1, assumption: true, why: "see fleet"}}
+    route_factor: {value: 1.0, assumption: true, why: "straight-line port distance; sea-lane factor comes with world.legs"}
+    horizon_days: {value: 365, assumption: true, why: "simulated year; one NORA3 year per ensemble member"}
+    workday_start: {value: 7, assumption: true, why: "WOMBAT default shift"}
+    workday_end: {value: 19, assumption: true, why: "WOMBAT default shift"}
+reported:                           # the paper's headline numbers; corrector gate 4. KPI names are the engine's.
+  # availability: {value: 0.0, rel_tol: 0.02, src: "Table x"}
+  # om_cost_usd:  {value: 0.0, rel_tol: 0.05, src: "Table y"}
+story:
+  question: "how often are the turbines producing when the weather decides when the vessels can go?"
+  accent: weather-limited vessel dispatch
+  comparison: "calm year vs stormy year, same seed"

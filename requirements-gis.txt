@@ -1,0 +1,4 @@
+# L0 data: OSM layers and AIS trajectories (offsim/worlds/osm.py, offsim/traffic)
+pyrosm==0.29.0        # MIT: read Geofabrik .osm.pbf extracts
+osmnx==2.1.1          # MIT: street networks, POIs
+movingpandas==0.23.0  # BSD-3: AIS trajectories, stops, speeds

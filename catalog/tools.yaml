@@ -31,6 +31,12 @@ layers:
 
 tools:
 # ---------------- world ----------------
+- {id: geofabrik-norway, name: Geofabrik Norway OSM extract, url: "https://download.geofabrik.de/europe/norway.html", layer: world, licence: ODbL-1.0, status: wired, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py offsim/worlds/osm.py .github/workflows/fetch-world.yml",
+   role: "Full OSM for quays, ferry routes, roads, buildings, helipads (fetch-world --osm)."}
+- {id: pyrosm, name: pyrosm, url: "https://github.com/HTenkanen/pyrosm", layer: world, licence: MIT, status: tested, runs: actions, priority: now, evidence: "offsim/worlds/osm.py tests/test_osm.py",
+   role: "Reads .osm.pbf into GeoDataFrames; post-processing tested, live pbf read pending first Actions run."}
+- {id: osmnx, name: OSMnx, url: "https://github.com/gboeing/osmnx", layer: world, licence: MIT, status: installed, runs: here, priority: next, evidence: "requirements-gis.txt",
+   role: "Street networks for land legs (worker commute, truck to quay); declared, not yet called."}
 - {id: osm-coastline, name: OpenStreetMap coastline via Overpass, url: "https://overpass-api.de", layer: world, licence: ODbL-1.0, status: tested, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py docs/TESTLOG.md",
    role: "Land polygons for every world (offsim/worlds/fetch_world.py + coast.py)."}
 - {id: sodir-factmaps, name: Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer), url: "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer", layer: world, licence: NLOD-2.0, status: wired, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py offsim/worlds/north-sea-stavanger.yaml",
@@ -51,7 +57,7 @@ tools:
    role: "Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes."}
 - {id: pyais, name: pyais, url: "https://github.com/M0r13n/pyais", layer: traffic, licence: MIT, status: candidate, runs: here, priority: later,
    role: "Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet."}
-- {id: movingpandas, name: MovingPandas, url: "https://github.com/movingpandas/movingpandas", layer: traffic, licence: BSD-3-Clause, status: candidate, runs: here, priority: next,
+- {id: movingpandas, name: MovingPandas, url: "https://github.com/movingpandas/movingpandas", layer: traffic, licence: BSD-3-Clause, status: tested, runs: here, priority: now, evidence: "offsim/traffic/ais.py tests/test_traffic.py",
    role: "Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows."}
 - {id: aisdb, name: AISdb (Dalhousie MERIDIAN), url: "https://pypi.org/project/aisdb/", layer: traffic, licence: check, status: watch, runs: here, priority: later,
    role: "SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices."}
@@ -71,9 +77,11 @@ tools:
    role: "Drift of objects/spills; a different video genre (emergency response logistics)."}
 
 # ---------------- solver ----------------
-- {id: pyvrp, name: PyVRP, url: "https://github.com/PyVRP/PyVRP", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/solve/pyvrp_adapter.py tests/test_opt_model.py",
+- {id: ampl, name: AMPL (amplpy) with HiGHS/CBC, url: "https://ampl.com", layer: solver, licence: "proprietary (academic licence); amplpy BSD-3", status: wired, runs: actions, priority: next, evidence: "offsim/solve/ampl_adapter.py offsim/solve/ampl/cvrp.mod tests/test_ampl.py .github/workflows/solve.yml",
+   role: "Exact models from .mod files on Actions (secret AMPL_LICENSE_UUID); Pyomo twin cross-checks."}
+- {id: pyvrp, name: PyVRP, url: "https://github.com/PyVRP/PyVRP", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/solve/pyvrp_adapter.py offsim/solve/pyvrp_solver.py tests/test_opt_model.py tests/test_engines_core.py",
    role: "State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py."}
-- {id: opt-model, name: opt-model (Pyomo + HiGHS), url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "skills/opt-model/scripts/models.py tests/test_opt_model.py",
+- {id: opt-model, name: opt-model (Pyomo + HiGHS), url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "skills/opt-model/scripts/models.py offsim/solve/pyomo_solver.py tests/test_opt_model.py tests/test_engines_core.py",
    role: "Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py)."}
 - {id: ortools, name: Google OR-Tools, url: "https://github.com/google/or-tools", layer: solver, licence: Apache-2.0, status: candidate, runs: here, priority: next,
    role: "Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers)."}
@@ -99,6 +107,10 @@ tools:
    role: "Instance-matched benchmark for weather-routing papers."}
 
 # ---------------- simulation ----------------
+- {id: openclsim, name: OpenCLSim (TU Delft, Deltares, Van Oord), url: "https://github.com/TUDelft-CITG/OpenCLSim", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/engines/openclsim_adapter.py tests/test_engines_core.py tests/test_engine_crosscheck.py",
+   role: "Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay."}
+- {id: opentnsim, name: OpenTNSim (TU Delft), url: "https://github.com/TUDelft-CITG/OpenTNSim", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
+   role: "Waterway/port traffic networks on top of OpenCLSim; fairway congestion, locks, energy."}
 - {id: simpy, name: SimPy, url: "https://gitlab.com/team-simpy/simpy", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/sim/replay.py tests/test_offsim.py",
    role: "Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows."}
 - {id: salabim, name: salabim, url: "https://github.com/salabim/salabim", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
@@ -111,9 +123,9 @@ tools:
    role: "DES of a port; reference for supply-base quay modelling."}
 
 # ---------------- offshore energy ----------------
-- {id: wombat, name: WOMBAT (NREL), url: "https://github.com/NLRWindSystems/WOMBAT", layer: offshore-energy, licence: Apache-2.0, status: candidate, runs: here, priority: next,
+- {id: wombat, name: WOMBAT (NREL), url: "https://github.com/NLRWindSystems/WOMBAT", layer: offshore-energy, licence: Apache-2.0, status: tested, runs: here, priority: now, evidence: "offsim/engines/wombat_adapter.py tests/test_wind_engines.py",
    role: "SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios."}
-- {id: orbit, name: ORBIT (NREL), url: "https://github.com/WISDEM/ORBIT", layer: offshore-energy, licence: check, status: candidate, runs: here, priority: next,
+- {id: orbit, name: ORBIT (NREL), url: "https://github.com/WISDEM/ORBIT", layer: offshore-energy, licence: Apache-2.0, status: tested, runs: here, priority: now, evidence: "offsim/engines/orbit_adapter.py tests/test_wind_engines.py",
    role: "SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos."}
 - {id: waves-nrel, name: WAVES (offshore wind lifecycle), url: "https://github.com/NatLabRockies/WAVES", layer: offshore-energy, licence: Apache-2.0, status: watch, runs: here, priority: later,
    role: "Lifecycle wrapper combining installation and O&M models."}
@@ -286,6 +298,8 @@ tools:
    role: "Engine, sea, rotor ambience; CC-BY needs credit, CC-BY-NC forbidden for the brand."}
 
 # ---------------- mcp ----------------
+- {id: ampl-mcp, name: ampl_mcp (our MCP server for AMPL), url: "https://github.com/Astheno-sphere/offshore_simulations/tree/main/tools/ampl_mcp", layer: mcp, licence: MIT, status: wired, runs: laptop, priority: next, evidence: "tools/ampl_mcp/server.py tools/ampl_mcp/README.md tests/test_ampl.py",
+   role: "Claude desktop drives the laptop AMPL install: solve, variables, duals; guarded statement filter."}
 - {id: blender-mcp, name: BlenderMCP, url: "https://github.com/ahujasid/blender-mcp", layer: mcp, licence: MIT, status: candidate, runs: laptop, priority: later,
    role: "Claude drives Blender on your machine (scene setup, materials, Poly Haven assets)."}
 - {id: qgis-mcp, name: QGIS MCP, url: "https://github.com/jjsantos01/qgis_mcp", layer: mcp, licence: check, status: candidate, runs: laptop, priority: next,
@@ -314,3 +328,17 @@ tools:
    role: "Norwegian shelf, heterogeneous fleet, multi-depot, multi-trip, synchronisation: needs OR-Tools CP-SAT or a MIP, not PyVRP alone."}
 - {id: lubnina-2024, name: "Lubnina & Kochetov 2024, periodic pickup-delivery helicopter routing (YUJOR)", url: "https://yujor.fon.bg.ac.rs/index.php/yujor/article/view/1297", layer: benchmarks, licence: check, status: watch, runs: here, priority: later,
    role: "VNS with split demands; reports 5-10% cost reduction."}
+
+# ---------------- traffic ----------------
+- {id: barentswatch-ais, name: BarentsWatch AIS API, url: "https://www.barentswatch.no/", layer: traffic, licence: "NLOD-2.0 (check)", status: wired, runs: actions, priority: next, evidence: "offsim/traffic/barentswatch.py .github/workflows/fetch-world.yml",
+   role: "Live/recent AIS via OAuth2 (secrets BW_CLIENT_ID/BW_CLIENT_SECRET); endpoints unverified live."}
+
+# ---------------- benchmarks ----------------
+- {id: openalex-api, name: OpenAlex works API, url: "https://api.openalex.org", layer: benchmarks, licence: CC0-1.0, status: wired, runs: actions, priority: now, evidence: "offsim/feed/sources.py tests/test_feed.py .github/workflows/papers.yml",
+   role: "Paper feed (L6): search, author filters, abstracts; not yet run live."}
+- {id: crossref-api, name: Crossref REST API, url: "https://api.crossref.org", layer: benchmarks, licence: check, status: wired, runs: actions, priority: now, evidence: "offsim/feed/sources.py tests/test_feed.py",
+   role: "DOI metadata for the feed; not yet run live."}
+- {id: arxiv-api, name: arXiv API, url: "https://info.arxiv.org/help/api/index.html", layer: benchmarks, licence: check, status: wired, runs: actions, priority: next, evidence: "offsim/feed/sources.py tests/test_feed.py",
+   role: "Preprints for the feed; not yet run live."}
+- {id: nva-api, name: NVA (Norwegian research archive) API, url: "https://api.nva.unit.no", layer: benchmarks, licence: check, status: wired, runs: actions, priority: next, evidence: "offsim/feed/sources.py tests/test_feed.py",
+   role: "Norwegian publications incl. HiMolde; field names unverified live."}

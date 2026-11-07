@@ -1,0 +1,69 @@
+# TEMPLATE: offshore-wind installation with the ORBIT engine (offsim/engines/orbit_adapter.py).
+# Copy to offsim/papers/<id>/scenario.yaml (paper-extract skill). Every value: {value, src: page/table/eq} or
+# {value, assumption: true, why}. Site, port and plant are PLACEHOLDERS (all assumptions) around Utsira Nord and
+# Haugesund; replace each with the paper's values and a src before reporting anything.
+#
+# How it maps: `sim.orbit` (an ORBIT ProjectManager config; every {value, ..} leaf unwrapped) -> problem.extra["orbit"];
+# `sim.orbit_geo` -> problem.extra["orbit_geo"]. Plan is trivial (empty routes). Library names ("example_wtiv",
+# "12MW_generic", ...) are ORBIT defaults: the engine lists them in meta.sources as "ORBIT default"; they stay
+# assumptions until a paper value replaces them. Utsira Nord is floating: ORBIT's tow/mooring phases have no
+# trajectory mapping (Unsupported), so this template uses fixed-bottom TurbineInstallation as a stand-in.
+paper:
+  id: author-year-wind-inst
+  title: ""
+  authors: []
+  year: null
+  doi: ""
+  licence: ""
+problem:
+  class: [WIND-INST]
+  objective: "installation duration and installation CapEx under weather"
+  constraints:
+    - {name: weather_limits, formula_or_text: "WTIV/feeder transit and lifts limited by max_windspeed / max_waveheight in the vessel files", assumption: true, why: "ORBIT example_wtiv / example_feeder defaults"}
+  solver: none                      # ORBIT runs its own installation logic: Plan.routes is empty
+world: north-sea-stavanger
+fleet:
+  - cls: wtiv
+    count: {value: 1, assumption: true, why: "ORBIT example_wtiv"}
+    speed_mps: {value: 2.78, assumption: true, why: "example_wtiv transit_speed 10 km/h"}
+    domain: sea
+    base: "Haugesund (placeholder)"
+  - cls: feeder
+    count: {value: 2, assumption: true, why: "num_feeders placeholder"}
+    speed_mps: {value: 1.67, assumption: true, why: "example_feeder transit_speed 6 km/h"}
+    domain: sea
+    base: "Haugesund (placeholder)"
+instance:
+  source: "synthetic placeholder site (said on screen)"
+  file: ""
+  base: {name: "Installation port (placeholder)", lon: 5.27, lat: 59.41, assumption: true, why: "approximate Haugesund / Karmsund quay"}
+  stops:
+    - {name: "Utsira Nord (placeholder)", kind: wind_site, lon: 4.50, lat: 59.35, demand: {value: 6, assumption: true, why: "turbines"}, assumption: true}
+sim:
+  weather: {value: "NORA3 hourly hs_m, wind_mps at the site", assumption: true, why: "set when the world/weather is pulled; must cover the whole installation"}
+  orbit_geo:
+    port: {lon: {value: 5.27, assumption: true, why: "approximate Haugesund quay"}, lat: {value: 59.41, assumption: true, why: "approximate Haugesund quay"}}
+    site: {lon: {value: 4.50, assumption: true, why: "placeholder inside Utsira Nord"}, lat: {value: 59.35, assumption: true, why: "placeholder inside Utsira Nord"}}
+    route_factor: {value: 1.0, assumption: true, why: "straight-line site distance; sea-lane factor comes with world.legs"}
+  orbit:
+    wtiv: {value: example_wtiv, assumption: true, why: "ORBIT default vessel"}
+    feeder: {value: example_feeder, assumption: true, why: "ORBIT default vessel"}
+    num_feeders: {value: 2, assumption: true, why: "placeholder"}
+    site:
+      depth: {value: 50, unit: m, assumption: true, why: "placeholder; Utsira Nord is deeper (floating)"}
+      # distance: omitted -> great-circle(port, site) x route_factor (reported in meta.site_distance)
+    plant:
+      num_turbines: {value: 6, assumption: true, why: "tiny placeholder farm"}
+    port:
+      num_cranes: {value: 2, assumption: true, why: "ORBIT example"}
+      monthly_rate: {value: 200000, unit: USD/month, assumption: true, why: "ORBIT example"}
+      name: {value: Haugesund, assumption: true, why: "label only"}
+    turbine: {value: 12MW_generic, assumption: true, why: "ORBIT default turbine"}
+    install_phases: {value: {TurbineInstallation: "start"}, assumption: true, why: "'start' = first weather hour; or 'MM/DD'"}
+reported:                           # the paper's headline numbers; corrector gate 4. KPI names are the engine's.
+  # install_days:            {value: 0, rel_tol: 0.05, src: "Table x"}
+  # installation_capex_usd:  {value: 0, rel_tol: 0.05, src: "Table y"}
+story:
+  question: "how many extra days does the weather add to installing the farm?"
+  accent: weather-window waits
+  comparison: "calm year vs stormy year"

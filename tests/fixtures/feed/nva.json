@@ -1,0 +1,33 @@
+{
+  "_note": "Synthetic fixture for tests. NVA field names are UNVERIFIED LIVE (see offsim/feed/sources.py); content and DOIs are invented.",
+  "totalHits": 3,
+  "hits": [
+    {
+      "identifier": "12345",
+      "entityDescription": {
+        "mainTitle": "Electric ferry scheduling in the Oslofjord",
+        "abstract": "We study a ferry fleet with charging stops in the Oslofjord and compare two schedules.",
+        "publicationDate": {"year": "2021", "month": "5", "day": "10"},
+        "contributors": [
+          {"type": "Contributor", "identity": {"name": "Test Author Nine"}, "role": {"type": "Creator"}}
+        ],
+        "reference": {
+          "doi": "https://doi.org/10.1234/nva.2021.9",
+          "publicationContext": {"type": "Journal", "name": "Test Norwegian Transport Journal"}
+        }
+      }
+    },
+    {
+      "identifier": "67890",
+      "entityDescription": {
+        "mainTitle": "Offshore wind O&M logistics: a short note",
+        "publicationDate": {"year": "2018"},
+        "contributors": []
+      }
+    },
+    {
+      "identifier": "555",
+      "entityDescription": {}
+    }
+  ]
+}

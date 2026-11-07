@@ -1,0 +1,74 @@
+name: solve
+# AMPL route solve (offsim/solve/ampl/cvrp.mod) on GitHub Actions, where the AMPL binary and the HiGHS/CBC
+# modules can be installed and the academic licence activated. The Claude workspace cannot download AMPL.
+# Output: plan.json (routes, objective, status) uploaded as the artifact `solve-plan-<run id>`.
+# Needs repository secret AMPL_LICENSE_UUID (academic licence; the licence lease renews over the internet).
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "path to scenario.yaml in the repo (class CVRP, no world unless great_circle is true)"
+        required: true
+      solver:
+        description: "AMPL solver module"
+        required: true
+        default: highs
+        type: choice
+        options: [highs, cbc]
+      seconds:
+        description: "solver time limit, seconds"
+        required: true
+        default: "60"
+      great_circle:
+        description: "solve on great-circle distances even if the scenario names a world (no sea lanes)"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  solve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - name: Install Python packages
+        run: |
+          pip install -r requirements.txt amplpy
+      - name: Check licence secret
+        env:
+          AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
+        run: |
+          if [ -z "$AMPL_LICENSE_UUID" ]; then
+            echo "::error title=AMPL licence missing::Add the repository secret AMPL_LICENSE_UUID (Settings > Secrets and variables > Actions). Academic licence UUID from the AMPL site."
+            exit 1
+          fi
+      - name: Install AMPL solver modules
+        run: python -m amplpy.modules install highs coin
+      - name: Activate AMPL licence
+        env:
+          AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
+        run: python -m amplpy.modules activate "$AMPL_LICENSE_UUID"
+      - name: AMPL tests (real solve runs here)
+        run: python -m pytest -q -rs tests/test_ampl.py
+      - name: Solve
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+          SOLVER: ${{ inputs.solver }}
+          SECONDS_LIMIT: ${{ inputs.seconds }}
+          GREAT_CIRCLE: ${{ inputs.great_circle }}
+        run: |
+          extra=""
+          if [ "$GREAT_CIRCLE" = "true" ]; then extra="--great-circle"; fi
+          python -m offsim.solve.ampl_adapter --scenario "$SCENARIO" --out out/solve \
+            --solver "$SOLVER" --seconds "$SECONDS_LIMIT" $extra
+      - name: Upload plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: solve-plan-${{ github.run_id }}
+          path: out/solve/plan.json
+          if-no-files-found: error

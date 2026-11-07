@@ -18,5 +18,9 @@ Effort in working sessions (one session ≈ one focused Claude run). "You" = Ars
 | 10 | Second paper: offshore helicopters (needs OR-Tools CP-SAT or a MIP for synchronisation) | both | 2–3 | |
 | 11 | Sustainable-energy series: WOMBAT (wind O&M vessels) and ORBIT (installation) on a Norwegian site; cetos for CO2 and electric-PSV what-ifs | both | 2 each | |
 
+| 12 | **Engine layer** (2026-11-08): interfaces `offsim/engines/base.py`; solvers pyvrp/pyomo/ampl; engines replay/openclsim/wombat/orbit; Monte Carlo ensemble; AIS calibration; OSM layers; paper feed + gap table; docs ARCHITECTURE/ENGINES | Claude + agents | 1–2 | every adapter tested here except AMPL solve (Actions) |
+| 13 | Wire engines into `offsim run` (scenario `engine:`/`ensemble:` blocks) and `experiment.yaml` runner; finding shots (`motion/findings.py`); emissions (`offsim/emissions`) | Claude | 2 | demo passes with `engine: openclsim` and an ensemble |
+| 14 | AMPL: add secret `AMPL_LICENSE_UUID`, run `solve.yml` on the demo; laptop `tools/ampl_mcp` | You (5 min) + Claude | 1 | AMPL objective = Pyomo objective |
+
 To the first post: about 5–8 Claude sessions and about 30 minutes of your time. Each later paper reuses
 the machine: 1–2 sessions.

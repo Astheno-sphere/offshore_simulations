@@ -1,0 +1,23 @@
+# Feed queries for papers/feed.jsonl (python -m offsim.feed.run).
+# Free text: every word must match (title/abstract). "author:<surname>": author search where the API allows.
+# Author queries use the surname only, so hits need a check by hand (common surnames give noise).
+# Sources: omit to use all four (openalex, crossref, arxiv, nva).
+
+queries:
+  # Offshore vessel and crew logistics
+  - offshore supply vessel planning
+  - PSV routing weather
+  - offshore helicopter routing crew
+  - crew transfer vessel
+  - maritime inventory routing
+  # Offshore wind
+  - offshore wind O&M vessel
+  - offshore wind installation logistics
+  # Ferries and electrification
+  - ferry scheduling electric Norway
+  # Norwegian authors on maritime and offshore routing (surname search)
+  - "author:Gribkovskaia"
+  - "author:Fagerholt"
+  - "author:Halvorsen-Weare"
+  - "author:Qian"
+  - "author:Halskau"

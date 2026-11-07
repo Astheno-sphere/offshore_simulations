@@ -13,6 +13,12 @@ CC BY 4.0) inside the world package. A dataset that fails is recorded in the man
 Worlds are fetched, never committed (OSM is ODbL; see data/osm/README.md). Each package carries
 manifest.json with sources, licences, query time and feature counts.
 
+`--osm` also downloads the Geofabrik extract (world YAML `osm_pbf_url`, default norway-latest.osm.pbf; point it at a
+regional extract to save RAM) and writes osm/<layer>.geojson + osm/manifest.json via offsim.worlds.osm (ODbL; needs
+pyrosm). `--osm-pbf FILE` uses a local pbf instead of downloading. `--ais PATH` processes a Kystverket HAIS file
+(GeoParquet/CSV) into ais/calibration.json (+ ais/port_calls.csv when the world YAML lists `ais_places`:
+[{name, lon, lat, radius_m}]) via offsim.traffic.ais; optional YAML `ais_ship_types`, `ais_area`.
+
 Depth (`--depth`, docs/VISUAL_SPEC.md §2) additionally downloads raw DEM tiles into <out>/dem_raw/ plus
 dem_raw/sources.json (the source list merge_dem takes); the workflow publishes them as release `world-<name>-dem-raw`.
 Process them anywhere with `python -m offsim.worlds.depth --world <name> --tier fjord`.
@@ -123,7 +129,39 @@ def metocean(bbox, out, start_utc, hours, datasets=METOCEAN_DATASETS):
     return entries
 
 
-def fetch(world, out, metocean_args=None):
+def download(url, dest, chunk=1 << 20, timeout=600):
+    """Stream a (large) file to disk; returns the path."""
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    req = urllib.request.Request(url, headers=UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r, open(dest, "wb") as fh:
+        while True:
+            b = r.read(chunk)
+            if not b:
+                break
+            fh.write(b)
+    return dest
+
+
+def fetch_osm(cfg, out, pbf=None):
+    """Geofabrik extract (or local `pbf`) -> out/osm/*.geojson + manifest. Returns the osm manifest."""
+    from offsim.worlds import osm
+
+    url = cfg.get("osm_pbf_url", osm.GEOFABRIK_NORWAY)
+    if pbf is None:
+        pbf = download(url, Path(out).resolve().parent / "_osm_cache" / url.rsplit("/", 1)[-1])   # outside the world zip
+    return osm.build_osm_layers(pbf, cfg["bbox"], Path(out) / "osm", source_url=url)
+
+
+def fetch_ais(cfg, out, path):
+    """HAIS file -> out/ais/calibration.json (+ port_calls.csv). Returns the calibration dict."""
+    from offsim.traffic import ais
+
+    return ais.process_hais(path, Path(out) / "ais", bbox=cfg["bbox"], places=cfg.get("ais_places"),
+                            ship_types=cfg.get("ais_ship_types"), area=cfg.get("ais_area", cfg.get("name", "world")))
+
+
+def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None):
     cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
     out.mkdir(parents=True, exist_ok=True)
     man = {"world": world, "bbox": cfg["bbox"], "fetched_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "sources": []}
@@ -139,6 +177,15 @@ def fetch(world, out, metocean_args=None):
         man["sources"].append({"name": "MET Norway NORA3 wind/wave + NorKyst v3 currents (THREDDS OPeNDAP)",
                                "licence": "CC BY 4.0 — MET Norway", "credit": "MET Norway (CC BY 4.0)",
                                "datasets": metocean(cfg["bbox"], out, metocean_args[0], int(metocean_args[1]))})
+    if osm or osm_pbf:
+        om = fetch_osm(cfg, out, osm_pbf)
+        man["sources"].append({"name": om["name"], "licence": om["licence"], "credit": om["credit"],
+                               "layers": {k: v["features"] for k, v in om["layers"].items()}, "dir": "osm/"})
+    if ais_path:
+        cal = fetch_ais(cfg, out, ais_path)
+        man["sources"].append({"name": "Kystverket Historic AIS (HAIS), processed by offsim.traffic", "licence": "NLOD 2.0",
+                               "credit": "Source: Kystverket", "src": cal["src"], "dir": "ais/",
+                               "port_calls": cal["port_calls"], "vessels": cal["vessels"]})
     man["manual"] = cfg.get("manual", [])
     (out / "manifest.json").write_text(json.dumps(man, indent=1))
     print(json.dumps(man, indent=1))
@@ -349,6 +396,9 @@ if __name__ == "__main__":
     ap.add_argument("--metocean", nargs=2, metavar=("START_UTC", "HOURS"), help="also subset wind/wave/current, e.g. 2024-01-10T00:00 48")
     ap.add_argument("--depth", action="store_true",
                     help="also fetch raw DEM (EMODnet, Kartverket DTM) into <out>/dem_raw; with --pull: pull world-<name>-dem-raw")
+    ap.add_argument("--osm", action="store_true", help="also download the Geofabrik pbf and write osm/<layer>.geojson (needs pyrosm)")
+    ap.add_argument("--osm-pbf", metavar="FILE", help="use this local .osm.pbf instead of downloading (implies --osm)")
+    ap.add_argument("--ais", metavar="PATH", help="process a Kystverket HAIS GeoParquet/CSV into ais/calibration.json")
     ap.add_argument("--depth-only", action="store_true", help="fetch only the raw DEM (skip OSM/Sodir)")
     a = ap.parse_args()
     if a.pull:
@@ -356,6 +406,6 @@ if __name__ == "__main__":
     else:
         dest = Path(a.out or ROOT / "data/worlds" / a.world)
         if not a.depth_only:
-            fetch(a.world, dest, a.metocean)
+            fetch(a.world, dest, a.metocean, osm=a.osm, osm_pbf=a.osm_pbf, ais_path=a.ais)
         if a.depth or a.depth_only:
             fetch_depth(a.world, dest)

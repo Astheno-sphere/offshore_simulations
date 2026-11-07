@@ -1,0 +1,5 @@
+# L2 simulation engines (offsim/engines). All pip-installable; tested here 2026-11-08.
+openclsim==1.6.3      # MIT, TU Delft/Deltares/Van Oord: vessel logistics under weather windows
+wombat==0.13.5        # Apache-2.0, NREL: offshore-wind O&M
+orbit-nrel==1.3.1     # Apache-2.0, NREL: offshore-wind installation
+amplpy>=0.18          # BSD-3; the AMPL binary itself installs only on Actions/laptop (see solve.yml)

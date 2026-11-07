@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic fixture for tests. Shape follows the arXiv export API Atom feed; content is invented. -->
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <link href="http://arxiv.org/api/query?search_query=all:ferry&amp;start=0&amp;max_results=50" rel="self" type="application/atom+xml"/>
+  <title type="html">ArXiv Query: search_query=all:ferry</title>
+  <id>http://arxiv.org/api/test</id>
+  <updated>2026-11-01T00:00:00-04:00</updated>
+  <opensearch:totalResults>3</opensearch:totalResults>
+  <entry>
+    <id>http://arxiv.org/abs/2301.01234v2</id>
+    <updated>2023-02-01T10:00:00Z</updated>
+    <published>2023-01-04T10:00:00Z</published>
+    <title>Electric ferry timetabling with charging under simulation</title>
+    <summary>  We schedule an electric passenger ferry fleet with charging constraints in the Oslofjord.
+  Ferry timetables are evaluated by a discrete-event simulation.  </summary>
+    <author><name>Test Author Five</name></author>
+    <author><name>Test Author Six</name></author>
+    <arxiv:doi>10.48550/arXiv.2301.01234</arxiv:doi>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.OC" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="math.OC" scheme="http://arxiv.org/schemas/atom"/>
+    <link href="http://arxiv.org/abs/2301.01234v2" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2301.01234v2" rel="related" type="application/pdf"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/math/0301234v1</id>
+    <updated>2003-01-20T00:00:00Z</updated>
+    <published>2003-01-20T00:00:00Z</published>
+    <title>An old note on ferry routing</title>
+    <summary>Ferry routing in a small harbour.</summary>
+    <author><name>Test Author Seven</name></author>
+    <link href="http://arxiv.org/abs/math/0301234v1" rel="alternate" type="text/html"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2006.00042v1</id>
+    <updated>2020-06-02T00:00:00Z</updated>
+    <published>2020-06-01T08:00:00Z</published>
+    <title>Maritime inventory routing under uncertain demand: a robust formulation</title>
+    <summary>We study inventory routing for a fleet of vessels with uncertain demand. Column generation is used.</summary>
+    <author><name>Test Author Eight</name></author>
+    <arxiv:journal_ref>Test Operations Journal 12 (2020)</arxiv:journal_ref>
+    <link href="http://arxiv.org/abs/2006.00042v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2006.00042v1" rel="related" type="application/pdf"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/api/errors#incorrect_id: The id is not in the form.</id>
+    <title>Error</title>
+    <summary>incorrect id format</summary>
+  </entry>
+</feed>

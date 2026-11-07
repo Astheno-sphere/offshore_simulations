@@ -1,0 +1,97 @@
+name: papers
+
+# Weekly research feed (L6): fetch new papers, rule-tag them, list gaps. Results live on branch papers/auto,
+# which accumulates across runs (the feed only appends new papers), with one open pull request.
+# Code and queries come from the triggering commit, never from the branch snapshot.
+on:
+  schedule:
+    - cron: "23 5 * * 1"            # Mondays 05:23 UTC
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Publication-date floor, YYYY-MM-DD"
+        required: false
+        default: "2015-01-01"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: papers-auto
+  cancel-in-progress: false
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OFFSIM_MAILTO: ${{ vars.OFFSIM_MAILTO }}
+      SINCE: ${{ inputs.since || '2015-01-01' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out papers/auto and restore code and queries from this commit
+        run: |
+          git fetch --no-tags origin '+refs/heads/papers/auto:refs/remotes/origin/papers/auto' 2>/dev/null || true
+          if git rev-parse --verify -q origin/papers/auto >/dev/null; then
+            git checkout -B papers/auto origin/papers/auto
+          else
+            git checkout -B papers/auto
+          fi
+          git restore --source "$GITHUB_SHA" --worktree -- offsim papers/queries.yaml
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install pyyaml pandas
+
+      - name: Feed, tag, gaps
+        run: |
+          python -m offsim.feed.run --queries papers/queries.yaml --out papers/feed.jsonl --since "$SINCE"
+          python -m offsim.research.tags --feed papers/feed.jsonl --out papers/tags.jsonl
+          python -m offsim.research.gaps --tags papers/tags.jsonl --out papers/gaps.yaml
+
+      - name: Commit when the feed grew, then push
+        run: |
+          git add papers/feed.jsonl papers/tags.jsonl papers/gaps.yaml
+          if git diff --cached --quiet -- papers/feed.jsonl; then
+            echo "No new papers this week"
+            exit 0
+          fi
+          git -c user.name="Arshad Akhtar Abbasia" \
+              -c user.email="github-actions[bot]@users.noreply.github.com" \
+              commit -q \
+              -m "papers: weekly feed $(date -u +%F)" \
+              -m "Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>" \
+              -m "Claude-Session: https://claude.ai/code/session_01EHN9UJ5w8SDBDnkLYY6iDn" \
+              -- papers/feed.jsonl papers/tags.jsonl papers/gaps.yaml
+          git push origin papers/auto
+
+      - name: Open or update the pull request
+        if: ${{ success() }}
+        run: |
+          if ! git rev-parse --verify -q origin/papers/auto >/dev/null && ! git ls-remote --exit-code --heads origin papers/auto >/dev/null; then
+            echo "Branch papers/auto not on the remote; nothing to open"
+            exit 0
+          fi
+          if gh pr list --head papers/auto --state open --json number --jq '.[0].number' | grep -q .; then
+            echo "Pull request for papers/auto already open; the push updated it"
+          else
+            body=$(printf '%s\n' \
+              "Weekly feed on the offshore, maritime and transport topics in papers/queries.yaml." \
+              "" \
+              "- papers/feed.jsonl: new papers appended (dedupe by DOI, arXiv id and normalised title)" \
+              "- papers/tags.jsonl: rule tags only; confidence below 1; no tag here is a reported result" \
+              "- papers/gaps.yaml: gap candidates (no-norway, no-uncertainty, no-code) with suggested engines" \
+              "" \
+              "Review the gaps, then write experiment.yaml through the research-scout skill." \
+              "" \
+              "🤖 Generated with [Claude Code](https://claude.com/claude-code)")
+            gh pr create --base "${{ github.event.repository.default_branch }}" --head papers/auto \
+              --title "papers: weekly research feed" --body "$body"
+          fi

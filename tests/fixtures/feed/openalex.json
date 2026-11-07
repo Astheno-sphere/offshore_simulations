@@ -1,0 +1,60 @@
+{
+  "_note": "Synthetic fixture for tests. Shape follows the OpenAlex /works response; titles, authors and DOIs (10.1234 test prefix) are invented.",
+  "meta": {"count": 3, "db_response_time_ms": 12, "page": 1, "per_page": 50},
+  "results": [
+    {
+      "id": "https://openalex.org/W9000000001",
+      "doi": "https://doi.org/10.1234/psv.2019.001",
+      "title": "Robust planning of offshore supply vessel routes under weather uncertainty",
+      "publication_year": 2019,
+      "publication_date": "2019-03-01",
+      "authorships": [
+        {"author": {"id": "https://openalex.org/A1", "display_name": "Test Author One"}, "institutions": []},
+        {"author": {"id": "https://openalex.org/A2", "display_name": "Test Author Two"}, "institutions": []}
+      ],
+      "primary_location": {"source": {"display_name": "Test Journal of Maritime Logistics"}},
+      "open_access": {"is_oa": true, "oa_url": "https://example.org/psv-2019.pdf"},
+      "best_oa_location": {"landing_page_url": "https://example.org/psv-2019"},
+      "abstract_inverted_index": {
+        "Offshore": [0], "supply": [1], "vessels": [2], "serve": [3], "platforms": [4], "on": [5],
+        "the": [6], "Norwegian": [7], "continental": [8], "shelf.": [9], "We": [10], "formulate": [11],
+        "a": [12], "pickup": [13], "and": [14, 20], "delivery": [15], "problem": [16], "with": [17],
+        "time": [18], "windows": [19], "solve": [21], "it": [22], "exactly": [23], "by": [24],
+        "branch-and-price": [25], "under": [26], "forecast": [27], "weather": [28], "windows.": [29],
+        "Code": [30], "is": [31], "at": [32], "https://github.com/example/psv-routing.": [33]
+      }
+    },
+    {
+      "id": "https://openalex.org/W9000000002",
+      "doi": "https://doi.org/10.1234/ctv.2021.042",
+      "title": "Crew transfer vessel dispatching for offshore wind farm maintenance with failures",
+      "publication_year": 2021,
+      "publication_date": "2021-06-15",
+      "authorships": [
+        {"author": {"id": "https://openalex.org/A3", "display_name": "Test Author Three"}, "institutions": []}
+      ],
+      "primary_location": {"source": {"display_name": "Test Energy Review"}},
+      "open_access": {"is_oa": false, "oa_url": null},
+      "best_oa_location": null,
+      "abstract_inverted_index": {
+        "Crew": [0], "transfer": [1], "vessels": [2], "support": [3], "operation": [4], "and": [5, 22],
+        "maintenance": [6], "of": [7], "wind": [8], "farms": [9], "in": [10], "the": [11], "German": [12],
+        "North": [13], "Sea.": [14], "We": [15], "simulate": [16], "turbine": [17], "failures": [18],
+        "with": [19], "discrete-event": [20], "simulation": [21], "compare": [23], "dispatch": [24],
+        "heuristics.": [25]
+      }
+    },
+    {
+      "id": "https://openalex.org/W9000000003",
+      "doi": null,
+      "title": "Maritime inventory routing under uncertain demand: a robust formulation",
+      "publication_year": 2020,
+      "publication_date": null,
+      "authorships": [],
+      "primary_location": null,
+      "open_access": {"is_oa": false, "oa_url": null},
+      "best_oa_location": null,
+      "abstract_inverted_index": null
+    }
+  ]
+}
