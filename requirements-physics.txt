@@ -1,0 +1,3 @@
+# Section physics (offsim/physics): numpy core; optional accelerated backends, tested to import here 2026-11-08
+taichi==1.7.4         # Apache-2.0: GPU/CPU kernels for the 2D fluid solver
+phiflow==3.4.0        # MIT: differentiable fluids; reference/validation for fluid2d

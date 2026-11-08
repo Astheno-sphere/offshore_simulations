@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-136 tools · 24 tested · 9 wired · 2 installed · 51 candidate · 4 manual · 46 watch.
+139 tools · 24 tested · 9 wired · 4 installed · 52 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -16,7 +16,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
 | solver | 2 | 1 | 0 | 2 | 0 | 4 | 9 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
-| simulation | 2 | 0 | 0 | 3 | 0 | 2 | 7 |
+| simulation | 2 | 0 | 2 | 4 | 0 | 2 | 10 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
 | render | 5 | 0 | 0 | 6 | 0 | 7 | 18 |
@@ -171,6 +171,9 @@ _Time, queues, failures, weather delays (discrete-event, agent-based, vessel dyn
 |---|---|---|---|---|---|
 | [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | MIT | tested | here | now | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. Evidence: `offsim/engines/openclsim_adapter.py` `tests/test_engines_core.py` `tests/test_engine_crosscheck.py` |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | MIT | tested | here | now | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. Evidence: `offsim/sim/replay.py` `tests/test_offsim.py` |
+| [PhiFlow](https://github.com/tum-pbs/PhiFlow) | MIT | installed | here | next | Differentiable fluid solver; reference to validate our stable-fluids section solver. Evidence: `requirements-physics.txt` |
+| [Taichi Lang](https://github.com/taichi-dev/taichi) | Apache-2.0 | installed | here | next | Accelerated kernels for the 2D section fluid solver (offsim/physics/fluid2d.py); imports on CPU here. Evidence: `requirements-physics.txt` |
+| [Capytaine (BEM hydrodynamics)](https://github.com/capytaine/capytaine) | GPL-3.0 | candidate | here | later | Vessel RAOs from hull geometry for physical heave/roll in the section view; GPL: separate process only. |
 | [Mesa](https://github.com/projectmesa/mesa) | check | watch | here | later | Agent-based models (crew, workers, fleets with behaviour). |
 | [OpenTNSim (TU Delft)](https://github.com/TUDelft-CITG/OpenTNSim) | MIT | candidate | here | later | Waterway/port traffic networks on top of OpenCLSim; fairway congestion, locks, energy. |
 | [port-simulation (spartalab)](https://github.com/spartalab/port-simulation) | MIT | watch | here | later | DES of a port; reference for supply-base quay modelling. |

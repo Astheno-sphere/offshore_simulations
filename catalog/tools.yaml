@@ -107,6 +107,12 @@ tools:
    role: "Instance-matched benchmark for weather-routing papers."}
 
 # ---------------- simulation ----------------
+- {id: taichi, name: Taichi Lang, url: "https://github.com/taichi-dev/taichi", layer: simulation, licence: Apache-2.0, status: installed, runs: here, priority: next, evidence: "requirements-physics.txt",
+   role: "Accelerated kernels for the 2D section fluid solver (offsim/physics/fluid2d.py); imports on CPU here."}
+- {id: phiflow, name: PhiFlow, url: "https://github.com/tum-pbs/PhiFlow", layer: simulation, licence: MIT, status: installed, runs: here, priority: next, evidence: "requirements-physics.txt",
+   role: "Differentiable fluid solver; reference to validate our stable-fluids section solver."}
+- {id: capytaine, name: Capytaine (BEM hydrodynamics), url: "https://github.com/capytaine/capytaine", layer: simulation, licence: GPL-3.0, status: candidate, runs: here, priority: later,
+   role: "Vessel RAOs from hull geometry for physical heave/roll in the section view; GPL: separate process only."}
 - {id: openclsim, name: OpenCLSim (TU Delft, Deltares, Van Oord), url: "https://github.com/TUDelft-CITG/OpenCLSim", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/engines/openclsim_adapter.py tests/test_engines_core.py tests/test_engine_crosscheck.py",
    role: "Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay."}
 - {id: opentnsim, name: OpenTNSim (TU Delft), url: "https://github.com/TUDelft-CITG/OpenTNSim", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,

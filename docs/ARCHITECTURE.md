@@ -18,6 +18,7 @@ Everything is a module behind an interface; tools are swappable, numbers are not
  L4 VALIDATE   gates 0–4 (offsim.pipeline, offsim.contract) + AIS calibration (offsim.traffic) ─► report.json
                     │                                   scene.py refuses anything that failed
  L5 PRESENT    offsim.scene ─► render_deck (deck.gl)  │  motion (Manim, HyperFrames)  │  cinema (camera, vessel)
+               offsim.physics (section fluid, ocean surface, streaks) ─► motion/diptych (section + map, one clock)
                offsim.publish (muse.ai)
 ```
 
@@ -75,6 +76,10 @@ tool breaks only itself. `python -c "from offsim.engines import available; print
 | `visual-director` | L5 | storyboard + style; refuses unvalidated reports |
 | `sim-narrator` | L5 | captions/post from report refs only |
 | `tool-scout` | all | keeps `catalog/tools.yaml` honest (evidence or demote) |
+
+## Visual grade
+See `docs/STYLE_REFERENCE.md`: the section + map diptych, physics-driven texture, real-data map, editorial frame,
+method line from provenance. Palette data in `offsim/cinema/look.py` (`PALETTES`).
 
 ## What is deliberately not here
 Hand-tuned "looks plausible" motion with no source number; any tool nobody calls (catalog demotes it to `watch`);
