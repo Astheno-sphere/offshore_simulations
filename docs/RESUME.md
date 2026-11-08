@@ -32,8 +32,10 @@ Interrupted and recovered: the depth builder hit the sub-agent rate limit; its u
    `research/run_experiment.py`, WIND-OM / WIND-INST past gate 0; wind adapters onto `world.legs`.
 0b. You: secret `AMPL_LICENSE_UUID` → Actions **solve** on the demo; allow Actions to create PRs (Settings → Actions) for **papers**.
 0c. Build `offsim/emissions` and `offsim/motion/findings.py` to their specs.
-0d. Style reference reverse-engineered (docs/STYLE_REFERENCE.md): build `offsim/physics` (fluid2d, ocean, streaks) and
-    `motion/diptych.py` to spec; first still = PSV section with exhaust plume + Hs map, one clock. Validation tests first.
+0d. Section physics BUILT (display grade): `offsim/physics` fluid2d (consistent projection), ocean (JONSWAP), streaks;
+    tests/test_physics.py; draft still `tools/section_still.py` (PSV in a gale, plume over the cargo deck; inputs assumed).
+    Next: animate (moving wave boundary, frames → ffmpeg), map panel + `motion/diptych.py`, cavity validation (Ghia 1982)
+    before any section number is reported, real vessel geometry and exhaust data.
 1. Actions → **fetch-world** `oslofjord` with `depth: true` and `metocean_start` (e.g. 2024-01-10T00:00, 48 h) — first live
    run of the DEM and MET Norway fetchers; fix whatever the log shows; flip `live_checked` in weather/fetch.py.
 2. `python -m offsim.worlds.depth --world oslofjord --tier fjord` on the pulled DEM → terrain in the demo map shot.
