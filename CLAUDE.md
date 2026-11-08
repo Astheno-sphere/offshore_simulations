@@ -1,5 +1,7 @@
 # offshore_simulations — instructions for Claude
 
+Other agents: see AGENTS.md (same rules, plus a one-command reproduction of the current film).
+
 Start at `skills/offsim-foundations/SKILL.md` (router + conventions). The flow is fixed:
 paper → scenario.yaml → `python -m offsim run` (gates 0–4, report.json) → storyboard.yaml →
 `python -m offsim story --dry-run` → `python -m offsim story` → post. See `docs/AUDIT.md` for open risks.
