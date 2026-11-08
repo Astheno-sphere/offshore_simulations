@@ -1,0 +1,4 @@
+# Paper intake (offsim/intake/paper.py): text + tables with page numbers
+pdfplumber==0.11.10   # MIT
+pypdf==6.17.0         # BSD-3
+reportlab==5.0.1         # BSD: tests generate a synthetic paper PDF

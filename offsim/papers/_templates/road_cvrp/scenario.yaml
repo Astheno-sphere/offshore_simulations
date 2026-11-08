@@ -30,6 +30,8 @@ problem:
   constraints:
     - {name: capacity, formula_or_text: "sum of demand on a route <= vehicle capacity", assumption: true, why: "placeholder"}
   solver: pyvrp
+solver: pyvrp                        # registry name (offsim.engines.base): pyvrp (default) | pyomo | ampl | none
+engine: road                         # registry name: road (default for land) | replay | openclsim (road needs the road legs)
 world: molde                         # data/worlds/<world>/osm/roads.geojson (see the header)
 world_mode: road
 fleet:
@@ -50,6 +52,13 @@ instance:
 sim:
   max_snap_m: {value: 500, assumption: true, why: "a stop farther than this from any road is a wrong coordinate, not a snap"}
   # road_speeds_kph: {value: {residential: 40}, src: "p. N, Table M"}     # override a class default with a paper value
+# certify:                           # gate 1b (opt-in): heuristic objective vs an exact solve; fails when the gap exceeds gap_tol
+#   max_clients: 12                  # more clients: the gate is recorded as skipped
+#   gap_tol: {value: 0.02, assumption: true, why: "2 % optimality gap"}
+#   solver: pyomo                    # or ampl (where AMPL is activated)
+# ensemble:                          # gate 3e (opt-in): seeds x weather years through the chosen engine -> report.ensemble
+#   seeds: 5
+#   weather: {dir: data/worlds/molde/metocean, point: [7.16, 62.75], years: [2000, 2023], season: DJF}   # tests: {synthetic: {n: 2, hours: 72}} (not reportable)
 # validate: {ais: true}              # gate 4b: needs data/worlds/<world>/ais/calibration.json
 reported: {}
 story:

@@ -115,9 +115,27 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
   No weather (a series is ignored and noted). One `speed_mps` per run (mixed speeds raise). CVRP, VRPTW.
 
 ## Choosing
-PSV supply / ferry / crew boat with a routing plan → `replay` for gate 2, `openclsim` for the ensemble.
-Land legs on roads (trucks, vans, workers) → `road`. Wind O&M → `wombat`. Wind installation → `orbit`. Two engines on the same small instance must agree on
-deterministic KPIs within 1% (`tests/test_engine_crosscheck.py`) before either is trusted on a large one.
+`offsim run` looks both tools up in the registry (`offsim.engines.base`): scenario `solver:` (default `pyvrp`; `none` when the engine dispatches itself) and
+`engine:` (default `replay` for sea, `road` for land; `wombat` / `orbit` / `gtfs` for WIND-OM / WIND-INST / TRANSIT-REPLAY). Gate 0 accepts the classes of
+the registered tools and names an unsupported class, a solver/engine that does not cover the class, or a tool that does not import (with the error).
+
+| Problem | `solver:` | `engine:` | Gate 2 |
+|---|---|---|---|
+| PSV supply / ferry / crew boat with a routing plan | `pyvrp` (`pyomo`/`ampl` to certify) | `replay`; `openclsim` for weather windows and the ensemble | simulated km = plan objective (1 %) |
+| Land legs on roads (trucks, vans, workers) | `pyvrp` | `road` | same |
+| Wind O&M | `none` | `wombat` (needs hourly weather) | "engine dispatches itself" |
+| Wind installation | `none` | `orbit` (needs hourly weather) | "engine dispatches itself" |
+| Timetable replay (bus, ferry, rail) | `none` | `gtfs` | "engine dispatches itself" |
+
+Opt-in blocks in scenario.yaml (all other gates are unchanged):
+- `certify: {max_clients: 12, gap_tol: {value: 0.02, assumption: true}, solver: pyomo|ampl}` -> gate `1b_exact`: heuristic objective vs the exact optimum (or its
+  proven bound); fails above `gap_tol`, skipped (recorded) above `max_clients`.
+- `ensemble: {seeds: N, weather: {dir, point: [lon, lat], years: [y0, y1], season: DJF}}` -> `report["ensemble"]` (gate `3e_ensemble`; a failed ensemble stops the run).
+  `weather: {synthetic: {n, hours}}` is TEST-ONLY: it sets `report["reportable"] = False` and ends the status with "(synthetic weather, not reportable)". A top-level
+  `weather:` block (same format) feeds the single run of engines that need weather. A missing metocean directory stops at gate 0 with the `fetch_world --metocean` command.
+- `validate: {entur: true}` (engine `gtfs`) -> gate `4c_entur` from `data/worlds/<w>/entur/vehicles.csv` (workflow `entur-realtime`).
+Experiments use the same construction: `offsim.pipeline.build_variant(experiment, variant)` (overrides applied to the base scenario, then solve and engine of the variant).
+Two engines on the same small instance must agree on deterministic KPIs within 1% (`tests/test_engine_crosscheck.py`) before either is trusted on a large one.
 
 ### Entur realtime (validation, gate 4c)
 - **What:** not an engine. `offsim.transit.entur` polls Entur's Vehicle Positions GraphQL API (stdlib, no websockets; header `ET-Client-Name` from env
@@ -126,7 +144,7 @@ deterministic KPIs within 1% (`tests/test_engine_crosscheck.py`) before either i
   `delay` / `speed` are **unverified live**.
 - **Mapping:** `offsim.transit.observed.observed_trajectories(vehicles_df, t0_utc)` gives contract trajectories, one agent per service journey (cls bus, domain
   land, `drive`/`wait` from the position change between samples). `t0_utc` must be the UTC instant of the scheduled trajectory's t = 0.
-- **Gate 4c (opt-in, by hand; not in `offsim run`):** `compare_to_schedule(sched_traj, observed_traj)` projects each observed point onto the GTFS path and reports per
+Wired into `offsim run` as gate 4c_entur (scenario `validate: {entur: true}`, engine gtfs; data: workflow entur-realtime).
   journey the delay quantiles and the observed/scheduled travel-time ratio; `gate_4c(cmp)` passes when the median |median delay| <= 180 s and the median ratio
   <= 1.25 (both **assumptions**, unsourced), and fails when nothing could be judged. Record runs in `docs/TESTLOG.md`.
 - **Limits:** sampled positions only (30 s polls, vehicles report at their own rate); loop routes can project to the wrong lap; a dwell counts from its first

@@ -15,6 +15,10 @@ the solver at run time: the AMPL way of working, in open-source Python (Pyomo).
 | CPLEX (`cplex`) | commercial; Community Edition free; free full academic license (IBM Academic Initiative) | 1,000 variables on Community Edition |
 | HiGHS (`highspy`) | open source (MIT) | none; always the fallback |
 
+AMPL (`.mod` / `.dat` in the paper folder) runs on GitHub Actions (`solve.yml`, secret `AMPL_LICENSE_UUID`) and on the
+laptop (`tools/ampl_mcp`). It does not run in the Claude workspace (binary download blocked). A Pyomo twin of each
+`.mod` cross-checks it.
+
 `--solver auto` picks the first available solver whose free edition fits the model and falls through on a
 license error. Every report says which solver produced it. AMPL itself (`amplpy`) needs an AMPL license
 (Community Edition on registration); `--export model.nl` writes AMPL's format for any AMPL solver.
@@ -36,6 +40,7 @@ python scripts/opt_cli.py transportation examples/transportation.json --solver g
 ## Rules
 - Present results only when `solvers_agree` is true (or say why one solver could not run).
 - Use `cvrp_exact` to certify PyVRP plans (`offsim/solve/pyvrp_adapter.py`) on small instances; PyVRP for real sizes.
+  A scenario reaches the same check with `certify:` (gate 1b, `sim-corrector`); `solver: ampl` for an AMPL paper.
 - OR-Tools and `highspy` cannot load in one process; run OR-Tools in a
   subprocess. Do not import `ortools` directly next to Pyomo/HiGHS.
 

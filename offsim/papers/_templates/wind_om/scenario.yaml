@@ -4,8 +4,8 @@
 # assumptions) around Hywind Tampen; replace each with the paper's values and a src before reporting anything.
 #
 # How it maps: `sim.wombat` is unwrapped (value of every {value, ..} leaf) into problem.extra["wombat"]. The Plan is
-# trivial (empty routes): WOMBAT dispatches vessels itself. The pipeline hook that does this unwrapping and lifts
-# SUPPORTED to include WIND-OM is not part of this template.
+# trivial (empty routes): WOMBAT dispatches vessels itself. offsim.pipeline.build_problem does the unwrapping; with `solver: none` and
+# `engine: wombat` gate 0 accepts WIND-OM, gate 1 records "no routes" and gate 2 "engine dispatches itself (no plan to compare)".
 # Library items named below are WOMBAT's bundled DEFAULT library (COWER 2024 cost/performance set): an
 # "ORBIT/WOMBAT default" is still an assumption until a paper value replaces it.
 paper:
@@ -21,6 +21,14 @@ problem:
   constraints:
     - {name: weather_limits, formula_or_text: "CTV transfers/transit need Hs <= 2 m; jack-up repairs need wind <= 10 m/s", assumption: true, why: "WOMBAT default vessel files ctv.yaml / hlv.yaml"}
   solver: none                      # WOMBAT dispatches itself: Plan.routes is empty
+solver: none                        # registry: no routing; gate 1 records "no routes", gate 2 "engine dispatches itself"
+engine: wombat                      # registry name (default for WIND-OM)
+# WOMBAT needs hourly weather. Real: data/worlds/<w>/metocean via fetch_world --metocean; tests: synthetic (run is then not reportable).
+# weather: {dir: data/worlds/north-sea-stavanger/metocean, point: [2.27, 61.33], years: [2011, 2011], season: DJF}
+# weather: {synthetic: {n: 1, hours: 1080}}
+# ensemble:                         # gate 3e (opt-in): weather years x seeds -> report.ensemble (quantiles of availability, om_cost_usd, ...)
+#   seeds: 5
+#   weather: {dir: data/worlds/north-sea-stavanger/metocean, point: [2.27, 61.33], years: [2000, 2023], season: DJF}
 world: north-sea-stavanger          # offsim/worlds/<name>.yaml (Utsira Nord / Hywind Tampen are placeholders)
 fleet:                              # inventory shown on screen; the engine reads sim.wombat.vessels
   - cls: crew_boat

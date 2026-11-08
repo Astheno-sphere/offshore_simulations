@@ -7,7 +7,15 @@ Shot types
   equation  Manim: the model's maths (LaTeX lines written in sequence)          [needs manim + LaTeX]
   map       deck.gl: the validated run on the real coastline; camera keyframes   [needs Node, Chrome]
   card      HyperFrames: KPI count-up card (GSAP), values ONLY from report.json   [needs npx hyperframes]
+  section   PIL + numpy: vertical sea section (2D air, JONSWAP sea, line-art vessel) + optional real-layers map;
+            deck text chosen from the measured values by `narration:` rules (offsim/motion/section.py)
+            `diptych` is accepted as an alias for a section shot that has a map.
+  findings  PIL: what the ensemble says (kind fan | paired | state_gantt), only from report["ensemble"] / the run's
+            trajectory, spread and status word always on screen (offsim/motion/findings.py)
 Assembly    ffmpeg xfade between shots.
+
+Narration: any on-screen sentence in a section / findings shot (and optionally a card title) is a `narration:` list of
+{when, text} rules (offsim/motion/narrate.py) evaluated over measured values; never a literal claim.
 
 Refs: any card value is a reference like `report:kpis.distance_km` with an optional `fmt`; literal numbers
 are refused. The storyboard is refused if the run's gates 0-3 did not pass.
@@ -44,7 +52,32 @@ def tools():
             "hyperframes": (HERE / "node_modules/.bin/hyperframes").exists()}
 
 
-NEEDS = {"equation": ("manim", "latex"), "map": ("node", "chrome"), "card": ("hyperframes", "chrome")}
+NEEDS = {"equation": ("manim", "latex"), "map": ("node", "chrome"), "card": ("hyperframes", "chrome"),
+         "section": ("ffmpeg",), "findings": ("ffmpeg",)}
+ALIASES = {"diptych": "section"}
+SHOT_TYPES = ("equation", "map", "card", "section", "findings")
+
+
+def shot_type(shot):
+    return ALIASES.get(shot.get("type"), shot.get("type"))
+
+
+def normalize(shot):
+    """Resolve aliases (diptych -> section)."""
+    return {**shot, "type": shot_type(shot)} if shot.get("type") in ALIASES else shot
+
+
+def load_traj(sb):
+    """(trajectory, agents) of the storyboard's run, or (None, None)."""
+    import pandas as pd
+    run = ROOT / sb.get("run", "")
+    t, a = run / "trajectory.csv", run / "agents.csv"
+    return (pd.read_csv(t) if t.exists() else None), (pd.read_csv(a) if a.exists() else None)
+
+
+def load_weather(shot):
+    import pandas as pd
+    return pd.read_csv(ROOT / shot["weather_csv"]) if shot.get("weather_csv") else None
 
 
 def check(sb, report):
@@ -61,15 +94,38 @@ def check(sb, report):
         probs.append(f"shot_plan could not run: {e}")
     have = tools()
     for i, shot in enumerate(sb["shots"]):
-        miss = [t for t in NEEDS.get(shot["type"], ()) if not have[t]]
+        st = shot_type(shot)
+        if st not in SHOT_TYPES:
+            probs.append(f"shot {i}: unknown type {shot.get('type')!r}; have {list(SHOT_TYPES)}")
+            continue
+        miss = [t for t in NEEDS.get(st, ()) if not have[t]]
         if miss:
             probs.append(f"shot {i} ({shot['type']}) needs {miss}")
-        if shot["type"] == "card":
+        if st == "card":
             for kpi in shot.get("kpis", []):
                 try:
                     float(resolve(kpi["value"], report))
                 except Exception as e:
                     probs.append(f"shot {i} kpi {kpi.get('label')}: {e}")
+            if shot.get("narration"):
+                from offsim.motion import narrate
+                probs += [f"shot {i} (card): {p}" for p in narrate.validate_rules(shot["narration"], set(narrate.flatten(report)))]
+        elif st == "section":
+            from offsim.motion import section
+            sh = normalize(shot)
+            probs += [f"shot {i} (section): {p}" for p in section.problems(sh, report)]
+            if shot["type"] == "diptych" and not shot.get("map"):
+                probs.append(f"shot {i} (diptych): needs a map {{world, run, agent}}")
+            m = shot.get("map")
+            if isinstance(m, dict) and m.get("run") and (ROOT / m["run"] / "report.json").exists():
+                mrep = json.loads((ROOT / m["run"] / "report.json").read_text())
+                bad = [g for g, r in mrep.get("gates", {}).items() if g.startswith(("0", "1", "2", "3")) and not r["pass"]]
+                if bad:
+                    probs.append(f"shot {i} (section): map run {m['run']} did not pass gates {bad}: never map it")
+        elif st == "findings":
+            from offsim.motion import findings
+            traj, _ = load_traj(sb) if shot.get("kind") == "state_gantt" else (None, None)
+            probs += [f"shot {i} (findings): {p}" for p in findings.problems(shot, report, traj is not None)]
     return probs
 
 
@@ -175,7 +231,13 @@ def card_project(shot, report, fmt, folder):
     kpi_html = "".join(
         f'<div class="kpi"><b data-value="{float(resolve(k["value"], report)) * k.get("scale", 1)}" data-decimals="{k.get("decimals", 0)}" '
         f'data-unit="{k.get("unit", "")}"></b><span>{k["label"]}</span></div>' for k in shot["kpis"])
-    fields = {"W": W, "H": H, "DURATION": shot.get("seconds", 5), "KICKER": shot.get("kicker", ""), "TITLE": shot.get("title", ""),
+    title = shot.get("title", "")
+    if shot.get("narration"):                     # the title is chosen from the measured values, never hand-written
+        import html as _html
+
+        from offsim.motion import narrate
+        title = _html.escape(narrate.choose(shot["narration"], narrate.flatten(report)))
+    fields = {"W": W, "H": H, "DURATION": shot.get("seconds", 5), "KICKER": shot.get("kicker", ""), "TITLE": title,
               "KPI_HTML": kpi_html, "STATUS": report["status"], "SOURCE": shot.get("source", ""), "MARK": shot.get("mark", "OFFSHORE SIMULATIONS")}
     for k, val in fields.items():
         html = html.replace("{{" + k + "}}", str(val))
@@ -196,6 +258,17 @@ def shot_card(shot, sb, report, fmt, out):
         r = hyperframes(["render", "-q", "standard", "-o", str(out)], tmp)
         if r.returncode:
             raise RuntimeError(r.stdout[-800:] + r.stderr[-800:])
+
+
+def shot_section(shot, sb, report, fmt, out, fps=30):
+    from offsim.motion.section import render_section_shot
+    return render_section_shot(normalize(shot), sb, out, fps, report, size=tuple(size(fmt)), strict_map=True)
+
+
+def shot_findings(shot, sb, report, fmt, out, fps=30):
+    from offsim.motion.findings import render_findings_shot
+    traj, agents = load_traj(sb)
+    return render_findings_shot(shot, sb, out, fps, report, traj, load_weather(shot), agents, size=tuple(size(fmt)))
 
 
 def assemble(parts, out, xfade=0.5):
@@ -239,6 +312,18 @@ def build(storyboard, dry_run=False):
                 print(f"  map {i}: renderer check", "OK" if r.returncode == 0 else "FAIL\n" + r.stdout[-600:] + r.stderr[-600:])
                 if r.returncode:
                     return 1
+            if shot_type(shot) == "section":      # one frame, short spin-up: narration shown is indicative only
+                from offsim.motion.section import run_section
+                res = run_section({**normalize(shot), "seconds": 0.2}, sb, work / f"{i:02d}_section", 30, report,
+                                  tuple(size(fmt)), 0, strict_map=False, spinup_steps=40, log=lambda *_: None)
+                print(f"  section {i}: 1 frame OK ({res['frames'][0]}), map {'on' if res['map'] else 'absent'}, "
+                      f"indicative deck: {' '.join(res['deck'])}")
+            if shot_type(shot) == "findings":
+                from offsim.motion.findings import run_findings
+                traj, agents = load_traj(sb)
+                res = run_findings(shot, report, work / f"{i:02d}_findings", 30, traj, load_weather(shot), agents,
+                                   tuple(size(fmt)), -1, log=lambda *_: None)
+                print(f"  findings {i}: {shot['kind']} 1 frame OK ({res['frames'][0]}), deck: {' '.join(res['deck'])}")
             if shot["type"] == "card":
                 d = card_project(shot, report, fmt, work / f"{i:02d}_card")
                 r = hyperframes(["lint"], d)
@@ -252,9 +337,10 @@ def build(storyboard, dry_run=False):
     out_dir.mkdir(parents=True, exist_ok=True)
     parts = []
     for i, shot in enumerate(sb["shots"]):
-        p = out_dir / f"{i:02d}_{shot['type']}.mp4"
+        p = out_dir / f"{i:02d}_{shot_type(shot)}.mp4"
         {"equation": lambda: shot_equation(shot, fmt, p), "map": lambda: shot_map(shot, sb, report, fmt, p),
-         "card": lambda: shot_card(shot, sb, report, fmt, p)}[shot["type"]]()
+         "card": lambda: shot_card(shot, sb, report, fmt, p), "section": lambda: shot_section(shot, sb, report, fmt, p),
+         "findings": lambda: shot_findings(shot, sb, report, fmt, p)}[shot_type(shot)]()
         parts.append(p)
     final = ROOT / sb["run"] / f"{sb['id']}_{fmt}.mp4"
     assemble(parts, final, sb.get("transition_s", 0.5))

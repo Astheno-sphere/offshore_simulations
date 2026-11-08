@@ -1,65 +1,55 @@
 ---
 name: visual-director
-description: Motion grammar for offshore_simulations videos - turns a validated trajectory into a 2.5D animated scene (camera fitted to the study area, one accent for the thing the paper is about, state halos for waiting and loading, live clock and measured KPIs) in the house palette, and renders drafts here and 1080p finals on GitHub Actions. Use when a corrector-approved simulation needs a video, still or LinkedIn format.
+description: Motion grammar for offshore_simulations - turns a validated run or experiment into a storyboard of shots (equation, map, section, findings, card) in the house palette, with every number a report ref and every number shown with its uncertainty. Renders drafts and stills here and 1080p finals on GitHub Actions. Use when a corrector-approved result needs a video, still or LinkedIn format.
 ---
 
 # visual-director
 
-Extends the plate style of computational_Logistics (`skills/visual-narrative`) from plates to motion. Same palette and voice (`offsim/style.json`, copied
-from `plate.py`): ink ground, paper linework, **one** accent.
+Layer L5. Grade and craft rules: `docs/STYLE_REFERENCE.md`. Spec and numbers: `docs/VISUAL_SPEC.md`, `offsim/cinema/rules.py`.
+Palette and voice: `offsim/style.json`, `offsim/cinema/look.py`. A storyboard that breaks a spec rule is wrong even if it renders.
 
-## Pipeline
-`offsim.scene.build_scene(...)` (refuses invalid trajectories) → `scene.json` →
-`python offsim/render_deck/render.py --scene ... --format draft|square|vertical|wide [--still]`.
-Draft (640×360) and stills render in this workspace (software WebGL, ~8 frames/s at draft).
-Finals: run workflow `render` (Actions), download the MP4 from the release it creates.
+## Gate before any frame
+Only a run that passed gates 0-4 (and 1b, 3e, 4b, 4c where the scenario set them) gets a storyboard. An experiment
+needs its ensemble ok and `reportable` True. `offsim story --dry-run` refuses otherwise.
 
-## Spec first
-`docs/VISUAL_SPEC.md` holds the rendering rules, depth tiers, weather visuals, cinematic rulebook (numbers in
-`offsim/cinema/rules.py`), look and granularity. A storyboard that breaks a rule is wrong even if it renders.
+## Shot types (`offsim/papers/<id>/storyboard.yaml`)
+| Shot | Engine | Use | Numbers from |
+|---|---|---|---|
+| `equation` | Manim (LaTeX) | the paper's objective and key constraint, written on | the paper (no measured value) |
+| `map` | deck.gl | the run on the real coast; `camera.keys` eased fly-in, push, pull-back | trajectory contract, real layers only |
+| `section` | section film (`offsim.physics`, `tools/section_film.py`) | vertical sea section: hull or platform, wind and waves at the hour's Hs | `report:` refs |
+| `findings` | story pipeline | distribution: fan chart or P10-P90 band, decision status | `report["ensemble"]` refs only |
+| `card` | HyperFrames + GSAP (`offsim/motion/templates/kpi_card`) | KPI count-ups and the status word | `report:` refs with `scale`, `decimals`, `unit`. Literals refused |
 
-## Agents and sites: characters, not blocks
-`style.json` → `agent_mode`:
-| Mode | Looks like | Source |
-|---|---|---|
-| `sprite` (default) | cartoony 3D-look billboards that flip to face their heading | `offsim/assets/sprites/` (Fluent Emoji, MIT), class → sprite in `style.sprites` |
-| `model` | low-poly glTF oriented along the course | `offsim/assets/models/*.glb` (ours, `make_models.py`), class → model in `style.models` |
-| `lineart` | CAD-style vector linework (feature edges of our models), plan view, rotated by heading, crisp at any zoom | `offsim/assets/lineart/*.json` from `python -m offsim.assets.lineart` |
-| `dot` | plain circles (debug) | — |
-Sites with a `kind` that has a model (`platform`, `wind_turbine`) render as 3D models (`site_mode: model`) or line art (`site_mode: lineart`); others as columns.
-Models are exaggerated on purpose (`site_model_scale`, `agent_model_scale`): at fjord zoom a true-scale
-50 m platform is 3 px. Say "not to scale" on screen when it matters. Override per render: `--agents model`.
-Assets load asynchronously; `render.py` warms up before capture (missing sprites in a frame = raise the warm-up).
+## Checklist (STYLE_REFERENCE craft rules 1-8, level-up rules 9-17)
+- [ ] Density: every quay, stop and building drawn, not sampled (rules 1, 9).
+- [ ] Three line weights (outline 2.4, structure 1.3, detail 0.8 px), drawn at 2x and downscaled (rules 2, 3).
+- [ ] Tonal fills: each part a different value of the ground colour (rule 4).
+- [ ] Two scales on one clock: the mechanism and its consequence (rule 10).
+- [ ] Light follows the simulated clock when the scenario has one (rule 11).
+- [ ] One question in the headline; the deck line states what the run found that a reader would not guess (rules 6, 15).
+- [ ] Narration chosen from measurements, two-pass (rule 5; `sim-narrator`).
+- [ ] Real vs simulated ghost tracks side by side where AIS (4b) or Entur (4c) exists (rule 16).
+- [ ] One accent colour; one geometric sans; no more than three type sizes plus the methods line (rule 17).
+- [ ] Methods line generated from `report.provenance`: dataset, engine, ensemble size, gates passed, assumptions.
+- [ ] Credit line: DOI, data sources with licences, and "SYNTHETIC" when any geometry or demand is invented.
 
-## Motion: storyboard → shots → video
-`offsim/papers/<id>/storyboard.yaml` lists shots; `python -m offsim story <storyboard> --dry-run` resolves every
-number against `report.json`, builds each shot's source and checks it headlessly (renderer `--check`,
-`hyperframes lint`) without rendering. Drop `--dry-run` to render shots and crossfade them with ffmpeg.
-| Shot | Engine | Use |
-|---|---|---|
-| `equation` | Manim (LaTeX) | the paper's objective and key constraint, written on |
-| `map` | deck.gl | the run on the real coast; `camera.keys` = eased fly-in / push / pull-back; `agents`/`sites` modes |
-| `card` | HyperFrames + GSAP | KPI count-ups and the status word; template `offsim/motion/templates/kpi_card` |
-Card values are `report:` refs (with `scale`, `decimals`, `unit`); literals are refused. A run that failed
-gates 0–3 cannot get a storyboard. Next engines in the catalog: Vivus (line-by-line SVG drawing), Motion
-Canvas (vector diagram explainers), Lottie (icon animation).
+## Real layers only
+The map draws only layers in the world package: OSM coast, sea lanes, quays, roads, NORA3 fields. A missing layer
+stays missing, never drawn from memory. Until NORA3 is pulled, map wind is uniform and labelled as such.
 
-## Sea lanes
-Vessels must route around land: `offsim.worlds.sealanes.SeaGraph` (grid + clearance + string pulling),
-feeding `legs` to replay and `dist` to the solver. Quays snapped to water are reported (`sea.snap_m`);
-put moves over ~200 m in the caption or fix the quay coordinates.
+## Uncertainty with every number
+Each number on screen shows its uncertainty: P10-P90 or the 95% CI from `report["ensemble"]`, or "single run, no
+ensemble". Assumptions are printed on screen. Sim-derived frames carry the "SIMULATED" tag.
 
-## Grammar (v0, to be refined per video like plates 01-04)
-1. One question as the kicker, one idea as the title; the accent is the optimised plan or the one
-   agent the paper is about. Baseline in paper, never a second accent.
-2. Show the cause: the coast, the field layout, the weather window. Use world data, not decoration.
-3. Time is explicit: clock always on; waiting and loading are halos in their state colour.
-4. Numbers on screen come only from `kpi_track`, built from `offsim.contract.kpis`.
-5. Credit line always: paper DOI, data sources with licence (Sodir NLOD, Kartverket, Kystverket,
-   © OpenStreetMap contributors ODbL), and "SYNTHETIC" when any geometry or demand is invented.
-6. Formats: square 1080², vertical 1080×1350 for LinkedIn; wide 1920×1080 for talks.
+## Agents and sites
+`style.json` `agent_mode`: `sprite` (default), `model`, `lineart`, `dot` (debug). Sites: `site_mode` `model` or `lineart`
+for kinds that have one, columns otherwise. Models are exaggerated on purpose: say "not to scale" on screen when it matters.
+Vessels route on sea lanes (`offsim.worlds.sealanes`), never straight over land. Assets warm up before capture.
 
-## Not yet (deliberately)
-Blender hero shots (`bpy` 5.2 works here: Workbench ~1 s/frame, Cycles CPU
-~4 s/frame at 640×360; finals belong on Actions), Remotion captions (works here with system Chrome), Manim intros for the model's maths (works here).
-Add each only when a paper's story needs it.
+## Render
+- Drafts and stills: `render.py --check` (headless, writes nothing) and `python -m offsim story <storyboard> --dry-run`.
+  Verify before any video. Do not render images during audits unless asked.
+- Finals (1080p, Blender): `render` and `film` workflows on Actions; download from the release.
+- Story without `--dry-run` renders shots and crossfades them with ffmpeg: a heavy run, so it goes to Actions or
+  runs on demand.

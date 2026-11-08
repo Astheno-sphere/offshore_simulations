@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-150 tools · 25 tested · 13 wired · 9 installed · 53 candidate · 4 manual · 46 watch.
+154 tools · 28 tested · 13 wired · 8 installed · 55 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -19,14 +19,14 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | simulation | 2 | 0 | 2 | 4 | 0 | 2 | 10 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 5 | 0 | 1 | 6 | 0 | 7 | 19 |
+| render | 6 | 0 | 0 | 6 | 0 | 7 | 19 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
-| assets | 2 | 0 | 0 | 9 | 0 | 4 | 15 |
+| assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
 | design | 0 | 0 | 0 | 1 | 0 | 0 | 1 |
 | mcp | 0 | 1 | 0 | 3 | 0 | 2 | 6 |
 | skills | 1 | 0 | 0 | 4 | 0 | 1 | 6 |
-| benchmarks | 0 | 4 | 0 | 2 | 0 | 2 | 8 |
+| benchmarks | 1 | 4 | 0 | 4 | 0 | 2 | 11 |
 
 Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.py). Everything else is listed only.
 
@@ -49,6 +49,7 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [SimPy](https://gitlab.com/team-simpy/simpy) | simulation | tested | here | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. |
 | [WOMBAT (NREL)](https://github.com/NLRWindSystems/WOMBAT) | offshore-energy | tested | here | SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios. |
 | [ORBIT (NREL)](https://github.com/WISDEM/ORBIT) | offshore-energy | tested | here | SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos. |
+| [Inter 4.1 (static TTFs)](https://github.com/rsms/inter) | assets | tested | here | One open geometric sans (Regular, Medium, SemiBold, Bold) for headlines, decks and kickers (rule 17); look.FONTS / font_path; drawn by Canvas.text. |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | render | tested | here | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). |
 | [FFmpeg](https://ffmpeg.org) | video | tested | here | Frames to H.264 (veryfast preset). |
 | [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | assets | tested | here | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. |
@@ -71,6 +72,7 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | render | candidate | here | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
 | [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | render | candidate | here | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
 | [computational_Logistics skills](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills) | skills | tested | here | Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills. |
+| [pdfplumber](https://github.com/jsvine/pdfplumber) | benchmarks | tested | here | Paper PDF -> page text + ruled tables -> page-referenced evidence for paper-extract (offsim paper). |
 | [OpenAlex works API](https://api.openalex.org) | benchmarks | wired | actions | Paper feed (L6): search, author filters, abstracts; not yet run live. |
 | [Crossref REST API](https://api.crossref.org) | benchmarks | wired | actions | DOI metadata for the feed; not yet run live. |
 
@@ -225,7 +227,7 @@ _Maps and 3D scenes from validated trajectories_
 | [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | tested | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. Evidence: `offsim/weather/visual.py` `offsim/render_deck/src/layers/weather.js` `tests/test_weather.py` |
 | [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
 | [matplotlib streamplot/quiver textures](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html) | PSF-style | candidate | here | next | Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer. |
-| [skia-python](https://github.com/kyamagu/skia-python) | BSD-3-Clause | installed | here | next | Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing). Evidence: `requirements-graphics.txt` |
+| [skia-python](https://github.com/kyamagu/skia-python) | BSD-3-Clause | tested | here | next | Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing). Wrapped by offsim.cinema.draw.Canvas / draw_prims. Evidence: `requirements-graphics.txt` `offsim/cinema/draw.py` `tests/test_draw.py` |
 | [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |
 | [Blender as Python module (bpy 5.2)](https://pypi.org/project/bpy/) | GPL | tested | actions | later | Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process. Evidence: `offsim/assets/models/make_models.py` `docs/TESTLOG.md` |
 | [BlenderGIS](https://github.com/domlysz/BlenderGIS) | GPL-3.0 | candidate | laptop | later | Import DEM, shapefiles, OSM into Blender. |
@@ -271,6 +273,7 @@ _Free 3D models and textures for the cartoony look_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [Inter 4.1 (static TTFs)](https://github.com/rsms/inter) | OFL-1.1 | tested | here | now | One open geometric sans (Regular, Medium, SemiBold, Bold) for headlines, decks and kickers (rule 17); look.FONTS / font_path; drawn by Canvas.text. Evidence: `offsim/assets/fonts/OFL.txt` `offsim/assets/fonts/Inter-Regular.ttf` `offsim/cinema/look.py` `tests/test_draw.py` |
 | [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | MIT | tested | here | now | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. Evidence: `offsim/assets/sprites/LICENSE-fluentui-emoji.txt` `tests/test_sealanes_assets.py` |
 | [offsim low-poly glTF models (ours)](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/assets/models) | MIT | tested | here | now | PSV, ferry, platform with helideck and flare, wind turbine; generated by make_models.py with bpy here; rendered by ScenegraphLayer. Evidence: `offsim/assets/models/psv.glb` `tests/test_sealanes_assets.py` |
 | [Freesound (CC0 only)](https://freesound.org/) | per clip: use CC0 only | candidate | browser | next | Engine, sea, rotor ambience; CC-BY needs credit, CC-BY-NC forbidden for the brand. |
@@ -329,9 +332,12 @@ _Instances and papers to reproduce_
 |---|---|---|---|---|---|
 | [Crossref REST API](https://api.crossref.org) | check | wired | actions | now | DOI metadata for the feed; not yet run live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` |
 | [OpenAlex works API](https://api.openalex.org) | CC0-1.0 | wired | actions | now | Paper feed (L6): search, author filters, abstracts; not yet run live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` `.github/workflows/papers.yml` |
+| [pdfplumber](https://github.com/jsvine/pdfplumber) | MIT | tested | here | now | Paper PDF -> page text + ruled tables -> page-referenced evidence for paper-extract (offsim paper). Evidence: `offsim/intake/paper.py` `tests/test_intake.py` `requirements-intake.txt` |
 | [arXiv API](https://info.arxiv.org/help/api/index.html) | check | wired | actions | next | Preprints for the feed; not yet run live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` |
+| [GROBID](https://github.com/kermitt2/grobid) | Apache-2.0 | candidate | actions | next | Structured paper parsing (sections, tables, references) as a Docker service on Actions; better than regex for intake. |
 | [Nafstad et al. 2020, offshore helicopter flight scheduling (C&OR, CC BY)](https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/2722282) | CC-BY-4.0 | candidate | here | next | Norwegian shelf, heterogeneous fleet, multi-depot, multi-trip, synchronisation: needs OR-Tools CP-SAT or a MIP, not PyVRP alone. |
 | [NVA (Norwegian research archive) API](https://api.nva.unit.no) | check | wired | actions | next | Norwegian publications incl. HiMolde; field names unverified live. Evidence: `offsim/feed/sources.py` `tests/test_feed.py` |
 | [vrplib](https://github.com/PyVRP/VRPLIB) | check | candidate | here | next | Read/write VRPLIB and Solomon instances; regression-test the adapter on known optima. |
 | [Lubnina & Kochetov 2024, periodic pickup-delivery helicopter routing (YUJOR)](https://yujor.fon.bg.ac.rs/index.php/yujor/article/view/1297) | check | watch | here | later | VNS with split demands; reports 5-10% cost reduction. |
 | [MIRPLib.jl](https://github.com/rafaelmartinelli/MIRPLib.jl) | MIT | watch | laptop | later | Maritime inventory routing instances (Julia). |
+| [OCRmyPDF (Tesseract)](https://github.com/ocrmypdf/OCRmyPDF) | MPL-2.0 | candidate | actions | later | Text layer for scanned papers before intake. |

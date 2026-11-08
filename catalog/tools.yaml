@@ -163,8 +163,10 @@ tools:
    role: "Port emission inventories from tracks (transit, manoeuvring, hotelling)."}
 
 # ---------------- render ----------------
-- {id: skia-python, name: skia-python, url: "https://github.com/kyamagu/skia-python", layer: render, licence: BSD-3-Clause, status: installed, runs: here, priority: next, evidence: "requirements-graphics.txt",
-   role: "Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing)."}
+- {id: skia-python, name: skia-python, url: "https://github.com/kyamagu/skia-python", layer: render, licence: BSD-3-Clause, status: tested, runs: here, priority: next, evidence: "requirements-graphics.txt offsim/cinema/draw.py tests/test_draw.py",
+   role: "Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing). Wrapped by offsim.cinema.draw.Canvas / draw_prims."}
+- {id: inter-font, name: Inter 4.1 (static TTFs), url: "https://github.com/rsms/inter", layer: assets, licence: OFL-1.1, status: tested, runs: here, priority: now, evidence: "offsim/assets/fonts/OFL.txt offsim/assets/fonts/Inter-Regular.ttf offsim/cinema/look.py tests/test_draw.py",
+   role: "One open geometric sans (Regular, Medium, SemiBold, Bold) for headlines, decks and kickers (rule 17); look.FONTS / font_path; drawn by Canvas.text."}
 - {id: deckgl, name: "deck.gl (TripsLayer, IconLayer, ScenegraphLayer)", url: "https://github.com/visgl/deck.gl", layer: render, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/render_deck/package.json offsim/render_deck/src/app.js .github/workflows/tests.yml",
    role: "2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck)."}
 - {id: lonboard, name: lonboard, url: "https://github.com/developmentseed/lonboard", layer: render, licence: check, status: watch, runs: here, priority: later,
@@ -348,6 +350,12 @@ tools:
    role: "Sister repo: visual-narrative house style, vrp-solve cross-check pattern, knowledge-bank catalog of 1,800+ skills."}
 
 # ---------------- benchmarks / papers ----------------
+- {id: pdfplumber, name: pdfplumber, url: "https://github.com/jsvine/pdfplumber", layer: benchmarks, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/intake/paper.py tests/test_intake.py requirements-intake.txt",
+   role: "Paper PDF -> page text + ruled tables -> page-referenced evidence for paper-extract (offsim paper)."}
+- {id: grobid, name: GROBID, url: "https://github.com/kermitt2/grobid", layer: benchmarks, licence: Apache-2.0, status: candidate, runs: actions, priority: next,
+   role: "Structured paper parsing (sections, tables, references) as a Docker service on Actions; better than regex for intake."}
+- {id: ocrmypdf, name: OCRmyPDF (Tesseract), url: "https://github.com/ocrmypdf/OCRmyPDF", layer: benchmarks, licence: MPL-2.0, status: candidate, runs: actions, priority: later,
+   role: "Text layer for scanned papers before intake."}
 - {id: vrplib, name: vrplib, url: "https://github.com/PyVRP/VRPLIB", layer: benchmarks, licence: check, status: candidate, runs: here, priority: next,
    role: "Read/write VRPLIB and Solomon instances; regression-test the adapter on known optima."}
 - {id: mirplib, name: MIRPLib.jl, url: "https://github.com/rafaelmartinelli/MIRPLib.jl", layer: benchmarks, licence: MIT, status: watch, runs: laptop, priority: later,

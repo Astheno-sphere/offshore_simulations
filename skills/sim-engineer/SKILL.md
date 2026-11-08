@@ -16,7 +16,9 @@ Definitions of each engine: `docs/ENGINES.md`. Layers: `docs/ARCHITECTURE.md` (L
 | Cyclic vessel logistics (PSV, ferry, barge) with weather windows, ensemble work | `openclsim` |
 | Offshore-wind O&M (failures, CTV/SOV dispatch, availability) | `wombat` |
 | Offshore-wind installation (WTIV, feeders, port) | `orbit` |
-- Pick the engine whose assumptions match the paper, not the prettiest output. `python -c "from offsim.engines import available; print(available())"` shows what imports here.
+| Land legs on roads (trucks, vans, workers) | `road` |
+| Bus, ferry, rail timetable replay (Entur GTFS) | `gtfs` |
+- Set the engine in the scenario (`engine:`) and per variant in experiment.yaml. Pick the engine whose assumptions match the paper, not the prettiest output. `python -c "from offsim.engines import available; print(available())"` shows what imports here.
 - If an engine cannot represent a scenario feature it raises `Unsupported`. That is a result (report it at gate 0), never a reason to approximate. `run_ensemble` lets it propagate.
 - Two engines on one small instance must agree on deterministic KPIs within 1% before either is trusted on a large one.
 
@@ -30,18 +32,19 @@ Schema and status rule: docstring of `offsim/research/experiment.py`. Rules:
 
 ## 3. Run
 ```
-from offsim.research import run_experiment
-res = run_experiment.run("papers/<paper>/experiment.yaml", engine_name=None, build=..., workers=4, out="experiment_report.json")
+python -m offsim experiment papers/<paper>/experiment.yaml
 ```
-- `build(experiment, variant) -> (problem, plan, world, engine)`; `offsim.pipeline.build_variant` is the intended real builder (not yet written: until then pass your own).
-- Weather data arrives via the fetch-world workflow: `python -m offsim.worlds.fetch_world --pull <world>`. This workspace cannot reach MET Norway. Never substitute `synthetic_years`: it is TEST-ONLY, flagged `synthetic_weather`, and makes `reportable` False.
+Writes `experiment_report.json`. The Python API behind it: `offsim.research.run_experiment.run(path, build=..., workers=4, out=...)`.
+- `build(experiment, variant) -> (problem, plan, world, engine)`; `offsim.pipeline.build_variant` is the builder the CLI uses.
+- Plans for the base come from `python -m offsim run` (gates 0-4); an experiment reruns variants, it does not re-solve the base by hand.
+- Weather data arrives via the `fetch-world` workflow (Actions) and `python -m offsim.worlds.fetch_world --pull <world>` (here or laptop). This workspace cannot reach MET Norway. Never substitute `synthetic_years`: it is TEST-ONLY, flagged `synthetic_weather`, and makes `reportable` False.
 - All variants get the same years and seeds (common random numbers); `Ensemble.compare` pairs on (year, seed) and bootstraps a 95% CI (2000 resamples, seeded). Use `Ensemble.merge` when variants need different problems or engines.
 - Use `validate=True` (default). `validate=False` is for profiling only and is recorded as `validated: false`.
 
 ## 4. What must pass before anything is visualised
 1. `ensemble.ok` is True: every run passed `offsim.contract.validate` (no failures; each failure carries `(variant, year, seed)` so it can be replayed). On failure the experiment has no decision (`blocked`); hand over to `sim-corrector`, do not drop runs to get green.
 2. `reportable` is True: real weather, validated, ok.
-3. The base scenario's `report.json` gates 0-4 passed (paper comparison by `sim-corrector`).
+3. The base scenario's `report.json` gates 0-4 passed, plus 1b, 3e, 4b, 4c wherever the scenario set them (`sim-corrector`).
 4. The decision comes from `decision.status` and `ensemble.comparisons` only. `inconclusive` is a valid finding: say so, or add years/seeds (more resamples do not help).
 5. Numbers shown or narrated come from `report["ensemble"]` refs (`quantiles`, `comparisons`). Then `visual-director` (distribution shot, map shot, card shot).
 

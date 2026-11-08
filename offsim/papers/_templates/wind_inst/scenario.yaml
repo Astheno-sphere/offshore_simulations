@@ -21,6 +21,11 @@ problem:
   constraints:
     - {name: weather_limits, formula_or_text: "WTIV/feeder transit and lifts limited by max_windspeed / max_waveheight in the vessel files", assumption: true, why: "ORBIT example_wtiv / example_feeder defaults"}
   solver: none                      # ORBIT runs its own installation logic: Plan.routes is empty
+solver: none                        # registry: no routing; gate 2 records "engine dispatches itself"
+engine: orbit                       # registry name (default for WIND-INST)
+# ORBIT needs hourly weather covering the whole installation (see the wind_om template for the weather / ensemble blocks):
+# weather: {dir: data/worlds/north-sea-stavanger/metocean, point: [4.50, 59.35], years: [2011, 2011]}
+# ensemble: {seeds: 5, weather: {dir: data/worlds/north-sea-stavanger/metocean, point: [4.50, 59.35], years: [2000, 2023]}}
 world: north-sea-stavanger
 fleet:
   - cls: wtiv

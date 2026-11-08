@@ -13,11 +13,13 @@ gh workflow run papers.yml -f since=2015-01-01
 gh run list --workflow papers.yml --limit 3
 gh api repos/{owner}/{repo}/contents/papers/gaps.yaml?ref=papers/auto --jq .content | base64 -d
 ```
-Local run (needs network; the Claude workspace has none for the APIs):
+Local run (needs network; the Claude workspace has none for the APIs). Same three steps as CLI commands
+(`offsim feed`, `offsim tag`, `offsim gaps`; each wraps `offsim.feed.run`, `offsim.research.tags`,
+`offsim.research.gaps`; flags as in `offsim <cmd> --help`):
 ```bash
-python -m offsim.feed.run --queries papers/queries.yaml --out papers/feed.jsonl --since 2015-01-01
-python -m offsim.research.tags --feed papers/feed.jsonl --out papers/tags.jsonl
-python -m offsim.research.gaps --tags papers/tags.jsonl --out papers/gaps.yaml
+offsim feed --queries papers/queries.yaml --out papers/feed.jsonl --since 2015-01-01
+offsim tag --feed papers/feed.jsonl --out papers/tags.jsonl
+offsim gaps --tags papers/tags.jsonl --out papers/gaps.yaml
 ```
 Inside Claude without network, read the branch with `gh` as above. WebFetch only works on URLs already in the
 conversation, so do not use it to call the APIs.
@@ -39,8 +41,8 @@ For each `status: open` gap in `papers/gaps.yaml`:
 ## 4. Propose an experiment
 Write `experiment.yaml` next to the paper's scenario (`offsim/papers/<id>/experiment.yaml`). Format: the docstring
 of `offsim/research/experiment.py`. Required: `gap_id`, `base`, `hypothesis`, `variants` (each with `solver` and
-`engine`), `ensemble`, `kpis`, `decision`.
-- The base scenario must be `reproduced` or `re-run under assumptions` first (`paper-extract`, then `offsim run`).
+`engine`), `ensemble`, `kpis`, `decision`. `sim-engineer` runs it with `python -m offsim experiment <yaml>`.
+- The base scenario must be `reproduced` or `re-run under assumptions` first: `offsim paper <pdf>` drafts it, `paper-extract` confirms it, `offsim run` gates it.
 - Write the decision rule (`kpi`, `compare`, `better`, `min_effect`) before any run. Never change it after a result.
 - Every parameter a variant changes gets a source page or `assumption: true`.
 - Each variant names its `engine`; pick one from the engine table, not the one that looks best.

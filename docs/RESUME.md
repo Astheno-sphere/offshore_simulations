@@ -4,6 +4,16 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-08 (night) — audit-5 fixes wired (done)
+`offsim run` drives every registered solver/engine (pyvrp, pyomo, ampl; replay, road, openclsim, wombat, orbit, gtfs)
+via scenario `solver:`/`engine:`; gates 0, 1, 1b_exact (`certify:`), 2, 3, 3e_ensemble (`ensemble:`), 4, 4b (AIS),
+4c_entur. `offsim paper <pdf>` drafts with page evidence (pdfplumber). One CLI: paper, run, experiment, story, film,
+world, layer, timetable, feed, tag, gaps, entur, tools, catalog, resume. Story shot types `section`, `findings`
+(fan/paired/state_gantt), narration rules (`offsim/motion/narrate.py`, safe evaluator). Visual lib: skia Canvas
+(`cinema/draw.py`), Inter font (OFL), `look.sun()`, terrain hillshade. Skills rewritten to the current system. 363 tests.
+Open: section/map panels still PIL (switch to draw.py), ensemble report has quantiles only (no per-run tracks for
+ghost_tracks), gate 4 compares the single run not ensemble medians, all external data still unverified live.
+
 ## 2026-11-08 (late) — Norway-wide worlds + road/bus + AIS gate (done)
 Any place in Norway: `python -m offsim.worlds.fetch_world --place Molde --modes sea,road,bus` (Actions: fetch-world
 inputs place/modes/radius_km) -> world spec v2 (`offsim/worlds/place.py`; v1 worlds still load as [sea]). Modes imply
