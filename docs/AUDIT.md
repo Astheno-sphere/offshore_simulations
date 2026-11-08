@@ -63,3 +63,48 @@ per clip.
 - Speed in replay is constant; no acceleration, DP time or port manoeuvring (catalog: fossen-pvs).
 - GSAP licence is not OSI; if the brand becomes a company product, re-check GreenSock's standard licence terms.
 - Video assembly (`story` without `--dry-run`) is implemented but its full render runs only on demand (by design: no images in audits).
+
+## Audit 5 — 2026-11-08: what a paper actually triggers
+Method: static import graph from the CLI entry points (`python -m offsim run|story|film|resume`) + skills + gates.
+`python -m offsim` reaches 28 modules; **49 modules are built and tested but unreachable from the CLI.**
+
+### When a paper is fed today
+| Step | What runs | Notes |
+|---|---|---|
+| Intake | `paper-extract` skill: Claude reads the PDF by hand -> scenario.yaml | no PDF/table extraction tool; template is CVRP/VRPTW only |
+| Gate 0 | provenance + class in `SUPPORTED = {CVRP, VRPTW}` | WIND-OM, WIND-INST, TRANSIT-REPLAY, PDP stop here |
+| Solve | `solve_cvrp` (PyVRP) called directly | solver registry, Pyomo, AMPL not used; no exact bound |
+| Simulate | SimPy replay (sea lanes) or road engine (land) | OpenCLSim/WOMBAT/ORBIT/gtfs engines not reachable |
+| Gates 1-4 | plan check, replay=plan, contract, paper KPIs; 4b AIS opt-in | no ensemble, no exact-gap gate, 4c not wired |
+| Present | `story`: map / equation / card shots from `report:` refs | section film, map panel, findings shots outside story |
+
+### Built but not triggered
+engines registry + openclsim/wombat/orbit/gtfs; montecarlo + experiment/decide; feed/tags/gaps (only via papers.yml);
+transit (gtfs, from_paper, entur, observed/gate 4c); physics + section film + mappanel (tool script only); findings,
+diptych, emissions (specs); place/user_layers/fetch_world (standalone CLIs, fine as data tools).
+
+### Not verified live (workspace cannot reach the hosts)
+NORA3, Kartverket DTM + stedsnavn, OSM pbf, Entur GTFS + realtime, BarentsWatch, OpenAlex/Crossref/arXiv/NVA, AMPL.
+Only the Overpass coastline has run live. Expect field-name fixes on first runs.
+
+### Drift
+Skills: `offsim-foundations` router, `sim-corrector`, `sim-narrator`, `paper-extract` do not know engines, ensembles,
+gates 4b/4c, transit. Catalog 150 tools; motion/video watch/candidate entries never pruned.
+
+### Visuals vs the reference (honest, /10, ours -> reference)
+data density 3->9 · physics texture 7->9 · line art 6->9 · typography 5->9 (DejaVu) · real-data maps 5->9 ·
+light/time of day 2->8 · narration from data 8->8 · provenance/validation 9->(not shown). We can beat it on
+validated numbers, uncertainty bands and real-vs-simulated ghost tracks; we lose on density, type, light, terrain.
+
+### Fix order (architecture first)
+1. Pipeline through the registry: scenario `solver:` / `engine:` (default pyvrp / replay); SUPPORTED = union of
+   registered classes. Makes openclsim, road, gtfs, wombat, orbit reachable from `offsim run`.
+2. Scenario `ensemble:` -> montecarlo -> `report["ensemble"]`; `offsim experiment <experiment.yaml>`.
+3. `offsim paper <pdf>`: local text + table extraction with page numbers (pdfplumber/pypdf, MIT/BSD) -> draft
+   scenario for paper-extract to confirm. GROBID (Apache) on Actions later.
+4. One CLI: `offsim feed | gaps | world | layer | timetable` wrappers.
+5. Story shot kinds `section`, `findings`, `diptych`; two-pass narration in story, not only in the film script.
+6. Gate 1b exact certification (Pyomo/AMPL bound on small instances); gate 4c for gtfs scenarios.
+7. Update skills router + corrector/narrator for engines, ensembles, gates 4b/4c.
+8. Visual: skia strokes, open font, hillshade, light by clock (rules 11-13, 17).
+9. One Actions batch to live-check every data source; record in TESTLOG.
