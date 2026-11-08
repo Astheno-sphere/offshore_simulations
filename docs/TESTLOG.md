@@ -23,3 +23,8 @@ catalog id · environment · what ran · result. Automated evidence lives in `te
 `PYTHONPATH=. python tools/section_still.py` → `out/stills/psv_section.png` (not committed; data/out ignored).
 400×130 grid at 0.4 m, 420 steps of 0.015 s, ~7 s CPU. Plume (520 K exhaust, assumed) rises ~16 m above the funnel,
 rolls into lee eddies over the aft deck. Display grade: no validated number on screen except inputs.
+
+## 2026-11-08 — 5 s section film
+`PYTHONPATH=. python tools/section_film.py` → `out/film/psv_section.mp4` (1080×1350, 150 frames, 95 s CPU). Measured:
+plume's lowest edge ≥ 4 m above the aft deck, crew-zone excess ≤ +3 °C (Hs 3.5 m, Tp 9 s, U10 15 m/s, 520 K exhaust;
+all assumed). Narration selected automatically ("crew zone stays clear"); first hand-written caption was contradicted.

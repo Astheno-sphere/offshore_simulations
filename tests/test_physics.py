@@ -55,3 +55,22 @@ def test_streaks_deterministic():
     a = streaks.trace(m, u, w, 1.0, 0.2, n=200, tail=8, seed_=3)
     b = streaks.trace(m, u, w, 1.0, 0.2, n=200, tail=8, seed_=3)
     assert np.array_equal(np.nan_to_num(a), np.nan_to_num(b))
+
+
+def test_vessel_lineart_detail_and_solids():
+    from offsim.cinema.vessel_lineart import W1, W2, W3, psv_profile
+    prims, solids, exhaust = psv_profile(28.0, 10.0)
+    weights = {w for _, _, w, _, _ in prims}
+    assert len(prims) > 120 and {W1, W2, W3} <= weights      # detail density + three-weight hierarchy
+    assert len(solids) >= 5 and exhaust[1] > 10.0 + 15        # funnel top well above the waterline
+
+
+def test_narration_follows_measurement():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("film", "tools/section_film.py")
+    film = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(film)
+    clear = film.narration([(0, 1.0, 6.0), (1, 2.0, 4.2)])
+    hit = film.narration([(0, 12.0, 0.5)])
+    assert "stays clear" in clear[1] and "4 m" in clear[1]
+    assert "reaches the cargo deck" in hit[1]

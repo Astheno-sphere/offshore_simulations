@@ -51,3 +51,17 @@ That is our rule already ("numbers only from report refs"); he applies it to the
   editorial header/footer from the storyboard; 1080×1350 (4:5) and 1080×1920 (9:16).
 - `offsim/cinema/look.py` — preset `section-plan` with the palette above (ours, adjustable).
 Rule: the section and the map are both *simulations or data*, never decoration; each carries a method line.
+
+## Craft rules learned (2026-11-08, from our first attempts)
+Why our first vessel looked childish next to the reference, and the fix now in code (`offsim/cinema/vessel_lineart.py`):
+1. **Detail density at real proportions**: 4 polygons → ~170 primitives (bulwark posts, portholes, tiered house,
+   wraparound bridge glass, mast and radar, rescue boat, cargo with corrugation, crew for scale).
+2. **Line-weight hierarchy**: one stroke → three (outline 2.4, structure 1.3, detail 0.8 px).
+3. **Anti-aliasing**: draw the section at 2× and downscale (Lanczos); thin lines stay crisp.
+4. **Tonal fills**: hull, house, funnel, glass, cargo each a different value of the ground colour.
+5. **Narration from measurement**: the film runs the simulation twice (deterministic); pass 1 measures, the deck text
+   is chosen from the numbers, pass 2 renders. Our first caption ("rolled down over the cargo deck") was contradicted by
+   the solver (crew zone +0 °C) and was replaced automatically. Every sentence on screen must survive this check.
+6. **Every region earns its space**: header asks the question, section shows the mechanism, readouts give the live
+   values, the chart answers the question over time (crew zone band marked), the methods line says how and what is assumed.
+Reproduce: `PYTHONPATH=. python tools/section_film.py` (5 s, 150 frames, ~95 s CPU) or `--only N` for one frame.
