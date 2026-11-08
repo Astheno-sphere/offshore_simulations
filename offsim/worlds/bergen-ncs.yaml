@@ -1,0 +1,17 @@
+# Bergen heliport (Flesland) and the northern North Sea fields it serves: helicopter crew change (Gribkovskaia &
+# Slettemark 2025, Logistics 9(2):73, Bergen instance: 20 installations, 50-120 nm from the heliport).
+name: bergen-ncs
+place: {name: "Bergen Flesland heliport", lon: 5.218, lat: 60.294, source: "approx (Claude, unverified); refine via stedsnavn"}
+bbox: [1.40, 59.70, 5.80, 61.80]     # west, south, east, north: covers >= 120 nm west/north of Flesland
+modes: [sea, air]
+osm_land: true
+osm: true                            # helipads + aerodromes for the heliport and installation helidecks
+sodir_keywords: [facility, field]    # FactMaps: installation positions (context layer; paper names are masked)
+depth:
+  crs: EPSG:4326
+  emodnet: {}
+  kartverket_dtm:
+    metadata_uuid: fd851873-f363-46f9-9fc6-bb1b403575df
+    projection_code: "25832"
+    name: Kartverket DTM 10 (UTM32)
+    licence: CC BY 4.0

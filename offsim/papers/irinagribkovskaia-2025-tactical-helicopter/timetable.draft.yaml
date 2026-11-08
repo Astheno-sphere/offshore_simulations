@@ -1,0 +1,34 @@
+# DRAFT, not a scenario. Values are null on purpose: candidates are evidence with page refs.
+# paper-extract confirms each one (src: page/table) or marks assumption: true, then writes timetable.yaml.
+draft: true
+source:
+  paper: Tactical Helicopter Transportation Planning for Offshore Personnel on the Norwegian Continental Shelf
+  doi: 10.3390/logistics9020073
+service:
+  days: null
+  start_date: null
+  end_date: null
+lines:
+- id: null
+  mode: bus
+  stops:
+  - id: null
+    name: null
+    lon: null
+    lat: null
+    src: null
+  run_time_min:
+    value: null
+    src: null
+    candidates: []
+  dwell_s:
+    value: null
+    src: null
+    candidates: []
+  headway_min:
+    value: null
+    src: null
+    candidates: []
+  first: null
+  last: null
+  both_directions: null

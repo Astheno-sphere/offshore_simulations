@@ -127,3 +127,10 @@ def test_timetable_draft_for_ferry(tmp_path):
     tt = yaml.safe_load((d / "timetable.draft.yaml").read_text())
     assert tt["lines"][0]["mode"] == "ferry" and tt["lines"][0]["headway_min"]["value"] is None
     assert tt["lines"][0]["headway_min"]["candidates"][0]["value"] == 1200
+
+
+def test_kpi_label_variants():
+    from offsim.intake.paper import _kpi_label
+    assert _kpi_label("objective function") == "objective"
+    assert _kpi_label("Total  cost") == "total_cost"
+    assert _kpi_label("weird metric").startswith("kpi_")

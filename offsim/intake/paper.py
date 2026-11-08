@@ -98,6 +98,16 @@ KPI_KEY = {"total cost": "total_cost", "objective": "objective", "optimality gap
            "makespan": "makespan_s", "total distance": "distance_km", "fuel consumption": "fuel_t",
            "total emissions": "co2_t", "emissions": "co2_t"}
 
+def _kpi_label(phrase):
+    """KPI phrase -> label; the KPI regex can match variants ("objective function", "total costs") that are not
+    literal keys, so match on the longest known key contained in the phrase (real paper: Gribkovskaia 2025)."""
+    ph = " ".join(phrase.lower().split())
+    for k in sorted(KPI_KEY, key=len, reverse=True):
+        if k in ph:
+            return KPI_KEY[k]
+    return "kpi_" + ph.replace(" ", "_")
+
+
 KW = {  # context keywords -> kind (checked in order)
     "time": [("time_window", r"time[- ]windows?|\btw\b|opening hours|available between"),
              ("headway", r"headway|interval|frequency|every"),
@@ -294,7 +304,7 @@ def _text_evidence(page: int, text: str) -> list[dict]:
         for m in WIND.finditer(s):
             out.append(_ev("weather_limit_wind", _num(m.group(1)), "m/s", page, _snip(s, m.start(), m.end())))
         for m in KPI.finditer(s):
-            label = KPI_KEY[m.group(1).lower()]
+            label = _kpi_label(m.group(1))
             out.append(_ev("reported_kpi", _num(m.group(2)), (m.group(3) or "").strip(), page,
                            _snip(s, m.start(), m.end()), label=label))
     return out
