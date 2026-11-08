@@ -15,6 +15,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+      - run: sudo apt-get update -q && sudo apt-get install -y -q libegl1 libgl1 libfontconfig1   # skia-python needs EGL/GL
       - run: pip install -r requirements-render.txt -r requirements-weather.txt -r requirements-engines.txt -r requirements-gis.txt -r requirements-physics.txt -r requirements-graphics.txt -r requirements-intake.txt
       - run: python tools/catalog_build.py --check
       - run: python -m pytest -q tests
