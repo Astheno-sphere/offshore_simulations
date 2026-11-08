@@ -149,7 +149,8 @@ def test_mesh_budget_and_exaggeration(fjord):
             x, y = to(lon, lat)
             r, c = ds.index(x, y)
             want = elev[r, c] * (sea_x if sea[r, c] else land_x)
-            assert z == pytest.approx(want, abs=1e-2 * max(1, abs(want)) + 0.5)
+            want = float(want)
+            assert float(z) == pytest.approx(want, abs=1e-2 * max(1.0, abs(want)) + 0.5)
             checked["sea" if sea[r, c] else "land"] += 1
     assert checked["sea"] > 10 and checked["land"] > 10
     e0, e1 = elev[sea].min(), elev[~sea].max()
