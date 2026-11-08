@@ -5,11 +5,10 @@ on:
   workflow_dispatch:
     inputs:
       world:
-        description: "offsim/worlds/<name>.yaml"
+        description: "World name = offsim/worlds/<name>.yaml (e.g. oslofjord, north-sea-stavanger, bergen-ncs)"
         required: false
         default: oslofjord
-        type: choice
-        options: [oslofjord, north-sea-stavanger]
+        type: string
       place:
         description: "Optional: any Norwegian place (gazetteer key, Kartverket stedsnavn, or 'lon0,lat0,lon1,lat1'). Overrides 'world'; writes world spec v2 and releases world-<slug>"
         required: false
