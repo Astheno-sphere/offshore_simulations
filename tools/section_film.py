@@ -22,7 +22,7 @@ from offsim.physics import ocean
 from offsim.physics.fluid2d import Section2D, obstacle_mask, wind_profile
 
 P = PALETTES["section-plan"]
-L_M, H_M, DX, SEA_Z, BOW_X, SHIP_L = 160.0, 60.0, 0.4, 10.0, 28.0, 85.0
+L_M, H_M, DX, SEA_Z, BOW_X, SHIP_L = 160.0, 50.0, 0.4, 10.0, 28.0, 85.0
 W, H, SS = 1080, 1350, 2
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans{}.ttf"
 
@@ -107,6 +107,34 @@ class Streaks:
         self.p = q
 
 
+def map_context(world="oslofjord", run="out/demo-oslofjord-supply", agent="PSV-1"):
+    """Real layers for the map panel: coastline + the gated demo run's route for one vessel. The 'moment' shown in
+    the section is the vessel's southernmost sailing point (outer fjord, most exposed). Returns None if absent."""
+    import json
+
+    import geopandas as gpd
+    import pandas as pd
+    land_p, traj_p, rep_p = Path(f"data/worlds/{world}/land.geojson"), Path(run) / "trajectory.csv", Path(run) / "report.json"
+    if not (land_p.exists() and traj_p.exists() and rep_p.exists()):
+        return None
+    rep = json.loads(rep_p.read_text())
+    if not all(g["pass"] for k, g in rep["gates"].items() if k.startswith(("0", "1", "2", "3"))):
+        return None                                           # never map a run that failed a gate
+    tr = pd.read_csv(traj_p)
+    tr = tr[tr.agent_id == agent].sort_values("t").reset_index(drop=True)
+    sail = tr[tr.state == "sail"]
+    k = int(sail.lat.idxmin())
+    route = list(zip(tr.lon, tr.lat))
+    lon, lat = np.array(route).T
+    pad = 0.06
+    bbox = (lon.min() - pad, lat.min() - pad * 0.6, lon.max() + pad, lat.max() + pad * 0.6)
+    land = gpd.read_file(land_p).geometry.union_all()
+    from shapely.geometry import box
+    land = land.intersection(box(bbox[0] - 1.5, bbox[1] - 0.6, bbox[2] + 1.5, bbox[3] + 0.6))   # clip far outside the view
+    return {"land": land, "bbox": bbox, "route": route, "k": k, "marker": route[k], "t_h": float(tr.t[k]) / 3600,
+            "agent": agent, "paper": rep["paper"]["id"], "status": rep["status"]}
+
+
 def narration(series):
     """Deck text chosen from what the run measured (never written before the run)."""
     deck = max(v for _, v, _ in series)
@@ -119,13 +147,13 @@ def narration(series):
             f"but never comes lower than {low:.0f} m above the cargo deck: the crew zone stays clear.")
 
 
-def render(sc, st, series, frame, nframes, out_path, deck_text):
+def render(sc, st, series, frame, nframes, out_path, deck_text, mp=None, ctx=None):
     s = W / L_M
     top, ph = 236, int(W * H_M / L_M)
     img = Image.new("RGB", (W, H), P["ground"])
     d = ImageDraw.Draw(img)
     # header
-    d.text((56, 44), "NORTH SEA GALE  ·  ONE SUPPLY VESSEL  ·  SIMULATED", font=font(17, True), fill=P["accent"])
+    d.text((56, 44), "OUTER OSLOFJORD GALE  ·  SIMULATED", font=font(17, True), fill=P["accent"])
     hf = font(52, True)
     d.text((56, 76), "WHERE DOES THE", font=hf, fill=P["ink"])
     d.text((56, 136), "EXHAUST", font=hf, fill=P["accent"])
@@ -184,7 +212,7 @@ def render(sc, st, series, frame, nframes, out_path, deck_text):
         d.text((x, y), val, font=font(19, True), fill=P["accent"] if hot else P["muted"])
         x += d.textlength(val, font=font(19, True)) + 34
     # chart: air temperature over the aft deck, drawn as time advances
-    cx0, cy0, cw, chh = 56, y + 56, W - 112, 250
+    cx0, cy0, cw, chh = 56, y + 50, W - 112, 170
     d.text((cx0, cy0 - 4), "LOWEST EDGE OF THE HOT PLUME (>20 °C) ABOVE THE AFT DECK, m", font=font(14, True), fill=P["muted"])
     gy0, gy1 = cy0 + 26, cy0 + chh
     ymax = 30.0
@@ -201,15 +229,29 @@ def render(sc, st, series, frame, nframes, out_path, deck_text):
         d.line(pts, fill=P["accent"], width=3)
     if pts:
         d.ellipse([pts[-1][0] - 5, pts[-1][1] - 5, pts[-1][0] + 5, pts[-1][1] + 5], fill=P["accent"])
+    # map panel: where this moment is, on the real coast (same clock: route drawn up to the moment, camera eases in)
+    my0 = gy1 + 36
+    if mp is not None:
+        d.text((56, my0), f"WHERE: {ctx['agent']} ON THE OSLOFJORD DEMO SUPPLY RUN, {int(ctx['t_h'])} h {int(ctx['t_h'] % 1 * 60):02d} min IN",
+               font=font(14, True), fill=P["muted"])
+        panel = mp.frame((frame + 1) / nframes, ctx["route"], ctx["k"] + 1, ctx["marker"], wind=(sc.u10, 0.0))
+        img.paste(panel.convert("RGB"), (56, my0 + 24))
+        my1 = my0 + 24 + panel.size[1]
+    else:
+        my1 = my0
     # deck + method
-    yb = gy1 + 34
+    yb = my1 + 28
     d.text((56, yb), deck_text[0], font=font(22), fill=P["ink"])
     d.text((56, yb + 30), deck_text[1], font=font(22), fill=P["ink"])
-    d.text((56, yb + 74), "Air: 2D Boussinesq stable fluids (Stam 1999), 0.4 m grid, IEC 61400-3 wind profile. Sea: JONSWAP.",
-           font=font(14), fill=P["muted"])
-    d.text((56, yb + 94), "DRAFT: vessel geometry, exhaust temperature (520 K) and weather are assumptions; ship motion display-grade.",
-           font=font(14), fill=P["muted"])
-    d.text((56, H - 52), "offshore_simulations", font=font(15, True), fill=P["muted"])
+    d.text((56, yb + 70), "Air: 2D Boussinesq stable fluids (Stam 1999), 0.4 m grid, IEC 61400-3 wind profile. Sea: JONSWAP.",
+           font=font(13), fill=P["muted"])
+    if ctx:
+        d.text((56, yb + 88), f"Map: coastline OpenStreetMap (ODbL); route from offsim run {ctx['paper']} (gates 0-3 passed); map wind uniform.",
+               font=font(13), fill=P["muted"])
+    d.text((56, yb + 106), "DRAFT: vessel geometry, exhaust temperature (520 K) and weather are assumptions; ship motion display-grade.",
+           font=font(13), fill=P["muted"])
+    d.text((W - 56 - d.textlength("offshore_simulations", font=font(15, True)), 46), "offshore_simulations",
+           font=font(15, True), fill=P["muted"])
     img.save(out_path)
 
 
@@ -218,8 +260,8 @@ def main():
     ap.add_argument("--out", default="out/film/psv_section.mp4")
     ap.add_argument("--seconds", type=float, default=5.0)
     ap.add_argument("--fps", type=int, default=30)
-    ap.add_argument("--hs", type=float, default=3.5)
-    ap.add_argument("--tp", type=float, default=9.0)
+    ap.add_argument("--hs", type=float, default=2.0)     # outer-fjord gale sea (assumed); Hs 3.5 is open North Sea
+    ap.add_argument("--tp", type=float, default=6.5)
     ap.add_argument("--u10", type=float, default=15.0)
     ap.add_argument("--only", type=int, default=None, help="render a single frame index (still check)")
     a = ap.parse_args()
@@ -227,6 +269,10 @@ def main():
     frames = out.parent / "frames"
     frames.mkdir(parents=True, exist_ok=True)
     dt, sub, n = 0.015, 3, int(a.seconds * a.fps)
+
+    ctx = map_context()
+    from offsim.motion.mappanel import MapPanel
+    mp = MapPanel(ctx["land"], ctx["bbox"], size=(W - 112, 300), seconds=a.seconds) if ctx else None
 
     def simulate(render_frames, deck_text=None):
         sc = Scene(a.hs, a.tp, a.u10)
@@ -242,7 +288,7 @@ def main():
                     st.advance(dt)
             series.append((sc.t, sc.deck_air_excess(), sc.plume_height()))
             if render_frames and (a.only is None or f == a.only):
-                render(sc, st, series, f, n, frames / f"f{f:04d}.png", deck_text)
+                render(sc, st, series, f, n, frames / f"f{f:04d}.png", deck_text, mp, ctx)
                 if a.only is not None:
                     return series, sc
         return series, sc

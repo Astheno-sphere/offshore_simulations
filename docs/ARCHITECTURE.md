@@ -18,7 +18,7 @@ Everything is a module behind an interface; tools are swappable, numbers are not
  L4 VALIDATE   gates 0–4 (offsim.pipeline, offsim.contract) + AIS calibration (offsim.traffic) ─► report.json
                     │                                   scene.py refuses anything that failed
  L5 PRESENT    offsim.scene ─► render_deck (deck.gl)  │  motion (Manim, HyperFrames)  │  cinema (camera, vessel)
-               offsim.physics (section fluid, ocean surface, streaks) ─► motion/diptych (section + map, one clock)
+               offsim.physics (section fluid, ocean surface, streaks) + motion/mappanel ─► section + map film (tools/section_film.py)
                offsim.publish (muse.ai)
 ```
 

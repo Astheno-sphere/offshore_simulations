@@ -74,3 +74,18 @@ def test_narration_follows_measurement():
     hit = film.narration([(0, 12.0, 0.5)])
     assert "stays clear" in clear[1] and "4 m" in clear[1]
     assert "reaches the cargo deck" in hit[1]
+
+
+def test_mappanel_frame_and_zoom_rule():
+    from shapely.geometry import Polygon
+
+    from offsim.motion import mappanel
+    land = Polygon([(10.0, 59.0), (10.2, 59.0), (10.2, 59.4), (10.0, 59.4)])
+    mp = mappanel.MapPanel(land, (10.1, 59.1, 10.6, 59.3), size=(400, 150), seconds=5)
+    route = [(10.3, 59.25), (10.4, 59.2), (10.5, 59.15)]
+    a = mp.frame(0.0, route, 2, route[1])
+    b = mp.frame(1.0, route, 2, route[1])
+    assert a.size == b.size == (400, 150)
+    assert mappanel.ZOOM_RATE <= 0.35                         # cinema rule cap
+    v0, v1 = mp._view(0, route[1]), mp._view(1, route[1])
+    assert v1[2] < v0[2]                                      # zooms in over the shot

@@ -35,7 +35,8 @@ Interrupted and recovered: the depth builder hit the sub-agent rate limit; its u
 0d. Section physics BUILT (display grade): `offsim/physics` fluid2d (consistent projection), ocean (JONSWAP), streaks;
     tests/test_physics.py; draft still `tools/section_still.py` (PSV in a gale, plume over the cargo deck; inputs assumed).
     DONE 5 s film `tools/section_film.py` (moving sea, heave/pitch, detailed line art `cinema/vessel_lineart.py`,
-    narration chosen from measured values). Next: map panel + `motion/diptych.py`, cavity validation (Ghia 1982)
+    narration chosen from measured values) + map panel (`motion/mappanel.py`: OSM coast, gated demo route, eased zoom).
+    Next: NORA3 Hs/wind on the map (fetch-world --metocean), real PSV class geometry, cavity validation (Ghia 1982)
     before any section number is reported, real vessel geometry and exhaust data.
 1. Actions → **fetch-world** `oslofjord` with `depth: true` and `metocean_start` (e.g. 2024-01-10T00:00, 48 h) — first live
    run of the DEM and MET Norway fetchers; fix whatever the log shows; flip `live_checked` in weather/fetch.py.

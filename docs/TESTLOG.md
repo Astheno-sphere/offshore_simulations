@@ -28,3 +28,9 @@ rolls into lee eddies over the aft deck. Display grade: no validated number on s
 `PYTHONPATH=. python tools/section_film.py` → `out/film/psv_section.mp4` (1080×1350, 150 frames, 95 s CPU). Measured:
 plume's lowest edge ≥ 4 m above the aft deck, crew-zone excess ≤ +3 °C (Hs 3.5 m, Tp 9 s, U10 15 m/s, 520 K exhaust;
 all assumed). Narration selected automatically ("crew zone stays clear"); first hand-written caption was contradicted.
+
+## 2026-11-08 — section + map film
+`PYTHONPATH=. python tools/section_film.py` → 1080×1350, 150 frames, ~105 s CPU. Map: Oslofjord OSM coast + PSV-1 route
+from `offsim run demo-oslofjord-supply` (gates 0–3 pass), marker 2 h 31 min in. Outer-fjord sea Hs 2.0 m / Tp 6.5 s,
+U10 15 m/s (assumed): plume lowest edge ≥ 4 m over the aft deck, crew zone ≤ +1 °C → narration "crew zone stays clear".
+Tuning found: full-fit overview showed beyond the pulled data; zoom 0.30 levels/s ended in empty water → 1.8× width fit, 0.16.

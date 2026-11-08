@@ -65,3 +65,9 @@ Why our first vessel looked childish next to the reference, and the fix now in c
 6. **Every region earns its space**: header asks the question, section shows the mechanism, readouts give the live
    values, the chart answers the question over time (crew zone band marked), the methods line says how and what is assumed.
 Reproduce: `PYTHONPATH=. python tools/section_film.py` (5 s, 150 frames, ~95 s CPU) or `--only N` for one frame.
+7. **Map panel = real layers only** (`offsim/motion/mappanel.py`): OSM coastline, the vessel's route from a gated
+   `offsim run` (the film refuses a run that failed gates 0–3), marker at the moment the section shows (southernmost
+   sailing point = most exposed). Camera eases in at 0.16 zoom levels/s (cap 0.35); the overview is 1.8× the width fit
+   so the frame never shows past the pulled data and the coast stays in view at the end. Map wind is uniform and
+   labelled so until NORA3 is pulled. Sea state matched to place (outer fjord: Hs 2.0 m, Tp 6.5 s; open North Sea 3.5 m).
+8. **Frame furniture**: handle top-right with the kicker; methods block names every source and every assumption.
