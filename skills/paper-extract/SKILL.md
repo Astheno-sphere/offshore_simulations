@@ -31,3 +31,10 @@ service_s, tw {value: [early, late]}, src}; `fleet[0]` count/capacity/speed_mps 
 - A scenario with any `assumption: true` on a parameter that drives a `reported:` KPI can still run,
   but the narrator must say the result is a re-run under assumptions, not a reproduction.
 - Hand off to `sim-corrector`; never straight to rendering.
+
+## Timetables and networks (added 2026-11-08)
+If the paper's case is a transit or ferry network, also write `timetable.yaml` next to scenario.yaml
+(schema in `offsim/transit/from_paper.py`): stops with lon/lat and `src`, run times, dwell, headway or departure
+lists, service days, each `{value, src: "p.X Table Y"}` or `assumption: true`. Coordinates the paper doesn't give are
+looked up (Entur stop register / Kartverket) and marked with that source, not invented. Site/customer coordinates go
+into a GeoJSON installed with `offsim.worlds.user_layers --kind sites`.

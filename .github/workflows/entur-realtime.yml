@@ -1,0 +1,72 @@
+name: entur-realtime
+# Poll Entur realtime vehicle positions in a bounding box (api.entur.io is blocked in the Claude workspace) and publish
+# vehicles.csv as an artifact AND as release `world-<world>-entur-<date>`.
+# Use it for gate 4c (offsim.transit.observed): compare the GTFS timetable replay with what the vehicles did.
+# Source: Entur AS. Field names of the GraphQL query are unverified live (see offsim/transit/entur.py).
+# Set the repo variable ENTUR_CLIENT_NAME to "<company>-<application>"; empty = astheno-offshoresimulations.
+on:
+  workflow_dispatch:
+    inputs:
+      world:
+        description: "World name (data/worlds/<world>/entur/vehicles.csv; release world-<world>-entur-<date>)"
+        required: true
+        default: molde
+        type: string
+      bbox:
+        description: "lon0,lat0,lon1,lat1"
+        required: true
+        default: "7.0,62.6,7.5,62.9"
+        type: string
+      minutes:
+        description: "Collection length in minutes (one snapshot every 30 s; unidentified clients are capped at 60 req/min)"
+        required: false
+        default: "60"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install pandas numpy
+      - name: Collect vehicle positions
+        env:
+          ENTUR_CLIENT_NAME: ${{ vars.ENTUR_CLIENT_NAME }}
+          WORLD: ${{ inputs.world }}
+          BBOX: ${{ inputs.bbox }}
+          MINUTES: ${{ inputs.minutes }}
+        run: |
+          python -m offsim.transit.entur collect --bbox "$BBOX" --minutes "$MINUTES" --every-s 30 \
+            --out "data/worlds/$WORLD/entur/vehicles.csv"
+      - name: Summary
+        env: {WORLD: "${{ inputs.world }}"}
+        run: |
+          f="data/worlds/$WORLD/entur/vehicles.csv"
+          echo "rows: $(($(wc -l < "$f") - 1))" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Source: Entur AS" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: entur-vehicles-${{ inputs.world }}
+          path: data/worlds/${{ inputs.world }}/entur/vehicles.csv
+          if-no-files-found: error
+      - name: Publish release world-${{ inputs.world }}-entur-<date>
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORLD: ${{ inputs.world }}
+          BBOX: ${{ inputs.bbox }}
+          MINUTES: ${{ inputs.minutes }}
+        run: |
+          tag="world-$WORLD-entur-$(date -u +%F)"
+          cp "data/worlds/$WORLD/entur/vehicles.csv" vehicles.csv
+          notes="Entur realtime vehicle positions, bbox $BBOX, $MINUTES min, collected $(date -u +%FT%TZ) from ${GITHUB_REF_NAME}. Source: Entur AS (open data; NLOD 2.0, https://data.norge.no/nlod/en/2.0). Use with offsim.transit.observed (gate 4c)."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" vehicles.csv --clobber && gh release edit "$tag" --notes "$notes"
+          else
+            gh release create "$tag" vehicles.csv --title "Entur realtime: $WORLD $(date -u +%F)" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+          fi

@@ -51,3 +51,12 @@ of `offsim/research/experiment.py`. Required: `gap_id`, `base`, `hypothesis`, `v
 - A gap is a lead. It becomes work only after the confirm step and an experiment file.
 - Do not commit or push unless asked. Papers and gaps live on `papers/auto`, changed by the workflow.
 - Nothing is narrated from an experiment until its ensemble passes every contract check (`sim-corrector`).
+
+## Transit and timetable papers (added 2026-11-08)
+- Tag bus/ferry/rail papers with mode and region; they route to the `gtfs` engine (timetable replay) or `road` engine.
+- When a paper gives a network (stops, run times, headways/departures, service days), propose a `timetable.yaml`
+  (see `offsim/transit/from_paper.py`) for paper-extract to fill with page/table sources.
+- Gap kinds to look for in Norway: schedule vs reality (Entur Vehicle Positions, gate 4c), timetable vs demand
+  (SSB grids), ferry-bus connections (Entur GTFS joins), electrification/charging windows on real timetables.
+- Data the user supplies (timetables, frequencies, GeoJSON) is welcome: record its source; it goes through the same
+  provenance rules as paper values.

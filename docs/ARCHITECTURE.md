@@ -119,3 +119,19 @@ method line from provenance. Palette data in `offsim/cinema/look.py` (`PALETTES`
 ## What is deliberately not here
 Hand-tuned "looks plausible" motion with no source number; any tool nobody calls (catalog demotes it to `watch`);
 LLM-generated values in a scenario; renders of results that failed a gate.
+
+## Data intake rules (OSM, your GeoJSON, papers, Entur)
+Smallest correct source wins; every layer carries `src` + licence in `<layer>.source.json` / the world manifest.
+1. **Your GeoJSON first** when you have it (municipality roads, NVDB exports, port layouts, digitised stops, QGIS files):
+   `python -m offsim.worlds.user_layers --world <w> --kind roads|quays|stops|sites|buildings|... --file f.geojson
+   --src "..." --licence ...`. Validated (WGS84, geometry, required tags), clipped, optionally simplified; engines read
+   it unchanged. A few MB instead of the 1.3 GB national OSM extract.
+2. **OSM** for what you don't have: fetch-world on Actions downloads the extract once, cuts it to the world bbox and
+   publishes only the clipped layers in the release (`osm_pbf_url` in the world YAML for a smaller regional extract).
+3. **Paper data** (timetables, headways, stop lists, site coordinates): `timetable.yaml` -> `offsim.transit.from_paper.to_gtfs`
+   (every value `{value, src: "p.X Table Y"}` or `assumption: true`); sites/customers via a `sites` user layer.
+4. **Entur** (NLOD / open, credit "Source: Entur AS"): national GTFS for schedules (fetch-world `--gtfs`), Vehicle
+   Positions for observed runs (`entur-realtime` workflow -> gate 4c), Journey Planner for departures. Header
+   `ET-Client-Name` always. Entur's Journey Planner MCP and Transit Data MCP can be added as Claude connectors.
+5. Real data beats paper data for *validation*; paper data defines the *reproduction*. Never mix silently: the
+   report says which layer came from where.

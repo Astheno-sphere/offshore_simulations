@@ -71,3 +71,23 @@ Reproduce: `PYTHONPATH=. python tools/section_film.py` (5 s, 150 frames, ~95 s C
    so the frame never shows past the pulled data and the coast stays in view at the end. Map wind is uniform and
    labelled so until NORA3 is pulled. Sea state matched to place (outer fjord: Hs 2.0 m, Tp 6.5 s; open North Sea 3.5 m).
 8. **Frame furniture**: handle top-right with the kicker; methods block names every source and every assumption.
+
+## Level-up rules: from good to the reference grade (2026-11-08)
+What still separates us from the reference, as rules with the tool that delivers each:
+9.  **Density of real things**: every building footprint, every stop, every street tree-equivalent (every quay,
+    every bus) drawn, not a sample. Tools: user/OSM layers, Overture buildings, datashader for >100k points.
+10. **Two scales always**: a mechanism (section, street, deck) and its consequence at city/region scale, one clock.
+11. **Light and time of day**: the frame's mood follows the simulated clock (sun elevation -> ground tint, window
+    glow at night). Data: `cinema/look.py sun()` (spec) driven by the scenario time.
+12. **Print-grade strokes**: skia-python (installed) for anti-aliased vectors with joins, caps and dashes; hairlines
+    at 0.6 px for detail, 2.4 px outlines. PIL only for raster compositing.
+13. **Terrain as texture**: hillshade + slope from Kartverket DTM (xarray-spatial), tinted in the palette, under every
+    map; fjords read as landscape, not flat polygons.
+14. **Colour scales are data**: diverging around a meaningful zero (ambient, schedule, plan), legend with units on
+    every field, same scale across frames.
+15. **One question, one answer, one surprise**: headline asks, chart answers, and the deck line states what the
+    simulation found that a reader would not guess. Chosen from measurements (rule 5).
+16. **Real vs simulated side by side** when we have it: AIS (gate 4b) or Entur Vehicle Positions (gate 4c) as faint
+    ghost tracks under the simulated run.
+17. **Typography**: one geometric sans (bold caps headline, regular deck, small caps kicker); no more than 3 sizes per
+    frame plus the methods line. Install an open font (e.g. Montserrat or Inter, OFL) instead of DejaVu.

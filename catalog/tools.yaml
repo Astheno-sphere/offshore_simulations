@@ -59,6 +59,10 @@ tools:
    role: "Ocean routing graph built from OSM; reference for our own lane graph."}
 
 # ---------------- traffic (AIS) ----------------
+- {id: entur-vehicle-positions, name: Entur Vehicle Positions API, url: "https://api.entur.io/realtime/v2/vehicles/graphql", layer: traffic, licence: "open (credit Source: Entur AS)", status: wired, runs: actions, priority: next, evidence: "offsim/transit/entur.py offsim/transit/observed.py .github/workflows/entur-realtime.yml tests/test_entur.py",
+   role: "Observed bus/ferry positions and delays (the AIS of public transport); gate 4c compares schedule replay vs reality."}
+- {id: entur-journey-planner, name: Entur Journey Planner API, url: "https://api.entur.io/journey-planner/v3/graphql", layer: traffic, licence: "open (credit Source: Entur AS)", status: wired, runs: actions, priority: later, evidence: "offsim/transit/entur.py tests/test_entur.py",
+   role: "Departures per stop place; journey planning for worker-commute scenarios."}
 - {id: entur-gtfs, name: Entur national aggregated GTFS, url: "https://developer.entur.org/stops-and-timetable-data", layer: traffic, licence: NLOD-2.0, status: wired, runs: actions, priority: now, evidence: "offsim/transit/gtfs.py offsim/engines/gtfs_engine.py offsim/worlds/fetch_world.py tests/test_transit.py",
    role: "Every bus, ferry, train and tram timetable in Norway; clipped per world, replayed as contract agents (engine gtfs). Credit: Source: Entur."}
 - {id: datashader, name: Datashader, url: "https://github.com/holoviz/datashader", layer: traffic, licence: BSD-3-Clause, status: installed, runs: here, priority: next, evidence: "requirements-graphics.txt",
@@ -320,6 +324,8 @@ tools:
    role: "Engine, sea, rotor ambience; CC-BY needs credit, CC-BY-NC forbidden for the brand."}
 
 # ---------------- mcp ----------------
+- {id: entur-mcp, name: Entur MCP servers (Journey Planner, Transit Data), url: "https://api.entur.io/journey-planner-mcp/v1/mcp", layer: mcp, licence: "open (credit Source: Entur AS)", status: candidate, runs: laptop, priority: next,
+   role: "No-auth MCP endpoints (also https://api.entur.io/transit-data/v1beta/mcp): add as Claude connectors for live trip, departure and NeTEx lookups."}
 - {id: ampl-mcp, name: ampl_mcp (our MCP server for AMPL), url: "https://github.com/Astheno-sphere/offshore_simulations/tree/main/tools/ampl_mcp", layer: mcp, licence: MIT, status: wired, runs: laptop, priority: next, evidence: "tools/ampl_mcp/server.py tools/ampl_mcp/README.md tests/test_ampl.py",
    role: "Claude desktop drives the laptop AMPL install: solve, variables, duals; guarded statement filter."}
 - {id: blender-mcp, name: BlenderMCP, url: "https://github.com/ahujasid/blender-mcp", layer: mcp, licence: MIT, status: candidate, runs: laptop, priority: later,

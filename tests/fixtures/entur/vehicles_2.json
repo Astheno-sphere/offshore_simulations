@@ -1,0 +1,8 @@
+{"data": {"vehicles": [
+  {"vehicleId": "MOR:Vehicle:101", "line": {"lineRef": "MOR:Line:1", "publicCode": "1"},
+   "serviceJourney": {"id": "MOR:ServiceJourney:1-0800"}, "lastUpdated": "2026-11-08T08:00:30Z",
+   "location": {"latitude": 62.7000, "longitude": 7.1047}, "delay": 75, "bearing": 90.0, "speed": 8.0},
+  {"vehicleId": "MOR:Vehicle:102", "line": {"lineRef": "MOR:Line:2", "publicCode": "2"},
+   "serviceJourney": {"id": "MOR:ServiceJourney:2-0755"}, "lastUpdated": "2026-11-08T08:00:00Z",
+   "location": {"latitude": 62.8000, "longitude": 7.2000}, "delay": "PT1M30S", "bearing": 180.0, "speed": 0.0}
+]}}

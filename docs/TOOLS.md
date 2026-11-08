@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-147 tools · 25 tested · 11 wired · 9 installed · 52 candidate · 4 manual · 46 watch.
+150 tools · 25 tested · 13 wired · 9 installed · 53 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -12,7 +12,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | Layer | tested | wired | installed | candidate | manual | watch | total |
 |---|---|---|---|---|---|---|---|
 | world | 5 | 3 | 2 | 7 | 3 | 8 | 28 |
-| traffic | 1 | 2 | 3 | 1 | 1 | 2 | 10 |
+| traffic | 1 | 4 | 3 | 1 | 1 | 2 | 12 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
 | solver | 2 | 1 | 0 | 2 | 0 | 4 | 9 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
@@ -24,7 +24,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 2 | 0 | 0 | 9 | 0 | 4 | 15 |
 | design | 0 | 0 | 0 | 1 | 0 | 0 | 1 |
-| mcp | 0 | 1 | 0 | 2 | 0 | 2 | 5 |
+| mcp | 0 | 1 | 0 | 3 | 0 | 2 | 6 |
 | skills | 1 | 0 | 0 | 4 | 0 | 1 | 6 |
 | benchmarks | 0 | 4 | 0 | 2 | 0 | 2 | 8 |
 
@@ -120,8 +120,10 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | tested | here | now | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. Evidence: `offsim/traffic/ais.py` `tests/test_traffic.py` |
 | [BarentsWatch AIS API](https://www.barentswatch.no/) | NLOD-2.0 (check) | wired | actions | next | Live/recent AIS via OAuth2 (secrets BW_CLIENT_ID/BW_CLIENT_SECRET); endpoints unverified live. Evidence: `offsim/traffic/barentswatch.py` `.github/workflows/fetch-world.yml` |
 | [Datashader](https://github.com/holoviz/datashader) | BSD-3-Clause | installed | here | next | Render millions of AIS positions as density for map panels. Evidence: `requirements-graphics.txt` |
+| [Entur Vehicle Positions API](https://api.entur.io/realtime/v2/vehicles/graphql) | open (credit Source: Entur AS) | wired | actions | next | Observed bus/ferry positions and delays (the AIS of public transport); gate 4c compares schedule replay vs reality. Evidence: `offsim/transit/entur.py` `offsim/transit/observed.py` `.github/workflows/entur-realtime.yml` `tests/test_entur.py` |
 | [AISdb (Dalhousie MERIDIAN)](https://pypi.org/project/aisdb/) | check | watch | here | later | SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices. |
 | [Datasets of AIS trajectories from Danish waters](https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters) | BSD-3-Clause | watch | here | later | Ready filtered AIS sets for testing trajectory code without ordering data. |
+| [Entur Journey Planner API](https://api.entur.io/journey-planner/v3/graphql) | open (credit Source: Entur AS) | wired | actions | later | Departures per stop place; journey planning for worker-commute scenarios. Evidence: `offsim/transit/entur.py` `tests/test_entur.py` |
 | [GTFS Kit](https://github.com/mrcagney/gtfs_kit) | MIT | installed | here | later | Independent GTFS analysis to cross-check offsim.transit KPIs. Evidence: `requirements-graphics.txt` |
 | [pyais](https://github.com/M0r13n/pyais) | MIT | candidate | here | later | Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet. |
 | [r5py (Conveyal R5)](https://github.com/r5py/r5py) | MIT or GPL-3.0 | installed | actions | later | Multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use. Evidence: `requirements-graphics.txt` |
@@ -300,6 +302,7 @@ _Connectors that let Claude drive desktop tools_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [ampl_mcp (our MCP server for AMPL)](https://github.com/Astheno-sphere/offshore_simulations/tree/main/tools/ampl_mcp) | MIT | wired | laptop | next | Claude desktop drives the laptop AMPL install: solve, variables, duals; guarded statement filter. Evidence: `tools/ampl_mcp/server.py` `tools/ampl_mcp/README.md` `tests/test_ampl.py` |
+| [Entur MCP servers (Journey Planner](https://api.entur.io/journey-planner-mcp/v1/mcp) | open (credit Source: Entur AS) | candidate | laptop | next | No-auth MCP endpoints (also https://api.entur.io/transit-data/v1beta/mcp): add as Claude connectors for live trip, departure and NeTEx lookups. |
 | [QGIS MCP](https://github.com/jjsantos01/qgis_mcp) | check | candidate | laptop | next | Claude drives QGIS: inspect Kartverket depth and Sodir layers before packaging a world. |
 | [BlenderMCP](https://github.com/ahujasid/blender-mcp) | MIT | candidate | laptop | later | Claude drives Blender on your machine (scene setup, materials, Poly Haven assets). |
 | [OpenStreetMap MCP server](https://github.com/jagan-shanmugam/open-streetmap-mcp) | MIT | watch | laptop | later | Geocoding and Overpass queries from Claude (ports, bases, heliports). |

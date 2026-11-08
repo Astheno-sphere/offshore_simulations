@@ -11,6 +11,9 @@ layers: road/walk -> OSM roads, bus -> + Entur GTFS (`offsim/transit/gtfs.py` cl
 aerodromes. Engines `road` (networkx RoadGraph, oneway, maxspeed; pipeline `domain: land`) and `gtfs` (timetable replay,
 bus/ferry/rail/tram agents). Gate 4b AIS calibration in `offsim run` (opt-in `validate: {ais: true}`). 265 tests pass.
 Not yet live: stedsnavn API, Entur zip, real OSM roads. Installed for next phase: skia-python, datashader, xarray-spatial.
+Added: user GeoJSON layers (`offsim/worlds/user_layers.py`), paper timetables -> GTFS (`offsim/transit/from_paper.py`),
+Entur realtime client + gate 4c (`offsim/transit/entur.py`, `observed.py`, workflow `entur-realtime`), data-intake rules
+(ARCHITECTURE), transit rules in research-scout/paper-extract skills, level-up rules 9-17 (STYLE_REFERENCE).
 
 ## 2026-11-08 — engine layer built (done)
 Architecture (`docs/ARCHITECTURE.md`, 7 layers + import rule enforced by `tests/test_architecture.py`), definitions
@@ -36,6 +39,7 @@ Interrupted and recovered: the depth builder hit the sub-agent rate limit; its u
 /home/claude/wt/depth was finished by hand (terrain.js, requirements, catalog) and merged.
 
 ## Next
+000. Next build: skia-python stroke renderer + open font (rule 12, 17), terrain hillshade under maps (rule 13).
 00. You: Actions -> fetch-world with place `Molde`, modes `sea,road,bus` -> first live run of stedsnavn + OSM + Entur;
     then `--pull molde` here and run the road template / a GTFS replay on real data; fix what the log shows.
 0. Wire engines into `offsim run`: scenario `engine:` / `ensemble:` blocks, `pipeline.build_variant` for

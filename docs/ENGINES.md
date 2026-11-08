@@ -118,3 +118,16 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
 PSV supply / ferry / crew boat with a routing plan → `replay` for gate 2, `openclsim` for the ensemble.
 Land legs on roads (trucks, vans, workers) → `road`. Wind O&M → `wombat`. Wind installation → `orbit`. Two engines on the same small instance must agree on
 deterministic KPIs within 1% (`tests/test_engine_crosscheck.py`) before either is trusted on a large one.
+
+### Entur realtime (validation, gate 4c)
+- **What:** not an engine. `offsim.transit.entur` polls Entur's Vehicle Positions GraphQL API (stdlib, no websockets; header `ET-Client-Name` from env
+  `ENTUR_CLIENT_NAME`, default `astheno-offshoresimulations`; 429 honours Retry-After; at most one snapshot per 2 s) into `vehicles.csv`; run it through the
+  `entur-realtime` workflow (api.entur.io is unreachable from the Claude workspace). Credit "Source: Entur AS". GraphQL field names and the units of
+  `delay` / `speed` are **unverified live**.
+- **Mapping:** `offsim.transit.observed.observed_trajectories(vehicles_df, t0_utc)` gives contract trajectories, one agent per service journey (cls bus, domain
+  land, `drive`/`wait` from the position change between samples). `t0_utc` must be the UTC instant of the scheduled trajectory's t = 0.
+- **Gate 4c (opt-in, by hand; not in `offsim run`):** `compare_to_schedule(sched_traj, observed_traj)` projects each observed point onto the GTFS path and reports per
+  journey the delay quantiles and the observed/scheduled travel-time ratio; `gate_4c(cmp)` passes when the median |median delay| <= 180 s and the median ratio
+  <= 1.25 (both **assumptions**, unsourced), and fails when nothing could be judged. Record runs in `docs/TESTLOG.md`.
+- **Limits:** sampled positions only (30 s polls, vehicles report at their own rate); loop routes can project to the wrong lap; a dwell counts from its first
+  arrival; trips are matched by id (Entur GTFS `trip_id` = ServiceJourney id), so a feed from another date or a re-planned journey simply does not match.
