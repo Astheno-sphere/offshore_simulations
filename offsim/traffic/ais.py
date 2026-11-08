@@ -18,7 +18,7 @@ Pipeline (all functions are pure DataFrame in / DataFrame out; movingpandas is i
 Provenance: calibration() returns a `src` string such as "AIS HAIS <area> <dates>, offsim.traffic"; a scenario
 parameter filled from `calib` cites it as its `src:` (CLAUDE.md: every parameter needs a source).
 
-Gate 4b (spec, NOT yet wired into the pipeline): after gates 0-4 (offsim.pipeline), `compare_to_sim` checks the
+Gate 4b (wired: offsim.pipeline runs it when the scenario sets `validate: {ais: true}`): after gates 0-4 (offsim.pipeline), `compare_to_sim` checks the
 simulated port-call durations and sailing speeds against the AIS calibration. A scenario that declares an
 `ais_calibration:` file would fail the run when `compare_to_sim(...)["pass"]` has any False. Until wired, call it
 by hand and record the outcome in docs/TESTLOG.md.
@@ -280,7 +280,7 @@ def calibration(port_calls: pd.DataFrame, tracks, area: str = "unspecified", dat
 
 def compare_to_sim(traj, calib: dict, port_durations_s: dict | None = None, tol_rel: float = 0.25,
                    tol_abs_s: float = 600.0, tol_abs_kn: float = 1.0, min_n: int = 1) -> pd.DataFrame:
-    """Gate 4b (spec; not yet wired into offsim.pipeline): simulated vs AIS quantiles.
+    """Gate 4b (wired into offsim.pipeline, opt-in): simulated vs AIS quantiles.
 
     traj: contract trajectory DataFrame (agent_id, t, lon, lat, state, ...). Sailing speeds come from its moving
     legs (state in contract.MOVING; knots from haversine/dt). port_durations_s: optional {place: [seconds, ...]}

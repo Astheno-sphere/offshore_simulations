@@ -25,7 +25,7 @@ def test_registry_lists_every_tool_we_ship():
     av = available()
     assert av["solvers"]["pyvrp"] == "ok" and av["solvers"]["pyomo"] == "ok"
     assert av["engines"]["replay"] == "ok" and av["engines"]["openclsim"] == "ok"
-    assert set(av["engines"]) == {"replay", "openclsim", "wombat", "orbit"}      # unbuilt ones report an error string
+    assert set(av["engines"]) == {"replay", "openclsim", "wombat", "orbit", "road", "gtfs"}    # unbuilt ones report an error string
     assert set(av["solvers"]) == {"pyvrp", "pyomo", "ampl"}
     for name, cls in (("pyvrp", {"CVRP"}), ("pyomo", {"CVRP"})):
         assert get_solver(name).classes == cls and get_solver(name).name == name

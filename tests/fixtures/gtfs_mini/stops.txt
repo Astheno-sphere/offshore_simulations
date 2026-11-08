@@ -1,0 +1,8 @@
+stop_id,stop_name,stop_lat,stop_lon
+A,Alpha,62.7300,7.1000
+B,Bravo,62.7350,7.1500
+C,Charlie,62.7400,7.2000
+D,Delta quay,62.7500,7.3000
+E,Echo quay,62.7800,7.3300
+X,Far away,60.0000,10.0000
+Y,Far away 2,60.0100,10.0100

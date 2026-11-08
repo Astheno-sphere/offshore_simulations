@@ -4,6 +4,14 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-08 (late) — Norway-wide worlds + road/bus + AIS gate (done)
+Any place in Norway: `python -m offsim.worlds.fetch_world --place Molde --modes sea,road,bus` (Actions: fetch-world
+inputs place/modes/radius_km) -> world spec v2 (`offsim/worlds/place.py`; v1 worlds still load as [sea]). Modes imply
+layers: road/walk -> OSM roads, bus -> + Entur GTFS (`offsim/transit/gtfs.py` clip/trajectories), air -> helipads +
+aerodromes. Engines `road` (networkx RoadGraph, oneway, maxspeed; pipeline `domain: land`) and `gtfs` (timetable replay,
+bus/ferry/rail/tram agents). Gate 4b AIS calibration in `offsim run` (opt-in `validate: {ais: true}`). 265 tests pass.
+Not yet live: stedsnavn API, Entur zip, real OSM roads. Installed for next phase: skia-python, datashader, xarray-spatial.
+
 ## 2026-11-08 — engine layer built (done)
 Architecture (`docs/ARCHITECTURE.md`, 7 layers + import rule enforced by `tests/test_architecture.py`), definitions
 (`docs/ENGINES.md`), interfaces (`offsim/engines/base.py`). Built and tested here: solvers pyvrp, pyomo; engines replay,
@@ -28,6 +36,8 @@ Interrupted and recovered: the depth builder hit the sub-agent rate limit; its u
 /home/claude/wt/depth was finished by hand (terrain.js, requirements, catalog) and merged.
 
 ## Next
+00. You: Actions -> fetch-world with place `Molde`, modes `sea,road,bus` -> first live run of stedsnavn + OSM + Entur;
+    then `--pull molde` here and run the road template / a GTFS replay on real data; fix what the log shows.
 0. Wire engines into `offsim run`: scenario `engine:` / `ensemble:` blocks, `pipeline.build_variant` for
    `research/run_experiment.py`, WIND-OM / WIND-INST past gate 0; wind adapters onto `world.legs`.
 0b. You: secret `AMPL_LICENSE_UUID` → Actions **solve** on the demo; allow Actions to create PRs (Settings → Actions) for **papers**.

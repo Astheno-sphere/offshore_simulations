@@ -13,6 +13,7 @@ Layers -> <out>/<layer>.geojson (EPSG:4326) and <out>/manifest.json:
     buildings  building=*  + height_m, height_src, height_assumption
     landuse    landuse=industrial|port
     helipads   aeroway=helipad|heliport                           (points/polygons)
+    aerodromes aeroway=aerodrome (airports, e.g. Sola ENZV, Molde Årø ENML) (points/polygons)
 
 Building height (`add_height_m`): the `height` tag if it parses (metres; "12", "12.5 m", feet "40 ft"/40'), else
 `building:levels` x LEVEL_HEIGHT_M (3 m) with height_src="levels_x3_assumption" and height_assumption=True, else NaN
@@ -38,7 +39,7 @@ FT_TO_M = 0.3048
 LICENCE = "ODbL 1.0"
 CREDIT = "© OpenStreetMap contributors"
 GEOFABRIK_NORWAY = "https://download.geofabrik.de/europe/norway-latest.osm.pbf"
-LAYERS = ("quays", "ferry", "roads", "buildings", "landuse", "helipads")
+LAYERS = ("quays", "ferry", "roads", "buildings", "landuse", "helipads", "aerodromes")
 
 # pyrosm custom filters (filter_type="keep": a feature matching any key/value is kept) and tags to expose as columns
 FILTERS = {
@@ -46,6 +47,7 @@ FILTERS = {
     "ferry": ({"route": ["ferry"]}, ["route", "name", "operator", "ref", "duration", "ferry"]),
     "landuse": ({"landuse": ["industrial", "port"]}, ["landuse", "name", "industrial"]),
     "helipads": ({"aeroway": ["helipad", "heliport"]}, ["aeroway", "name", "ref", "icao", "iata"]),
+    "aerodromes": ({"aeroway": ["aerodrome"]}, ["aeroway", "name", "ref", "icao", "iata"]),
 }
 
 

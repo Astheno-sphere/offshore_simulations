@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-139 tools · 24 tested · 9 wired · 4 installed · 52 candidate · 4 manual · 46 watch.
+147 tools · 25 tested · 11 wired · 9 installed · 52 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -11,15 +11,15 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 
 | Layer | tested | wired | installed | candidate | manual | watch | total |
 |---|---|---|---|---|---|---|---|
-| world | 4 | 2 | 1 | 7 | 3 | 8 | 25 |
-| traffic | 1 | 1 | 0 | 1 | 1 | 2 | 6 |
+| world | 5 | 3 | 2 | 7 | 3 | 8 | 28 |
+| traffic | 1 | 2 | 3 | 1 | 1 | 2 | 10 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
 | solver | 2 | 1 | 0 | 2 | 0 | 4 | 9 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
 | simulation | 2 | 0 | 2 | 4 | 0 | 2 | 10 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 5 | 0 | 0 | 6 | 0 | 7 | 18 |
+| render | 5 | 0 | 1 | 6 | 0 | 7 | 19 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 2 | 0 | 0 | 9 | 0 | 4 | 15 |
@@ -34,10 +34,13 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 
 | Tool | Layer | Status | Runs | Role |
 |---|---|---|---|---|
+| [Kartverket place names API (stedsnavn)](https://ws.geonorge.no/stedsnavn/v1/) | world | wired | actions | Any Norwegian place name -> centre + bbox for a world (fetch-world --place); unverified live. |
+| [NetworkX](https://github.com/networkx/networkx) | world | tested | here | Road graph (oneway, maxspeed, Dijkstra) for land logistics; engine road. |
 | [Geofabrik Norway OSM extract](https://download.geofabrik.de/europe/norway.html) | world | wired | actions | Full OSM for quays, ferry routes, roads, buildings, helipads (fetch-world --osm). |
 | [pyrosm](https://github.com/HTenkanen/pyrosm) | world | tested | actions | Reads .osm.pbf into GeoDataFrames; post-processing tested, live pbf read pending first Actions run. |
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | world | tested | actions | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). |
 | [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | world | wired | actions | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. |
+| [Entur national aggregated GTFS](https://developer.entur.org/stops-and-timetable-data) | traffic | wired | actions | Every bus, ferry, train and tram timetable in Norway; clipped per world, replayed as contract agents (engine gtfs). Credit: Source: Entur. |
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | traffic | manual | browser | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | traffic | tested | here | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | solver | tested | here | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
@@ -81,7 +84,9 @@ _Geography the scenario runs in (land, depth, lanes, installations)_
 | [GDAL gdaldem / gdal_contour](https://gdal.org/programs/gdaldem.html) | MIT | candidate | here | now | Multidirectional hillshade, colour relief, isobath extraction (depth.py hillshade_texture, isobaths). |
 | [Geofabrik Norway OSM extract](https://download.geofabrik.de/europe/norway.html) | ODbL-1.0 | wired | actions | now | Full OSM for quays, ferry routes, roads, buildings, helipads (fetch-world --osm). Evidence: `offsim/worlds/fetch_world.py` `offsim/worlds/osm.py` `.github/workflows/fetch-world.yml` |
 | [Kartverket DTM 10 m terrain model](https://nedlasting.geonorge.no/api/capabilities/) | CC-BY-4.0 | candidate | actions | now | 10 m land DEM via Geonorge download API (EUREF89/UTM, NN2000): fjord and port tiers (offsim/worlds/depth.py). |
+| [Kartverket place names API (stedsnavn)](https://ws.geonorge.no/stedsnavn/v1/) | CC-BY-4.0 | wired | actions | now | Any Norwegian place name -> centre + bbox for a world (fetch-world --place); unverified live. Evidence: `offsim/worlds/place.py` `tests/test_place.py` `.github/workflows/fetch-world.yml` |
 | [Kartverket seabed terrain models 5/25/50 m (WCS)](https://wms.geonorge.no/skwms1/wms.dtm2?request=getcapabilities&service=wcs) | open per Geonorge record (check) | candidate | actions | now | Coastal/offshore bathymetry grid (chart datum); generalised inside 12 nm; illustrative, not for navigation. |
+| [NetworkX](https://github.com/networkx/networkx) | BSD-3-Clause | tested | here | now | Road graph (oneway, maxspeed, Dijkstra) for land logistics; engine road. Evidence: `offsim/worlds/roads.py` `tests/test_road.py` |
 | [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | NLOD-2.0 | wired | actions | now | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. Evidence: `offsim/worlds/fetch_world.py` `offsim/worlds/north-sea-stavanger.yaml` |
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | ODbL-1.0 | tested | actions | now | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). Evidence: `offsim/worlds/fetch_world.py` `docs/TESTLOG.md` |
 | [pydelatin (Delatin TIN mesher)](https://pypi.org/project/pydelatin) | MIT | tested | here | now | Adaptive terrain mesh from numpy DEM with max_error in metres (depth.py terrain_mesh). Evidence: `offsim/worlds/depth.py` `tests/test_depth.py` `requirements-render.txt` |
@@ -90,9 +95,10 @@ _Geography the scenario runs in (land, depth, lanes, installations)_
 | [Kartverket Sjøkart Dybdedata (WFS)](https://wfs.geonorge.no/skwms1/wfs.dybdedata?service=WFS&request=GetCapabilities) | CC-BY-4.0 | watch | actions | next | Vector depth contours and soundings (sjøkartnull) as ready CAD-style isobaths; maintenance status: check. |
 | [Kartverket Sjøkart – Dybdedata](https://data.norge.no/en/datasets/48cc18ef-1317-3ddd-9ca4-a06d8ffa0196) | open (Kartverket terms) | manual | laptop | next | Depth areas and contours; not approved for navigation. Lanes and seabed relief. |
 | [Kystverket reference routes for navigation](https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation) | NLOD-2.0 | manual | actions | next | Fairway graph so vessels follow lanes, not straight lines. |
-| [OSMnx](https://github.com/gboeing/osmnx) | MIT | installed | here | next | Street networks for land legs (worker commute, truck to quay); declared, not yet called. Evidence: `requirements-gis.txt` |
+| [OSMnx](https://github.com/gboeing/osmnx) | MIT | installed | here | next | Declared; roads use plain networkx from OSM GeoJSON (offsim/worlds/roads.py) because osmnx adds nothing offline. Keep for street-network stats. Evidence: `requirements-gis.txt` |
 | [PMTiles + CLI](https://github.com/protomaps/PMTiles) | BSD-3-Clause | candidate | actions | next | Single-file tiles; `pmtiles extract --bbox` makes a few-MB offline basemap of a world. |
 | [Protomaps daily basemap builds](https://maps.protomaps.com/builds/) | ODbL (OSM data) | candidate | actions | next | Roads, buildings, ports, labels as vector tiles for port close-ups. |
+| [xarray-spatial](https://github.com/makepath/xarray-spatial) | MIT | installed | here | next | Hillshade, slope, viewshed for landscape panels (Abhinav-style terrain). Evidence: `requirements-graphics.txt` |
 | [Copernicus DEM GLO-30](https://registry.opendata.aws/copernicus-dem/) | Copernicus free and open (attribution) | watch | actions | later | 30 m surface model (includes buildings/trees); gap filler only. |
 | [GEBCO gridded bathymetry](https://www.gebco.net/data-products/gridded-bathymetry-data) | public domain w/ attribution (check) | watch | actions | later | 15 arc-sec global gap filler only. |
 | [Kartverket DTM WCS (hoyde-dtm_somlos)](https://wcs.geonorge.no/skwms1/wcs.hoyde-dtm_somlos) | Norge digitalt (restrictive, check) | watch | actions | later | Best-available lidar DTM by bbox for port close-ups; derived renders only. |
@@ -109,12 +115,16 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [Entur national aggregated GTFS](https://developer.entur.org/stops-and-timetable-data) | NLOD-2.0 | wired | actions | now | Every bus, ferry, train and tram timetable in Norway; clipped per world, replayed as contract agents (engine gtfs). Credit: Source: Entur. Evidence: `offsim/transit/gtfs.py` `offsim/engines/gtfs_engine.py` `offsim/worlds/fetch_world.py` `tests/test_transit.py` |
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | open | manual | browser | now | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | tested | here | now | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. Evidence: `offsim/traffic/ais.py` `tests/test_traffic.py` |
 | [BarentsWatch AIS API](https://www.barentswatch.no/) | NLOD-2.0 (check) | wired | actions | next | Live/recent AIS via OAuth2 (secrets BW_CLIENT_ID/BW_CLIENT_SECRET); endpoints unverified live. Evidence: `offsim/traffic/barentswatch.py` `.github/workflows/fetch-world.yml` |
+| [Datashader](https://github.com/holoviz/datashader) | BSD-3-Clause | installed | here | next | Render millions of AIS positions as density for map panels. Evidence: `requirements-graphics.txt` |
 | [AISdb (Dalhousie MERIDIAN)](https://pypi.org/project/aisdb/) | check | watch | here | later | SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices. |
 | [Datasets of AIS trajectories from Danish waters](https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters) | BSD-3-Clause | watch | here | later | Ready filtered AIS sets for testing trajectory code without ordering data. |
+| [GTFS Kit](https://github.com/mrcagney/gtfs_kit) | MIT | installed | here | later | Independent GTFS analysis to cross-check offsim.transit KPIs. Evidence: `requirements-graphics.txt` |
 | [pyais](https://github.com/M0r13n/pyais) | MIT | candidate | here | later | Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet. |
+| [r5py (Conveyal R5)](https://github.com/r5py/r5py) | MIT or GPL-3.0 | installed | actions | later | Multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use. Evidence: `requirements-graphics.txt` |
 
 ## metocean
 
@@ -213,6 +223,7 @@ _Maps and 3D scenes from validated trajectories_
 | [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | tested | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. Evidence: `offsim/weather/visual.py` `offsim/render_deck/src/layers/weather.js` `tests/test_weather.py` |
 | [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
 | [matplotlib streamplot/quiver textures](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html) | PSF-style | candidate | here | next | Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer. |
+| [skia-python](https://github.com/kyamagu/skia-python) | BSD-3-Clause | installed | here | next | Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing). Evidence: `requirements-graphics.txt` |
 | [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |
 | [Blender as Python module (bpy 5.2)](https://pypi.org/project/bpy/) | GPL | tested | actions | later | Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process. Evidence: `offsim/assets/models/make_models.py` `docs/TESTLOG.md` |
 | [BlenderGIS](https://github.com/domlysz/BlenderGIS) | GPL-3.0 | candidate | laptop | later | Import DEM, shapefiles, OSM into Blender. |

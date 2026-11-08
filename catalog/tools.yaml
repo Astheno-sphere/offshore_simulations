@@ -31,12 +31,18 @@ layers:
 
 tools:
 # ---------------- world ----------------
+- {id: kartverket-stedsnavn, name: Kartverket place names API (stedsnavn), url: "https://ws.geonorge.no/stedsnavn/v1/", layer: world, licence: CC-BY-4.0, status: wired, runs: actions, priority: now, evidence: "offsim/worlds/place.py tests/test_place.py .github/workflows/fetch-world.yml",
+   role: "Any Norwegian place name -> centre + bbox for a world (fetch-world --place); unverified live."}
+- {id: networkx, name: NetworkX, url: "https://github.com/networkx/networkx", layer: world, licence: BSD-3-Clause, status: tested, runs: here, priority: now, evidence: "offsim/worlds/roads.py tests/test_road.py",
+   role: "Road graph (oneway, maxspeed, Dijkstra) for land logistics; engine road."}
+- {id: xarray-spatial, name: xarray-spatial, url: "https://github.com/makepath/xarray-spatial", layer: world, licence: MIT, status: installed, runs: here, priority: next, evidence: "requirements-graphics.txt",
+   role: "Hillshade, slope, viewshed for landscape panels (Abhinav-style terrain)."}
 - {id: geofabrik-norway, name: Geofabrik Norway OSM extract, url: "https://download.geofabrik.de/europe/norway.html", layer: world, licence: ODbL-1.0, status: wired, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py offsim/worlds/osm.py .github/workflows/fetch-world.yml",
    role: "Full OSM for quays, ferry routes, roads, buildings, helipads (fetch-world --osm)."}
 - {id: pyrosm, name: pyrosm, url: "https://github.com/HTenkanen/pyrosm", layer: world, licence: MIT, status: tested, runs: actions, priority: now, evidence: "offsim/worlds/osm.py tests/test_osm.py",
    role: "Reads .osm.pbf into GeoDataFrames; post-processing tested, live pbf read pending first Actions run."}
 - {id: osmnx, name: OSMnx, url: "https://github.com/gboeing/osmnx", layer: world, licence: MIT, status: installed, runs: here, priority: next, evidence: "requirements-gis.txt",
-   role: "Street networks for land legs (worker commute, truck to quay); declared, not yet called."}
+   role: "Declared; roads use plain networkx from OSM GeoJSON (offsim/worlds/roads.py) because osmnx adds nothing offline. Keep for street-network stats."}
 - {id: osm-coastline, name: OpenStreetMap coastline via Overpass, url: "https://overpass-api.de", layer: world, licence: ODbL-1.0, status: tested, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py docs/TESTLOG.md",
    role: "Land polygons for every world (offsim/worlds/fetch_world.py + coast.py)."}
 - {id: sodir-factmaps, name: Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer), url: "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer", layer: world, licence: NLOD-2.0, status: wired, runs: actions, priority: now, evidence: "offsim/worlds/fetch_world.py offsim/worlds/north-sea-stavanger.yaml",
@@ -53,6 +59,14 @@ tools:
    role: "Ocean routing graph built from OSM; reference for our own lane graph."}
 
 # ---------------- traffic (AIS) ----------------
+- {id: entur-gtfs, name: Entur national aggregated GTFS, url: "https://developer.entur.org/stops-and-timetable-data", layer: traffic, licence: NLOD-2.0, status: wired, runs: actions, priority: now, evidence: "offsim/transit/gtfs.py offsim/engines/gtfs_engine.py offsim/worlds/fetch_world.py tests/test_transit.py",
+   role: "Every bus, ferry, train and tram timetable in Norway; clipped per world, replayed as contract agents (engine gtfs). Credit: Source: Entur."}
+- {id: datashader, name: Datashader, url: "https://github.com/holoviz/datashader", layer: traffic, licence: BSD-3-Clause, status: installed, runs: here, priority: next, evidence: "requirements-graphics.txt",
+   role: "Render millions of AIS positions as density for map panels."}
+- {id: gtfs-kit, name: GTFS Kit, url: "https://github.com/mrcagney/gtfs_kit", layer: traffic, licence: MIT, status: installed, runs: here, priority: later, evidence: "requirements-graphics.txt",
+   role: "Independent GTFS analysis to cross-check offsim.transit KPIs."}
+- {id: r5py, name: r5py (Conveyal R5), url: "https://github.com/r5py/r5py", layer: traffic, licence: "MIT or GPL-3.0", status: installed, runs: actions, priority: later, evidence: "requirements-graphics.txt",
+   role: "Multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use."}
 - {id: kystverket-hais, name: Kystverket Historic AIS (HAIS), url: "https://hais.kystverket.no/", layer: traffic, licence: open, status: manual, runs: browser, priority: now,
    role: "Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes."}
 - {id: pyais, name: pyais, url: "https://github.com/M0r13n/pyais", layer: traffic, licence: MIT, status: candidate, runs: here, priority: later,
@@ -145,6 +159,8 @@ tools:
    role: "Port emission inventories from tracks (transit, manoeuvring, hotelling)."}
 
 # ---------------- render ----------------
+- {id: skia-python, name: skia-python, url: "https://github.com/kyamagu/skia-python", layer: render, licence: BSD-3-Clause, status: installed, runs: here, priority: next, evidence: "requirements-graphics.txt",
+   role: "Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing)."}
 - {id: deckgl, name: "deck.gl (TripsLayer, IconLayer, ScenegraphLayer)", url: "https://github.com/visgl/deck.gl", layer: render, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/render_deck/package.json offsim/render_deck/src/app.js .github/workflows/tests.yml",
    role: "2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck)."}
 - {id: lonboard, name: lonboard, url: "https://github.com/developmentseed/lonboard", layer: render, licence: check, status: watch, runs: here, priority: later,

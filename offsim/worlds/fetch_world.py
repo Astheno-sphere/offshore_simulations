@@ -19,6 +19,17 @@ pyrosm). `--osm-pbf FILE` uses a local pbf instead of downloading. `--ais PATH` 
 (GeoParquet/CSV) into ais/calibration.json (+ ais/port_calls.csv when the world YAML lists `ais_places`:
 [{name, lon, lat, radius_m}]) via offsim.traffic.ais; optional YAML `ais_ship_types`, `ais_area`.
 
+Any place (world spec v2, offsim/worlds/place.py, docs/ARCHITECTURE.md "Worlds v2"):
+
+    python -m offsim.worlds.fetch_world --place Ålesund --modes sea,road,bus --radius-km 20
+
+`--place NAME` (gazetteer key, Kartverket stedsnavn name, or "lon0,lat0,lon1,lat1") resolves the place, writes
+data/worlds/<slug>/world.yaml and offsim/worlds/<slug>.yaml (if absent), then fetches that world. `--modes` (default
+sea) implies flags: road/walk/bus => --osm; bus => --gtfs. `--gtfs` downloads the Entur national aggregated GTFS
+(NLOD; https://storage.googleapis.com/marduk-production/outbound/gtfs/rb_norway-aggregated-gtfs.zip, unverified live;
+large, cached once outside the world zip) and clips it to the bbox with offsim.transit.gtfs.clip -> <out>/gtfs/.
+`--gtfs-zip FILE` uses a local zip instead of downloading.
+
 Depth (`--depth`, docs/VISUAL_SPEC.md §2) additionally downloads raw DEM tiles into <out>/dem_raw/ plus
 dem_raw/sources.json (the source list merge_dem takes); the workflow publishes them as release `world-<name>-dem-raw`.
 Process them anywhere with `python -m offsim.worlds.depth --world <name> --tier fjord`.
@@ -45,10 +56,13 @@ from pathlib import Path
 
 import yaml
 
+from offsim.worlds import place as placemod
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 OVERPASS = "https://overpass-api.de/api/interpreter"
 SODIR = "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer"
+ENTUR_GTFS = "https://storage.googleapis.com/marduk-production/outbound/gtfs/rb_norway-aggregated-gtfs.zip"
 UA = {"User-Agent": "offshore-simulations (github.com/Astheno-sphere/offshore_simulations)"}
 
 
@@ -153,6 +167,30 @@ def fetch_osm(cfg, out, pbf=None):
     return osm.build_osm_layers(pbf, cfg["bbox"], Path(out) / "osm", source_url=url)
 
 
+def plan_layers(modes):
+    """Modes -> what the fetcher must do: {'modes', 'osm', 'gtfs', 'sea', 'layers'}. road/walk/bus => osm; bus => gtfs;
+    air => osm (helipads); sea => coast/sealanes (land coastline is always fetched)."""
+    modes = placemod.check_modes(modes)
+    return {"modes": modes, "osm": bool({"road", "walk", "bus", "air"} & set(modes)), "gtfs": "bus" in modes,
+            "sea": "sea" in modes, "layers": placemod.layers_for(modes)}
+
+
+def fetch_gtfs(cfg, out, zip_path=None, url=ENTUR_GTFS):
+    """Entur aggregated GTFS (downloaded once to a cache dir outside the world zip, or local `zip_path`) clipped to the
+    bbox by offsim.transit.gtfs.clip -> out/gtfs/. Returns a manifest source entry. Fails early with a clear message
+    when offsim.transit.gtfs does not exist (checked BEFORE the large download)."""
+    try:
+        from offsim.transit import gtfs as gtfs_mod
+    except ImportError as ex:
+        raise RuntimeError("--gtfs needs offsim/transit/gtfs.py (clip(zip_path, bbox, out_dir) -> dict), which is not "
+                           f"present in this checkout ({ex}); pull the transit module first") from ex
+    if zip_path is None:
+        zip_path = download(url, Path(out).resolve().parent / "_gtfs_cache" / url.rsplit("/", 1)[-1])
+    stats = gtfs_mod.clip(str(zip_path), tuple(cfg["bbox"]), str(Path(out) / "gtfs"))
+    return {"name": "Entur national aggregated GTFS (clipped to bbox by offsim.transit.gtfs)", "licence": "NLOD 2.0",
+            "credit": "Source: Entur (NLOD)", "url": url, "dir": "gtfs/", "stats": stats}
+
+
 def fetch_ais(cfg, out, path):
     """HAIS file -> out/ais/calibration.json (+ port_calls.csv). Returns the calibration dict."""
     from offsim.traffic import ais
@@ -161,7 +199,7 @@ def fetch_ais(cfg, out, path):
                             ship_types=cfg.get("ais_ship_types"), area=cfg.get("ais_area", cfg.get("name", "world")))
 
 
-def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None):
+def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None, gtfs=False, gtfs_zip=None):
     cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
     out.mkdir(parents=True, exist_ok=True)
     man = {"world": world, "bbox": cfg["bbox"], "fetched_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "sources": []}
@@ -181,6 +219,8 @@ def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None
         om = fetch_osm(cfg, out, osm_pbf)
         man["sources"].append({"name": om["name"], "licence": om["licence"], "credit": om["credit"],
                                "layers": {k: v["features"] for k, v in om["layers"].items()}, "dir": "osm/"})
+    if gtfs or gtfs_zip:
+        man["sources"].append(fetch_gtfs(cfg, out, gtfs_zip))
     if ais_path:
         cal = fetch_ais(cfg, out, ais_path)
         man["sources"].append({"name": "Kystverket Historic AIS (HAIS), processed by offsim.traffic", "licence": "NLOD 2.0",
@@ -400,12 +440,31 @@ if __name__ == "__main__":
     ap.add_argument("--osm-pbf", metavar="FILE", help="use this local .osm.pbf instead of downloading (implies --osm)")
     ap.add_argument("--ais", metavar="PATH", help="process a Kystverket HAIS GeoParquet/CSV into ais/calibration.json")
     ap.add_argument("--depth-only", action="store_true", help="fetch only the raw DEM (skip OSM/Sodir)")
+    ap.add_argument("--place", metavar="NAME", help='resolve a place ("Ålesund", a stedsnavn name, or "lon0,lat0,lon1,lat1") '
+                    "and write data/worlds/<slug>/world.yaml + offsim/worlds/<slug>.yaml (if absent); fetch that world")
+    ap.add_argument("--modes", default=None, help="comma list of sea,road,bus,walk,air (default sea for --place); "
+                    "road/walk/bus/air imply --osm, bus implies --gtfs")
+    ap.add_argument("--radius-km", type=float, default=None, help="half-width of the --place box in km (default: gazetteer / 15)")
+    ap.add_argument("--gtfs", action="store_true", help="download Entur aggregated GTFS and clip it to the bbox -> <out>/gtfs")
+    ap.add_argument("--gtfs-zip", metavar="FILE", help="use this local GTFS zip instead of downloading (implies --gtfs)")
     a = ap.parse_args()
     if a.pull:
         pull(a.pull, a.out, raw_dem=a.depth)
     else:
-        dest = Path(a.out or ROOT / "data/worlds" / a.world)
+        world, modes = a.world, a.modes
+        if a.place:
+            pl = placemod.resolve(a.place, radius_km=a.radius_km)
+            world = placemod.slugify(pl.name if pl.name != "bbox" else f"bbox-{pl.lon:.2f}-{pl.lat:.2f}")
+            wdir = Path(a.out or ROOT / "data/worlds" / world)
+            placemod.write_world_spec(pl, modes or "sea", wdir / "world.yaml", depth=a.depth or a.depth_only, name=world)
+            if not (HERE / f"{world}.yaml").exists():
+                placemod.write_world_spec(pl, modes or "sea", HERE / f"{world}.yaml", depth=a.depth or a.depth_only, name=world)
+        if not world:
+            ap.error("one of --world, --place or --pull is required")
+        plan = plan_layers(modes or placemod.load_world_spec(HERE / f"{world}.yaml")["modes"])
+        dest = Path(a.out or ROOT / "data/worlds" / world)
         if not a.depth_only:
-            fetch(a.world, dest, a.metocean, osm=a.osm, osm_pbf=a.osm_pbf, ais_path=a.ais)
+            fetch(world, dest, a.metocean, osm=a.osm or plan["osm"], osm_pbf=a.osm_pbf, ais_path=a.ais,
+                  gtfs=a.gtfs or plan["gtfs"], gtfs_zip=a.gtfs_zip)
         if a.depth or a.depth_only:
-            fetch_depth(a.world, dest)
+            fetch_depth(world, dest)

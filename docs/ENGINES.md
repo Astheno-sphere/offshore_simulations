@@ -20,6 +20,8 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
 | `openclsim` | OpenCLSim (TU Delft, Deltares, Van Oord) | cyclic vessel logistics: load, sail, unload under weather windows | native (`HasWeatherPluginActivity`) | MIT |
 | `wombat` | WOMBAT (NREL) | offshore-wind O&M: failures, CTV/SOV/jack-up dispatch, availability | native (hourly series) | Apache-2.0 |
 | `orbit` | ORBIT (NREL) | offshore-wind installation: WTIV, feeders, port, weather delays | native (hourly series) | Apache-2.0 |
+| `road` | our SimPy replay on OSM roads (networkx graph) | land legs: trucks, vans, workers driving to a depot, quay or heliport | none | ours (networkx BSD-3, OSM ODbL data) |
+| `gtfs` | `offsim.transit.gtfs` (Entur national GTFS) | replaying bus / ferry / tram / rail timetables as agents (Molde/FRAM, Oslo/Ruter) | none | ours; data NLOD 2.0 |
 
 ### Common definitions
 - **Weather window**: an activity of duration *d* with limit *L* (e.g. Hs ≤ 2.5 m) starts only when the series
@@ -71,7 +73,48 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
 - **Limits:** phases with trajectories: Turbine, Monopile, Jacket, OffshoreSubstation installation; cables, scour, tow,
   mooring raise `Unsupported` — so floating wind (Utsira Nord, Hywind Tampen) is not yet representable; one straight leg.
 
+### gtfs
+- **Mapping:** `extra["gtfs"]` = {dir (GTFS folder from `offsim.transit.gtfs.clip`), date, t0, t1 (seconds on the service-day clock or
+  "HH:MM:SS", 24+ allowed), route_types?, sample_s?}; `problem.cls = {"TRANSIT-REPLAY"}`. The Plan is empty: the timetable *is* the plan
+  (non-empty routes raise `Unsupported`). One agent per trip (`agent_id = trip_id`; `~prev` suffix for previous-day trips running past midnight);
+  `cls` bus | ferry | rail | tram from `route_type` (basic and extended codes, e.g. 700, 1000, 1200; unknown types such as air or cable car are dropped
+  and counted); domain land, sea for ferry; `vmax` = 1.1 x observed stop-to-stop speed.
+- **Positions:** along the trip's shape (`shape_dist_traveled` when complete, else stops projected forward onto the polyline); no shape = straight between stops.
+- **Contract:** `drive` (`sail` for ferry) when moving, `wait` while dwelling (arrival != departure) and at the terminus; a row at every stop arrival
+  and departure plus a `sample_s` grid; `idle` never. Events: one `dwell` per stop with dwell.
+- **KPIs:** `trips, vehicle_km, peak_vehicles, mean_headway_s` (gap between trip starts, whole network; per-stop headway: `gtfs.headways`), plus
+  `distance_km, makespan_s, wait_s`, `weather_wait_s = 0`.
+- **Limits:** scheduled times only (no delays, real-time or cancellations); `frequencies.txt` not expanded; missing stop times are interpolated by distance and
+  zero-time hops floored at 1 s (counted in `meta["dropped"]`); ferries without a shape run straight and may cross land, so give `World.land` to `validate`;
+  no weather. `clip` keeps whole trips with >= 2 in-bbox stops, so long-distance trips pull in stops outside the box.
+
+### road
+- **Mapping:** same as `replay` (Plan.routes, fleet, `service_s`/`tw`/`demand`, `extra["berths"]`), with agents of domain `land`
+  and moving state `drive`. `World.legs` = `offsim.worlds.roads.RoadGraph.legs` (fastest route on the OSM `roads` layer,
+  snapped to the nearest road, one-way streets respected, DIRECTED legs: a missing used leg raises `Unsupported`, the reverse
+  leg is never a stand-in). Time comes from `extra["road_leg_profile"]` (seconds at every vertex) or, coarser, `extra["road_time_s"]`;
+  with neither the engine raises `Unsupported`. The pipeline switches to this graph/engine when a fleet has `domain: land` or the
+  scenario sets `world_mode: road`, reading `data/worlds/<world>/osm/roads.geojson` (missing: stop at gate 0 with
+  `python -m offsim.worlds.fetch_world --place <world> --modes road`).
+- **Speeds:** OSM `maxspeed` where tagged, else a class default (50 residential, 80 rural classes, 90 motorway, 30 service/track;
+  the Statens vegvesen general limits 50/80/90/110 km/h, Vegtrafikkloven / skiltforskriften, "general limits, not verified per
+  road"), all listed as assumptions with the share of edges that used them. Fleet `speed_mps` is a top speed: the vehicle drives at
+  min(road speed, fleet speed) on every hop; `meta["speed_cap_applied"]` says when that lengthened a leg beyond the solver's time matrix.
+- **How:** `offsim/sim/replay.py` is unchanged (one speed per agent). Each used leg is replayed in time-equivalent space (hop
+  length = hop seconds x 25 m/s) and the moving rows are mapped back onto the road polyline, so waits, time windows and berth queues run
+  on the real-seconds clock and every road vertex appears in the trajectory.
+- **KPIs:** `distance_km, makespan_s, wait_s, weather_wait_s = 0`; `meta["drive_s"]`. Distances are sphere-based (contract), the graph
+  uses WGS84: about 0.3 % apart at 62 N, inside gate 2's 1 %.
+- **Gate 4b (AIS):** a scenario with `validate: {ais: true}` runs `offsim.traffic.ais.compare_to_sim` against
+  `data/worlds/<world>/ais/calibration.json` (simulated speeds in knots, port-call dwell for places the calibration lists); a failure, or a
+  calibration that judges nothing, stops the run at `4b_ais`; no calibration file stops at gate 0 with the fetch hint. AIS describes
+  ships: use it on road runs only for a calibration you built for that purpose.
+- **Limits:** free-flow speed at the limit; no congestion, signals, turn restrictions or penalties, access=private, vehicle weight/height,
+  ferries; the roads layer must be noded at junctions (pyrosm/osmnx output is). Snapping uses the largest strongly connected component
+  and refuses points farther than `max_snap_m` (default 2000 m) from it. Two parallel roads between the same junctions: the faster one routes.
+  No weather (a series is ignored and noted). One `speed_mps` per run (mixed speeds raise). CVRP, VRPTW.
+
 ## Choosing
 PSV supply / ferry / crew boat with a routing plan → `replay` for gate 2, `openclsim` for the ensemble.
-Wind O&M → `wombat`. Wind installation → `orbit`. Two engines on the same small instance must agree on
+Land legs on roads (trucks, vans, workers) → `road`. Wind O&M → `wombat`. Wind installation → `orbit`. Two engines on the same small instance must agree on
 deterministic KPIs within 1% (`tests/test_engine_crosscheck.py`) before either is trusted on a large one.

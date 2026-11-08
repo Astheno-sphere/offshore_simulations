@@ -1,0 +1,22 @@
+{
+  "metadata": {"totaltAntallTreff": 2, "side": 1, "treffPerSide": 5, "viserFra": 1, "viserTil": 2, "sokeStreng": "sok=Namsos&fuzzy=false&utkoordsys=4258&treffPerSide=5"},
+  "navn": [
+    {
+      "stedsnummer": 123456,
+      "navneobjekttype": "Tettsted",
+      "stedstatus": "aktiv",
+      "språk": "Norsk",
+      "kommuner": [{"kommunenummer": "5007", "kommunenavn": "Namsos"}],
+      "fylker": [{"fylkesnummer": "50", "fylkesnavn": "Trøndelag"}],
+      "stedsnavn": [{"skrivemåte": "Namsos", "skrivemåtestatus": "godkjent", "språk": "Norsk"}],
+      "representasjonspunkt": {"koordsys": 4258, "nord": 64.46667, "øst": 11.5}
+    },
+    {
+      "stedsnummer": 654321,
+      "navneobjekttype": "Gard",
+      "kommuner": [{"kommunenummer": "5005", "kommunenavn": "Namsskogan"}],
+      "stedsnavn": [{"skrivemåte": "Namsosvegen", "skrivemåtestatus": "godkjent"}],
+      "representasjonspunkt": {"koordsys": 4258, "nord": 64.9, "øst": 12.1}
+    }
+  ]
+}

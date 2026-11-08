@@ -6,10 +6,22 @@ on:
     inputs:
       world:
         description: "offsim/worlds/<name>.yaml"
-        required: true
+        required: false
         default: oslofjord
         type: choice
         options: [oslofjord, north-sea-stavanger]
+      place:
+        description: "Optional: any Norwegian place (gazetteer key, Kartverket stedsnavn, or 'lon0,lat0,lon1,lat1'). Overrides 'world'; writes world spec v2 and releases world-<slug>"
+        required: false
+        default: ""
+      modes:
+        description: "With place: comma list of sea,road,bus,walk,air (road/walk/bus/air imply OSM, bus implies Entur GTFS)"
+        required: false
+        default: "sea"
+      radius_km:
+        description: "With place: half-width of the box in km (empty = gazetteer default, 15 km otherwise)"
+        required: false
+        default: ""
       metocean_start:
         description: "Optional: metocean start, UTC ISO (e.g. 2024-01-10T00:00). Empty = no weather data. NorKyst v3 only 2012-01-05..2025-12-31"
         required: false
@@ -45,8 +57,20 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.12", cache: pip}
       - run: pip install geopandas shapely pyproj pyyaml numpy xarray netCDF4 scipy
+      - name: Resolve world name
+        id: w
+        env:
+          PLACE: ${{ inputs.place }}
+          WORLD: ${{ inputs.world }}
+        run: |
+          if [ -n "$PLACE" ]; then
+            slug=$(python -c "import sys; from offsim.worlds.place import slugify; print(slugify(sys.argv[1]))" "$PLACE")
+          else
+            slug="$WORLD"
+          fi
+          echo "name=$slug" >> "$GITHUB_OUTPUT"
       - name: Install OSM/AIS readers
-        if: ${{ inputs.osm || inputs.ais_url != '' }}
+        if: ${{ inputs.osm || inputs.ais_url != '' || inputs.place != '' || inputs.modes != 'sea' }}
         run: pip install -r requirements-gis.txt pandas pyarrow
       - name: Fetch
         env:
@@ -54,15 +78,24 @@ jobs:
           MO_HOURS: ${{ inputs.metocean_hours }}
           WITH_OSM: ${{ inputs.osm }}
           AIS_URL: ${{ inputs.ais_url }}
+          PLACE: ${{ inputs.place }}
+          MODES: ${{ inputs.modes }}
+          RADIUS: ${{ inputs.radius_km }}
         run: |
           args=""
+          if [ -n "$RADIUS" ]; then args="$args --radius-km $RADIUS"; fi
+          if [ -n "$PLACE" ]; then args="$args --modes $MODES"; fi
           if [ -n "$MO_START" ]; then args="$args --metocean $MO_START $MO_HOURS"; fi
           if [ "$WITH_OSM" = "true" ]; then args="$args --osm"; fi
           if [ -n "$AIS_URL" ]; then
             curl -fsSL -o hais_input "$AIS_URL"
             args="$args --ais hais_input"
           fi
-          python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world $args
+          if [ -n "$PLACE" ]; then
+            python -m offsim.worlds.fetch_world --place "$PLACE" --out world $args
+          else
+            python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world $args
+          fi
       - name: BarentsWatch latest positions (only when the secrets exist)
         env:
           BW_CLIENT_ID: ${{ secrets.BW_CLIENT_ID }}
@@ -71,30 +104,30 @@ jobs:
         run: |
           mkdir -p world/ais
           python -m offsim.traffic.barentswatch --latest world/ais/barentswatch_latest.json
-      - name: Publish release world-${{ inputs.world }}
+      - name: Publish release world-${{ steps.w.outputs.name }}
         env: {GH_TOKEN: "${{ github.token }}"}
         run: |
-          cd world && zip -q -r ../world-${{ inputs.world }}.zip . && cd ..
-          tag=world-${{ inputs.world }}
+          cd world && zip -q -r ../world-${{ steps.w.outputs.name }}.zip . && cd ..
+          tag=world-${{ steps.w.outputs.name }}
           notes="Fetched $(date -u +%FT%TZ) from ${GITHUB_REF_NAME}. Licences and credits: manifest.json inside the zip."
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "$tag.zip" --clobber && gh release edit "$tag" --notes "$notes"
           else
-            gh release create "$tag" "$tag.zip" --title "World: ${{ inputs.world }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+            gh release create "$tag" "$tag.zip" --title "World: ${{ steps.w.outputs.name }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
           fi
       - name: Fetch raw DEM (after the main zip, so dem_raw stays out of it)
         if: ${{ inputs.depth }}
         timeout-minutes: 40
-        run: python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world --depth-only
-      - name: Publish release world-${{ inputs.world }}-dem-raw
+        run: python -m offsim.worlds.fetch_world --world ${{ steps.w.outputs.name }} --out world --depth-only
+      - name: Publish release world-${{ steps.w.outputs.name }}-dem-raw
         if: ${{ inputs.depth }}
         env: {GH_TOKEN: "${{ github.token }}"}
         run: |
-          tag=world-${{ inputs.world }}-dem-raw
+          tag=world-${{ steps.w.outputs.name }}-dem-raw
           (cd world && zip -q -r ../$tag.zip dem_raw)
-          notes="Raw DEM fetched $(date -u +%FT%TZ). Sources, licences and datums: dem_raw/sources.json. Process with: python -m offsim.worlds.depth --world ${{ inputs.world }} --tier <fjord|port|shelf>"
+          notes="Raw DEM fetched $(date -u +%FT%TZ). Sources, licences and datums: dem_raw/sources.json. Process with: python -m offsim.worlds.depth --world ${{ steps.w.outputs.name }} --tier <fjord|port|shelf>"
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "$tag.zip" --clobber && gh release edit "$tag" --notes "$notes"
           else
-            gh release create "$tag" "$tag.zip" --title "Raw DEM: ${{ inputs.world }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+            gh release create "$tag" "$tag.zip" --title "Raw DEM: ${{ steps.w.outputs.name }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
           fi

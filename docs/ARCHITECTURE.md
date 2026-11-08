@@ -77,6 +77,41 @@ tool breaks only itself. `python -c "from offsim.engines import available; print
 | `sim-narrator` | L5 | captions/post from report refs only |
 | `tool-scout` | all | keeps `catalog/tools.yaml` honest (evidence or demote) |
 
+## Worlds v2
+
+A world is no longer a hand-written sea bbox: any place in Norway, for any mix of modes. Code: `offsim/worlds/place.py`
+(resolve, spec I/O) and `offsim/worlds/fetch_world.py` (fetch). Data comes in through the `fetch-world` workflow
+(inputs `place`, `modes`, `radius_km`) or on a laptop; this workspace cannot reach the hosts.
+
+```yaml
+version: 2
+name: alesund                          # slug = offsim/worlds/<name>.yaml = release world-<name>
+place: {name: Ålesund, lon: 6.15, lat: 62.47, source: "approx centre (Claude, unverified); refine via stedsnavn"}
+bbox: [west, south, east, north]       # WGS84; from the centre and radius with a cos(lat) correction
+modes: [sea, road, bus]                # any non-empty subset of sea | road | bus | walk | air
+layers: [land, coast, sealanes, quays, ferry, roads, gtfs]   # derived from modes (place.layers_for)
+osm_land: true                         # v1 keys (sodir_keywords, depth, manual, ais_*, osm_pbf_url) pass through
+```
+
+| Mode | Layers | Source |
+|---|---|---|
+| (always) | `land` | OSM coastline (Overpass) |
+| sea | `coast`, `sealanes`, `quays`, `ferry` (+ `depth` on request) | OSM, `offsim.worlds.sealanes`, EMODnet / Kartverket DTM |
+| road, walk | `roads` | OSM via Geofabrik extract (`--osm`) |
+| bus | `roads` + `gtfs` | OSM + Entur national aggregated GTFS (NLOD), clipped by `offsim.transit.gtfs.clip` (`--gtfs`) |
+| air | `helipads` | OSM `aeroway=helipad|heliport` (aerodromes are not an OSM layer yet) |
+
+Resolution (`place.resolve`): `"lon0,lat0,lon1,lat1"` bbox, else a built-in gazetteer key (about 20 logistics places,
+case- and diacritics-insensitive, centres flagged *approx, unverified*), else the Kartverket stedsnavn API
+(CC BY 4.0, unverified live). Clients take an injectable `fetch(url) -> bytes` and are tested against fixtures.
+
+`load_world_spec(path)` returns a v2-normalised dict for any YAML: a v1 file (no `version`) becomes `modes: [sea]`
+with `place` taken from the bbox centre, so existing worlds keep working unchanged.
+
+CLI: `python -m offsim.worlds.fetch_world --place Ålesund --modes sea,road,bus --radius-km 20`. Modes imply flags
+(`plan_layers`): road/walk/bus/air => `--osm`; bus => `--gtfs`. `--place` writes `data/worlds/<slug>/world.yaml` and
+`offsim/worlds/<slug>.yaml` if absent; the spec is not data and may be committed, the fetched package is never committed.
+
 ## Visual grade
 See `docs/STYLE_REFERENCE.md`: the section + map diptych, physics-driven texture, real-data map, editorial frame,
 method line from provenance. Palette data in `offsim/cinema/look.py` (`PALETTES`).

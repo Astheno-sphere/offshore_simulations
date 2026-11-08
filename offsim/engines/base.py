@@ -126,7 +126,8 @@ def register_engine(name: str):
 SOLVER_MODULES = {"pyvrp": "offsim.solve.pyvrp_solver", "pyomo": "offsim.solve.pyomo_solver",
                   "ampl": "offsim.solve.ampl_adapter"}
 ENGINE_MODULES = {"replay": "offsim.engines.replay_engine", "openclsim": "offsim.engines.openclsim_adapter",
-                  "wombat": "offsim.engines.wombat_adapter", "orbit": "offsim.engines.orbit_adapter"}
+                  "wombat": "offsim.engines.wombat_adapter", "orbit": "offsim.engines.orbit_adapter",
+                  "road": "offsim.engines.road_engine", "gtfs": "offsim.engines.gtfs_engine"}
 
 
 def _load(name, registry, modules, kind):
