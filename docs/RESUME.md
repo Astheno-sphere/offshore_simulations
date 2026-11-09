@@ -4,6 +4,13 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-09 — CAD-grade assets + helicopter simulation (IN PROGRESS until this says done)
+Contract written: `offsim/assets/cad/base.py` (exact solids, real scale, sourced dims; registry). requirements-cad.txt
+(cadquery, build123d, OCP = OpenCASCADE, Apache-2.0). Agents (none commit): D drawing.py (HLR line classes) + qa.py +
+registry.yaml + story `asset:` hook; M marine.py (psv, platform_jacket) + air.py (s92, aw189); L land.py (bus, train,
+person, tree, building); H solve/whelp.py + ampl/whelp.mod + engines/air_engine.py + paper scenario (WFPPP).
+If interrupted: git status; pytest; finish per docstrings; merge catalog/docs; commit.
+
 ## 2026-11-08 (night) — audit-5 fixes wired (done)
 `offsim run` drives every registered solver/engine (pyvrp, pyomo, ampl; replay, road, openclsim, wombat, orbit, gtfs)
 via scenario `solver:`/`engine:`; gates 0, 1, 1b_exact (`certify:`), 2, 3, 3e_ensemble (`ensemble:`), 4, 4b (AIS),
