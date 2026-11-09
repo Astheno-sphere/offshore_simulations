@@ -91,3 +91,26 @@ What still separates us from the reference, as rules with the tool that delivers
     ghost tracks under the simulated run.
 17. **Typography**: one geometric sans (bold caps headline, regular deck, small caps kicker); no more than 3 sizes per
     frame plus the methods line. Install an open font (e.g. Montserrat or Inter, OFL) instead of DejaVu.
+
+## CAD assets (2026-11-09)
+Vessels, aircraft, vehicles, people, trees and buildings are exact solids at real scale, drawn as hidden-line projections
+(Rhino Make2D look), not hand-placed primitives. Code: `offsim/assets/cad/` (contract `base.py`, engine `drawing.py`,
+gate `qa.py`, status `registry.yaml`).
+1. **Exact solids, real scale**: one CadQuery/build123d solid per asset in metres, axes per `base.py` (x forward, y port,
+   z up, origin at keel/ground), named parts (hull, house, rotor, ...). Never scale a drawing to "look right".
+2. **Projection**: `drawing.project(model, view)` runs OpenCASCADE HLR (exact visibility, parts occlude each other).
+   Views: side (bow right), front, top, iso, or any vector. Cache per (asset, params, view) in `out/cache/cad/`
+   (`project_cached`); films never run HLR per frame. Pitch/heave/roll = 2D transform of the cached drawing
+   (`Drawing.transformed`), valid to ~5 degrees about non-view axes; re-project beyond that.
+3. **Line classes and weights** (px at 1x, same hierarchy as rule 2): outline 2.4 (silhouette), visible 1.3 (sharp and
+   turning edges per part), detail 0.8 (smooth/seam edges, muted), hidden 0.6 dashed (only with `show_hidden`), section 2.8
+   (cut contours from `drawing.section`). Colours from `look.PALETTES` (ink, muted); per-part colour/weight via style.
+4. **LOD by drawn size**: lines shorter than 0.75 px on screen are dropped and counted (`draw()` returns the stats);
+   a film uses an asset only at a size where `qa` reports LOD >= 2 and edge density >= the gate (starting value 10
+   polylines per 100 px of drawn height; tune against the reference). Far away = silhouette + outline only.
+5. **QA gate** (`qa.qa`, `qa.passes`, enforced by `story.check` on any shot with `asset: {name, params, view,
+   drawn_height_px}`): every measurable principal dim within 1 % of the solid's bounding box, all registry-required dims
+   present, at least one principal dim sourced. An asset whose principal dims are all `assumption: true` is refused.
+6. **Sources**: each principal dim carries `src` (class drawing, manufacturer data sheet, paper table, standard) with
+   page/table; unsourced = `assumption: true` and listed in the QA report and on screen. External meshes need licence +
+   source in `meta`. No hand-drawn outlines next to CAD assets in the same frame.

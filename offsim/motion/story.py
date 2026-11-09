@@ -80,6 +80,17 @@ def load_weather(shot):
     return pd.read_csv(ROOT / shot["weather_csv"]) if shot.get("weather_csv") else None
 
 
+def asset_problems(asset):
+    """Refusals for a shot's `asset: {name, params, view, drawn_height_px?}`: builds the CAD asset and runs the QA gate."""
+    if not isinstance(asset, dict) or not asset.get("name"):
+        return [f"asset must be a mapping with a name, got {asset!r}"]
+    try:
+        from offsim.assets.cad import qa
+    except Exception as e:                       # cadquery / OCP missing
+        return [f"asset {asset['name']!r}: CAD stack not importable ({type(e).__name__}: {e})"]
+    return qa.gate(asset["name"], asset.get("params"), asset.get("drawn_height_px"))
+
+
 def check(sb, report):
     """Narration gate + refs + tools. Returns a list of problems (empty = go)."""
     probs = []
@@ -95,6 +106,8 @@ def check(sb, report):
     have = tools()
     for i, shot in enumerate(sb["shots"]):
         st = shot_type(shot)
+        if shot.get("asset"):                    # CAD asset gate: dims within 1 %, >= 1 principal dim sourced (cad/qa.py)
+            probs += [f"shot {i}: {p}" for p in asset_problems(shot["asset"])]
         if st not in SHOT_TYPES:
             probs.append(f"shot {i}: unknown type {shot.get('type')!r}; have {list(SHOT_TYPES)}")
             continue

@@ -4,7 +4,19 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
-## 2026-11-09 — CAD-grade assets + helicopter simulation (IN PROGRESS until this says done)
+## 2026-11-09 — HALTED by Arshad (weekly limit). Branch `wip/cad-assets-heli`, not merged to main.
+State: 445 pass, 5 fail, 5 skip. Built: cad/drawing.py (HLR line classes, cache), qa.py (scale/detail gate),
+registry.yaml, story `asset:` hook, land.py (bus, train, person, tree, building; 27 tests pass), marine.py (psv,
+platform_jacket) + air.py (s92, aw189) (agent finished; report lost: re-check dims/sources in module docstrings),
+solve/whelp.py + ampl/whelp.mod + engines/air_engine.py + paper scenarios (agent killed mid-work; pipeline.py edited).
+Failing, fix first next session:
+  - tests/test_engines_core.py::test_registry_lists_every_tool_we_ship (add "air" to expected engines)
+  - tests/test_cad_drawing.py::test_story_check_gates_asset_shots
+  - tests/test_whelp.py: infeasible-window, storm-day cancels/rebooks, rebooked-rules (air engine incomplete)
+Then: catalog entries (cadquery, build123d, OCP; whelp, air), requirements-cad in CI, registry status -> built/qa-pass,
+review the pipeline.py diff from the killed agent, merge to main. Goal reminder: build the machine, do not run studies.
+
+## 2026-11-09 — CAD-grade assets + helicopter simulation (superseded by the HALTED entry above)
 Contract written: `offsim/assets/cad/base.py` (exact solids, real scale, sourced dims; registry). requirements-cad.txt
 (cadquery, build123d, OCP = OpenCASCADE, Apache-2.0). Agents (none commit): D drawing.py (HLR line classes) + qa.py +
 registry.yaml + story `asset:` hook; M marine.py (psv, platform_jacket) + air.py (s92, aw189); L land.py (bus, train,

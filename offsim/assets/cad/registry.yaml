@@ -1,0 +1,69 @@
+# CAD asset registry. One entry per asset registered in offsim/assets/cad/base.py (MODULES).
+#
+# schema (every key required unless marked optional):
+#   <name>:
+#     class:         vessel | aircraft | vehicle | person | tree | building | structure   (base.AssetModel.meta["class"])
+#     status:        planned | built | qa-pass
+#                      planned  = no module yet
+#                      built    = module exists, builds a solid, QA not (yet) passing
+#                      qa-pass  = qa.qa(...) passes: dims within 1 %, >= 1 required dim sourced (set by hand after running
+#                                 `python -m offsim.assets.cad.qa <name>`; story.check re-runs the gate regardless)
+#     required_dims: principal dimensions; the asset must provide ALL of them (each {value, src} or {value, assumption: true}),
+#                    and at least ONE must be sourced (src) for a film to use the asset
+#     measure:       (optional) {dim: {axis: x|y|z|xy, part: <substring of a part name>}} overrides how qa measures a dim
+#     min_lod:       (optional) minimum LOD for films (base.py: 1 silhouette, 2 structure, 3 detail); default 2
+#     module:        (optional) module that registers it; base.MODULES is authoritative
+#     notes:         (optional) free text, e.g. the class drawing / data sheet to source from
+psv:
+  class: vessel
+  status: planned
+  required_dims: [loa_m, beam_m, depth_m, draught_m]
+  notes: "Platform supply vessel; source from a class drawing / owner data sheet (UT 755-type is ~85 m LOA)."
+platform_jacket:
+  class: structure
+  status: planned
+  required_dims: [height_m, base_width_m, deck_width_m]
+  notes: "Fixed steel jacket + topside; source from a field development plan or Sodir fact page."
+s92:
+  class: aircraft
+  status: planned
+  required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
+  measure:
+    fuselage_length_m: {axis: x, part: fuselage}
+    rotor_diameter_m: {axis: xy, part: rotor}
+  notes: "Sikorsky S-92A: manufacturer data sheet."
+aw189:
+  class: aircraft
+  status: planned
+  required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
+  measure:
+    fuselage_length_m: {axis: x, part: fuselage}
+    rotor_diameter_m: {axis: xy, part: rotor}
+  notes: "Leonardo AW189: manufacturer data sheet."
+bus:
+  class: vehicle
+  status: planned
+  required_dims: [length_m, width_m, height_m]
+  notes: "City bus (12 m, 2.55 m wide); source from the operator fleet sheet or the Vegvesen vehicle regulation."
+train:
+  class: vehicle
+  status: planned
+  required_dims: [length_m, width_m, height_m]
+  notes: "Per vehicle car; source from the manufacturer / operator data sheet."
+person:
+  class: person
+  status: planned
+  required_dims: [stature_m]
+  min_lod: 1
+  notes: "Scale figure; stature from an anthropometric table (cite it)."
+tree:
+  class: tree
+  status: planned
+  required_dims: [height_m, crown_diameter_m]
+  min_lod: 1
+  notes: "Species-typical height and crown from a forestry reference."
+building:
+  class: building
+  status: planned
+  required_dims: [length_m, width_m, height_m]
+  notes: "Footprint and height from the cadastre / OSM tags (cite which)."

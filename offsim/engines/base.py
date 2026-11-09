@@ -124,10 +124,11 @@ def register_engine(name: str):
 
 # module that registers each name; imported lazily so a missing optional dependency only breaks its own tool
 SOLVER_MODULES = {"pyvrp": "offsim.solve.pyvrp_solver", "pyomo": "offsim.solve.pyomo_solver",
-                  "ampl": "offsim.solve.ampl_adapter"}
+                  "ampl": "offsim.solve.ampl_adapter", "whelp": "offsim.solve.whelp"}
 ENGINE_MODULES = {"replay": "offsim.engines.replay_engine", "openclsim": "offsim.engines.openclsim_adapter",
                   "wombat": "offsim.engines.wombat_adapter", "orbit": "offsim.engines.orbit_adapter",
-                  "road": "offsim.engines.road_engine", "gtfs": "offsim.engines.gtfs_engine"}
+                  "road": "offsim.engines.road_engine", "gtfs": "offsim.engines.gtfs_engine",
+                  "air": "offsim.engines.air_engine"}
 
 
 def _load(name, registry, modules, kind):

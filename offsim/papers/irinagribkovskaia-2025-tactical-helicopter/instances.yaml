@@ -1,0 +1,315 @@
+paper: irinagribkovskaia-2025-tactical-helicopter
+instances:
+  floro:
+    heliport:
+      name: Florø
+      lon: 5.0247
+      lat: 61.5836
+      assumption: true
+    layout:
+    - name: F1
+      anchor: null
+      bearing_deg: 303.561
+      radius_nm: 95.416
+    - name: F2
+      anchor: F1
+      offset_nm:
+      - 11.118
+      - -3.742
+    - name: F3
+      anchor: null
+      bearing_deg: 274.987
+      radius_nm: 64.535
+    - name: F4
+      anchor: null
+      bearing_deg: 241.4
+      radius_nm: 66.672
+    positions:
+      F1:
+      - 2.0611
+      - 62.4611
+      F3:
+      - 2.69092
+      - 61.6604
+      F4:
+      - 2.94308
+      - 61.01768
+      F2:
+      - 2.46188
+      - 62.39873
+    calibration:
+      scale: 1.03438
+      cost: 9980.5
+      paper_cost: 9980
+      rel_gap: 5.0e-05
+      fleet_h:
+      - 10.0
+      paper_fleet_h:
+      - 10.0
+      evaluations: 25
+  stavanger:
+    heliport:
+      name: Stavanger
+      lon: 5.6378
+      lat: 58.8767
+      assumption: true
+    layout:
+    - name: S1
+      anchor: null
+      bearing_deg: 298.031
+      radius_nm: 98.887
+    - name: S2
+      anchor: null
+      bearing_deg: 249.925
+      radius_nm: 90.564
+    - name: S3
+      anchor: null
+      bearing_deg: 316.016
+      radius_nm: 99.236
+    - name: S4
+      anchor: null
+      bearing_deg: 256.385
+      radius_nm: 110.26
+    - name: S5
+      anchor: null
+      bearing_deg: 324.42
+      radius_nm: 94.211
+    - name: S6
+      anchor: null
+      bearing_deg: 285.43
+      radius_nm: 94.191
+    - name: S7
+      anchor: S6
+      offset_nm:
+      - 11.75
+      - -6.192
+    - name: S8
+      anchor: S2
+      offset_nm:
+      - -6.552
+      - -12.009
+    - name: S9
+      anchor: null
+      bearing_deg: 229.477
+      radius_nm: 92.509
+    - name: S10
+      anchor: null
+      bearing_deg: 270.038
+      radius_nm: 98.006
+    - name: S11
+      anchor: S10
+      offset_nm:
+      - -7.827
+      - -10.666
+    - name: S12
+      anchor: S6
+      offset_nm:
+      - 12.522
+      - 5.359
+    positions:
+      S1:
+      - 2.55783
+      - 59.66864
+      S2:
+      - 2.75416
+      - 58.29037
+      S3:
+      - 3.17281
+      - 60.12594
+      S4:
+      - 1.99686
+      - 58.36251
+      S5:
+      - 3.67126
+      - 60.22719
+      S6:
+      - 2.47007
+      - 59.28478
+      S9:
+      - 3.28777
+      - 57.78406
+      S10:
+      - 2.26294
+      - 58.83384
+      S7:
+      - 2.85348
+      - 59.18158
+      S8:
+      - 2.5464
+      - 58.09022
+      S11:
+      - 2.01087
+      - 58.65607
+      S12:
+      - 2.87867
+      - 59.37409
+    calibration:
+      scale: 1.06953
+      cost: 26011.67
+      paper_cost: 26642
+      rel_gap: -0.02366
+      fleet_h:
+      - 16.0
+      - 12.0
+      paper_fleet_h:
+      - 16.0
+      - 12.0
+      evaluations: 25
+  bergen:
+    heliport:
+      name: Bergen
+      lon: 5.2181
+      lat: 60.2934
+      assumption: true
+    layout:
+    - name: B1
+      anchor: null
+      bearing_deg: 254.038
+      radius_nm: 73.205
+    - name: B2
+      anchor: null
+      bearing_deg: 328.357
+      radius_nm: 95.959
+    - name: B3
+      anchor: null
+      bearing_deg: 323.825
+      radius_nm: 110.692
+    - name: B4
+      anchor: null
+      bearing_deg: 231.238
+      radius_nm: 111.169
+    - name: B5
+      anchor: B2
+      offset_nm:
+      - -0.24
+      - -12.463
+    - name: B6
+      anchor: B4
+      offset_nm:
+      - -0.671
+      - -9.901
+    - name: B7
+      anchor: null
+      bearing_deg: 276.097
+      radius_nm: 76.693
+    - name: B8
+      anchor: B1
+      offset_nm:
+      - 8.236
+      - 8.207
+    - name: B9
+      anchor: null
+      bearing_deg: 281.41
+      radius_nm: 80.924
+    - name: B10
+      anchor: null
+      bearing_deg: 268.973
+      radius_nm: 101.486
+    - name: B11
+      anchor: null
+      bearing_deg: 240.236
+      radius_nm: 94.009
+    - name: B12
+      anchor: null
+      bearing_deg: 296.596
+      radius_nm: 100.893
+    - name: B13
+      anchor: B10
+      offset_nm:
+      - -5.771
+      - -9.052
+    - name: B14
+      anchor: null
+      bearing_deg: 306.366
+      radius_nm: 94.11
+    - name: B15
+      anchor: null
+      bearing_deg: 245.949
+      radius_nm: 93.534
+    - name: B16
+      anchor: B15
+      offset_nm:
+      - 12.293
+      - 6.163
+    - name: B17
+      anchor: null
+      bearing_deg: 311.111
+      radius_nm: 93.908
+    - name: B18
+      anchor: null
+      bearing_deg: 222.014
+      radius_nm: 111.71
+    - name: B19
+      anchor: B18
+      offset_nm:
+      - -1.182
+      - -10.803
+    - name: B20
+      anchor: null
+      bearing_deg: 339.956
+      radius_nm: 74.062
+    positions:
+      B1:
+      - 2.8775574473753585
+      - 59.93732906566298
+      B2:
+      - 3.4527186967729886
+      - 61.64276154325783
+      B3:
+      - 2.9178540164246805
+      - 61.7625357147938
+      B4:
+      - 2.4057837595546765
+      - 59.103498417633816
+      B7:
+      - 2.6456973526617347
+      - 60.40429186360055
+      B9:
+      - 2.531593976794434
+      - 60.53310797193618
+      B10:
+      - 1.8139491085559323
+      - 60.219494934513534
+      B11:
+      - 2.5403390630217824
+      - 59.488593902412504
+      B12:
+      - 2.1166587613734964
+      - 61.01029993909548
+      B14:
+      - 2.5977489918747314
+      - 61.19765179686978
+      B15:
+      - 2.403678614776423
+      - 59.628213022116306
+      B17:
+      - 2.7637419343154432
+      - 61.299811989642194
+      B18:
+      - 2.807730575238539
+      - 58.88837772114123
+      B20:
+      - 4.333529361598378
+      - 61.44937210248698
+      B5:
+      - 3.44429706914445
+      - 61.435044876591164
+      B6:
+      - 2.384004643715812
+      - 58.93848175096715
+      B8:
+      - 3.151571813094582
+      - 60.07411239899631
+      B13:
+      - 1.6202960723081463
+      - 60.06862826784687
+      B16:
+      - 2.8088995195544384
+      - 59.73092968878297
+      B19:
+      - 2.7696045199717765
+      - 58.70832772114123
+note: 'Installation positions are MASKED in the paper (p.25: 50-120 nm from the heliport).
+  Everything under `layout`, `positions`, `calibration` is an ASSUMPTION produced
+  by offsim.solve.whelp.build_instances; demand, opening hours, window costs and results
+  are sourced in offsim.solve.whelp / scenario.yaml.'

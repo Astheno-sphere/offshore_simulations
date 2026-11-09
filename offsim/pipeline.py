@@ -53,10 +53,10 @@ ROOT = Path(__file__).resolve().parents[1]
 ROUTING = {"CVRP", "VRPTW"}       # classes that need a distance matrix / sea lanes / roads
 SELF_DISPATCH = {"wombat", "orbit", "gtfs"}          # engines that decide their own moves: gate 2 has no plan to compare
 DEFAULT_ENGINE = {"WIND-OM": "wombat", "WIND-INST": "orbit", "TRANSIT-REPLAY": "gtfs"}
-EXTRA_KEYS = ("wombat", "orbit", "orbit_geo", "gtfs", "limits", "berths", "weather_t0_s")   # sim.<k> | extra.<k> -> Problem.extra
+EXTRA_KEYS = ("wombat", "orbit", "orbit_geo", "gtfs", "limits", "berths", "weather_t0_s", "wfppp")   # sim.<k> | extra.<k> -> Problem.extra
 TOOL_PACKAGES = {"pyvrp": ("pyvrp",), "pyomo": ("pyomo", "highspy"), "ampl": ("amplpy",), "replay": ("simpy",),
                  "road": ("simpy",), "openclsim": ("openclsim", "simpy"), "wombat": ("wombat",),
-                 "orbit": ("orbit-nrel",), "gtfs": ()}
+                 "orbit": ("orbit-nrel",), "gtfs": (), "whelp": ("pyomo", "highspy"), "air": ()}
 
 
 def supported_classes():
@@ -571,11 +571,17 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
         routes, cost = [r for r in plan.routes.values() if r], float(plan.objective)
 
         # gate 1: plan re-checked outside the solver
-        served = sorted(c for r in routes for c in r)
-        loads = [sum(demand[c] for c in r) for r in routes]
-        if not stop("1_plan", served == sorted(demand) and max(loads, default=0) <= cap and len(routes) <= n_veh,
-                    {"routes": routes, "loads": loads, "capacity": cap, "objective_m": cost}):
-            return report
+        if "WFPPP" in classes:                  # weekly flight program: demand, windows, opening hours, overlaps, spread (offsim.solve.whelp)
+            from offsim.solve.whelp import check_program
+            ok1, d1 = check_program(problem, plan)
+            if not stop("1_plan", ok1, {**d1, "objective": cost}):
+                return report
+        else:
+            served = sorted(c for r in routes for c in r)
+            loads = [sum(demand[c] for c in r) for r in routes]
+            if not stop("1_plan", served == sorted(demand) and max(loads, default=0) <= cap and len(routes) <= n_veh,
+                        {"routes": routes, "loads": loads, "capacity": cap, "objective_m": cost}):
+                return report
 
         # gate 1b: exact certificate (opt-in)
         if cert:
@@ -596,7 +602,12 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
 
     # gate 2: replay = plan
     if follows_plan:
-        g2 = compare_to_paper({"distance_km": k["distance_km"]}, {"distance_km": {"value": cost / 1000, "rel_tol": 0.01}})
+        if "WFPPP" in classes:                  # the replay recomputes the program's flight-hour cost from the geometry (1e-6) and its flight count
+            g2 = compare_to_paper({a: res.kpis.get(a) for a in ("planned_variable_cost", "flights_planned_per_week")},
+                                  {"planned_variable_cost": {"value": plan.meta["variable_cost"], "rel_tol": 1e-6},
+                                   "flights_planned_per_week": {"value": len(plan.meta["program"]), "rel_tol": 0.0}})
+        else:
+            g2 = compare_to_paper({"distance_km": k["distance_km"]}, {"distance_km": {"value": cost / 1000, "rel_tol": 0.01}})
         if not stop("2_replay_equals_plan", bool(g2["pass"].all()), g2.to_dict("records")):
             return report
     else:

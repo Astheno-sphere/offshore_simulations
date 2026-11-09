@@ -11,6 +11,7 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
 | `pyvrp` | PyVRP 0.14 (HGS) | CVRP, VRPTW | heuristic | here | index traps handled in `pyvrp_adapter.py` |
 | `pyomo` | Pyomo + HiGHS | any MIP we write | exact (bound) | here | certifies heuristics on small instances |
 | `ampl` | AMPL academic + HiGHS/CBC | any `.mod` | exact (bound) | Actions, laptop | `.mod/.dat` live in the paper folder; Pyomo twin for cross-check |
+| `whelp` | Pyomo + HiGHS (decomposition) | WFPPP | exact (Stage 1 bound) | here | weekly helicopter flight program, Gribkovskaia & Slettemark 2025; AMPL twin `solve/ampl/whelp.mod` |
 
 ## Engines (L2: Plan → SimResult)
 
@@ -22,6 +23,7 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
 | `orbit` | ORBIT (NREL) | offshore-wind installation: WTIV, feeders, port, weather delays | native (hourly series) | Apache-2.0 |
 | `road` | our SimPy replay on OSM roads (networkx graph) | land legs: trucks, vans, workers driving to a depot, quay or heliport | none | ours (networkx BSD-3, OSM ODbL data) |
 | `gtfs` | `offsim.transit.gtfs` (Entur national GTFS) | replaying bus / ferry / tram / rail timetables as agents (Molde/FRAM, Oslo/Ruter) | none | ours; data NLOD 2.0 |
+| `air` | our replay of a weekly helicopter program | cancellation and rebooking of flights under hourly wind / Hs limits (lean-fleet-vs-winter) | hourly `wind_mps`, `hs_m`, required | ours |
 
 ### Common definitions
 - **Weather window**: an activity of duration *d* with limit *L* (e.g. Hs ≤ 2.5 m) starts only when the series
@@ -114,6 +116,48 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
   and refuses points farther than `max_snap_m` (default 2000 m) from it. Two parallel roads between the same junctions: the faster one routes.
   No weather (a series is ignored and noted). One `speed_mps` per run (mixed speeds raise). CVRP, VRPTW.
 
+### whelp (solver, WFPPP)
+- **Problem:** the Weekly Flight Program Planning Problem of Gribkovskaia & Slettemark (2025, Logistics 9(2):73, CC BY 3.0): one heliport, installations with weekly demand in
+  half-flights, helicopters with daily operating windows (fixed weekly cost), minimise fixed + flight-hour cost. Code `offsim/solve/whelp.py`; the module docstring
+  carries the equation map. `problem.extra["wfppp"]` (scenario `sim.wfppp`, passed by `pipeline.EXTRA_KEYS`): `slot_min, speed_kn, deck_min, turnaround_min,
+  split_threshold_min, flight_hour_cost, days, day_start, max_helicopters, windows [{hours, cost}], installations [{name, demand_flights, open "07:00-18:00", mobile}]`,
+  plus optional `method` (`decomposition` default | `full`), `time_limit_s` (default 120 per MIP) and, for the engine, `replay: {weeks}`. `nodes[0]` = heliport, `nodes[1:]` =
+  installations in that order. The instances live in `offsim/papers/irinagribkovskaia-2025-tactical-helicopter/instances.yaml`; `scenario.yaml` (Florø, default),
+  `scenario.stavanger.yaml`, `scenario.bergen.yaml` are generated from it (`python -m offsim.solve.whelp --instance bergen --write-scenario PATH`).
+- **Methods:** `decomposition` = Sec 5 (Stage 1 resources + flights per day without slots, Stage 2 start slots per day by min sum of starts, loop that upgrades the helicopter
+  with the cheapest next window or adds one); `full` = Sec 4.3 eqs (1)-(12) as one MIP (small instances; Florø about 40 s). Both on Pyomo + HiGHS; `ampl/whelp.mod` is the
+  same flight-based model for AMPL (`write_dat`; not runnable here).
+- **How the text was read** (each moves numbers; full list in the module docstring): cost = 140 x air time + deck stops in hours, turnaround NOT costed and times NOT rounded to slots
+  (Table 4 costs are not multiples of a slot); slots n_f = ceil((duration + 60 min) / 15 min) with the turnaround inside; opening hours constrain the DEPARTURE slot; at most one
+  flight to an installation STARTS per slot; the flight without its turnaround must fit the window (so a 10 h window holds 40 + 4 slots, as in the paper's fleet bound 220 = 44 x 5);
+  utilisation = flown slots incl. turnaround / window slots + 4 per day (Florø 191 / 220 = 86.82 %, Bergen 1036 / 1080 = 95.93 %: Table 4's Stavanger 86.82 % repeats Florø's and does
+  not fit this formula). Non-overlap is written as slot occupancy (equivalent to eqs 7 + 9).
+- **Plan:** `routes {"H1-16h": [node, ...]}` installations in program order; `objective` total cost (masked units); `meta["program"]` = flights `{heli, day (0 = Monday), start_slot (0 = 07:00),
+  installations, node_idx, duration_slots (turnaround included), fly_slots, duration_min, cost, kind, fid, window_h}`; `bound` = Stage 1 optimum of the first iteration (a valid lower bound);
+  `meta` also `iterations`, `utilisation`, `shift_gap_days` (days with an idle gap that opening hours forced), `direct_only_slots`, `wall_s`.
+- **Gate 1** for WFPPP is `whelp.check_program`: demand, windows, opening hours, overlap with turnaround, one start per installation and slot, spread, fleet size and cost, recomputed from the flight
+  records and the geometry. Gate 2 compares the replay's own recomputation of the program's flight-hour cost (haversine, 1e-6) and flight count with the plan.
+- **Positions are an assumption.** The paper masks them (p.25: 50-120 nm, direct flights 1-2.5 h). `design_layout` builds clusters (members 8-14 nm apart so splits exist) at seeded bearings
+  and radii; `calibrate` multiplies all cluster radii by one scale s: grid scan of s, then step halving around the best, objective |cost - Table 4| / Table 4 plus 1 when the window set differs
+  from Table 4 (cost is a step function of s: slots round up, windows jump). The record sits in `instances.yaml` under `calibration`. Florø is continuous in s, so its cost is matched by
+  construction; the checks that are NOT fitted are the fleet, the window, the 191 slots, the flight counts. Stavanger / Bergen are limited by the window steps. Re-run: `python -m offsim.solve.whelp --instance X --calibrate`.
+- **Paper inconsistency:** Table A2 (Stavanger) sums to 48.5 flights; the text (p.26) and Table 2 say 46.5. The tables are used as printed.
+- **Limits:** one heliport, homogeneous fleet, windows start together, five identical weekdays, demand in half-flights; the decomposition's optimality claim is the paper's (Stage 2 minimises start times
+  instead of enforcing eq 11). Stage 1 / 2 MIPs stop at `time_limit_s`; a time-limit result is reported as `status: time_limit`.
+
+### air (engine, WFPPP)
+- **Mapping:** the `whelp` program is replayed over an hourly `WeatherSeries`; the week starts at `extra["weather_t0_s"]` (default: first sample), five weekday blocks of 24 h, slot t departs at day start + t x 15 min.
+  `wfppp.replay.weeks` (default 1, `"all"` = every full 7-day block of the series) replays the same program in consecutive weeks.
+- **Departure rule:** every hourly sample from the departure hour to the hour of the flight's last minute (air time + deck stops) must have `wind_mps <= limits.wind_mps` and, for a flight to a mobile installation,
+  `hs_m <= limits.hs_m`. The limits are `extra["limits"]` (scenario `sim.limits`) and are `assumption: true` placeholders (25 m/s, 6 m) until sourced from CAP 437 / the helicopter flight manual / operator minima; missing limits raise `Unsupported`.
+- **Cancellation and rebooking:** a cancelled flight frees its slot and goes to the earliest free slot at or after its planned departure (weekday, slot, helicopter order) in any helicopter window of the same week such that the flight fits the
+  window, the departure slot is inside every installation's opening hours, no slot of [t, t + n_f) is used by that helicopter, no other flight to the same installation starts in that slot, and the weather rule holds there (perfect forecast: an optimistic
+  bound on recovery). Nothing already planned is moved. No slot by Friday: the flight is unmet. Deterministic for a given series.
+- **Contract:** agent per helicopter (cls helicopter, domain air); `fly` (great circle, 5 min samples), `unload` (deck stop; the contract has no `deck` state), `load` (turnaround at the heliport), `wait` (held for weather), `idle`.
+- **KPIs:** `flights_planned, flights_flown, flights_cancelled, flights_rebooked, flights_unmet, unmet_half_flights (2 per unrebookable flight), unmet_half_flights_net (shortfall against demand, spare half-flights netted),
+  delay_h_mean (rebooked flights, hours), delay_h_max, utilisation, plan_cost, planned_variable_cost, helicopters, window_hours, flown_hours, weeks`; plus the usual `distance_km, makespan_s, wait_s` from the contract.
+- **Limits:** one reference point for wind and Hs (no per-installation weather); no delays of departing flights, only cancel / rebook; no passenger bookkeeping; wind and Hs thresholds are the only operability rules (no visibility, ceiling, icing).
+
 ## Choosing
 `offsim run` looks both tools up in the registry (`offsim.engines.base`): scenario `solver:` (default `pyvrp`; `none` when the engine dispatches itself) and
 `engine:` (default `replay` for sea, `road` for land; `wombat` / `orbit` / `gtfs` for WIND-OM / WIND-INST / TRANSIT-REPLAY). Gate 0 accepts the classes of
@@ -126,6 +170,7 @@ the registered tools and names an unsupported class, a solver/engine that does n
 | Wind O&M | `none` | `wombat` (needs hourly weather) | "engine dispatches itself" |
 | Wind installation | `none` | `orbit` (needs hourly weather) | "engine dispatches itself" |
 | Timetable replay (bus, ferry, rail) | `none` | `gtfs` | "engine dispatches itself" |
+| Weekly helicopter flight program (WFPPP) | `whelp` | `air` (needs weather) | flight-hour cost and flight count of the plan, recomputed by the replay |
 
 Opt-in blocks in scenario.yaml (all other gates are unchanged):
 - `certify: {max_clients: 12, gap_tol: {value: 0.02, assumption: true}, solver: pyomo|ampl}` -> gate `1b_exact`: heuristic objective vs the exact optimum (or its

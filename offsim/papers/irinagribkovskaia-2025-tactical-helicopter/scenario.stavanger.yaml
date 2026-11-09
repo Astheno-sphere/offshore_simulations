@@ -1,0 +1,269 @@
+paper:
+  id: irinagribkovskaia-2025-tactical-helicopter
+  title: Tactical Helicopter Transportation Planning for Offshore Personnel on the
+    Norwegian Continental Shelf
+  authors:
+  - Irina Gribkovskaia
+  - Gaute Oiestad Slettemark
+  year: 2025
+  doi: 10.3390/logistics9020073
+  licence: CC BY 3.0
+param:
+  instance: stavanger
+  choices:
+  - floro
+  - stavanger
+  - bergen
+  how: python -m offsim.solve.whelp --write-scenario <name> (instances.yaml is the
+    single source)
+problem:
+  class:
+  - WFPPP
+  objective:
+    value: min fixed window costs + flight-hour costs of the weekly program
+    src: p.15 eq (1)
+solver: whelp
+engine: air
+world: none
+fleet:
+- cls: helicopter
+  count:
+    value: 3
+    src: p.26 Table 2 (helicopters available)
+  speed_mps:
+    value: 64.306
+    src: p.25 Sec 6.2.1 (125 kn)
+  domain: air
+instance:
+  source: paper Appendix A + assumed positions
+  base:
+    name: Stavanger
+    lon: 5.6378
+    lat: 58.8767
+    assumption: true
+    note: approximate airport reference point, unverified
+  stops:
+  - name: S1
+    lon: 2.55783
+    lat: 59.66864
+    assumption: true
+  - name: S2
+    lon: 2.75416
+    lat: 58.29037
+    assumption: true
+  - name: S3
+    lon: 3.17281
+    lat: 60.12594
+    assumption: true
+  - name: S4
+    lon: 1.99686
+    lat: 58.36251
+    assumption: true
+  - name: S5
+    lon: 3.67126
+    lat: 60.22719
+    assumption: true
+  - name: S6
+    lon: 2.47007
+    lat: 59.28478
+    assumption: true
+  - name: S7
+    lon: 2.85348
+    lat: 59.18158
+    assumption: true
+  - name: S8
+    lon: 2.5464
+    lat: 58.09022
+    assumption: true
+  - name: S9
+    lon: 3.28777
+    lat: 57.78406
+    assumption: true
+  - name: S10
+    lon: 2.26294
+    lat: 58.83384
+    assumption: true
+  - name: S11
+    lon: 2.01087
+    lat: 58.65607
+    assumption: true
+  - name: S12
+    lon: 2.87867
+    lat: 59.37409
+    assumption: true
+sim:
+  wfppp:
+    slot_min:
+      value: 15
+      src: p.25 Sec 6.2.1
+    speed_kn:
+      value: 125
+      src: p.25 Sec 6.2.1 (S-92 average speed)
+    deck_min:
+      value: 10
+      src: p.25 Sec 6.2.1 (about ten minutes per deck stop)
+    turnaround_min:
+      value: 60
+      src: p.25 Sec 6.2.1 (one hour added to each flight)
+    split_threshold_min:
+      value: 15
+      src: p.25 Sec 6.2.1
+    flight_hour_cost:
+      value: 140
+      src: p.25 Sec 6.2.1 (masked units)
+    days:
+      value: 5
+      src: p.12 Sec 3 (Monday to Friday)
+    day_start:
+      value: 07:00
+      src: p.26 (windows start at 07:00)
+    heliport_name: Stavanger
+    max_helicopters:
+      value: 3
+      src: p.26 Table 2
+    windows:
+    - hours:
+        value: 10
+        src: p.26 (options (10, 12, 14, 16))
+      cost:
+        value: 5968
+        src: p.26 Table 3
+    - hours:
+        value: 12
+        src: p.26 (options (10, 12, 14, 16))
+      cost:
+        value: 6625
+        src: p.26 Table 3
+    - hours:
+        value: 14
+        src: p.26 (options (10, 12, 14, 16))
+      cost:
+        value: 6813
+        src: p.26 Table 3
+    - hours:
+        value: 16
+        src: p.26 (options (10, 12, 14, 16))
+      cost:
+        value: 7000
+        src: p.26 Table 3
+    installations:
+    - name: S1
+      demand_flights:
+        value: 4
+        src: p.39 Table A2
+      open:
+        value: 07:00-22:00
+        src: p.39 Table A2
+      mobile: true
+    - name: S2
+      demand_flights:
+        value: 1.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S3
+      demand_flights:
+        value: 4
+        src: p.39 Table A2
+      open:
+        value: 07:00-22:00
+        src: p.39 Table A2
+      mobile: true
+    - name: S4
+      demand_flights:
+        value: 4
+        src: p.39 Table A2
+      open:
+        value: 07:00-22:00
+        src: p.39 Table A2
+      mobile: true
+    - name: S5
+      demand_flights:
+        value: 4
+        src: p.39 Table A2
+      open:
+        value: 07:00-22:00
+        src: p.39 Table A2
+      mobile: true
+    - name: S6
+      demand_flights:
+        value: 2.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S7
+      demand_flights:
+        value: 4.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S8
+      demand_flights:
+        value: 1.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S9
+      demand_flights:
+        value: 13
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S10
+      demand_flights:
+        value: 1.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S11
+      demand_flights:
+        value: 3.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+    - name: S12
+      demand_flights:
+        value: 4.5
+        src: p.39 Table A2
+      open:
+        value: 07:00-18:00
+        src: p.39 Table A2
+      mobile: false
+  limits:
+    wind_mps:
+      value: 25.0
+      assumption: true
+      note: placeholder; source from the helicopter flight manual / CAP 437 / operator
+        minima
+    hs_m:
+      value: 6.0
+      assumption: true
+      note: mobile installations only; placeholder, source from CAP 437 helideck motion
+        limits
+reported:
+  plan_cost:
+    value: 26642
+    src: p.29 Table 4
+    rel_tol: 0.05
+  helicopters:
+    value: 2
+    src: p.29 Table 4
+    rel_tol: 0.0
+  window_hours:
+    value: 28.0
+    src: p.29 Table 4
+    rel_tol: 0.0
