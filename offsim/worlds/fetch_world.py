@@ -124,6 +124,41 @@ def sodir_layers(bbox, keywords, out):
 METOCEAN_DATASETS = ("nora3_wind", "nora3_wave", "norkyst_v3")
 
 
+class StageTimeout(Exception):
+    pass
+
+
+import contextlib
+import signal
+
+
+@contextlib.contextmanager
+def stage(name, budget_s, errors):
+    """Log a fetch stage with timestamps (flushed, so Actions shows progress) and cap its wall time. A stage that
+    times out or fails is recorded in `errors` and the fetch continues: one slow server must not kill the job."""
+    t0 = time.time()
+    print(f"[{time.strftime('%H:%M:%S')}] >> {name} (budget {budget_s // 60} min)", flush=True)
+
+    def _alarm(*_):
+        raise StageTimeout(f"{name} exceeded {budget_s} s")
+    old = signal.signal(signal.SIGALRM, _alarm) if hasattr(signal, "SIGALRM") else None
+    if old is not None:
+        signal.alarm(int(budget_s))
+    try:
+        yield
+        print(f"[{time.strftime('%H:%M:%S')}] << {name} ok ({time.time() - t0:.0f} s)", flush=True)
+    except Exception as exc:          # noqa: BLE001 - record and continue
+        errors.append({"stage": name, "error": f"{type(exc).__name__}: {exc}", "seconds": round(time.time() - t0)})
+        print(f"[{time.strftime('%H:%M:%S')}] !! {name} FAILED after {time.time() - t0:.0f} s: {exc}", flush=True)
+    finally:
+        if old is not None:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old)
+
+
+BUDGET_S = {"coast": 15 * 60, "sodir": 10 * 60, "metocean": 40 * 60, "osm": 40 * 60, "gtfs": 30 * 60, "ais": 20 * 60}
+
+
 def metocean(bbox, out, start_utc, hours, datasets=METOCEAN_DATASETS):
     """NORA3 wind/wave + NorKyst v3 currents for the world bbox -> out/metocean/. Returns manifest entries."""
     from offsim.weather.fetch import LICENCE, subset
@@ -134,6 +169,7 @@ def metocean(bbox, out, start_utc, hours, datasets=METOCEAN_DATASETS):
     entries = []
     for name in datasets:
         path = md / f"{stamp}_{hours}h_{name}.nc"
+        print(f"[{time.strftime('%H:%M:%S')}]    metocean {name} {start_utc} +{hours} h", flush=True)
         try:
             e = subset(name, tuple(bbox), start_utc, hours, str(path))
             e["file"] = f"metocean/{path.name}"
@@ -199,33 +235,42 @@ def fetch_ais(cfg, out, path):
                             ship_types=cfg.get("ais_ship_types"), area=cfg.get("ais_area", cfg.get("name", "world")))
 
 
-def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None, gtfs=False, gtfs_zip=None):
+def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None, gtfs=False, gtfs_zip=None,
+          metocean_datasets=METOCEAN_DATASETS):
     cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
     out.mkdir(parents=True, exist_ok=True)
     man = {"world": world, "bbox": cfg["bbox"], "fetched_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "sources": []}
+    errors = man.setdefault("errors", [])
     if cfg.get("osm_land", True):
-        c = land_from_osm(cfg["bbox"], out)
-        man["sources"].append({"name": "OpenStreetMap coastline (Overpass)", "licence": "ODbL 1.0",
-                               "credit": "© OpenStreetMap contributors", **c})
+        with stage("coast (Overpass)", BUDGET_S["coast"], errors):
+            c = land_from_osm(cfg["bbox"], out)
+            man["sources"].append({"name": "OpenStreetMap coastline (Overpass)", "licence": "ODbL 1.0",
+                                   "credit": "© OpenStreetMap contributors", **c})
     if cfg.get("sodir_keywords"):
-        c = sodir_layers(cfg["bbox"], cfg["sodir_keywords"], out)
-        man["sources"].append({"name": "Norwegian Offshore Directorate FactMaps (WGS84)", "licence": "NLOD 2.0",
-                               "credit": "Source: Norwegian Offshore Directorate", "layers": c})
+        with stage("sodir (FactMaps)", BUDGET_S["sodir"], errors):
+            c = sodir_layers(cfg["bbox"], cfg["sodir_keywords"], out)
+            man["sources"].append({"name": "Norwegian Offshore Directorate FactMaps (WGS84)", "licence": "NLOD 2.0",
+                                   "credit": "Source: Norwegian Offshore Directorate", "layers": c})
     if metocean_args:
-        man["sources"].append({"name": "MET Norway NORA3 wind/wave + NorKyst v3 currents (THREDDS OPeNDAP)",
-                               "licence": "CC BY 4.0 — MET Norway", "credit": "MET Norway (CC BY 4.0)",
-                               "datasets": metocean(cfg["bbox"], out, metocean_args[0], int(metocean_args[1]))})
+        with stage(f"metocean {','.join(metocean_datasets)}", BUDGET_S["metocean"] * len(metocean_datasets), errors):
+            man["sources"].append({"name": "MET Norway NORA3 wind/wave + NorKyst v3 currents (THREDDS OPeNDAP)",
+                                   "licence": "CC BY 4.0 — MET Norway", "credit": "MET Norway (CC BY 4.0)",
+                                   "datasets": metocean(cfg["bbox"], out, metocean_args[0], int(metocean_args[1]),
+                                                        tuple(metocean_datasets))})
     if osm or osm_pbf:
-        om = fetch_osm(cfg, out, osm_pbf)
-        man["sources"].append({"name": om["name"], "licence": om["licence"], "credit": om["credit"],
-                               "layers": {k: v["features"] for k, v in om["layers"].items()}, "dir": "osm/"})
+        with stage("osm (Geofabrik + pyrosm)", BUDGET_S["osm"], errors):
+            om = fetch_osm(cfg, out, osm_pbf)
+            man["sources"].append({"name": om["name"], "licence": om["licence"], "credit": om["credit"],
+                                   "layers": {k: v["features"] for k, v in om["layers"].items()}, "dir": "osm/"})
     if gtfs or gtfs_zip:
-        man["sources"].append(fetch_gtfs(cfg, out, gtfs_zip))
+        with stage("gtfs (Entur)", BUDGET_S["gtfs"], errors):
+            man["sources"].append(fetch_gtfs(cfg, out, gtfs_zip))
     if ais_path:
-        cal = fetch_ais(cfg, out, ais_path)
-        man["sources"].append({"name": "Kystverket Historic AIS (HAIS), processed by offsim.traffic", "licence": "NLOD 2.0",
-                               "credit": "Source: Kystverket", "src": cal["src"], "dir": "ais/",
-                               "port_calls": cal["port_calls"], "vessels": cal["vessels"]})
+        with stage("ais (HAIS)", BUDGET_S["ais"], errors):
+            cal = fetch_ais(cfg, out, ais_path)
+            man["sources"].append({"name": "Kystverket Historic AIS (HAIS), processed by offsim.traffic", "licence": "NLOD 2.0",
+                                   "credit": "Source: Kystverket", "src": cal["src"], "dir": "ais/",
+                                   "port_calls": cal["port_calls"], "vessels": cal["vessels"]})
     man["manual"] = cfg.get("manual", [])
     (out / "manifest.json").write_text(json.dumps(man, indent=1))
     print(json.dumps(man, indent=1))
@@ -434,6 +479,8 @@ if __name__ == "__main__":
     ap.add_argument("--out")
     ap.add_argument("--pull")
     ap.add_argument("--metocean", nargs=2, metavar=("START_UTC", "HOURS"), help="also subset wind/wave/current, e.g. 2024-01-10T00:00 48")
+    ap.add_argument("--metocean-datasets", default=",".join(METOCEAN_DATASETS),
+                    help="comma list of " + ",".join(METOCEAN_DATASETS) + " (helicopter/PSV studies: nora3_wind,nora3_wave)")
     ap.add_argument("--depth", action="store_true",
                     help="also fetch raw DEM (EMODnet, Kartverket DTM) into <out>/dem_raw; with --pull: pull world-<name>-dem-raw")
     ap.add_argument("--osm", action="store_true", help="also download the Geofabrik pbf and write osm/<layer>.geojson (needs pyrosm)")
@@ -465,6 +512,7 @@ if __name__ == "__main__":
         dest = Path(a.out or ROOT / "data/worlds" / world)
         if not a.depth_only:
             fetch(world, dest, a.metocean, osm=a.osm or plan["osm"], osm_pbf=a.osm_pbf, ais_path=a.ais,
-                  gtfs=a.gtfs or plan["gtfs"], gtfs_zip=a.gtfs_zip)
+                  gtfs=a.gtfs or plan["gtfs"], gtfs_zip=a.gtfs_zip,
+                  metocean_datasets=[d for d in a.metocean_datasets.split(",") if d])
         if a.depth or a.depth_only:
             fetch_depth(world, dest)

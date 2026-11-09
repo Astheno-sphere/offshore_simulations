@@ -135,3 +135,14 @@ def test_workflow_has_place_inputs():
     ins = (wf.get("on") or wf.get(True))["workflow_dispatch"]["inputs"]
     assert {"world", "place", "modes", "radius_km", "osm", "depth", "metocean_start", "ais_url"} <= set(ins)
     assert ins["modes"]["default"] == "sea" and ins["place"]["required"] is False
+
+
+def test_fetch_stage_records_timeout_and_continues():
+    import time as _t
+    from offsim.worlds.fetch_world import stage
+    errs = []
+    with stage("slow", 1, errs):
+        _t.sleep(2.5)
+    with stage("fast", 5, errs):
+        pass
+    assert len(errs) == 1 and errs[0]["stage"] == "slow" and "exceeded" in errs[0]["error"]

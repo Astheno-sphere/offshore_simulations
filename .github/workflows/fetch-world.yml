@@ -25,6 +25,10 @@ on:
         description: "Optional: metocean start, UTC ISO (e.g. 2024-01-10T00:00). Empty = no weather data. NorKyst v3 only 2012-01-05..2025-12-31"
         required: false
         default: ""
+      metocean_datasets:
+        description: "Comma list: nora3_wind,nora3_wave,norkyst_v3 (helicopter/PSV: nora3_wind,nora3_wave; currents are heavy)"
+        required: false
+        default: "nora3_wind,nora3_wave"
       metocean_hours:
         description: "Metocean length in hours (used when metocean_start is set)"
         required: false
@@ -47,10 +51,13 @@ on:
 permissions:
   contents: write
 
+env:
+  PYTHONUNBUFFERED: "1"   # stream fetch logs live (a silent 30-min hang taught us)
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 150   # each stage has its own budget inside fetch_world (stage log shows progress)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -84,7 +91,7 @@ jobs:
           args=""
           if [ -n "$RADIUS" ]; then args="$args --radius-km $RADIUS"; fi
           if [ -n "$PLACE" ]; then args="$args --modes $MODES"; fi
-          if [ -n "$MO_START" ]; then args="$args --metocean $MO_START $MO_HOURS"; fi
+          if [ -n "$MO_START" ]; then args="$args --metocean $MO_START $MO_HOURS --metocean-datasets ${{ inputs.metocean_datasets }}"; fi
           if [ "$WITH_OSM" = "true" ]; then args="$args --osm"; fi
           if [ -n "$AIS_URL" ]; then
             curl -fsSL -o hais_input "$AIS_URL"

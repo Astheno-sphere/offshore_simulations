@@ -34,3 +34,9 @@ all assumed). Narration selected automatically ("crew zone stays clear"); first 
 from `offsim run demo-oslofjord-supply` (gates 0–3 pass), marker 2 h 31 min in. Outer-fjord sea Hs 2.0 m / Tp 6.5 s,
 U10 15 m/s (assumed): plume lowest edge ≥ 4 m over the aft deck, crew zone ≤ +1 °C → narration "crew zone stays clear".
 Tuning found: full-fit overview showed beyond the pulled data; zoom 0.30 levels/s ended in empty water → 1.8× width fit, 0.16.
+
+## 2026-11-09 — first live fetch-world (bergen-ncs, metocean 2024-01-01 +744 h): FAILED, timeout
+The Fetch step ran 30 min with no output (Python buffered stdout) and was cancelled; which source hung is unknown.
+Fixes: PYTHONUNBUFFERED, per-stage log + wall budget (`fetch_world.stage`; a timed-out stage is recorded in
+manifest.errors and the fetch continues), `--metocean-datasets` (default for the workflow nora3_wind,nora3_wave;
+NorKyst currents at 800 m over a 4.4 x 2.1 degree box is the likely heavy part), job timeout 150 min.
