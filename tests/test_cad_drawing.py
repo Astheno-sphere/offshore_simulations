@@ -167,6 +167,7 @@ def test_story_check_gates_asset_shots():
     assert any("assumption" in p for p in _asset_probs({"name": "_assumed_tiny"}))
     assert any("loa_m" in p for p in _asset_probs({"name": "_wrong_tiny"}))
     assert _asset_probs({"name": "_sourced_tiny", "view": "side"}) == []
-    missing = _asset_probs({"name": "psv"})                       # module not written yet or fails QA: a clear refusal
-    assert missing and "psv" in missing[0]
+    missing = _asset_probs({"name": "psv"})                       # psv is built and passes QA now (marine.py, shipselector class)
+    assert missing == []
+    assert any("cannot be built" in p for p in _asset_probs({"name": "psv", "params": {"loa_m": "not-a-number"}}))
     assert any("unknown asset" in p for p in _asset_probs({"name": "nope"}))
