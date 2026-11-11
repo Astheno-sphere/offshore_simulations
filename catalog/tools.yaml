@@ -101,6 +101,8 @@ tools:
    role: "State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py."}
 - {id: opt-model, name: opt-model (Pyomo + HiGHS), url: "https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "skills/opt-model/scripts/models.py offsim/solve/pyomo_solver.py tests/test_opt_model.py tests/test_engines_core.py",
    role: "Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py)."}
+- {id: whelp, name: whelp (WFPPP weekly-helicopter solver, ours), url: "https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/solve/whelp.py", layer: solver, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/solve/whelp.py offsim/solve/ampl/whelp.mod tests/test_whelp.py offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.yaml",
+   role: "Weekly helicopter program (WFPPP) from Gribkovskaia & Slettemark 2025: flight generation + two-stage decomposition (Stage 1 levelling, Stage 2 start times, Pyomo + HiGHS); solver 'whelp'."}
 - {id: ortools, name: Google OR-Tools, url: "https://github.com/google/or-tools", layer: solver, licence: Apache-2.0, status: candidate, runs: here, priority: next,
    role: "Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers)."}
 - {id: alns, name: ALNS (N-Wouda), url: "https://github.com/N-Wouda/ALNS", layer: solver, licence: MIT, status: candidate, runs: here, priority: next,
@@ -133,6 +135,8 @@ tools:
    role: "Vessel RAOs from hull geometry for physical heave/roll in the section view; GPL: separate process only."}
 - {id: openclsim, name: OpenCLSim (TU Delft, Deltares, Van Oord), url: "https://github.com/TUDelft-CITG/OpenCLSim", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/engines/openclsim_adapter.py tests/test_engines_core.py tests/test_engine_crosscheck.py",
    role: "Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay."}
+- {id: air, name: air (weather-gated helicopter engine, ours), url: "https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/engines/air_engine.py", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/engines/air_engine.py tests/test_whelp.py",
+   role: "Weather-gated helicopter engine: cancels flights past the wind limit, rebooks into remaining weekly slack, reports unmet; engine 'air'. Monday storm on the solved Florø program: 2 cancelled, 1 rebooked, 1 unmet."}
 - {id: opentnsim, name: OpenTNSim (TU Delft), url: "https://github.com/TUDelft-CITG/OpenTNSim", layer: simulation, licence: MIT, status: candidate, runs: here, priority: later,
    role: "Waterway/port traffic networks on top of OpenCLSim; fairway congestion, locks, energy."}
 - {id: simpy, name: SimPy, url: "https://gitlab.com/team-simpy/simpy", layer: simulation, licence: MIT, status: tested, runs: here, priority: now, evidence: "offsim/sim/replay.py tests/test_offsim.py",
@@ -175,6 +179,12 @@ tools:
    role: "Drag-and-drop exploration of trajectories before scripting a video."}
 - {id: blender-bpy, name: Blender as Python module (bpy 5.2), url: "https://pypi.org/project/bpy/", layer: render, licence: GPL, status: tested, runs: actions, priority: later, evidence: "offsim/assets/models/make_models.py docs/TESTLOG.md",
    role: "Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process."}
+- {id: cadquery, name: CadQuery, url: "https://github.com/CadQuery/cadquery", layer: render, licence: Apache-2.0, status: tested, runs: here, priority: now, evidence: "requirements-cad.txt offsim/assets/cad/marine.py offsim/assets/cad/air.py offsim/assets/cad/land.py tests/test_cad_marine_air.py tests/test_cad_land.py tests/test_cad_drawing.py",
+   role: "CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films."}
+- {id: build123d, name: build123d, url: "https://github.com/gumyr/build123d", layer: render, licence: Apache-2.0, status: tested, runs: here, priority: now, evidence: "requirements-cad.txt offsim/assets/cad/marine.py tests/test_cad_marine_air.py",
+   role: "Builder API on the same OpenCASCADE kernel; used alongside CadQuery in the asset modules. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards."}
+- {id: cadquery-ocp, name: cadquery-ocp (OpenCASCADE bindings), url: "https://github.com/CadQuery/OCP", layer: render, licence: "Apache-2.0 (bindings to OpenCASCADE, LGPL-2.1 with exception, dynamically linked)", status: tested, runs: here, priority: now, evidence: "requirements-cad.txt offsim/assets/cad/drawing.py tests/test_cad_drawing.py",
+   role: "Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py."}
 - {id: blendergis, name: BlenderGIS, url: "https://github.com/domlysz/BlenderGIS", layer: render, licence: GPL-3.0, status: candidate, runs: laptop, priority: later,
    role: "Import DEM, shapefiles, OSM into Blender."}
 
