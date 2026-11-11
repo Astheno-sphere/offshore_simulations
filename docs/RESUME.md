@@ -4,6 +4,47 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-11 — HALTED branch continued (Nordlys, subagent): 5 failing tests fixed, suite green. Uncommitted, nothing pushed.
+
+Key finding: the air engine was NOT broken — its `_rebook` is correct. Three of the five failures were wrong test
+premises, and the other two were stale expectations. The solved Florø program is packed back-to-back (eq 11, no idle
+slots): days 1-4 use slots 0-40/41, Monday's tail (slots 32-39) is the week's only slack, so a Tuesday storm
+legitimately rebooks nothing (verified by trace: every candidate rejected on weather or occupancy). A 120 nm flight is
+125 min = 9 fly slots and FITS a 4 h window (16 slots). psv passes QA now; whelp/air ship, so the registry test's sets
+were stale.
+Fixes (tests only; no solver/engine code changed):
+  - tests/test_engines_core.py::test_registry_lists_every_tool_we_ship — expected engines + "air", solvers + "whelp".
+  - tests/test_cad_drawing.py::test_story_check_gates_asset_shots — psv now asserts QA pass (`qa("psv") == (True, [])`);
+    the "cannot be built" refusal path is now covered by a bad-params case instead.
+  - tests/test_whelp.py::test_infeasible_when_a_flight_cannot_fit_any_window — window 4 h -> 2 h (8 slots < 9 fly slots).
+  - tests/test_whelp.py::test_air_storm_day_cancels_and_rebooks — storm moved Tue -> Mon 07:00-12:00 (the week's only
+    slack is Monday's tail): 2 cancelled, 1 rebooked (F4 -> Mon 15:00, +8 h), 1 unmet.
+  - tests/test_whelp.py::test_air_rebooked_flights_respect_the_rules — storm Mon 00:00-10:00, same outcome; assertions kept strict.
+  - NEW tests/test_whelp.py::test_air_tuesday_storm_has_no_slack_so_flights_go_unmet — pins the discovered fact
+    (Tue storm: 3 cancelled, 0 rebooked, 3 unmet; engine reports unmet rather than inventing slack).
+Suite (venv-studio, full runs): before 443 pass, 5 fail, 7 skip; after 449 pass, 0 fail, 7 skip (346 s). The HALTED
+entry said 445/5/5; the 2-test difference is pass -> skip accounting, same 5 failures. The 7 skips are pre-existing
+environment skips: 3 AMPL (amplpy absent), 2 SLOW (OFFSIM_SLOW unset), 1 Stavanger (solve 81 s > 60 s conditional
+skip — the [12, 16] h assertion never runs on this VM), 1 vessel (deck.gl node_modules absent).
+Follow-ons done: catalog entries whelp, air, cadquery, build123d, cadquery-ocp (159 tools, 54 pulled; `catalog_build.py
+--check` passes); requirements-cad in CI (.github/workflows/tests.yml pytest job, + novtk-restore step — build123d pulls
+cadquery-ocp-novtk, which breaks CadQuery VTK; 20-min timeout unchanged, watch the first CI run); registry.yaml
+statuses from measured QA gates — qa-pass: psv, bus, train, person; built: platform_jacket, s92, aw189, tree, building.
+Pipeline.py diff (WIP commit) reviewed — CORRECT: EXTRA_KEYS += wfppp, TOOL_PACKAGES += whelp (pyomo, highspy) + air (),
+gate 1 WFPPP branch uses whelp.check_program, gate 2 compares planned_variable_cost (1e-6) and flights_planned_per_week
+(exact) from the air engine KPIs; exercised by the passing pipeline tests. `pipeline.build_variant` exists, so the
+experiment runner's default builder resolves.
+Self-learning loops verified live (see docs/TESTLOG.md): paper intake on the fixture (3 pp, 15 evidence rows, draft
+scenario); feed via Crossref (49 records for one query; OpenAlex 429s from this VM, degrades gracefully; arXiv 0 hits);
+tag (49) -> gaps (2 gaps, support 12 each); experiment runner unit-verified (test_montecarlo, fake builder/weather) —
+real end-to-end NOT run (that is the Gribkovskaia experiment, deliberately not started); `offsim resume` works.
+Remains: s92/aw189 QA fail (dims off rotor ~21%, fuselage ~28-30%, width 341-366% — declared dims do not match the
+built solid); platform_jacket/tree/building QA fail (missing dims, all assumed); 23 more Bergen winters to fetch; AMPL
+install awaits approval + UUID via secure capture; sea_polygons + Sodir keyword bugs; CAD duplication with the main
+tree's sprite sheet (reconcile decision, his). Quirk: test_intake.py's fixture regenerates the committed
+synthetic_paper.pdf with fresh timestamps on every run (timestamp-only diff) — reverted here; it will show modified
+again after any suite run.
+
 ## 2026-11-09 — HALTED by Arshad (weekly limit). Branch `wip/cad-assets-heli`, not merged to main.
 State: 445 pass, 5 fail, 5 skip. Built: cad/drawing.py (HLR line classes, cache), qa.py (scale/detail gate),
 registry.yaml, story `asset:` hook, land.py (bus, train, person, tree, building; 27 tests pass), marine.py (psv,
