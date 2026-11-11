@@ -4,6 +4,11 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-11 (later) — system review, plan only: docs/SYSTEM_PLAN.md
+Nothing built. Verdict, measured state, 12 named flaws, five additions (conductor, doctor, concordance, live-check,
+agents+MCP), wave plan W0-W13 with models, owners, exit tests and firing commands, 6 decisions for Arshad.
+Next: Arshad answers section 6, then "fire W0", then "fire W1 W2 W3 W4 W5".
+
 ## 2026-11-11 — HALTED branch continued (Nordlys, subagent): 5 failing tests fixed, suite green. Uncommitted, nothing pushed.
 
 Key finding: the air engine was NOT broken — its `_rebook` is correct. Three of the five failures were wrong test
