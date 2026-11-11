@@ -223,7 +223,9 @@ def test_solver_refuses_what_it_cannot_do():
 
 
 def test_infeasible_when_a_flight_cannot_fit_any_window():
-    p = toy(radii=(120.0, 120.0), brgs=(270.0, 300.0), windows=((4, 1000),), max_helis=1)
+    # a 120 nm direct flight is 125 min = 9 fly slots: it FITS a 4 h window (16 slots), so a 4 h window is
+    # feasible and the solver correctly returns a plan. A 2 h window (8 slots) genuinely cannot hold it.
+    p = toy(radii=(120.0, 120.0), brgs=(270.0, 300.0), windows=((2, 1000),), max_helis=1)
     with pytest.raises(RuntimeError):
         get_solver("whelp").solve(p)
 
@@ -310,11 +312,14 @@ def test_air_calm_week_has_no_cancellations(floro_plan):
 
 def test_air_storm_day_cancels_and_rebooks(floro_plan):
     p, plan = floro_plan
-    series = wx(storm=(24 + 7, 24 + 12, 30.0))                  # Tuesday 14:00-19:00 (hour 7 of Tuesday = 07:00 + 7 h)
+    # Monday 07:00-12:00. The storm must fall on a day with slack AFTER it: the solved Florø program is packed
+    # back-to-back (eq 11) with no free slot on days 1-4, and Monday's tail (slots 32-39) is the week's only slack,
+    # so a Tuesday storm (the original setup) legitimately rebooks nothing. See test_air_tuesday_storm_has_no_slack.
+    series = wx(storm=(7, 12, 30.0))
     r = get_engine("air").simulate(p, plan, World("none"), series)
     k = r.kpis
     assert k["flights_cancelled"] > 0
-    assert k["flights_rebooked"] > 0                            # the Friday half-day has free capacity
+    assert k["flights_rebooked"] > 0                            # the 07:00 departure rebooks into Monday's tail
     assert k["flights_rebooked"] + k["flights_unmet"] == k["flights_cancelled"]
     assert k["flights_flown"] == k["flights_planned"] - k["flights_unmet"]
     assert k["unmet_half_flights"] == 2 * k["flights_unmet"]
@@ -323,15 +328,30 @@ def test_air_storm_day_cancels_and_rebooks(floro_plan):
     assert "wait" in set(r.traj["state"])
     rep = contract.validate(r.traj, r.agents)
     assert rep.ok, str(rep)
-    # every flown departure is clear of the storm: no fly row inside the stormy hours (Tuesday 31:00-36:00 on the series clock)
+    # every flown departure is clear of the storm: no fly row inside the stormy hours (Monday 07:00-12:00)
     fly = r.traj[(r.traj["state"] == "fly")]
-    assert not ((fly["t"] > (31 * 3600)) & (fly["t"] < (36 * 3600))).any()
+    assert not ((fly["t"] > (7 * 3600)) & (fly["t"] < (12 * 3600))).any()
+
+
+def test_air_tuesday_storm_has_no_slack_so_flights_go_unmet(floro_plan):
+    """Regression for the original storm setup: a Tuesday 07:00-12:00 storm cancels three flights and the engine
+    correctly reports them unmet instead of inventing slack. The solved program has no free slot on days 1-4
+    (verified: days 1-4 use slots 0-40/41; only Monday's tail is free, and it lies before the storm)."""
+    p, plan = floro_plan
+    r = get_engine("air").simulate(p, plan, World("none"), wx(storm=(31, 36, 30.0)))
+    k = r.kpis
+    assert k["flights_cancelled"] == 3
+    assert k["flights_rebooked"] == 0 and k["flights_unmet"] == 3
+    assert k["flights_flown"] == k["flights_planned"] - 3
+    assert set(r.events["event"]) == {"cancel", "unmet"}
+    assert contract.validate(r.traj, r.agents).ok
 
 
 def test_air_rebooked_flights_respect_the_rules(floro_plan):
     p, plan = floro_plan
     spec = W.parse_spec(p)
-    r = get_engine("air").simulate(p, plan, World("none"), wx(storm=(24, 24 + 10, 30.0)))
+    storm = (0, 10)                                             # Monday 00:00-10:00 (same reason as above: slack is Monday's tail)
+    r = get_engine("air").simulate(p, plan, World("none"), wx(storm=(storm[0], storm[1], 30.0)))
     reb = r.events[r.events["event"] == "rebook"]
     assert len(reb)
     slot = 15 * 60.0
@@ -340,7 +360,7 @@ def test_air_rebooked_flights_respect_the_rules(floro_plan):
         d, rem = divmod(t_new, 86400.0)
         assert 0 <= d < 5 and rem % slot == 0                   # a slot start on a weekday
         assert e["new_departure_t"] >= e["t"]                   # never earlier than the cancelled departure
-        assert not (30 * 3600 <= e["new_departure_t"] <= 34 * 3600)
+        assert not (storm[0] * 3600 <= e["new_departure_t"] < storm[1] * 3600)   # never inside the storm
     fly = r.traj[r.traj["state"] == "fly"]["t"].to_numpy()
     assert (fly < 5 * 86400).all()
 
