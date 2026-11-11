@@ -40,3 +40,26 @@ The Fetch step ran 30 min with no output (Python buffered stdout) and was cancel
 Fixes: PYTHONUNBUFFERED, per-stage log + wall budget (`fetch_world.stage`; a timed-out stage is recorded in
 manifest.errors and the fetch continues), `--metocean-datasets` (default for the workflow nora3_wind,nora3_wave;
 NorKyst currents at 800 m over a 4.4 x 2.1 degree box is the likely heavy part), job timeout 150 min.
+
+## 2026-11-11 — self-learning loops verified live (wip branch continuation, venv-studio)
+
+Paper intake: `python -m offsim paper tests/fixtures/intake/synthetic_paper.pdf --out /tmp/intake-test` → 3 pages,
+15 evidence rows with page refs (12 knots → 6.17 m/s, 4 h service, 90 nm), extract.json (metadata, rule tags
+PSV-PDP/VRPTW, confidence 0.7), scenario.draft.yaml (values null + candidates with page refs). Works end to end.
+Feed: `python -m offsim feed --queries papers/queries.yaml --sources openalex --since 2025-01-01` → 13 queries, 0 new:
+OpenAlex returns HTTP 429 (Too Many Requests) from this VM; the feed degrades gracefully (warnings, continues).
+Crossref works live: one query ("offshore supply vessel planning", since 2024-01-01) → 49 records in ~6 s.
+arXiv: 0 hits for the same query (no error). Tag: 49 records → tags.jsonl (rule tags). Gaps: 49 tagged papers → 2 gaps
+(no-norway PSV-PDP/psv, support 12; no-code PSV-PDP/psv, support 12, with DOIs).
+Experiment runner: unit-verified by tests/test_montecarlo.py (fake builder + fake weather: supported / not supported /
+blocked-on-contract-failure). Real end-to-end (whelp + air + NORA3 weather) NOT run — that is the Gribkovskaia
+experiment, deliberately not started. `pipeline.build_variant` exists and enforces provenance on overrides.
+CAD QA gates (all 9 assets, `python -m offsim.assets.cad.qa <name>`): pass — psv, bus, train, person; fail —
+platform_jacket (no measurable dim, required dims missing, all assumed), s92 (rotor 21.2%, fuselage 28.0%, width
+341.4% off), aw189 (rotor 20.2%, fuselage 30.0%, width 366.3% off), tree (crown_diameter_m missing, all assumed),
+building (length_m/width_m missing, all assumed). Registry statuses updated to match.
+Monday storm on the solved Florø program (air engine, synthetic weather): storm 07:00-12:00 → 2 cancelled, 1 rebooked
+(F4 → Monday 15:00, +8 h), 1 unmet. Tuesday storm 07:00-12:00 → 3 cancelled, 0 rebooked, 3 unmet (no slack days 1-4).
+Full suite (venv-studio): before 443 pass / 5 fail / 7 skip; after 449 pass / 0 fail / 7 skip (346 s).
+Quirk: tests/test_intake.py's module fixture regenerates the committed tests/fixtures/intake/synthetic_paper.pdf with
+fresh CreationDate/ModDate on every run (timestamp-only diff, content identical) — revert it after suite runs.
