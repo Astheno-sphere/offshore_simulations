@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-154 tools · 28 tested · 13 wired · 8 installed · 55 candidate · 4 manual · 46 watch.
+159 tools · 33 tested · 13 wired · 8 installed · 55 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -14,12 +14,12 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | world | 5 | 3 | 2 | 7 | 3 | 8 | 28 |
 | traffic | 1 | 4 | 3 | 1 | 1 | 2 | 12 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
-| solver | 2 | 1 | 0 | 2 | 0 | 4 | 9 |
+| solver | 3 | 1 | 0 | 2 | 0 | 4 | 10 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
-| simulation | 2 | 0 | 2 | 4 | 0 | 2 | 10 |
+| simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 6 | 0 | 0 | 6 | 0 | 7 | 19 |
+| render | 9 | 0 | 0 | 6 | 0 | 7 | 22 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
@@ -45,12 +45,17 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | traffic | tested | here | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | solver | tested | here | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | solver | tested | here | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). |
+| [whelp (WFPPP weekly-helicopter solver](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/solve/whelp.py) | solver | tested | here | Weekly helicopter program (WFPPP) from Gribkovskaia & Slettemark 2025: flight generation + two-stage decomposition (Stage 1 levelling, Stage 2 start times, Pyomo + HiGHS); solver 'whelp'. |
 | [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | simulation | tested | here | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. |
+| [air (weather-gated helicopter engine](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/engines/air_engine.py) | simulation | tested | here | Weather-gated helicopter engine: cancels flights past the wind limit, rebooks into remaining weekly slack, reports unmet; engine 'air'. Monday storm on the solved Florø program: 2 cancelled, 1 rebooked, 1 unmet. |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | simulation | tested | here | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. |
 | [WOMBAT (NREL)](https://github.com/NLRWindSystems/WOMBAT) | offshore-energy | tested | here | SimPy O&M simulation of offshore wind farms (CTVs, failures, weather); validated vs Dinwoodie and IEA Task 26. Ready source of O&M vessel scenarios. |
 | [ORBIT (NREL)](https://github.com/WISDEM/ORBIT) | offshore-energy | tested | here | SimPy installation logistics of offshore wind (WTIV, feeders, port cranes, weather delays) — sustainable-energy logistics videos. |
 | [Inter 4.1 (static TTFs)](https://github.com/rsms/inter) | assets | tested | here | One open geometric sans (Regular, Medium, SemiBold, Bold) for headlines, decks and kickers (rule 17); look.FONTS / font_path; drawn by Canvas.text. |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | render | tested | here | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). |
+| [CadQuery](https://github.com/CadQuery/cadquery) | render | tested | here | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. |
+| [build123d](https://github.com/gumyr/build123d) | render | tested | here | Builder API on the same OpenCASCADE kernel; used alongside CadQuery in the asset modules. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. |
+| [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | render | tested | here | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. |
 | [FFmpeg](https://ffmpeg.org) | video | tested | here | Frames to H.264 (veryfast preset). |
 | [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | assets | tested | here | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. |
 | [offsim low-poly glTF models (ours)](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/assets/models) | assets | tested | here | PSV, ferry, platform with helideck and flare, wind turbine; generated by make_models.py with bpy here; rendered by ScenegraphLayer. |
@@ -158,6 +163,7 @@ _Exact and heuristic optimisation for routing and scheduling_
 |---|---|---|---|---|---|
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | MIT | tested | here | now | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). Evidence: `skills/opt-model/scripts/models.py` `offsim/solve/pyomo_solver.py` `tests/test_opt_model.py` `tests/test_engines_core.py` |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | MIT | tested | here | now | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. Evidence: `offsim/solve/pyvrp_adapter.py` `offsim/solve/pyvrp_solver.py` `tests/test_opt_model.py` `tests/test_engines_core.py` |
+| [whelp (WFPPP weekly-helicopter solver](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/solve/whelp.py) | MIT | tested | here | now | Weekly helicopter program (WFPPP) from Gribkovskaia & Slettemark 2025: flight generation + two-stage decomposition (Stage 1 levelling, Stage 2 start times, Pyomo + HiGHS); solver 'whelp'. Evidence: `offsim/solve/whelp.py` `offsim/solve/ampl/whelp.mod` `tests/test_whelp.py` `offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.yaml` |
 | [ALNS (N-Wouda)](https://github.com/N-Wouda/ALNS) | MIT | candidate | here | next | Adaptive large neighbourhood search framework: re-implement a paper's metaheuristic faithfully when PyVRP cannot express it. |
 | [AMPL (amplpy) with HiGHS/CBC](https://ampl.com) | proprietary (academic licence); amplpy BSD-3 | wired | actions | next | Exact models from .mod files on Actions (secret AMPL_LICENSE_UUID); Pyomo twin cross-checks. Evidence: `offsim/solve/ampl_adapter.py` `offsim/solve/ampl/cvrp.mod` `tests/test_ampl.py` `.github/workflows/solve.yml` |
 | [Google OR-Tools](https://github.com/google/or-tools) | Apache-2.0 | candidate | here | next | Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers). |
@@ -183,6 +189,7 @@ _Time, queues, failures, weather delays (discrete-event, agent-based, vessel dyn
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [air (weather-gated helicopter engine](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/engines/air_engine.py) | MIT | tested | here | now | Weather-gated helicopter engine: cancels flights past the wind limit, rebooks into remaining weekly slack, reports unmet; engine 'air'. Monday storm on the solved Florø program: 2 cancelled, 1 rebooked, 1 unmet. Evidence: `offsim/engines/air_engine.py` `tests/test_whelp.py` |
 | [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | MIT | tested | here | now | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. Evidence: `offsim/engines/openclsim_adapter.py` `tests/test_engines_core.py` `tests/test_engine_crosscheck.py` |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | MIT | tested | here | now | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. Evidence: `offsim/sim/replay.py` `tests/test_offsim.py` |
 | [PhiFlow](https://github.com/tum-pbs/PhiFlow) | MIT | installed | here | next | Differentiable fluid solver; reference to validate our stable-fluids section solver. Evidence: `requirements-physics.txt` |
@@ -220,6 +227,9 @@ _Maps and 3D scenes from validated trajectories_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | MIT | candidate | here | now | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
+| [build123d](https://github.com/gumyr/build123d) | Apache-2.0 | tested | here | now | Builder API on the same OpenCASCADE kernel; used alongside CadQuery in the asset modules. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. Evidence: `requirements-cad.txt` `offsim/assets/cad/marine.py` `tests/test_cad_marine_air.py` |
+| [CadQuery](https://github.com/CadQuery/cadquery) | Apache-2.0 | tested | here | now | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. Evidence: `requirements-cad.txt` `offsim/assets/cad/marine.py` `offsim/assets/cad/air.py` `offsim/assets/cad/land.py` `tests/test_cad_marine_air.py` `tests/test_cad_land.py` `tests/test_cad_drawing.py` |
+| [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | Apache-2.0 (bindings to OpenCASCADE, LGPL-2.1 with exception, dynamically linked) | tested | here | now | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. Evidence: `requirements-cad.txt` `offsim/assets/cad/drawing.py` `tests/test_cad_drawing.py` |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | MIT | tested | here | now | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). Evidence: `offsim/render_deck/package.json` `offsim/render_deck/src/app.js` `.github/workflows/tests.yml` |
 | [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | MIT | candidate | here | now | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | MIT | candidate | here | now | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
