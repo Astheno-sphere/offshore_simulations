@@ -16,54 +16,54 @@
 #     notes:         (optional) free text, e.g. the class drawing / data sheet to source from
 psv:
   class: vessel
-  status: planned
+  status: qa-pass
   required_dims: [loa_m, beam_m, depth_m, draught_m]
-  notes: "Platform supply vessel; source from a class drawing / owner data sheet (UT 755-type is ~85 m LOA)."
+  notes: "Platform supply vessel; LOA 85.5 / depth 7.8 / draught 6.5 sourced from a shipselector.com 85 m class listing (beam assumed 20.0). QA gate passes 2026-11-11."
 platform_jacket:
   class: structure
-  status: planned
+  status: built
   required_dims: [height_m, base_width_m, deck_width_m]
-  notes: "Fixed steel jacket + topside; source from a field development plan or Sodir fact page."
+  notes: "Fixed steel jacket + topside; source from a field development plan or Sodir fact page. QA 2026-11-11: no principal dim measurable, required dims missing, all assumed — module builds, gate fails."
 s92:
   class: aircraft
-  status: planned
+  status: built
   required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
   measure:
     fuselage_length_m: {axis: x, part: fuselage}
     rotor_diameter_m: {axis: xy, part: rotor}
-  notes: "Sikorsky S-92A: manufacturer data sheet."
+  notes: "Sikorsky S-92A: manufacturer data sheet. QA 2026-11-11: dims off by rotor 21.2%, fuselage 28.0%, width 341.4% — declared dims do not match the built solid; module builds, gate fails."
 aw189:
   class: aircraft
-  status: planned
+  status: built
   required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
   measure:
     fuselage_length_m: {axis: x, part: fuselage}
     rotor_diameter_m: {axis: xy, part: rotor}
-  notes: "Leonardo AW189: manufacturer data sheet."
+  notes: "Leonardo AW189: manufacturer data sheet. QA 2026-11-11: dims off by rotor 20.2%, fuselage 30.0%, width 366.3% — declared dims do not match the built solid; module builds, gate fails."
 bus:
   class: vehicle
-  status: planned
+  status: qa-pass
   required_dims: [length_m, width_m, height_m]
-  notes: "City bus (12 m, 2.55 m wide); source from the operator fleet sheet or the Vegvesen vehicle regulation."
+  notes: "City bus (12 m, 2.55 m wide); source from the operator fleet sheet or the Vegvesen vehicle regulation. QA gate passes 2026-11-11."
 train:
   class: vehicle
-  status: planned
+  status: qa-pass
   required_dims: [length_m, width_m, height_m]
-  notes: "Per vehicle car; source from the manufacturer / operator data sheet."
+  notes: "Per vehicle car; source from the manufacturer / operator data sheet. QA gate passes 2026-11-11."
 person:
   class: person
-  status: planned
+  status: qa-pass
   required_dims: [stature_m]
   min_lod: 1
-  notes: "Scale figure; stature from an anthropometric table (cite it)."
+  notes: "Scale figure; stature from an anthropometric table (cite it). QA gate passes 2026-11-11."
 tree:
   class: tree
-  status: planned
+  status: built
   required_dims: [height_m, crown_diameter_m]
   min_lod: 1
-  notes: "Species-typical height and crown from a forestry reference."
+  notes: "Species-typical height and crown from a forestry reference. QA 2026-11-11: crown_diameter_m missing, all dims assumed — module builds, gate fails."
 building:
   class: building
-  status: planned
+  status: built
   required_dims: [length_m, width_m, height_m]
-  notes: "Footprint and height from the cadastre / OSM tags (cite which)."
+  notes: "Footprint and height from the cadastre / OSM tags (cite which). QA 2026-11-11: length_m/width_m missing, all dims assumed — module builds, gate fails."
