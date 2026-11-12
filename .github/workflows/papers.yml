@@ -16,7 +16,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+  issues: write
 
 concurrency:
   group: papers-auto
@@ -72,26 +72,10 @@ jobs:
               -- papers/feed.jsonl papers/tags.jsonl papers/gaps.yaml
           git push origin papers/auto
 
-      - name: Open or update the pull request
+      - name: Report on the tracking issue (data branch + issue; Actions may not open pull requests here)
         if: ${{ success() }}
         run: |
-          if ! git rev-parse --verify -q origin/papers/auto >/dev/null && ! git ls-remote --exit-code --heads origin papers/auto >/dev/null; then
-            echo "Branch papers/auto not on the remote; nothing to open"
-            exit 0
-          fi
-          if gh pr list --head papers/auto --state open --json number --jq '.[0].number' | grep -q .; then
-            echo "Pull request for papers/auto already open; the push updated it"
-          else
-            body=$(printf '%s\n' \
-              "Weekly feed on the offshore, maritime and transport topics in papers/queries.yaml." \
-              "" \
-              "- papers/feed.jsonl: new papers appended (dedupe by DOI, arXiv id and normalised title)" \
-              "- papers/tags.jsonl: rule tags only; confidence below 1; no tag here is a reported result" \
-              "- papers/gaps.yaml: gap candidates (no-norway, no-uncertainty, no-code) with suggested engines" \
-              "" \
-              "Review the gaps, then write experiment.yaml through the research-scout skill." \
-              "" \
-              "🤖 Generated with [Claude Code](https://claude.com/claude-code)")
-            gh pr create --base "${{ github.event.repository.default_branch }}" --head papers/auto \
-              --title "papers: weekly research feed" --body "$body"
-          fi
+          n=$(wc -l < papers/feed.jsonl); g=$(grep -c "^- " papers/gaps.yaml || true)
+          body="papers/auto updated $(date -u +%F): $n papers, $g gap candidates. Review papers/gaps.yaml on branch papers/auto; merge to main when reviewed (python -m offsim status reports it stale otherwise)."
+          num=$(gh issue list --state open --search "papers: weekly research feed in:title" --json number --jq '.[0].number')
+          if [ -n "$num" ]; then gh issue comment "$num" --body "$body"; else gh issue create --title "papers: weekly research feed" --body "$body"; fi

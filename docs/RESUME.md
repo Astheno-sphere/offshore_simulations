@@ -45,8 +45,8 @@ tag (49) -> gaps (2 gaps, support 12 each); experiment runner unit-verified (tes
 real end-to-end NOT run (that is the Gribkovskaia experiment, deliberately not started); `offsim resume` works.
 Remains: s92/aw189 QA fail (dims off rotor ~21%, fuselage ~28-30%, width 341-366% — declared dims do not match the
 built solid); platform_jacket/tree/building QA fail (missing dims, all assumed); 23 more Bergen winters to fetch; AMPL
-install awaits approval + UUID via secure capture; sea_polygons + Sodir keyword bugs; CAD duplication with the main
-tree's sprite sheet (reconcile decision, his). Quirk: test_intake.py's fixture regenerates the committed
+install awaits approval + UUID via secure capture; sea_polygons + Sodir keyword bugs; CAD duplication with Nordlys's main-tree CAD sources (sprite sheet at docs/linkedin/06-cad-sprites/cad-sprites.png on
+the VM, sources uncommitted): Arshad decided 2026-11-12 to bring the sources in via branch agent/nordlys/cad-sources. Quirk: test_intake.py's fixture regenerates the committed
 synthetic_paper.pdf with fresh timestamps on every run (timestamp-only diff) — reverted here; it will show modified
 again after any suite run.
 
