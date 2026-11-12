@@ -100,8 +100,15 @@ def psv_profile(x0, z0, length=85.0, pitch_rad=0.0, pivot=None):
     return P, S, exhaust
 
 
-FILLS = {"hull": "#3d2326", "house": "#4a2b2d", "funnel": "#53302f", "window": "#2f1a1e", "glass": "#5a4030",
-         "cargo": "#432729", "accent_fill": "#8a5a2a", "ink": "#f2e9df"}
+FILLS = {"hull": "#3d2326", "house": "#4a2b2d", "funnel": "#53302f", "window": "#2f1a1e", "glass": "#26333a",
+         "cargo": "#432729", "accent_fill": "#8a5a2a", "ink": "#f2e9df", "boot": "#5c3532",  # v9: boot-top stripe
+         # v10 (working ship, not a toy): light from above, one value step per face. The hull gets a
+         # vertical value gradient (sheer lightest, keel darkest); the superstructure steps up one
+         # value per tier; glass varies pane to pane. All in the same dark-maroon family — tonal
+         # modelling, not new colours. The old flat keys keep their values, so the v7 profile is untouched.
+         "hull_top": "#6b3a34", "hull_low": "#2a161a",
+         "house_mid": "#55302e", "house_top": "#5f3833", "bridge": "#66403a",
+         "glass_dim": "#1e2a30", "funnel_band": "#7a4038"}
 STROKES = {"ink": "#f2e9df", "accent_dim": "#b07a2a", "line_faint": "#6b4f4a"}
 
 
