@@ -13,7 +13,10 @@ What is measured
               beam_m, width_m                      y extent (beam_m: part "hull" if present)
               depth_m                              z extent (part "hull" if present)
               height_m, stature_m                  z extent of the whole shape
-              rotor_diameter_m                     max(x extent, y extent) of the part containing "rotor"
+              rotor_diameter_m                     max(x extent, y extent) of the part containing "rotor" — WRONG for an
+                                                   odd blade count (no two blades oppose, so no bbox axis spans the
+                                                   diameter); use axis "r" instead (see _extent): 2x the farthest
+                                                   tessellated vertex from the pivot axis, which is the true diameter
               base_width_m, deck_width_m, crown_diameter_m   y extent (whole)
             Others (draught_m, ...) are "unchecked" (they need a waterline), listed, and do not fail the gate.
 * sourced   dims with "src" vs {"assumption": True}. principal = registry required_dims (all dims if the asset is not
@@ -62,8 +65,24 @@ def _part_match(name, part):
 
 
 def _extent(model, axis, part):
-    """(extent_m, part_used). Part = substring / "=exact" / list over model.parts; whole shape if none match."""
+    """(extent_m, part_used). Part = substring / "=exact" / list over model.parts; whole shape if none match.
+    Axis "r" is radial: 2x the farthest tessellated vertex from the pivot axis (meta["pivots"][part]["point"], else
+    the origin) — the true diameter of a rotor, which no bbox axis can span when the blade count is odd."""
     names = [k for k in (model.parts or {}) if part and _part_match(k, part)]
+    if axis == "r":
+        shapes = [model.parts[k] for k in names] or [model.shape]
+        cx, cy = 0.0, 0.0
+        for k in names:
+            piv = ((model.meta or {}).get("pivots") or {}).get(k)
+            if piv:
+                cx, cy = float(piv["point"][0]), float(piv["point"][1])
+                break
+        rmax = 0.0
+        for s in shapes:
+            verts, _ = s.tessellate(0.02, 0.3)
+            for v in verts:
+                rmax = max(rmax, math.hypot(v.x - cx, v.y - cy))
+        return 2 * rmax, (",".join(names) if names else "*")
     boxes = [_bbox(model.parts[k]) for k in names] or [_bbox(model.shape)]
     x0, y0, z0 = (min(b[i] for b in boxes) for i in (0, 1, 2))
     x1, y1, z1 = (max(b[i] for b in boxes) for i in (3, 4, 5))
