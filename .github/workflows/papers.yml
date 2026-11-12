@@ -54,6 +54,7 @@ jobs:
         run: |
           python -m offsim.feed.run --queries papers/queries.yaml --out papers/feed.jsonl --since "$SINCE"
           python -m offsim.research.tags --feed papers/feed.jsonl --out papers/tags.jsonl
+          git show origin/main:papers/review.yaml > papers/review.yaml 2>/dev/null || true   # human verdicts live on main
           python -m offsim.research.gaps --tags papers/tags.jsonl --out papers/gaps.yaml
 
       - name: Commit when the feed grew, then push

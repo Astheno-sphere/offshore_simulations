@@ -4,6 +4,23 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-13 — gap scout live, loop rehearsed, Nordlys invigilated. main 735 pass, 7 skip.
+- W6 merged: gap noise killed (of 712 records only 4 state a code link, 0 state unavailability, so `no-code` is now
+  dormant and the list fell 26 -> 8), gaps ranked support x novelty x feasibility x audience with every factor
+  written into the entry, synonym dedupe, `offsim gap list | review | draft`, human verdicts in papers/review.yaml
+  (the papers workflow now reads it from main so a regeneration cannot lose them).
+  Top gap: no-norway-vrptw-psv 0.38. NO gap reaches feasibility 1: every top gap is a class no registered solver or
+  engine covers. That is the real next build (modeller work), not more diagrams.
+- Loop rehearsed end to end on synthetic weather: helicopter scenario passes gates 0-4, gate 4 reproduces the paper's
+  Floro instance (9980.50 vs 9980), status marks it not reportable, and `offsim article` refuses it. See TESTLOG.
+- Audit 6: Nordlys's N2/N3 re-verified by me. CAD QA pass for all nine is true; AW189 fixed from a new source (EASA
+  drawing), not by bending a dim; he found a real bug in our own qa.py (radial rotor measure). Two gaps: his
+  tests/golden/section.png is stale (test fails on a clean checkout until regenerated) and NO workflow has run on
+  Actions - all his runs were local on his VM, so the runner path is still unproven.
+- Never run on Actions: solve (AMPL), film, render, entur-realtime, live-check. papers and fetch-world: one run each.
+Open decisions for Arshad: cap WIND-OM/WIND-INST feasibility at 2/3 (they dispatch themselves, no solver)? audience
+weights and the filmable set {psv, heli, ferry} are editorial. Secrets still unset: BW_CLIENT_ID/SECRET, AMPL_LICENSE_UUID.
+
 ## 2026-11-12 (night) — the machine is alive on main: image built, CI green, article + visual gate in. 720 pass, 7 skip.
 - `tests` CI on main: SUCCESS (the 30-min hang was the Stavanger whelp test; Nordlys marked it OFFSIM_SLOW).
 - `machine-image`: SUCCESS. `ghcr.io/astheno-sphere/offsim:latest` exists (two build failures first: constraints.txt
