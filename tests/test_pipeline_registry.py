@@ -54,9 +54,10 @@ def test_sea_demo_report_keeps_its_keys_and_defaults(tmp_path):
 
 
 def test_unsupported_class_and_unavailable_tool_stop_at_gate_0(tmp_path):
-    rep = run(demo(tmp_path, problem={**yaml.safe_load(DEMO.read_text())["problem"], "class": ["PDP"]}), tmp_path / "a", seconds=1)
+    # why: A1: the ortools solver now covers PDP, so PDP is no longer an unsupported class; PSV-PDP (no tool) takes its place
+    rep = run(demo(tmp_path, problem={**yaml.safe_load(DEMO.read_text())["problem"], "class": ["PSV-PDP"]}), tmp_path / "a", seconds=1)
     d = rep["gates"]["0_provenance"]["detail"]
-    assert rep["status"] == "stopped at gate 0_provenance" and d["unsupported_classes"] == ["PDP"]
+    assert rep["status"] == "stopped at gate 0_provenance" and d["unsupported_classes"] == ["PSV-PDP"]
     rep = run(demo(tmp_path, name="b.yaml", engine="nope"), tmp_path / "b", seconds=1)
     d = rep["gates"]["0_provenance"]["detail"]
     assert rep["status"] == "stopped at gate 0_provenance" and "unknown engine" in d["unavailable"]["engine:nope"]

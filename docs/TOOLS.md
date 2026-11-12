@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-161 tools · 35 tested · 13 wired · 10 installed · 53 candidate · 4 manual · 46 watch.
+161 tools · 36 tested · 13 wired · 10 installed · 52 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -14,7 +14,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | world | 6 | 3 | 2 | 6 | 3 | 8 | 28 |
 | traffic | 2 | 4 | 3 | 0 | 1 | 2 | 12 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
-| solver | 3 | 1 | 0 | 2 | 0 | 4 | 10 |
+| solver | 4 | 1 | 0 | 1 | 0 | 4 | 10 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
@@ -46,6 +46,7 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [PyVRP](https://github.com/PyVRP/PyVRP) | solver | tested | here | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | solver | tested | here | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). |
 | [whelp (WFPPP weekly-helicopter solver](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/solve/whelp.py) | solver | tested | here | Weekly helicopter program (WFPPP) from Gribkovskaia & Slettemark 2025: flight generation + two-stage decomposition (Stage 1 levelling, Stage 2 start times, Pyomo + HiGHS); solver 'whelp'. |
+| [Google OR-Tools](https://github.com/google/or-tools) | solver | tested | here | Solver 'ortools' (routing library, pip wheel 9.15, runs offline): CVRP, VRPTW and PDP (Problem.pairs: AddPickupAndDelivery, same vehicle, pickup strictly before delivery, load in [0, cap]). Second independent routing solver: matches PyVRP and the exact Pyomo optimum on the demo CVRP and on the VRPTW test (tests/test_ortools.py). Runs in a subprocess because ortools and highspy clash on HiGHS symbols in one interpreter. CP-SAT scheduling (helicopter synchronisation) is not wrapped yet. |
 | [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | simulation | tested | here | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. |
 | [air (weather-gated helicopter engine](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/engines/air_engine.py) | simulation | tested | here | Weather-gated helicopter engine: cancels flights past the wind limit, rebooks into remaining weekly slack, reports unmet; engine 'air'. Monday storm on the solved Florø program: 2 cancelled, 1 rebooked, 1 unmet. |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | simulation | tested | here | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. |
@@ -161,12 +162,12 @@ _Exact and heuristic optimisation for routing and scheduling_
 
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
+| [Google OR-Tools](https://github.com/google/or-tools) | Apache-2.0 | tested | here | now | Solver 'ortools' (routing library, pip wheel 9.15, runs offline): CVRP, VRPTW and PDP (Problem.pairs: AddPickupAndDelivery, same vehicle, pickup strictly before delivery, load in [0, cap]). Second independent routing solver: matches PyVRP and the exact Pyomo optimum on the demo CVRP and on the VRPTW test (tests/test_ortools.py). Runs in a subprocess because ortools and highspy clash on HiGHS symbols in one interpreter. CP-SAT scheduling (helicopter synchronisation) is not wrapped yet. Evidence: `offsim/solve/ortools_solver.py` `offsim/solve/ortools_worker.py` `tests/test_ortools.py` `offsim/papers/_templates/pdp/scenario.yaml` |
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | MIT | tested | here | now | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). Evidence: `skills/opt-model/scripts/models.py` `offsim/solve/pyomo_solver.py` `tests/test_opt_model.py` `tests/test_engines_core.py` |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | MIT | tested | here | now | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. Evidence: `offsim/solve/pyvrp_adapter.py` `offsim/solve/pyvrp_solver.py` `tests/test_opt_model.py` `tests/test_engines_core.py` |
 | [whelp (WFPPP weekly-helicopter solver](https://github.com/Astheno-sphere/offshore_simulations/tree/main/offsim/solve/whelp.py) | MIT | tested | here | now | Weekly helicopter program (WFPPP) from Gribkovskaia & Slettemark 2025: flight generation + two-stage decomposition (Stage 1 levelling, Stage 2 start times, Pyomo + HiGHS); solver 'whelp'. Evidence: `offsim/solve/whelp.py` `offsim/solve/ampl/whelp.mod` `tests/test_whelp.py` `offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.yaml` |
 | [ALNS (N-Wouda)](https://github.com/N-Wouda/ALNS) | MIT | candidate | here | next | Adaptive large neighbourhood search framework: re-implement a paper's metaheuristic faithfully when PyVRP cannot express it. |
 | [AMPL (amplpy) with HiGHS/CBC](https://ampl.com) | proprietary (academic licence); amplpy BSD-3 | wired | actions | next | Exact models from .mod files on Actions (secret AMPL_LICENSE_UUID); Pyomo twin cross-checks. Evidence: `offsim/solve/ampl_adapter.py` `offsim/solve/ampl/cvrp.mod` `tests/test_ampl.py` `.github/workflows/solve.yml` |
-| [Google OR-Tools](https://github.com/google/or-tools) | Apache-2.0 | candidate | here | next | Independent second routing solver; CP-SAT for scheduling and synchronisation (helicopter papers). |
 | [jsprit](https://github.com/graphhopper/jsprit) | Apache-2.0 | watch | laptop | later | Java toolkit for rich VRPs; reference implementation in older papers. |
 | [RL4CO](https://github.com/ai4co/rl4co) | MIT | watch | actions | later | Learned routing heuristics; for papers that use RL. |
 | [Timefold Solver](https://github.com/TimefoldAI/timefold-solver) | Apache-2.0 | watch | laptop | later | Java/Kotlin planning engine (vehicle routing, crew rostering); if a paper needs rich scheduling. |

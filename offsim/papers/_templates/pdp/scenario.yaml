@@ -1,0 +1,59 @@
+# TEMPLATE: pickup and delivery (PDP): vehicles collect a load at a pickup stop and bring it to its paired delivery stop.
+# Copy to offsim/papers/<id>/scenario.yaml (paper-extract skill). Every value: {value, src: page/table/eq} or
+# {value, assumption: true, why}. Coordinates, quantities and fleet below are PLACEHOLDERS (all assumptions) near Moss;
+# replace each with the paper's values and a src before reporting anything.
+#
+# Pairing (offsim/solve/ortools_solver.py): each stop has `role: pickup | delivery` and `pair: <id>`; a pair is exactly one
+# pickup and one delivery with the same `pair` id and the same `demand` (the quantity moved, > 0). A solver gets
+# Problem.pairs {pickup node: delivery node} and the signed demand the replay uses (delivery +q, pickup -q), so the load
+# on board rises by q at the pickup and falls by q at the delivery. Constraints: both stops of a pair on the SAME vehicle,
+# the pickup BEFORE the delivery, load within [0, capacity]. Every stop belongs to a pair; mixing in plain deliveries from
+# the base, release times, a window on the base and several fleet entries raise Unsupported (never approximated).
+# Optional time windows per stop (`tw`, class [PDP, VRPTW]) follow offsim/papers/_templates/vrptw/scenario.yaml.
+#
+# STATUS: solver `ortools` implements PDP (tests/test_ortools.py). `offsim run` needs the pipeline to build
+# Problem.pairs from this block and the replay engine to list PDP in its classes (see coordination/reports/A1.md);
+# until then gate 0 stops on this template and the solver is used through the Problem API.
+#
+# World: `world: none` runs on great-circle legs in open sea (tests, quick checks). For a real run use a sea-lane world
+# (`world: oslofjord`, pulled with `python -m offsim.worlds.fetch_world --pull oslofjord`). Vessels route on lanes, never
+# across land (CLAUDE.md).
+paper:
+  id: author-year-pdp                # folder name
+  title: ""
+  authors: []
+  year: null
+  doi: ""
+  licence: ""
+problem:
+  class: [PDP]
+  objective: total distance sailed, every pickup served before its delivery by the same vessel
+  constraints:
+    - {name: capacity, formula_or_text: "load on board after each stop <= vessel capacity and >= 0", assumption: true, why: "placeholder"}
+    - {name: pairing, formula_or_text: "a pair's pickup and delivery are on the same route, pickup first", assumption: true, why: "placeholder"}
+  solver: ortools
+solver: ortools                      # registry name (offsim.engines.base): ortools (PDP) | pyvrp | pyomo | ampl | none
+engine: replay                       # registry name: replay (sea) | road (land)
+world: none                          # see the header
+fleet:
+  - cls: psv
+    count: {value: 2, assumption: true, why: "placeholder fleet"}
+    capacity: {value: 10, unit: deck slots, assumption: true, why: "placeholder"}
+    speed_mps: {value: 5.66, assumption: true, why: "11 knots service speed, typical PSV, placeholder"}
+    domain: sea
+instance:
+  source: "synthetic placeholder (said on screen)"
+  service_s: {value: 1800, assumption: true, why: "30 min alongside per stop, placeholder"}
+  base: {name: Base, lon: 10.6540, lat: 59.4330, assumption: true, why: "placeholder quay near Moss"}
+  stops:                             # role + pair; demand = quantity moved by the pair (positive, equal on both stops)
+    - {name: P1, kind: platform, role: pickup,   pair: A, lon: 10.5700, lat: 59.2400, demand: {value: 4, assumption: true}, assumption: true}
+    - {name: D1, kind: platform, role: delivery, pair: A, lon: 10.5300, lat: 59.1700, demand: {value: 4, assumption: true}, assumption: true}
+    - {name: P2, kind: wind_turbine, role: pickup,   pair: B, lon: 10.6600, lat: 59.2200, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: D2, kind: platform, role: delivery, pair: B, lon: 10.5900, lat: 59.3300, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: P3, kind: platform, role: pickup,   pair: C, lon: 10.6200, lat: 59.1500, demand: {value: 5, assumption: true}, assumption: true}
+    - {name: D3, kind: wind_turbine, role: delivery, pair: C, lon: 10.5500, lat: 59.2800, demand: {value: 5, assumption: true}, assumption: true}
+reported: {}
+story:
+  question: "how far do two vessels sail to move three loads from their pickups to their deliveries?"
+  accent: optimised plan
+  comparison: ""
