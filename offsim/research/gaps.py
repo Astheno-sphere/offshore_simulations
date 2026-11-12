@@ -99,6 +99,8 @@ def suggest_engine(cls: str, mode: str) -> str:
         return "air"
     if cls == "VRPTW":                      # openclsim has no time windows
         return "replay"
+    if cls == "PDP":                        # paired pickup/delivery: replay is the only engine that lists PDP
+        return "replay"
     if cls == "CVRP":
         return "openclsim" if mode in ("psv", "ferry", "ctv") else "replay"
     if mode == "wtiv":

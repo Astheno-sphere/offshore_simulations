@@ -1,4 +1,4 @@
-generated_utc: '2026-11-12T22:25:09Z'
+generated_utc: '2026-11-12T23:46:58Z'
 gaps:
 - gap_id: no-norway-vrptw-psv
   kind: no-norway
@@ -36,15 +36,15 @@ gaps:
   class: PDP
   mode: heli
   support: 3
-  papers: &id003
+  papers: &id001
   - 10.1016/j.cie.2017.08.007
   - 10.1016/j.omega.2015.02.010
   - 10.2298/yjor220915040l
   why: 3 papers on PDP/heli; none tags a Norwegian region.
-  engine: air
+  engine: replay
   status: open
   base_paper: 10.2298/yjor220915040l
-  kpis: &id004
+  kpis: &id002
   - availability
   - co2_t
   - cost
@@ -58,21 +58,43 @@ gaps:
   factors:
     support: 0.6
     novelty: 0.912
-    feasibility: 0.333
+    feasibility: 1.0
     audience: 1.0
-    score: 0.1822
+    score: 0.5472
   factor_notes:
     support: 3 papers, saturates at 5
     novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
-    feasibility: solver none covers PDP; engine air does not cover PDP; data target
-      Norway reachable
+    feasibility: solver covers PDP; engine replay covers PDP; data target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
+- gap_id: no-uncertainty-pdp-heli
+  kind: no-uncertainty
+  class: PDP
+  mode: heli
+  support: 3
+  papers: *id001
+  why: 3 papers on PDP/heli; all deterministic (uncertainty none).
+  engine: replay
+  status: open
+  base_paper: 10.2298/yjor220915040l
+  kpis: *id002
+  factors:
+    support: 0.6
+    novelty: 0.912
+    feasibility: 0.667
+    audience: 0.6
+    score: 0.219
+  factor_notes:
+    support: 3 papers, saturates at 5
+    novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
+    feasibility: solver covers PDP; engine replay covers PDP; data target none not
+      reachable (no world definition or pulled data)
+    audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'
 - gap_id: no-norway-ferry-sched-ferry
   kind: no-norway
   class: FERRY-SCHED
   mode: ferry
   support: 10
-  papers: &id001
+  papers: &id003
   - 10.1016/j.jairtraman.2024.102711
   - 10.1016/j.omega.2019.102178
   - 10.1061/9780784482292.015
@@ -87,7 +109,7 @@ gaps:
   engine: openclsim
   status: open
   base_paper: 10.1061/9780784482292.015
-  kpis: &id002
+  kpis: &id004
   - availability
   - co2_t
   - cost
@@ -206,12 +228,12 @@ gaps:
   class: FERRY-SCHED
   mode: ferry
   support: 10
-  papers: *id001
+  papers: *id003
   why: 10 papers on FERRY-SCHED/ferry; all deterministic (uncertainty none).
   engine: openclsim
   status: open
   base_paper: 10.1061/9780784482292.015
-  kpis: *id002
+  kpis: *id004
   factors:
     support: 1.0
     novelty: 0.5
@@ -223,27 +245,4 @@ gaps:
     novelty: 'no neighbouring cell (same class or mode) to compare with: 0.5'
     feasibility: solver none covers FERRY-SCHED; engine openclsim does not cover FERRY-SCHED;
       data target none not reachable (no world definition or pulled data)
-    audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'
-- gap_id: no-uncertainty-pdp-heli
-  kind: no-uncertainty
-  class: PDP
-  mode: heli
-  support: 3
-  papers: *id003
-  why: 3 papers on PDP/heli; all deterministic (uncertainty none).
-  engine: air
-  status: open
-  base_paper: 10.2298/yjor220915040l
-  kpis: *id004
-  factors:
-    support: 0.6
-    novelty: 0.912
-    feasibility: 0.0
-    audience: 0.6
-    score: 0.0
-  factor_notes:
-    support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
-    feasibility: solver none covers PDP; engine air does not cover PDP; data target
-      none not reachable (no world definition or pulled data)
     audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'

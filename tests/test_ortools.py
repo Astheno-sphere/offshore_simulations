@@ -197,9 +197,6 @@ def test_template_declares_pairs_ortools_and_replay():
     assert all(sorted(r) == ["delivery", "pickup"] for r in roles.values())
 
 
-@pytest.mark.xfail(strict=True, reason="gate 0 tool_mismatch: the replay engine lists CVRP/VRPTW only and the pipeline does not "
-                   "build Problem.pairs (pipeline.py and the engines are outside package A1). Wiring below; strict so the "
-                   "integrator removes this mark when it lands.")
 def test_template_reaches_gate_3_as_pdp(tmp_path):
     from offsim.pipeline import run
     rep = run(TEMPLATE, out=tmp_path)

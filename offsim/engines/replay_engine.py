@@ -68,7 +68,7 @@ def check_plan(problem: Problem, plan: Plan, world: World) -> None:
 @register_engine("replay")
 class ReplayEngine:
     name = "replay"
-    classes = {"CVRP", "VRPTW"}
+    classes = {"CVRP", "VRPTW", "PDP"}
     needs_weather = False
 
     def simulate(self, problem: Problem, plan: Plan, world: World,

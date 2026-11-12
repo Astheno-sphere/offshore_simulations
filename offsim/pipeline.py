@@ -53,7 +53,7 @@ from offsim.engines.base import (ENGINE_MODULES, SOLVER_MODULES, Plan, Problem, 
 from offsim.solve.pyvrp_adapter import matrix
 
 ROOT = Path(__file__).resolve().parents[1]
-ROUTING = {"CVRP", "VRPTW"}       # classes that need a distance matrix / sea lanes / roads
+ROUTING = {"CVRP", "VRPTW", "PDP"}   # classes that need a distance matrix / sea lanes / roads
 SELF_DISPATCH = {"wombat", "orbit", "gtfs"}          # engines that decide their own moves: gate 2 has no plan to compare
 DEFAULT_ENGINE = {"WIND-OM": "wombat", "WIND-INST": "orbit", "TRANSIT-REPLAY": "gtfs"}
 EXTRA_KEYS = ("wombat", "orbit", "orbit_geo", "gtfs", "limits", "berths", "weather_t0_s", "wfppp")   # sim.<k> | extra.<k> -> Problem.extra
@@ -299,6 +299,23 @@ def build_problem(sc, data_root=None):
         demand = {i: int(v(s["demand"])) for i, s in enumerate(stops, 1)}
         service = {i: float(v(s.get("service_s", inst.get("service_s", 0))) or 0) for i, s in enumerate(stops, 1)}
         tw = {i: tuple(v(s["tw"])) for i, s in enumerate(stops, 1) if s.get("tw")}
+        if "PDP" in classes:
+            # pairing comes from the stops themselves: role pickup|delivery + a shared `pair` id. The demand the
+            # solver and the replay see is signed (pickup -q, delivery +q), so load on board rises at the pickup
+            # and falls at the delivery; the replay's load floor of 0 is what proves the order held.
+            by_pair = {}
+            for i, st in enumerate(stops, 1):
+                if "pair" not in st or "role" not in st:
+                    raise ValueError(f"PDP stop {st.get('name', i)!r} needs `role: pickup|delivery` and `pair: <id>`")
+                by_pair.setdefault(st["pair"], {})[st["role"]] = i
+            for pid, roles in by_pair.items():
+                if set(roles) != {"pickup", "delivery"}:
+                    raise ValueError(f"PDP pair {pid!r} needs exactly one pickup and one delivery, got {sorted(roles)}")
+            pairs = {r["pickup"]: r["delivery"] for r in by_pair.values()}
+            for pk, dl in pairs.items():
+                if abs(demand[pk]) != abs(demand[dl]):
+                    raise ValueError(f"PDP pair at nodes {pk}/{dl}: pickup and delivery demand differ")
+                demand[pk] = -abs(demand[dl])
     extra = {}
     for key in EXTRA_KEYS:
         for src in (simc, sc.get("extra") or {}):
@@ -314,6 +331,8 @@ def build_problem(sc, data_root=None):
     if road:
         extra["road_leg_profile"] = road["profile"]
     problem = Problem(cls=classes, nodes=nodes, dist_m=D, demand=demand, fleet=fleet, service_s=service, tw=tw, extra=extra)
+    if "PDP" in classes:
+        problem.pairs = pairs
     w = World(name=world or "none", land=land, legs=legs)
     return problem, w, {"graph": graph, "snap_m": snap, "names": names, "road": road, "road_mode": road_mode,
                         "world_dir": world_dir}

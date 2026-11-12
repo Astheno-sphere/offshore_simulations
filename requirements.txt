@@ -19,3 +19,4 @@ highspy
 # Rendering (offsim/render_deck): also Node 22, ffmpeg, Chrome
 # pip install playwright
 # Optional explainers: manim (needs apt libpango1.0-dev dvisvgm + LaTeX), pyvista (off-screen 3D)
+ortools

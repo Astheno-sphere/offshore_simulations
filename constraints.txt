@@ -27,3 +27,4 @@ simpy==4.1.2
 taichi==1.7.4
 wombat==0.13.5
 xarray==2026.9.0
+ortools==9.15.6755
