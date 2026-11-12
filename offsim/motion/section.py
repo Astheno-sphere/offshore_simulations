@@ -375,7 +375,10 @@ def render(sc, st, series, frame, nframes, out_path, deck_text, mp=None, ctx=Non
         _text(cv, x, y, val, 19, "Bold", P["accent"] if hot else P["muted"])
         x += cv.measure(val, ("Inter", "Bold"), 19) + 34
     # chart: air temperature over the aft deck, drawn as time advances
-    cx0, cy0, cw, chh = 56, y + 50, W - 112, 170
+    # The chart takes the band the map would have used when there is no map: craft rule 6, every region earns its
+    # space. Without this a mapless section leaves the bottom half at ~11 % of the ink and the visual gate refuses it.
+    cx0, cy0, cw = 56, y + 50, W - 112
+    chh = 170 if mp is not None else 170 + 300
     _text(cv, cx0, cy0 - 4, "LOWEST EDGE OF THE HOT PLUME (>20 °C) ABOVE THE AFT DECK, m", 14, "Bold", P["muted"])
     gy0, gy1 = cy0 + 26, cy0 + chh
     ymax = 30.0
@@ -385,7 +388,8 @@ def render(sc, st, series, frame, nframes, out_path, deck_text, mp=None, ctx=Non
     for v in (0, 10, 20, 30):
         yy = gy1 - (gy1 - gy0) * v / ymax
         cv.line([(cx0, yy), (cx0 + cw, yy)], "#4a3236", 1.0)
-        _text(cv, cx0 + cw - 30, yy - 18, f"{v}", 13, "Regular", P["muted"])
+        # tick labels sit on the crew-zone band, where `muted` falls to 3.8:1; streak_hi keeps them legible (7:1)
+        _text(cv, cx0 + cw - 30, yy - 18, f"{v}", 13, "Regular", P["streak_hi"])
     t0, t1 = series[0][0], series[0][0] + nframes * (series[1][0] - series[0][0] if len(series) > 1 else 1)
     pts = [(cx0 + cw * (t - t0) / (t1 - t0), gy1 - (gy1 - gy0) * min(max(h, 0), ymax) / ymax)
            for t, _, h in series if np.isfinite(h)]

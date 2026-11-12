@@ -48,3 +48,24 @@ jobs:
       - run: python -m offsim.examples.toy_fjord --out out/toy
       - run: python offsim/render_deck/render.py --scene out/toy/scene.json --format draft --check --agents lineart
       - run: python offsim/render_deck/render.py --scene out/toy/scene.json --format draft --check --agents sprite
+
+  # The same suite inside the machine image (ghcr.io/astheno-sphere/offsim), so "works on my machine", in a Codespace,
+  # and in CI are one statement. Runs on main only; the hosted job above keeps branch feedback fast.
+  image-tests:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ghcr.io/astheno-sphere/offsim:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -u -m pytest -v tests --durations=25
+        env:
+          PYTHONUNBUFFERED: "1"
+          OMP_NUM_THREADS: "2"

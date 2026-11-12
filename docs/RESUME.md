@@ -4,6 +4,24 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-12 (night) — the machine is alive on main: image built, CI green, article + visual gate in. 720 pass, 7 skip.
+- `tests` CI on main: SUCCESS (the 30-min hang was the Stavanger whelp test; Nordlys marked it OFFSIM_SLOW).
+- `machine-image`: SUCCESS. `ghcr.io/astheno-sphere/offsim:latest` exists (two build failures first: constraints.txt
+  outside the build context, then no C/Fortran toolchain in python:3.12-slim; both logged in TESTLOG).
+- New CI job `image-tests` runs the full suite inside that image on main: one statement for laptop, Codespace and CI.
+- R1 merged: Nordlys's skia + CAD-HLR section film, mappanel, sheet.py, cad_sprites, ghia1982 harness; S-92 QA pass.
+- W8 merged: `offsim article` (linkedin | thought | readme_entry) + `offsim publish`; every digit must trace to a
+  report ref, refuses failed gates / synthetic weather / unlisted assumptions. Funnel stages article+publish are real.
+- V1 merged: `offsim/cinema/visual_gate.py` (edges, strokes, palette, accent, contrast, type scale, margins, balance),
+  golden frames, findings ported to skia, `story.check` refuses a storyboard whose frame fails and names the rule.
+- The gate's first act was to refuse our own frames; both faults repaired in section.py (chart fills the mapless band;
+  tick labels brightened to 7:1) and logged via `offsim learn`. Remaining soft findings: 8 text sizes (rule 17 allows
+  3 + methods) and two labels over the streak field at ~2.9:1.
+Open, in order: (1) Arshad: package access + Codespaces secrets -> create the Codespace (docs/MACHINE.md);
+(2) Actions: live-check, papers, fetch-world bergen-ncs; set OFFSIM_MAILTO, AMPL_LICENSE_UUID, MUSE_AI_KEY;
+(3) P2: W6 gap scout (18 of 26 gaps are no-code noise), W7 intake tables; (4) drafter: aw189 + platform_jacket QA;
+(5) director: reduce the section's type scale to rule 17.
+
 ## 2026-11-12 (evening) — main is the machine: P1 + Nordlys's film path merged. 670 pass, 6 skip.
 main = W0 + W1-W5 (conductor, doctor, concordance, live-check, agents+MCP) + R1 (Nordlys's N1 reconciled:
 section.py skia+CAD-HLR, mappanel, sheet.py, cad_sprites, ghia1982 harness, linkedin reports; drawing.py merged;
