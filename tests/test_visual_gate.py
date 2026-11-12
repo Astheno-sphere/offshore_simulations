@@ -220,14 +220,18 @@ def test_golden_frames_pass_the_gate_strict(name, kind, preview):
     assert ok, why
 
 
-def test_section_golden_verdict_is_the_known_footer_finding():
-    """The film's own layout with its map panel. The gate finds the methods block 1.5 % from the bottom edge (section.py
-    puts the DRAFT line at y = 1331 of 1350). When section.py is fixed this test fails: regenerate the golden
-    (PYTHONPATH=. python tests/golden/make_goldens.py), then assert the frame passes."""
+def test_section_golden_passes_the_gate():
+    """The film's own layout with its map panel, after the N3 visual-gate fix (section.py: 3 sizes + methods, panel-top
+    labels in ink, DRAFT line inside the safe area). Regenerated golden; the frame passes the gate (no hard failure).
+    One soft finding remains at this 1/3 preview scale only: the middle methods line reads 2.3:1 over a textured field
+    because the contrast ring (3 px floor) catches the neighbouring methods glyphs after downscaling — the old golden
+    measured 2.4:1 on the same line, and the same lines pass 4.8:1 at the delivered 1080 x 1350."""
     r = vg.inspect(GOLD / "section.png", {"kind": "section", "text": _texts("section"), **PREVIEW})
     ok, rs, why = rules(r, strict=False)
-    assert not ok and rs == {"margins"} and "DRAFT" in why[0]
-    assert {w.split(":")[0] for w in r["warnings"]} >= {"type_scale"}                # 8 sizes where rule 17 allows 3 + methods
+    assert ok, why
+    assert r["type_scale"]["n_sizes"] == 3 and r["type_scale"]["methods_size"] == 13.0
+    assert r["margins"]["text_outside"] == [] and r["margins"]["ink_band_share"] <= 0.004
+    assert {w.split(":")[0] for w in r["warnings"]} == {"contrast"}     # only the preview-scale methods-ring artefact
 
 
 def test_compare_ignores_pixel_noise_and_flags_structural_change():
@@ -301,7 +305,7 @@ def test_check_accepts_a_storyboard_that_passes_the_gate(small_frames):
     warns = []
     sb = board(with_visual(FAN), with_visual(PAIRED), with_visual(sec_shot(seconds=4)))
     assert story.check(sb, rep, warnings=warns) == []
-    assert any("type_scale" in w and w.startswith("shot 2 (section)") for w in warns)             # soft finding surfaced, not blocking
+    assert warns == []                                                              # was: a type_scale soft finding on shot 2 (section), fixed in section.py (N3)
 
 
 def test_check_refuses_a_shot_that_fails_and_names_the_rule(small_frames):
@@ -315,7 +319,7 @@ def test_check_refuses_a_shot_that_fails_and_names_the_rule(small_frames):
 def test_shot_visual_block_strict_and_spec_overrides(small_frames):
     rep, _, _ = make_report()
     strict = story.check(board(with_visual(sec_shot(seconds=4), strict=True)), rep)
-    assert any("visual gate: type_scale:" in p for p in strict)
+    assert strict == []                                                             # was: a type_scale failure; the section shot now passes strict (N3)
     impossible = story.check(board(with_visual(FAN, spec={"edges": {"in_panel": [0.9, 1.0]}})), rep)
     assert any("visual gate: edges:" in p and "main-panel edge density" in p for p in impossible)
     typo = story.check(board(with_visual(FAN, spec={"edgez": {}})), rep)
