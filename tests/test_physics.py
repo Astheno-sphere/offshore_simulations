@@ -65,6 +65,38 @@ def test_vessel_lineart_detail_and_solids():
     assert len(solids) >= 5 and exhaust[1] > 10.0 + 15        # funnel top well above the waterline
 
 
+def test_ghia_reference_tables():
+    """Ghia 1982 Tables I-II as stored: 17 u points, 16 v points at Re=400 (the known
+    misprint v=-0.23827 at x=0.9063 is dropped, not zeroed)."""
+    from offsim.physics.ghia1982 import centreline
+
+    y, u100 = centreline(100, "u")
+    assert len(y) == 17 and abs(u100[8] + 0.20581) < 1e-5   # u(0.5, 0.5), centreline
+    assert abs(min(u100) + 0.21090) < 1e-5                  # u_min
+    x, v400 = centreline(400, "v")
+    assert len(x) == 16 and 0.9063 not in x
+    _, v100 = centreline(100, "v")
+    assert abs(v100[8] - 0.05454) < 1e-5                   # v(0.5, 0.5)
+
+
+def test_ghia_cavity_runs_and_reports():
+    """Ghia validation harness: runs to a finite, vortical state and reports errors.
+    No error threshold is asserted — the repo has none, and inventing one would turn
+    a measurement into a verdict. The numbers live in proof/ghia-cavity.json."""
+    import importlib.util
+
+    import numpy as np
+
+    spec = importlib.util.spec_from_file_location("ghia_cavity", "tools/ghia_cavity.py")
+    ghia = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ghia)
+    r = ghia.run_cavity(100, n=33, t_end=8.0, jacobi=40)
+    assert np.isfinite(r["u_min"]) and r["u_min"] < 0        # primary vortex: reversed flow mid-cavity
+    assert r["v_max"] > 0
+    assert r["u_err"]["rms"] >= 0 and r["v_err"]["rms"] >= 0
+    assert r["u_err"]["n_points"] == 15 and r["v_err"]["n_points"] == 15  # interior points only
+
+
 def test_narration_follows_measurement():
     import importlib.util
     spec = importlib.util.spec_from_file_location("film", "tools/section_film.py")
@@ -89,3 +121,51 @@ def test_mappanel_frame_and_zoom_rule():
     assert mappanel.ZOOM_RATE <= 0.35                         # cinema rule cap
     v0, v1 = mp._view(0, route[1]), mp._view(1, route[1])
     assert v1[2] < v0[2]                                      # zooms in over the shot
+
+
+def test_mappanel_second_vessel_and_route_at():
+    """v6 demo film: a second vessel draws on the same panel; route_at advances with the run clock."""
+    import importlib.util
+    import numpy as np
+    from shapely.geometry import Polygon
+
+    from offsim.motion import mappanel
+    land = Polygon([(10.0, 59.0), (10.2, 59.0), (10.2, 59.4), (10.0, 59.4)])
+    mp = mappanel.MapPanel(land, (10.1, 59.1, 10.6, 59.3), size=(400, 150), seconds=5)
+    route = [(10.3, 59.25), (10.4, 59.2), (10.5, 59.15)]
+    other = ("PSV-2", [(10.3, 59.2), (10.4, 59.15)], 1, (10.3, 59.2))
+    img = mp.frame(0.5, route, 2, route[1], others=[other])
+    assert img.size == (400, 150)
+    # v8: a second vessel whose marker is off-frame gets an edge indicator, not silence
+    far = ("PSV-2", [(11.5, 59.2)], 1, (11.5, 59.2))
+    assert mp.frame(0.5, route, 2, route[1], others=[far]).size == (400, 150)
+    spec = importlib.util.spec_from_file_location("film", "tools/section_film.py")
+    film = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(film)
+    times = np.array([0.0, 100.0, 200.0])
+    assert film.route_at(route, times, 0.0) == (1, route[0])
+    k, mk = film.route_at(route, times, 150.0)
+    assert k == 2 and abs(mk[0] - 10.45) < 1e-9 and abs(mk[1] - 59.175) < 1e-9  # interpolated midpoint
+    assert film.route_at(route, times, 999.0) == (3, route[2])
+
+
+def test_demo_narration_from_report_numbers():
+    """v6 deck text: run totals come from the gated report, the plume finding from the solver."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("film", "tools/section_film.py")
+    film = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(film)
+    run = {"vessels": 2, "sites": 6, "distance_km": 113.346, "makespan_s": 20026.14}
+    clear = film.narration([(0, 1.0, 6.0), (1, 2.0, 4.2)], run)
+    assert "2 vessels, 6 sites, 113 km in 5.6 h" in clear[0]
+    assert "4 m" in clear[1] and "stays clear" in clear[1]
+    hit = film.narration([(0, 12.0, 0.5)], run)
+    assert "reaches the deck" in hit[1]
+    # both branches must fit one line at font 22 in the 968 px deck (v6 frame f0360 overflowed)
+    from PIL import Image, ImageDraw, ImageFont
+    fnt = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 22)
+    d = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    worst = film.narration([(0, 99.0, 12.0)], run)
+    for lines in (clear, hit, worst):
+        for line in lines:
+            assert d.textlength(line, font=fnt) <= 968, line
