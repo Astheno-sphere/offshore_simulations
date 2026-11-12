@@ -18,6 +18,10 @@ Research
     python -m offsim feed [--queries Q --out O --since D]                # literature feed -> papers/feed.jsonl
     python -m offsim tag [--feed F --out O]                              # rule-tag the feed -> papers/tags.jsonl
     python -m offsim gaps [--tags T --out O --min-support N]             # gap table and gap list
+Publish
+    python -m offsim article <paper_id|report.json> [--template linkedin|thought|readme_entry] [--out FILE] [--figure PNG ...]
+                                                                         # report refs -> markdown article (every number a ref)
+    python -m offsim publish <paper_id> [--muse] [--video FILE]          # article + figures + manifest.json -> out/<id>/publish/
 Studio
     python -m offsim status                                              # board of all papers: stage, blockers, next action
     python -m offsim next <id>                                           # the next command for one paper, and why
@@ -137,6 +141,17 @@ def build_parser():
     f.add_argument("storyboard")
     f.add_argument("--seconds", type=float, default=2.0, help="solver time")
     f.add_argument("--muse", choices=["public", "unlisted", "private"], help="upload to muse.ai (needs MUSE_AI_KEY)")
+    ar = sub.add_parser("article", help="report.json -> markdown article from refs only (offsim.publish.article)")
+    ar.add_argument("target", help="paper id or path to report.json")
+    ar.add_argument("--template", default="linkedin", choices=["linkedin", "thought", "readme_entry"])
+    ar.add_argument("--out", metavar="FILE", help="default: offsim/papers/<id>/article.md (or beside report.json)")
+    ar.add_argument("--figure", action="append", default=[], metavar="PNG", help="a still or frame the film produced (repeatable)")
+    ar.add_argument("--lang", default="en")
+    pu = sub.add_parser("publish", help="article + figures + manifest.json -> out/<id>/publish/; --muse uploads the video")
+    pu.add_argument("paper_id")
+    pu.add_argument("--muse", action="store_true", help="upload the film to muse.ai (needs MUSE_AI_KEY; otherwise skipped)")
+    pu.add_argument("--video", metavar="FILE", help="default: the film path from the storyboard, if it exists")
+    pu.add_argument("--article", metavar="FILE", help="default: offsim/papers/<id>/article.md")
     t = sub.add_parser("timetable", help="timetable.yaml from a paper -> GTFS folder")
     t.add_argument("timetable")
     t.add_argument("--out", metavar="DIR", required=True)
@@ -194,6 +209,25 @@ def _studio(a):
     return 1 if sp["reason"] in ("failed", "exit-check", "missing-input") and not res["dry_run"] else 0
 
 
+def _publish_cmds(a):
+    from offsim.publish import article
+    try:
+        if a.cmd == "article":
+            p = article.build(a.target, a.template, a.out, a.figure or None, a.lang)
+            print(f"article written: {p}")
+            return 0
+        from offsim.studio import context
+        ctx = context(a.paper_id)
+        art = Path(a.article) if a.article else ROOT / ctx["paper_dir"] / "article.md"
+        film = Path(a.video) if a.video else ROOT / ctx["film"]
+        man = article.publish(art, video=film if film.is_file() else None, muse=a.muse)
+        print(f"publish bundle: {man['bundle']} (muse: {man['muse']['result']})")
+        return 0
+    except article.ArticleError as exc:
+        print(f"offsim {a.cmd}: {exc}", file=sys.stderr)
+        return 2
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else list(argv)
     if argv and argv[0] in PASSTHROUGH:
@@ -205,6 +239,8 @@ def main(argv=None):
         from offsim.pipeline import run
         rep = run(a.scenario, a.out, a.seconds)
         return 0 if all(g["pass"] for k, g in rep["gates"].items() if k != "4_paper") else 1
+    if a.cmd in ("article", "publish"):
+        return _publish_cmds(a)
     if a.cmd in ("status", "next", "advance", "decide"):
         return _studio(a)
     if a.cmd == "resume":
