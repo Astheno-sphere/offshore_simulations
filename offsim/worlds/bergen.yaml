@@ -1,0 +1,25 @@
+# Bergen heliport (Flesland) and the offshore installations it serves (Troll, Oseberg, Gullfaks,
+# Statfjord, Snorre, ...): helicopter crew-change logistics, Gribkovskaia & Slettemark 2025
+# (Logistics 9(2):73). Bbox covers Flesland plus the 50-120 nm ring the paper's installations
+# sit in; the southern edge (59.20 N) excludes the Stavanger-served southern cluster
+# (Johan Sverdrup / Grane / Balder / Alvheim, south of 59.2 N). The paper masks installation
+# identities (B1-B20), so the B-number -> real-installation mapping is a modelling decision
+# for the problem-class build, not something this fetch settles.
+bbox: [1.50, 59.20, 5.60, 61.80]
+osm_land: true
+sodir_keywords: [facilities, field, pipeline, discovery, wellbore]   # matched against FactMaps layer names; NB "facility" does NOT match "Facilities, in place" (substring test) — the facilities layers were silently skipped until this was fixed 2026-11-09
+depth:
+  crs: EPSG:4326                       # 1.5-5.6 E is far from any one UTM zone; merge on a lon/lat grid
+  emodnet: {}
+  kartverket_dtm:
+    metadata_uuid: fd851873-f363-46f9-9fc6-bb1b403575df   # DTM 10 UTM32; see oslofjord.yaml
+    projection_code: "25832"
+    name: Kartverket DTM 10 (UTM32)
+    licence: CC BY 4.0
+manual:
+  - name: Kystverket Historic AIS (HAIS)
+    where: https://hais.kystverket.no/
+    use: helicopter traffic is not AIS; not applicable to this world
+  - name: Kartverket Sjøkart - Dybdedata
+    where: geonorge.no download
+    use: depth areas and contours (optional; routing offshore is open water)
