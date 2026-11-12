@@ -1,6 +1,6 @@
 """Metocean subsetting for the fetch-world workflow. Runs on GitHub Actions: thredds.met.no is blocked in the Claude workspace.
 
-Library: xarray + netCDF4 over OPeNDAP. URLs and variable names below were taken from the metocean-api (MIT)
+Library: xarray + netCDF4 over OPeNDAP. URLs and variable names below were taken from the metocean-api (LGPL-2.1-or-later)
 source, v1.1.14 (`metocean_api/ts/internal/metno/met_products.py`), because the servers cannot be reached here.
 `verified` therefore means "matches metocean-api source", NOT "opened live"; `live_checked` stays False until the
 first Actions run has logged a successful open (record it in docs/TESTLOG.md). A dataset we could not trace to a
