@@ -31,17 +31,26 @@ Open `papers/tags.jsonl` and spot-check the papers behind any gap. Known weak sp
 - Author queries (`author:<surname>`) return common-name noise. Keep only papers whose author list matches.
 Correct a wrong tag by hand in the review notes, not in the rules, unless the same error repeats.
 
-## 3. Confirm gaps
-For each `status: open` gap in `papers/gaps.yaml`:
-1. Read the supporting papers (`papers` list) and confirm the kind is true: a Norwegian case really is absent,
-   the uncertainty really is absent, the code or data really is not linked.
-2. Check the suggested `engine` against `docs/ENGINES.md` "Choosing". Overrule it only with a reason written down.
-3. Mark the gap `confirmed` or `dropped` with a one-line reason. Do not edit the generated fields.
+## 3. Rank and confirm gaps
+Gaps come ranked: `papers/gaps.yaml` holds, per gap, `factors` (support, novelty, feasibility, audience, score) and
+`factor_notes` that say why each number is what it is. Argue with a factor by changing the note's evidence, not the number.
+```bash
+offsim gap list --top 10            # ranked table; dropped gaps hidden (--all shows them)
+offsim gap review <gap_id> --verdict take|drop|later --note "why"   # appends to papers/review.yaml
+```
+- `no-code` is emitted only when every supporting record states its code or data is unavailable (`code_statement`
+  in tags). Silence in an abstract is not evidence; see the `gaps` CLI output for the cells withheld.
+- Feasibility 1 needs a solver and an engine that declare the class, and data for the target region. WIND-OM and
+  WIND-INST have an engine but no solver, so they stop at 2/3 by this rule.
+- The verdict is the human's. `papers/review.yaml` is never regenerated: a dropped gap stays dropped until new papers
+  join its cell, and then the gap says so. Confirm the kind is true by reading the `papers` list before a `take`.
+- Check the suggested `engine` against `docs/ENGINES.md` "Choosing"; overrule it only with a reason in the note.
 
 ## 4. Propose an experiment
-Write `experiment.yaml` next to the paper's scenario (`offsim/papers/<id>/experiment.yaml`). Format: the docstring
-of `offsim/research/experiment.py`. Required: `gap_id`, `base`, `hypothesis`, `variants` (each with `solver` and
-`engine`), `ensemble`, `kpis`, `decision`. `sim-engineer` runs it with `python -m offsim experiment <yaml>`.
+`offsim gap draft <gap_id>` writes `offsim/papers/<base>/experiment.yaml` from the gap and its base paper (the supporting
+paper with the highest tag confidence). It refuses to overwrite and writes no number: hypothesis, solver, ensemble,
+`decision.better` and `decision.min_effect` are null, and every filled name (engine, KPI) is listed under `assumptions`.
+Format: the docstring of `offsim/research/experiment.py`. `sim-engineer` runs it with `python -m offsim experiment <yaml>`.
 - The base scenario must be `reproduced` or `re-run under assumptions` first: `offsim paper <pdf>` drafts it, `paper-extract` confirms it, `offsim run` gates it.
 - Write the decision rule (`kpi`, `compare`, `better`, `min_effect`) before any run. Never change it after a result.
 - Every parameter a variant changes gets a source page or `assumption: true`.
@@ -52,6 +61,7 @@ of `offsim/research/experiment.py`. Required: `gap_id`, `base`, `hypothesis`, `v
 - Values come from `paper-extract` with a page or table source, or they are marked `assumption: true`.
 - A gap is a lead. It becomes work only after the confirm step and an experiment file.
 - Do not commit or push unless asked. Papers and gaps live on `papers/auto`, changed by the workflow.
+- `papers/review.yaml` is human-owned: `offsim gap review` appends to it; nothing rewrites it.
 - Nothing is narrated from an experiment until its ensemble passes every contract check (`sim-corrector`).
 
 ## Transit and timetable papers (added 2026-11-08)
