@@ -63,3 +63,8 @@ Monday storm on the solved Florø program (air engine, synthetic weather): storm
 Full suite (venv-studio): before 443 pass / 5 fail / 7 skip; after 449 pass / 0 fail / 7 skip (346 s).
 Quirk: tests/test_intake.py's module fixture regenerates the committed tests/fixtures/intake/synthetic_paper.pdf with
 fresh CreationDate/ModDate on every run (timestamp-only diff, content identical) — revert it after suite runs.
+
+## 2026-11-12 — first machine-image build: FAILED, fixed
+Build pushed an image without the Python extras: `-c constraints.txt` was not copied into the build context and a
+trailing `|| true` hid the pip error; the smoke test caught it (`No module named 'skia'`). Fix: no constraint file in
+the image install, failure no longer masked, import check inside the build. Lesson logged via `offsim learn` next.
