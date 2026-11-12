@@ -1,6 +1,7 @@
 """Feed sources, dedupe, run CLI, rule tagger and gap finder. Offline: every API answer is a recorded fixture
 in tests/fixtures/feed/ (synthetic content, real response shapes)."""
 import json
+import urllib.error
 import urllib.parse
 
 import pandas as pd
@@ -120,6 +121,76 @@ def test_arxiv_doi_is_canonicalised():
     assert S._doi("https://doi.org/10.1016/J.EJOR.2019.01.001") == "10.1016/j.ejor.2019.01.001"
 
 
+def _http429(url, retry_after=None):
+    headers = {"Retry-After": str(retry_after)} if retry_after is not None else {}
+    return urllib.error.HTTPError(url, 429, "Too Many Requests", headers, None)
+
+
+def test_openalex_retries_429_with_retry_after_then_succeeds():
+    calls = []
+
+    def flaky(url):
+        calls.append(url)
+        if len(calls) == 1:
+            raise _http429(url, retry_after=0)
+        return fixture("openalex.json")
+
+    recs = S.openalex("offshore supply vessel", SINCE, fetch=flaky)
+    assert len(calls) == 2
+    assert [r["id"] for r in recs] == ["10.1234/psv.2019.001", "10.1234/ctv.2021.042", "openalex:W9000000003"]
+
+
+def test_openalex_long_retry_after_fails_at_once_without_sleeping(monkeypatch):
+    slept = []
+    monkeypatch.setattr(S.time, "sleep", slept.append)
+    calls = []
+
+    def always429(url):
+        calls.append(url)
+        raise _http429(url, retry_after=21596)
+
+    try:
+        S.openalex("ferry", SINCE, fetch=always429)
+    except urllib.error.HTTPError as exc:
+        assert exc.code == 429
+    else:
+        raise AssertionError("expected HTTPError 429")
+    assert len(calls) == 1       # no retry: the quota resets in ~6 h, not inside this run
+    assert slept == []
+
+
+def test_retry_without_retry_after_uses_exponential_backoff(monkeypatch):
+    slept = []
+    monkeypatch.setattr(S.time, "sleep", slept.append)
+    calls = []
+
+    def flaky(url):
+        calls.append(url)
+        if len(calls) <= 2:
+            raise _http429(url)
+        return fixture("openalex.json")
+
+    recs = S.openalex("ferry", SINCE, fetch=flaky)
+    assert len(calls) == 3 and len(recs) == 3
+    assert slept == [1.0, 2.0]
+
+
+def test_non_429_errors_are_not_retried():
+    calls = []
+
+    def boom(url):
+        calls.append(url)
+        raise OSError("blocked in this environment")
+
+    try:
+        S.openalex("ferry", SINCE, fetch=boom)
+    except OSError:
+        pass
+    else:
+        raise AssertionError("expected OSError")
+    assert len(calls) == 1
+
+
 # ---------- dedupe ----------
 
 def test_dedupe_by_doi_arxiv_id_and_title():
@@ -164,6 +235,27 @@ def test_run_survives_a_failing_source(tmp_path, monkeypatch, capsys):
     assert R.main(["--queries", str(queries), "--out", str(out), "--pause", "0"]) == 0
     assert "feed warning" in capsys.readouterr().err
     assert all(json.loads(l)["source"] == "arxiv" for l in out.read_text().splitlines())
+
+
+def test_persistent_429_marks_source_degraded_not_warned_per_query(tmp_path, monkeypatch, capsys):
+    def always429(url):
+        raise _http429(url, retry_after=21596)
+    monkeypatch.setattr(S, "_get", always429)
+    queries = tmp_path / "q.yaml"
+    queries.write_text(yaml.safe_dump({"queries": ["ferry", "offshore supply vessel"], "sources": ["openalex"]}))
+    out = tmp_path / "feed.jsonl"
+    assert R.main(["--queries", str(queries), "--out", str(out), "--pause", "0"]) == 0
+    assert out.read_text() == ""                       # nothing returned, but the run still succeeds
+    err = capsys.readouterr().err
+    assert err.count("feed degraded:") == 1            # one line, not one per query
+    assert "feed warning" not in err
+    assert "Retry-After 21596s" in err
+    status = json.loads((tmp_path / "feed.status.json").read_text())
+    assert status["queries"] == 2 and status["since"] == SINCE
+    oa = status["sources"]["openalex"]
+    assert oa == {"records": 0, "errors": 2, "errors_429": 2,
+                  "last_error": "HTTPError: HTTP Error 429: Too Many Requests",
+                  "retry_after_s": 21596, "status": "degraded"}
 
 
 def test_repo_queries_file_is_valid():
