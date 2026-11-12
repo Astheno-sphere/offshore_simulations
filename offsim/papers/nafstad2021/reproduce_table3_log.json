@@ -1,0 +1,2389 @@
+{
+ "paper": "Nafstad et al. (2021) COR 128:105158",
+ "params": {
+  "seed": 20261106,
+  "day_window_min": [
+   360,
+   1320
+  ],
+  "time_window_width_min": 60,
+  "order_size": "uniform integers 6..10",
+  "inter_installation_share": 0.25,
+  "connected_pairs_per_instance": 1,
+  "connected_min_sep_min": 60,
+  "landing_time_min": 5,
+  "turnaround_min": 30,
+  "max_legs_per_order": 6,
+  "max_orders_per_trip": 4,
+  "delivery_window_buffer_min": 30,
+  "distance": "great-circle (haversine) on WGS84",
+  "cost": "arc cost = flight minutes x type rate; + fixed cost per helicopter-day used",
+  "fleet_rule": "PAPER: |H| = 2*ceil(n/5)+2, evenly split over the two heliports",
+  "compact_time_cap_s": 300,
+  "tripbased_time_cap_s": 300
+ },
+ "heli_types": {
+  "S-92": {
+   "seats": 19,
+   "cruise_kmh": 260,
+   "burn_kg_min": 10.0,
+   "tank_kg": 2500,
+   "min_fuel_kg": 150,
+   "fixed": 100.0,
+   "rate": 1.0
+  },
+  "Super Puma": {
+   "seats": 18,
+   "cruise_kmh": 240,
+   "burn_kg_min": 9.0,
+   "tank_kg": 2200,
+   "min_fuel_kg": 150,
+   "fixed": 85.0,
+   "rate": 0.9
+  }
+ },
+ "installations": [
+  {
+   "name": "Sleipner A",
+   "lon": 1.907,
+   "lat": 58.3667,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Gina Krog",
+   "lon": 1.6952,
+   "lat": 58.5716,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Gudrun",
+   "lon": 1.7421,
+   "lat": 58.8446,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Edvard Grieg",
+   "lon": 2.2467,
+   "lat": 58.8421,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Ivar Aasen",
+   "lon": 2.1965,
+   "lat": 58.9217,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Grane",
+   "lon": 2.4858,
+   "lat": 59.1647,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Heimdal",
+   "lon": 2.2272,
+   "lat": 59.5736,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Brage",
+   "lon": 3.0451,
+   "lat": 60.542,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Oseberg Ost",
+   "lon": 2.9335,
+   "lat": 60.7,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  },
+  {
+   "name": "Kvitebjorn",
+   "lon": 2.498,
+   "lat": 61.0798,
+   "source": "Sodir FactMaps WGS84 FeatureServer/304, 2026-11-06"
+  }
+ ],
+ "heliports": {
+  "Sola": {
+   "lon": 5.6378,
+   "lat": 58.8767,
+   "source": "published airport coordinates"
+  },
+  "Flesland": {
+   "lon": 5.2228,
+   "lat": 60.2934,
+   "source": "published airport coordinates"
+  }
+ },
+ "results": [
+  {
+   "n_orders": 8,
+   "instance": 0,
+   "seed": 20261906,
+   "orders": [
+    {
+     "id": 0,
+     "size": 8,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Kvitebjorn",
+     "pickup_window": [
+      850,
+      910
+     ],
+     "delivery_window": [
+      924,
+      984
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 1,
+     "size": 7,
+     "pickup_loc": "Sleipner A",
+     "delivery_loc": "Grane",
+     "pickup_window": [
+      960,
+      1020
+     ],
+     "delivery_window": [
+      1014,
+      1074
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 2,
+     "size": 6,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Ivar Aasen",
+     "pickup_window": [
+      987,
+      1047
+     ],
+     "delivery_window": [
+      1075,
+      1135
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 3,
+     "size": 7,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Oseberg Ost",
+     "pickup_window": [
+      1095,
+      1155
+     ],
+     "delivery_window": [
+      1159,
+      1219
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 4,
+     "size": 6,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Brage",
+     "pickup_window": [
+      460,
+      520
+     ],
+     "delivery_window": [
+      521,
+      581
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 5,
+     "size": 6,
+     "pickup_loc": "Oseberg Ost",
+     "delivery_loc": "Grane",
+     "pickup_window": [
+      528,
+      588
+     ],
+     "delivery_window": [
+      602,
+      662
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 6,
+     "size": 10,
+     "pickup_loc": "Gina Krog",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      726,
+      786
+     ],
+     "delivery_window": [
+      814,
+      874
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 7,
+     "size": 8,
+     "pickup_loc": "Sleipner A",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      662,
+      722
+     ],
+     "delivery_window": [
+      764,
+      824
+     ],
+     "kind": "shore"
+    }
+   ],
+   "connected": {
+    "from_order": 7,
+    "from_node": [
+     "D",
+     7
+    ],
+    "to_order": 0,
+    "to_node": [
+     "P",
+     0
+    ],
+    "min_sep_min": 60
+   },
+   "helicopters": [
+    {
+     "id": 0,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 1,
+     "type": "S-92",
+     "base": "Flesland"
+    },
+    {
+     "id": 2,
+     "type": "Super Puma",
+     "base": "Sola"
+    },
+    {
+     "id": 3,
+     "type": "Super Puma",
+     "base": "Flesland"
+    },
+    {
+     "id": 4,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 5,
+     "type": "S-92",
+     "base": "Flesland"
+    }
+   ],
+   "trip_gen_time_s": 0.15,
+   "n_trips": 95,
+   "trips_by_type": {
+    "S-92": 53,
+    "Super Puma": 42
+   },
+   "trip_based": {
+    "status": "HighsModelStatus.kOptimal",
+    "objective": 792.98,
+    "dual_bound": 792.98,
+    "gap_pct": 0.0,
+    "selected": [
+     57,
+     71,
+     76,
+     79,
+     82
+    ],
+    "helicopters_used": {
+     "S-92@Sola": 0,
+     "S-92@Flesland": 0,
+     "Super Puma@Sola": 1,
+     "Super Puma@Flesland": 1
+    },
+    "n_incompat_pairs": 1004,
+    "solve_time_s": 0.05
+   },
+   "validation": [
+    {
+     "check": "all_orders_served_once",
+     "pass": true,
+     "detail": "served=[0, 1, 2, 3, 4, 5, 6, 7]"
+    },
+    {
+     "check": "trip_57_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_57_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_57_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_57_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_71_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_71_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_71_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_71_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_76_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_76_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_76_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_76_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_82_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_82_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_82_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_82_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "heli_group_S-92@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "no_simultaneous_presence",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "connected_separation",
+     "pass": true,
+     "detail": "delta=131.0 min, required 60"
+    },
+    {
+     "check": "total_cost_recomputed",
+     "pass": true,
+     "detail": "recomputed=792.98"
+    }
+   ],
+   "recomputed_objective": 792.98,
+   "compact": {
+    "status": "optimal",
+    "objective": 972.22,
+    "dual_bound": 972.22,
+    "gap_pct": 0.0,
+    "solve_time_s": 8.59,
+    "time_cap_s": 300
+   }
+  },
+  {
+   "n_orders": 8,
+   "instance": 1,
+   "seed": 20261907,
+   "orders": [
+    {
+     "id": 0,
+     "size": 8,
+     "pickup_loc": "Sleipner A",
+     "delivery_loc": "Grane",
+     "pickup_window": [
+      905,
+      965
+     ],
+     "delivery_window": [
+      959,
+      1019
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 1,
+     "size": 8,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Ivar Aasen",
+     "pickup_window": [
+      785,
+      845
+     ],
+     "delivery_window": [
+      865,
+      925
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 2,
+     "size": 10,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Gudrun",
+     "pickup_window": [
+      808,
+      868
+     ],
+     "delivery_window": [
+      902,
+      962
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 3,
+     "size": 8,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Sleipner A",
+     "pickup_window": [
+      710,
+      770
+     ],
+     "delivery_window": [
+      812,
+      872
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 4,
+     "size": 7,
+     "pickup_loc": "Gina Krog",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      922,
+      982
+     ],
+     "delivery_window": [
+      1022,
+      1082
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 5,
+     "size": 6,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Sleipner A",
+     "pickup_window": [
+      873,
+      933
+     ],
+     "delivery_window": [
+      959,
+      1019
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 6,
+     "size": 6,
+     "pickup_loc": "Grane",
+     "delivery_loc": "Ivar Aasen",
+     "pickup_window": [
+      808,
+      868
+     ],
+     "delivery_window": [
+      846,
+      906
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 7,
+     "size": 7,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Gudrun",
+     "pickup_window": [
+      516,
+      576
+     ],
+     "delivery_window": [
+      603,
+      663
+     ],
+     "kind": "shore"
+    }
+   ],
+   "connected": {
+    "from_order": 3,
+    "from_node": [
+     "D",
+     3
+    ],
+    "to_order": 0,
+    "to_node": [
+     "P",
+     0
+    ],
+    "min_sep_min": 60
+   },
+   "helicopters": [
+    {
+     "id": 0,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 1,
+     "type": "S-92",
+     "base": "Flesland"
+    },
+    {
+     "id": 2,
+     "type": "Super Puma",
+     "base": "Sola"
+    },
+    {
+     "id": 3,
+     "type": "Super Puma",
+     "base": "Flesland"
+    },
+    {
+     "id": 4,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 5,
+     "type": "S-92",
+     "base": "Flesland"
+    }
+   ],
+   "trip_gen_time_s": 0.28,
+   "n_trips": 216,
+   "trips_by_type": {
+    "S-92": 126,
+    "Super Puma": 90
+   },
+   "trip_based": {
+    "status": "HighsModelStatus.kOptimal",
+    "objective": 770.86,
+    "dual_bound": 770.86,
+    "gap_pct": 0.0,
+    "selected": [
+     79,
+     156,
+     160,
+     196
+    ],
+    "helicopters_used": {
+     "S-92@Sola": 0,
+     "S-92@Flesland": 1,
+     "Super Puma@Sola": 1,
+     "Super Puma@Flesland": 1
+    },
+    "n_incompat_pairs": 5151,
+    "solve_time_s": 0.27
+   },
+   "validation": [
+    {
+     "check": "all_orders_served_once",
+     "pass": true,
+     "detail": "served=[0, 1, 2, 3, 4, 5, 6, 7]"
+    },
+    {
+     "check": "trip_79_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_79_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_156_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_156_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_156_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_156_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_160_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_160_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_160_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_160_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_196_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_196_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_196_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_196_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "heli_group_S-92@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "no_simultaneous_presence",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "connected_separation",
+     "pass": true,
+     "detail": "delta=66.0 min, required 60"
+    },
+    {
+     "check": "total_cost_recomputed",
+     "pass": true,
+     "detail": "recomputed=770.86"
+    }
+   ],
+   "recomputed_objective": 770.86,
+   "compact": {
+    "status": "optimal",
+    "objective": 824.7,
+    "dual_bound": 824.7,
+    "gap_pct": 0.0,
+    "solve_time_s": 3.41,
+    "time_cap_s": 300
+   }
+  },
+  {
+   "n_orders": 8,
+   "instance": 2,
+   "seed": 20261908,
+   "orders": [
+    {
+     "id": 0,
+     "size": 10,
+     "pickup_loc": "Edvard Grieg",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      700,
+      760
+     ],
+     "delivery_window": [
+      789,
+      849
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 1,
+     "size": 7,
+     "pickup_loc": "Kvitebjorn",
+     "delivery_loc": "Gudrun",
+     "pickup_window": [
+      856,
+      916
+     ],
+     "delivery_window": [
+      950,
+      1010
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 2,
+     "size": 7,
+     "pickup_loc": "Ivar Aasen",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      578,
+      638
+     ],
+     "delivery_window": [
+      658,
+      718
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 3,
+     "size": 6,
+     "pickup_loc": "Brage",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      1103,
+      1163
+     ],
+     "delivery_window": [
+      1192,
+      1252
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 4,
+     "size": 10,
+     "pickup_loc": "Brage",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      717,
+      777
+     ],
+     "delivery_window": [
+      806,
+      866
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 5,
+     "size": 7,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Kvitebjorn",
+     "pickup_window": [
+      374,
+      434
+     ],
+     "delivery_window": [
+      448,
+      508
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 6,
+     "size": 10,
+     "pickup_loc": "Edvard Grieg",
+     "delivery_loc": "Ivar Aasen",
+     "pickup_window": [
+      958,
+      1018
+     ],
+     "delivery_window": [
+      991,
+      1051
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 7,
+     "size": 8,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Sleipner A",
+     "pickup_window": [
+      942,
+      1002
+     ],
+     "delivery_window": [
+      1028,
+      1088
+     ],
+     "kind": "shore"
+    }
+   ],
+   "connected": {
+    "from_order": 2,
+    "from_node": [
+     "D",
+     2
+    ],
+    "to_order": 7,
+    "to_node": [
+     "P",
+     7
+    ],
+    "min_sep_min": 60
+   },
+   "helicopters": [
+    {
+     "id": 0,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 1,
+     "type": "S-92",
+     "base": "Flesland"
+    },
+    {
+     "id": 2,
+     "type": "Super Puma",
+     "base": "Sola"
+    },
+    {
+     "id": 3,
+     "type": "Super Puma",
+     "base": "Flesland"
+    },
+    {
+     "id": 4,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 5,
+     "type": "S-92",
+     "base": "Flesland"
+    }
+   ],
+   "trip_gen_time_s": 0.15,
+   "n_trips": 103,
+   "trips_by_type": {
+    "S-92": 57,
+    "Super Puma": 46
+   },
+   "trip_based": {
+    "status": "HighsModelStatus.kOptimal",
+    "objective": 819.71,
+    "dual_bound": 819.71,
+    "gap_pct": 0.0,
+    "selected": [
+     69,
+     78,
+     83,
+     85
+    ],
+    "helicopters_used": {
+     "S-92@Sola": 0,
+     "S-92@Flesland": 0,
+     "Super Puma@Sola": 1,
+     "Super Puma@Flesland": 1
+    },
+    "n_incompat_pairs": 1266,
+    "solve_time_s": 0.05
+   },
+   "validation": [
+    {
+     "check": "all_orders_served_once",
+     "pass": true,
+     "detail": "served=[0, 1, 2, 3, 4, 5, 6, 7]"
+    },
+    {
+     "check": "trip_69_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_69_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_69_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_69_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_78_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_78_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_78_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_78_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_83_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_83_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_83_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_83_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_85_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_85_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_85_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_85_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "heli_group_S-92@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "no_simultaneous_presence",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "connected_separation",
+     "pass": true,
+     "detail": "delta=310.4 min, required 60"
+    },
+    {
+     "check": "total_cost_recomputed",
+     "pass": true,
+     "detail": "recomputed=819.71"
+    }
+   ],
+   "recomputed_objective": 819.71,
+   "compact": {
+    "status": "optimal",
+    "objective": 1034.94,
+    "dual_bound": 1034.94,
+    "gap_pct": 0.0,
+    "solve_time_s": 20.37,
+    "time_cap_s": 300
+   }
+  },
+  {
+   "n_orders": 10,
+   "instance": 0,
+   "seed": 20262106,
+   "orders": [
+    {
+     "id": 0,
+     "size": 8,
+     "pickup_loc": "Kvitebjorn",
+     "delivery_loc": "Heimdal",
+     "pickup_window": [
+      1000,
+      1060
+     ],
+     "delivery_window": [
+      1073,
+      1133
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 1,
+     "size": 9,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Kvitebjorn",
+     "pickup_window": [
+      379,
+      439
+     ],
+     "delivery_window": [
+      453,
+      513
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 2,
+     "size": 6,
+     "pickup_loc": "Sleipner A",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      413,
+      473
+     ],
+     "delivery_window": [
+      515,
+      575
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 3,
+     "size": 6,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Sleipner A",
+     "pickup_window": [
+      771,
+      831
+     ],
+     "delivery_window": [
+      873,
+      933
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 4,
+     "size": 9,
+     "pickup_loc": "Kvitebjorn",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      643,
+      703
+     ],
+     "delivery_window": [
+      717,
+      777
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 5,
+     "size": 8,
+     "pickup_loc": "Brage",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      837,
+      897
+     ],
+     "delivery_window": [
+      898,
+      958
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 6,
+     "size": 6,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Grane",
+     "pickup_window": [
+      530,
+      590
+     ],
+     "delivery_window": [
+      606,
+      666
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 7,
+     "size": 9,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Sleipner A",
+     "pickup_window": [
+      373,
+      433
+     ],
+     "delivery_window": [
+      459,
+      519
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 8,
+     "size": 10,
+     "pickup_loc": "Gudrun",
+     "delivery_loc": "Kvitebjorn",
+     "pickup_window": [
+      678,
+      738
+     ],
+     "delivery_window": [
+      772,
+      832
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 9,
+     "size": 7,
+     "pickup_loc": "Ivar Aasen",
+     "delivery_loc": "Brage",
+     "pickup_window": [
+      989,
+      1049
+     ],
+     "delivery_window": [
+      1066,
+      1126
+     ],
+     "kind": "inter"
+    }
+   ],
+   "connected": {
+    "from_order": 2,
+    "from_node": [
+     "D",
+     2
+    ],
+    "to_order": 3,
+    "to_node": [
+     "P",
+     3
+    ],
+    "min_sep_min": 60
+   },
+   "helicopters": [
+    {
+     "id": 0,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 1,
+     "type": "S-92",
+     "base": "Flesland"
+    },
+    {
+     "id": 2,
+     "type": "Super Puma",
+     "base": "Sola"
+    },
+    {
+     "id": 3,
+     "type": "Super Puma",
+     "base": "Flesland"
+    },
+    {
+     "id": 4,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 5,
+     "type": "S-92",
+     "base": "Flesland"
+    }
+   ],
+   "trip_gen_time_s": 0.19,
+   "n_trips": 131,
+   "trips_by_type": {
+    "S-92": 75,
+    "Super Puma": 56
+   },
+   "trip_based": {
+    "status": "HighsModelStatus.kOptimal",
+    "objective": 1062.07,
+    "dual_bound": 1062.07,
+    "gap_pct": 0.0,
+    "selected": [
+     47,
+     51,
+     53,
+     89,
+     93,
+     106
+    ],
+    "helicopters_used": {
+     "S-92@Sola": 0,
+     "S-92@Flesland": 1,
+     "Super Puma@Sola": 1,
+     "Super Puma@Flesland": 1
+    },
+    "n_incompat_pairs": 2053,
+    "solve_time_s": 0.08
+   },
+   "validation": [
+    {
+     "check": "all_orders_served_once",
+     "pass": true,
+     "detail": "served=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]"
+    },
+    {
+     "check": "trip_47_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_47_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_47_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_47_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_51_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_51_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_51_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_51_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_53_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_53_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_53_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_53_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_89_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_89_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_89_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_89_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_93_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_93_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_93_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_93_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_106_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_106_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_106_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_106_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "heli_group_S-92@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "no_simultaneous_presence",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "connected_separation",
+     "pass": true,
+     "detail": "delta=289.5 min, required 60"
+    },
+    {
+     "check": "total_cost_recomputed",
+     "pass": true,
+     "detail": "recomputed=1062.07"
+    }
+   ],
+   "recomputed_objective": 1062.07,
+   "compact": {
+    "status": "optimal",
+    "objective": 1247.51,
+    "dual_bound": 1247.51,
+    "gap_pct": 0.0,
+    "solve_time_s": 11.7,
+    "time_cap_s": 300
+   }
+  },
+  {
+   "n_orders": 10,
+   "instance": 1,
+   "seed": 20262107,
+   "orders": [
+    {
+     "id": 0,
+     "size": 10,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Brage",
+     "pickup_window": [
+      737,
+      797
+     ],
+     "delivery_window": [
+      826,
+      886
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 1,
+     "size": 10,
+     "pickup_loc": "Oseberg Ost",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      482,
+      542
+     ],
+     "delivery_window": [
+      576,
+      636
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 2,
+     "size": 6,
+     "pickup_loc": "Brage",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      970,
+      1030
+     ],
+     "delivery_window": [
+      1059,
+      1119
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 3,
+     "size": 7,
+     "pickup_loc": "Sleipner A",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      497,
+      557
+     ],
+     "delivery_window": [
+      583,
+      643
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 4,
+     "size": 8,
+     "pickup_loc": "Gina Krog",
+     "delivery_loc": "Gudrun",
+     "pickup_window": [
+      1170,
+      1230
+     ],
+     "delivery_window": [
+      1208,
+      1268
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 5,
+     "size": 8,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Kvitebjorn",
+     "pickup_window": [
+      1097,
+      1157
+     ],
+     "delivery_window": [
+      1203,
+      1263
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 6,
+     "size": 8,
+     "pickup_loc": "Oseberg Ost",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      1077,
+      1137
+     ],
+     "delivery_window": [
+      1141,
+      1201
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 7,
+     "size": 7,
+     "pickup_loc": "Gudrun",
+     "delivery_loc": "Brage",
+     "pickup_window": [
+      451,
+      511
+     ],
+     "delivery_window": [
+      532,
+      592
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 8,
+     "size": 8,
+     "pickup_loc": "Ivar Aasen",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      584,
+      644
+     ],
+     "delivery_window": [
+      672,
+      732
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 9,
+     "size": 7,
+     "pickup_loc": "Gudrun",
+     "delivery_loc": "Gina Krog",
+     "pickup_window": [
+      365,
+      425
+     ],
+     "delivery_window": [
+      403,
+      463
+     ],
+     "kind": "inter"
+    }
+   ],
+   "connected": {
+    "from_order": 7,
+    "from_node": [
+     "D",
+     7
+    ],
+    "to_order": 2,
+    "to_node": [
+     "P",
+     2
+    ],
+    "min_sep_min": 60
+   },
+   "helicopters": [
+    {
+     "id": 0,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 1,
+     "type": "S-92",
+     "base": "Flesland"
+    },
+    {
+     "id": 2,
+     "type": "Super Puma",
+     "base": "Sola"
+    },
+    {
+     "id": 3,
+     "type": "Super Puma",
+     "base": "Flesland"
+    },
+    {
+     "id": 4,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 5,
+     "type": "S-92",
+     "base": "Flesland"
+    }
+   ],
+   "trip_gen_time_s": 0.19,
+   "n_trips": 146,
+   "trips_by_type": {
+    "S-92": 83,
+    "Super Puma": 63
+   },
+   "trip_based": {
+    "status": "HighsModelStatus.kOptimal",
+    "objective": 908.67,
+    "dual_bound": 908.67,
+    "gap_pct": 0.0,
+    "selected": [
+     3,
+     13,
+     121,
+     141
+    ],
+    "helicopters_used": {
+     "S-92@Sola": 1,
+     "S-92@Flesland": 0,
+     "Super Puma@Sola": 0,
+     "Super Puma@Flesland": 1
+    },
+    "n_incompat_pairs": 2406,
+    "solve_time_s": 0.09
+   },
+   "validation": [
+    {
+     "check": "all_orders_served_once",
+     "pass": true,
+     "detail": "served=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]"
+    },
+    {
+     "check": "trip_3_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_3_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_3_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_3_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_13_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_13_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_13_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_13_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_141_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_141_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_141_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_141_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "heli_group_S-92@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "no_simultaneous_presence",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "connected_separation",
+     "pass": true,
+     "detail": "delta=439.7 min, required 60"
+    },
+    {
+     "check": "total_cost_recomputed",
+     "pass": true,
+     "detail": "recomputed=908.67"
+    }
+   ],
+   "recomputed_objective": 908.67,
+   "compact": {
+    "status": "optimal",
+    "objective": 1319.21,
+    "dual_bound": 1319.21,
+    "gap_pct": 0.0,
+    "solve_time_s": 59.3,
+    "time_cap_s": 300
+   }
+  },
+  {
+   "n_orders": 10,
+   "instance": 2,
+   "seed": 20262108,
+   "orders": [
+    {
+     "id": 0,
+     "size": 9,
+     "pickup_loc": "Gudrun",
+     "delivery_loc": "Edvard Grieg",
+     "pickup_window": [
+      833,
+      893
+     ],
+     "delivery_window": [
+      871,
+      931
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 1,
+     "size": 7,
+     "pickup_loc": "Gudrun",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      421,
+      481
+     ],
+     "delivery_window": [
+      508,
+      568
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 2,
+     "size": 7,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Edvard Grieg",
+     "pickup_window": [
+      367,
+      427
+     ],
+     "delivery_window": [
+      456,
+      516
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 3,
+     "size": 10,
+     "pickup_loc": "Edvard Grieg",
+     "delivery_loc": "Sleipner A",
+     "pickup_window": [
+      902,
+      962
+     ],
+     "delivery_window": [
+      947,
+      1007
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 4,
+     "size": 6,
+     "pickup_loc": "Ivar Aasen",
+     "delivery_loc": "Brage",
+     "pickup_window": [
+      857,
+      917
+     ],
+     "delivery_window": [
+      934,
+      994
+     ],
+     "kind": "inter"
+    },
+    {
+     "id": 5,
+     "size": 8,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Ivar Aasen",
+     "pickup_window": [
+      557,
+      617
+     ],
+     "delivery_window": [
+      645,
+      705
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 6,
+     "size": 7,
+     "pickup_loc": "Flesland",
+     "delivery_loc": "Kvitebjorn",
+     "pickup_window": [
+      771,
+      831
+     ],
+     "delivery_window": [
+      845,
+      905
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 7,
+     "size": 10,
+     "pickup_loc": "Ivar Aasen",
+     "delivery_loc": "Sola",
+     "pickup_window": [
+      832,
+      892
+     ],
+     "delivery_window": [
+      912,
+      972
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 8,
+     "size": 7,
+     "pickup_loc": "Kvitebjorn",
+     "delivery_loc": "Flesland",
+     "pickup_window": [
+      829,
+      889
+     ],
+     "delivery_window": [
+      903,
+      963
+     ],
+     "kind": "shore"
+    },
+    {
+     "id": 9,
+     "size": 10,
+     "pickup_loc": "Sola",
+     "delivery_loc": "Brage",
+     "pickup_window": [
+      896,
+      956
+     ],
+     "delivery_window": [
+      985,
+      1045
+     ],
+     "kind": "shore"
+    }
+   ],
+   "connected": {
+    "from_order": 2,
+    "from_node": [
+     "D",
+     2
+    ],
+    "to_order": 3,
+    "to_node": [
+     "P",
+     3
+    ],
+    "min_sep_min": 60
+   },
+   "helicopters": [
+    {
+     "id": 0,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 1,
+     "type": "S-92",
+     "base": "Flesland"
+    },
+    {
+     "id": 2,
+     "type": "Super Puma",
+     "base": "Sola"
+    },
+    {
+     "id": 3,
+     "type": "Super Puma",
+     "base": "Flesland"
+    },
+    {
+     "id": 4,
+     "type": "S-92",
+     "base": "Sola"
+    },
+    {
+     "id": 5,
+     "type": "S-92",
+     "base": "Flesland"
+    }
+   ],
+   "trip_gen_time_s": 0.19,
+   "n_trips": 135,
+   "trips_by_type": {
+    "S-92": 79,
+    "Super Puma": 56
+   },
+   "trip_based": {
+    "status": "HighsModelStatus.kOptimal",
+    "objective": 1114.35,
+    "dual_bound": 1114.35,
+    "gap_pct": 0.0,
+    "selected": [
+     27,
+     72,
+     108,
+     121,
+     129
+    ],
+    "helicopters_used": {
+     "S-92@Sola": 1,
+     "S-92@Flesland": 1,
+     "Super Puma@Sola": 0,
+     "Super Puma@Flesland": 1
+    },
+    "n_incompat_pairs": 1983,
+    "solve_time_s": 0.08
+   },
+   "validation": [
+    {
+     "check": "all_orders_served_once",
+     "pass": true,
+     "detail": "served=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]"
+    },
+    {
+     "check": "trip_27_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_27_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_27_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_27_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_72_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_72_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_72_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_72_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_108_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_108_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_108_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_108_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_121_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_129_resim_feasible",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_129_times_match",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_129_end_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "trip_129_cost_matches",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "heli_group_S-92@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=2"
+    },
+    {
+     "check": "heli_group_S-92@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_capacity",
+     "pass": true,
+     "detail": "max simultaneous=0, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Sola_count_exact",
+     "pass": true,
+     "detail": "charged=0, actual max=0"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_capacity",
+     "pass": true,
+     "detail": "max simultaneous=1, available=1"
+    },
+    {
+     "check": "heli_group_Super Puma@Flesland_count_exact",
+     "pass": true,
+     "detail": "charged=1, actual max=1"
+    },
+    {
+     "check": "no_simultaneous_presence",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "connected_separation",
+     "pass": true,
+     "detail": "delta=465.2 min, required 60"
+    },
+    {
+     "check": "total_cost_recomputed",
+     "pass": true,
+     "detail": "recomputed=1114.35"
+    }
+   ],
+   "recomputed_objective": 1114.35,
+   "compact": {
+    "status": "optimal",
+    "objective": 1140.31,
+    "dual_bound": 1140.31,
+    "gap_pct": 0.0,
+    "solve_time_s": 12.66,
+    "time_cap_s": 300
+   }
+  }
+ ]
+}
