@@ -108,3 +108,36 @@ validated numbers, uncertainty bands and real-vs-simulated ghost tracks; we lose
 7. Update skills router + corrector/narrator for engines, ensembles, gates 4b/4c.
 8. Visual: skia strokes, open font, hillshade, light by clock (rules 11-13, 17).
 9. One Actions batch to live-check every data source; record in TESTLOG.
+
+## Audit 6 — 2026-11-13: invigilation of Nordlys's N2 and N3 (verified, not taken on trust)
+Method: read both branches, re-ran the claims myself in a clean worktree of `agent/nordlys/N3-assets-visual`.
+
+**Verified true.**
+- CAD QA: `qa.gate()` returns pass for aw189, platform_jacket and s92 — I ran it, it holds. AW189 was fixed by
+  finding a better source (EASA OEB draft report §3.2 dimensioned drawing: rotor-head 4.04 m, tail rotor Ø2.90 m),
+  not by bending a dim to the solid; platform_jacket is now sourced to the Solan decommissioning programme.
+- A real bug in OUR qa.py, found by him: a rotor's diameter is not spanned by any bbox axis when the blade count is
+  odd, so the measurement was wrong, not the model. He added a radial (`axis: r`) measure. Part of the old
+  "s92 off by 20 %" verdict was our ruler, not their geometry.
+- Test edits are legitimate: the three gate tests he changed were written by V1 to PIN the then-failing verdicts
+  ("when section.py is fixed this test fails"). He fixed the renderer and flipped them, each with a `why:` line.
+  The tree test moved spruce defaults from assumption to sourced, inside the cited range. No weakening found.
+- Live probes (local, from his VM): 14 ok, 1 failed (OpenAlex 429), 2 skipped (no secrets). Our blind endpoints
+  were mostly right: NORA3 wind/wave/current variables all present, Sodir 68 layers, Entur vehicles answering.
+
+**Not true as claimed, or not yet proven.**
+1. `tests/golden/section.png` on his branch is stale: `test_section_golden_passes_the_gate` FAILS on a clean
+   checkout with `margins: ink fills 6.5 % of the safe-margin band`. Regenerating the golden makes all 30 visual
+   tests pass, so the renderer fix is real but the committed artefact is not the one his code produces. Must be
+   regenerated before merge, or the first person to clone sees a red suite.
+2. **No Actions run happened.** Every workflow he reports (live-check, papers, fetch-world) ran locally on his VM;
+   his report says so plainly. So the Actions board, the hosted-runner network path and the Codespace path are
+   still unproven, and a probe that works from his VM may still fail from a GitHub runner.
+3. Branch deletions not done (his connector cannot; my proxy cannot). Five merged branches still listed.
+
+**Structural finding (ours, not his).** Asset dims are derived from the same spec table the solid is built from
+(`_dim(S["rotor_d"], src)`), so QA proves the assembly realises the spec, never that the spec matches the cited
+source. A mistyped source value passes silently. Fix: the sourced number belongs in `registry.yaml` as data, and
+QA should compare model -> spec -> registry, three-way. Task for the drafter.
+
+**Drift check: none.** Both tasks stayed on machine work; no film, no still, no place-specific artefact was built.
