@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-161 tools · 33 tested · 13 wired · 10 installed · 55 candidate · 4 manual · 46 watch.
+161 tools · 35 tested · 13 wired · 10 installed · 53 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -11,8 +11,8 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 
 | Layer | tested | wired | installed | candidate | manual | watch | total |
 |---|---|---|---|---|---|---|---|
-| world | 5 | 3 | 2 | 7 | 3 | 8 | 28 |
-| traffic | 1 | 4 | 3 | 1 | 1 | 2 | 12 |
+| world | 6 | 3 | 2 | 6 | 3 | 8 | 28 |
+| traffic | 2 | 4 | 3 | 0 | 1 | 2 | 12 |
 | metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
 | solver | 3 | 1 | 0 | 2 | 0 | 4 | 10 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
@@ -114,7 +114,7 @@ _Geography the scenario runs in (land, depth, lanes, installations)_
 | [Overture Maps (buildings/base)](https://docs.overturemaps.org/) | ODbL for buildings/base (check) | watch | actions | later | Building footprints with heights; OSM likely enough for harbours. |
 | [Planetiler](https://github.com/onthegomap/planetiler) | Apache-2.0 (output ODbL) | watch | actions | later | Build own tiles from a Geofabrik Norway extract if Protomaps lacks a feature. |
 | [rio-rgbify](https://github.com/mapbox/rio-rgbify) | check | watch | here | later | Terrain-RGB encoding for TerrainLayer; a few lines of numpy do the same. |
-| [searoute-py](https://github.com/genthalili/searoute-py) | Apache-2.0 | candidate | here | later | Shortest global sea route for long-haul legs; its README says visualisation, not navigation. |
+| [searoute-py](https://github.com/genthalili/searoute-py) | Apache-2.0 | tested | here | later | Shortest global sea route for long-haul legs, behind the (legs, dist_m, time_s) contract. Coarse (about 20 km lane mesh, no land input): a cross-check on SeaGraph, never a replacement. Measured 18 to 34 percent longer than SeaGraph on two North Sea pairs (docs/ENGINES.md). Apache-2.0, imported. Evidence: `offsim/traffic/searoute_adapter.py` `tests/test_searoute.py` `coordination/reports/A2.md` |
 
 ## traffic
 
@@ -132,7 +132,7 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 | [Datasets of AIS trajectories from Danish waters](https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters) | BSD-3-Clause | watch | here | later | Ready filtered AIS sets for testing trajectory code without ordering data. |
 | [Entur Journey Planner API](https://api.entur.io/journey-planner/v3/graphql) | open (credit Source: Entur AS) | wired | actions | later | Departures per stop place; journey planning for worker-commute scenarios. Evidence: `offsim/transit/entur.py` `tests/test_entur.py` |
 | [GTFS Kit](https://github.com/mrcagney/gtfs_kit) | MIT | installed | here | later | Independent GTFS analysis to cross-check offsim.transit KPIs. Evidence: `requirements-graphics.txt` |
-| [pyais](https://github.com/M0r13n/pyais) | MIT | candidate | here | later | Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet. |
+| [pyais](https://github.com/M0r13n/pyais) | MIT | tested | here | later | Decodes raw NMEA AIS (types 1/2/3 position, 5 static, multipart) into the HAIS-shaped table and contract trajectory; every rejected line is reported. Offline-proven on synthetic sentences; the live feed is unproven. MIT, imported. Evidence: `offsim/traffic/ais.py` `tests/test_ais_decode.py` `tests/fixtures/ais/synthetic_nmea.txt` `tests/fixtures/ais/make_fixture.py` `coordination/reports/A2.md` |
 | [r5py (Conveyal R5)](https://github.com/r5py/r5py) | MIT or GPL-3.0 | installed | actions | later | Declared, not yet called (Actions only): multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use. Wire on Actions or drop. Evidence: `requirements-graphics.txt` |
 
 ## metocean

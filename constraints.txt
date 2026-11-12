@@ -13,6 +13,7 @@ osmnx==2.1.1
 pandas==2.3.3
 phiflow==3.4.0
 pillow==12.3.0
+pyais==3.3.1
 pyomo==6.10.1
 pyproj==3.8.0
 pyrosm==0.29.0
@@ -20,6 +21,7 @@ pytest==9.1.1
 pyvrp==0.14.1
 PyYAML==6.0.3
 scipy==1.18.1
+searoute==1.6.0
 shapely==2.2.0
 simpy==4.1.2
 taichi==1.7.4

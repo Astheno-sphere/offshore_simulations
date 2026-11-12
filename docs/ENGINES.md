@@ -209,3 +209,27 @@ Wired into `offsim run` as gate 4c_entur (scenario `validate: {entur: true}`, en
   <= 1.25 (both **assumptions**, unsourced), and fails when nothing could be judged. Record runs in `docs/TESTLOG.md`.
 - **Limits:** sampled positions only (30 s polls, vehicles report at their own rate); loop routes can project to the wrong lap; a dwell counts from its first
   arrival; trips are matched by id (Entur GTFS `trip_id` = ServiceJourney id), so a feed from another date or a re-planned journey simply does not match.
+
+### AIS validation (gate 4b) and the two absorbed tools
+Both tools are imported (pyais MIT, searoute Apache-2.0; neither is GPL). Proven offline only: synthetic NMEA fixtures (`tests/fixtures/ais/`, MMSIs 99900000x),
+no network. Nothing here has seen a real AIS stream or a real HAIS file.
+- **Decode (`offsim.traffic.ais.decode_nmea`, pyais):** `!AIVDM/!AIVDO` lines with an optional epoch prefix (`<unix s> !AIVDM,...`; AIS carries no date, so a line
+  with no time is rejected unless `default_time` is given). Types 1/2/3 -> positions, type 5 -> static (ship type propagates to that MMSI's positions), multipart
+  reassembled (out of order, interleaved). Checksums are verified here (pyais does not). Rejected, never dropped: bad checksum, non-AIS line, lon 181 / lat 91,
+  incomplete multipart, missing time, any other type (class B type 18/19, type 24, ... are **not** decoded yet). `DecodeResult.rejects` lists every one with its line number.
+  `to_trajectory` gives contract rows (state of a row = its outgoing segment, as `contract.validate` reads it; `anonymise=True` replaces MMSI by V01..).
+- **Gate 4b, what a real run compares (`compare_decoded`, wired in `offsim run` by `validate: {ais: true}`):** simulated vs decoded **sailing speed** (p10/p50/p90 of
+  moving segments, knots) and **port-call dwell** per named place (p10/p50/p90, seconds; AIS stops >= 20 min within 250 m of a place, merged under 30 min),
+  over a **window** chosen by the caller that holds at least one complete call per place. Distributions, not paired points: a plan and an AIS day are different days.
+  Pass when `|sim - ais| <= max(tol_rel * ais, tol_abs)`; a metric with no AIS observation is NaN (not judged); a run that judges nothing fails.
+- **Tolerances are an assumption:** `GATE_4B_TOLERANCE` = 25 % relative, 600 s (dwell), 1.0 kn (speed), min 1 observation, `assumption: true`. They are judgement
+  defaults, not derived from data; fix them after the first real calibration shows the vessel-to-vessel spread. Do not quote a "passed gate 4b" without them.
+- **Missing for a live run:** (1) a raw NMEA log or HAIS file for the area and window (Kystverket / BarentsWatch, credentials `BW_CLIENT_ID`/`BW_CLIENT_SECRET` in env or
+  GitHub secrets only); (2) `ais_places` in the world YAML (quay positions + radius); (3) `data/worlds/<w>/ais/calibration.json`. Raw NMEA is not yet accepted by
+  `fetch_world --ais` (that takes HAIS GeoParquet/CSV), so convert on Actions or the VM:
+  `python -c "from offsim.traffic import ais; import yaml,sys; c=yaml.safe_load(open('worlds/<w>.yaml')); ais.process_nmea('<log.nmea>','data/worlds/<w>/ais',bbox=c['bbox'],places=c.get('ais_places'),area='<area>')"`
+  then `python -m offsim run <paper> --world <w>` with `validate: {ais: true}`. Read `ais/ais_rejects.csv` first: a live decode with many rejects is a finding.
+- **searoute (`offsim.traffic.searoute_adapter.SearouteGraph`):** same `(legs, dist_m, time_s)` as RoadGraph; speed is ours, searoute's duration is ignored. Its
+  lane mesh is about 20 km and takes no land input, so each end gets a straight stub to the nearest lane node (reported as `stub_m`). **It does not agree with
+  SeaGraph** (two North Sea pairs, Natural Earth 1:110m land, so SeaGraph is optimistic): searoute with stubs is +34 % and +23 % longer, lane-only +19 % and -9 %
+  (`compare_with_seagraph`, `tests/test_searoute.py`). Use it as an order-of-magnitude check on long legs; SeaGraph stays the router for solver distances and replay.

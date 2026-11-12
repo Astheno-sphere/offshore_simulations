@@ -23,6 +23,11 @@ simulated port-call durations and sailing speeds against the AIS calibration. A 
 `ais_calibration:` file would fail the run when `compare_to_sim(...)["pass"]` has any False. Until wired, call it
 by hand and record the outcome in docs/TESTLOG.md.
 
+Raw NMEA (pyais, MIT, imported): `decode_nmea` turns AIVDM/AIVDO sentences (types 1/2/3 position, 5 static, multipart
+reassembled, checksums verified, every rejected line reported with a reason) into the same normalised table that
+`load_ais` returns, and `to_trajectory` turns that into contract columns. `compare_decoded` is the whole of gate 4b
+against a decoded track. See docs/ENGINES.md "AIS validation (gate 4b)".
+
 Units: durations in seconds, speeds in knots (AIS native), distances in metres. Timestamps are tz-aware UTC.
 """
 from __future__ import annotations
@@ -339,3 +344,226 @@ def process_hais(path, out_dir, bbox=None, places=None, ship_types=None, area: s
     if len(calls):
         calls.to_csv(out / "port_calls.csv", index=False)
     return calib
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Raw NMEA -> the same tables (pyais). No network: the input is a file or an iterable of lines.
+# ---------------------------------------------------------------------------------------------------------------
+POSITION_TYPES = (1, 2, 3)
+STATIC_TYPES = (5,)
+
+# Gate 4b tolerances. ASSUMPTION (assumption: true): these are judgement values, not derived from a paper or a data set.
+# They are the defaults compare_to_sim has always had; the right values depend on how much run-to-run spread real PSV
+# traffic shows, which needs the first real HAIS calibration to judge. Callers may override every one of them.
+GATE_4B_TOLERANCE = {"tol_rel": 0.25, "tol_abs_s": 600.0, "tol_abs_kn": 1.0, "min_n": 1, "assumption": True}
+
+REJECT_COLUMNS = ["line_no", "reason", "sentence"]
+
+
+class DecodeResult:
+    """positions: normalised ais table (mmsi, timestamp, lon, lat, sog, cog, ship_type) incl. ship_type from type 5
+    where the MMSI sent one; static: one row per type-5 message; rejects: every input line that produced nothing,
+    with line_no (1-based), reason, sentence; counts: lines / decoded messages by type."""
+
+    def __init__(self, positions, static, rejects, counts):
+        self.positions, self.static, self.rejects, self.counts = positions, static, rejects, counts
+
+    def __repr__(self):
+        return f"DecodeResult(positions={len(self.positions)}, static={len(self.static)}, rejects={len(self.rejects)})"
+
+
+def nmea_checksum_ok(sentence: str) -> bool:
+    """True when the hex after '*' equals the XOR of the characters between '!' (or '$') and '*'."""
+    s = sentence.strip()
+    if not s or s[0] not in "!$" or "*" not in s:
+        return False
+    body, _, tail = s[1:].rpartition("*")
+    try:
+        want = int(tail[:2], 16)
+    except ValueError:
+        return False
+    got = 0
+    for ch in body:
+        got ^= ord(ch)
+    return got == want
+
+
+def _split_line(raw: str):
+    """'<epoch seconds> !AIVDM,...' -> (timestamp or None, sentence). A bare sentence has no time."""
+    raw = raw.strip()
+    if raw.startswith(("!", "$")):
+        return None, raw
+    head, _, rest = raw.partition(" ")
+    try:
+        ts = pd.Timestamp(float(head), unit="s", tz="UTC")
+    except (ValueError, OverflowError):
+        return None, raw
+    return ts, rest.strip()
+
+
+def decode_nmea(lines, default_time=None) -> DecodeResult:
+    """Decode NMEA AIS lines. `lines` is a path (text file) or an iterable of str/bytes.
+
+    Line format: "<unix epoch seconds> !AIVDM,..." (a receiver log with arrival times). A message carries no calendar
+    date of its own (only the UTC second), so a line without an epoch gets `default_time` if given, else it is
+    REJECTED with reason 'no timestamp' (it cannot enter a trajectory). A multipart message takes the time of its
+    first fragment.
+
+    Handled: types 1/2/3 (position), 5 (static: ship_type, name, callsign, IMO, draught, dimensions), multipart
+    reassembly keyed by (talker, sequence id, channel, fragment count) with out-of-order fragments sorted; a
+    position of lon 181 / lat 91 ('not available') is rejected, as is a bad checksum, an unparseable line, an
+    incomplete multipart message and any other message type ('unsupported type N'). Nothing is dropped silently:
+    positions + static + rejects account for every non-blank line (`counts['lines']`)."""
+    from pyais import decode as pyais_decode
+
+    if isinstance(lines, (str, Path)):
+        lines = Path(lines).read_text().splitlines()
+    pos_rows, static_rows, rejects = [], [], []
+    pending: dict = {}                      # key -> {"frags": {n: sentence}, "cnt": int, "ts", "line_no"}
+    counts = {"lines": 0, "by_type": {}}
+
+    def rej(no, reason, sent):
+        rejects.append({"line_no": no, "reason": reason, "sentence": sent})
+
+    def emit(no, ts, parts):
+        try:
+            d = pyais_decode(*parts).asdict()
+        except Exception as exc:            # pyais raises several exception types; each becomes a reported reject
+            rej(no, f"pyais {type(exc).__name__}: {exc}", " | ".join(parts))
+            return
+        t = d.get("msg_type")
+        counts["by_type"][t] = counts["by_type"].get(t, 0) + 1
+        if t in POSITION_TYPES:
+            lon, lat = d.get("lon"), d.get("lat")
+            if lon is None or lat is None or abs(lon) >= 180.0 + 1e-9 or abs(lat) >= 90.0 + 1e-9 or lon == 181 or lat == 91:
+                rej(no, "position not available (lon 181 / lat 91)", " | ".join(parts))
+                return
+            sog = d.get("speed")
+            pos_rows.append({"mmsi": int(d["mmsi"]), "timestamp": ts, "lon": float(lon), "lat": float(lat),
+                             "sog": np.nan if sog is None or sog >= 102.3 else float(sog),
+                             "cog": np.nan if d.get("course") is None or d["course"] >= 360 else float(d["course"]),
+                             "ship_type": np.nan})
+        elif t in STATIC_TYPES:
+            st = lambda k: (str(d.get(k) or "").strip("@ ").strip())
+            static_rows.append({"mmsi": int(d["mmsi"]), "timestamp": ts, "shipname": st("shipname"),
+                                "callsign": st("callsign"), "ship_type": d.get("ship_type"), "imo": d.get("imo"),
+                                "draught": d.get("draught"), "to_bow": d.get("to_bow"), "to_stern": d.get("to_stern"),
+                                "to_port": d.get("to_port"), "to_starboard": d.get("to_starboard"),
+                                "destination": st("destination")})
+        else:
+            rej(no, f"unsupported type {t}", " | ".join(parts))
+
+    for no, raw in enumerate(lines, start=1):
+        raw = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else str(raw)
+        if not raw.strip():
+            continue
+        counts["lines"] += 1
+        ts, sent = _split_line(raw)
+        if ts is None and default_time is not None:
+            ts = pd.Timestamp(default_time, tz="UTC") if pd.Timestamp(default_time).tzinfo is None else pd.Timestamp(default_time)
+        if not sent.startswith("!") or not sent[1:6].startswith(("AI", "BS", "AB", "AD", "AN", "AR", "AS", "AT", "AX", "BD", "SA", "BM")):
+            rej(no, "not an AIS sentence", raw.strip())
+            continue
+        if not nmea_checksum_ok(sent):
+            rej(no, "bad or missing checksum", sent)
+            continue
+        f = sent[1:sent.rindex("*")].split(",")
+        try:
+            cnt, num = int(f[1]), int(f[2])
+            seq, chan = f[3], f[4]
+        except (IndexError, ValueError):
+            rej(no, "malformed NMEA fields", sent)
+            continue
+        if ts is None:
+            rej(no, "no timestamp (give lines an epoch prefix or default_time)", sent)
+            continue
+        if cnt == 1:
+            emit(no, ts, [sent])
+            continue
+        key = (f[0], seq, chan, cnt)
+        slot = pending.setdefault(key, {"frags": {}, "ts": ts, "line_no": no})
+        if num in slot["frags"]:                                   # a repeated fragment number starts a new message
+            rej(slot["line_no"], "incomplete multipart message (superseded)", " | ".join(slot["frags"][k] for k in sorted(slot["frags"])))
+            slot.update(frags={}, ts=ts, line_no=no)
+        slot["frags"][num] = sent
+        if len(slot["frags"]) == cnt:
+            emit(slot["line_no"], slot["ts"], [slot["frags"][k] for k in sorted(slot["frags"])])
+            del pending[key]
+    for slot in pending.values():
+        rej(slot["line_no"], "incomplete multipart message (missing fragments)", " | ".join(slot["frags"][k] for k in sorted(slot["frags"])))
+
+    static = pd.DataFrame(static_rows, columns=["mmsi", "timestamp", "shipname", "callsign", "ship_type", "imo", "draught",
+                                                "to_bow", "to_stern", "to_port", "to_starboard", "destination"])
+    positions = pd.DataFrame(pos_rows, columns=["mmsi", "timestamp", "lon", "lat", "sog", "cog", "ship_type"])
+    if len(static) and len(positions):
+        types = static.dropna(subset=["ship_type"]).drop_duplicates("mmsi", keep="last").set_index("mmsi")["ship_type"]
+        positions["ship_type"] = positions["mmsi"].map(types).astype(float)
+    positions = load_ais(positions) if len(positions) else positions.astype({"mmsi": "int64"})
+    return DecodeResult(positions, static, pd.DataFrame(rejects, columns=REJECT_COLUMNS).sort_values("line_no").reset_index(drop=True), counts)
+
+
+def to_trajectory(positions: pd.DataFrame, t0=None, min_speed_kn: float = 1.0, anonymise: bool = False) -> pd.DataFrame:
+    """Normalised AIS table -> contract trajectory rows (agent_id, t, lon, lat, state, plus sog_kn).
+
+    t = seconds since `t0` (default: the earliest fix). state = 'sail' where the speed of the segment starting at the
+    row (haversine/dt, falling back to reported sog) is >= min_speed_kn, else 'idle'. agent_id is the MMSI as text, or 'V01', 'V02' ... when
+    `anonymise` (MMSI is vessel identity: use it for anything that leaves the repo)."""
+    from offsim.contract import haversine_m
+
+    df = load_ais(positions) if "timestamp" in positions else positions
+    if df.empty:
+        return pd.DataFrame(columns=["agent_id", "t", "lon", "lat", "state", "sog_kn"])
+    t0 = df["timestamp"].min() if t0 is None else pd.Timestamp(t0, tz="UTC") if pd.Timestamp(t0).tzinfo is None else pd.Timestamp(t0)
+    ids = {m: (f"V{i + 1:02d}" if anonymise else str(m)) for i, m in enumerate(sorted(df["mmsi"].unique()))}
+    out = []
+    for m, g in df.sort_values(["mmsi", "timestamp"]).groupby("mmsi", sort=True):
+        t = (g["timestamp"] - t0).dt.total_seconds().to_numpy()
+        sog = g["sog"].to_numpy(dtype=float)
+        # contract.validate: "the state of the leg is the state at its start", so row i labels segment i -> i+1 and takes
+        # that segment's speed; the last row has no leg and uses its own sog.
+        d = haversine_m(g["lon"].to_numpy()[:-1], g["lat"].to_numpy()[:-1], g["lon"].to_numpy()[1:], g["lat"].to_numpy()[1:])
+        with np.errstate(divide="ignore", invalid="ignore"):
+            seg = np.where(np.diff(t) > 0, d / np.diff(t) / KN_TO_MPS, np.nan)
+        arriving = np.concatenate([seg, sog[-1:]]) if len(sog) else sog
+        arriving = np.where(np.isnan(arriving), sog, arriving)
+        out.append(pd.DataFrame({"agent_id": ids[m], "t": t, "lon": g["lon"].to_numpy(), "lat": g["lat"].to_numpy(),
+                                 "state": np.where(np.nan_to_num(arriving, nan=0.0) >= min_speed_kn, "sail", "idle"), "sog_kn": sog}))
+    return pd.concat(out, ignore_index=True)
+
+
+def compare_decoded(sim_traj, positions: pd.DataFrame, places, port_durations_s: dict | None = None, window=None,
+                    mmsi=None, ship_types=None, gap: timedelta = timedelta(hours=2), tolerance: dict | None = None,
+                    area: str = "unspecified"):
+    """Gate 4b end to end: a decoded AIS track (any normalised positions table, from `decode_nmea` or HAIS) against a
+    simulated contract trajectory. Returns (table, calib) where table is `compare_to_sim`'s DataFrame.
+
+    What is compared (and nothing else):
+      sailing_speed_kn  p10 / p50 / p90 of moving-segment speed, simulated (state in MOVING, haversine/dt) vs AIS
+                        (reported sog, else derived; segments below 1 kn excluded).
+      port_call_s       p10 / p50 / p90 of dwell at each named place in `port_durations_s` {place: [seconds]}, vs AIS
+                        stops (>= 20 min within 250 m) matched to `places` within their radius_m.
+    window: (start, end) UTC; AIS fixes outside it are ignored. It should span at least one complete port call per
+    place compared, otherwise n_ais is 0 and the row is not judged (pass = NaN). Quantiles, not paired values: the
+    simulation is a plan and AIS is a different day, so only distributions are comparable.
+    tolerance: overrides for GATE_4B_TOLERANCE (tol_rel, tol_abs_s, tol_abs_kn, min_n). Its defaults are an
+    assumption (see GATE_4B_TOLERANCE)."""
+    tol = {k: v for k, v in {**GATE_4B_TOLERANCE, **(tolerance or {})}.items() if k != "assumption"}
+    df = filter_ais(load_ais(positions), mmsi=mmsi, ship_types=ship_types,
+                    start=window[0] if window else None, end=window[1] if window else None)
+    if df.empty:
+        raise ValueError("no AIS fixes left in the comparison window")
+    dates = f"{df['timestamp'].min():%Y-%m-%d}..{df['timestamp'].max():%Y-%m-%d}"
+    tracks = build_tracks(df, gap=gap)
+    calls = port_calls(tracks, places) if places is not None else pd.DataFrame(columns=["mmsi", "place", "arrive", "depart", "duration_s"])
+    calib = calibration(calls, tracks, area=area, dates=dates)
+    return compare_to_sim(sim_traj, calib, port_durations_s, **tol), calib
+
+
+def process_nmea(path, out_dir, bbox=None, places=None, ship_types=None, area: str = "unspecified", dates=None) -> dict:
+    """fetch_world --ais equivalent for a raw NMEA log: decode, write <out_dir>/ais_rejects.csv (always, even if empty:
+    a clean decode is evidence), then `process_hais` on the decoded positions (calibration.json, port_calls.csv)."""
+    res = decode_nmea(path)
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    res.rejects.to_csv(out / "ais_rejects.csv", index=False)
+    return process_hais(res.positions, out_dir, bbox=bbox, places=places, ship_types=ship_types, area=area, dates=dates)
