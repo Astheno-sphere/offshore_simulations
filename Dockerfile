@@ -7,6 +7,7 @@ FROM python:3.12-slim
 RUN apt-get update -q && apt-get install -y -q --no-install-recommends \
       ffmpeg curl gnupg ca-certificates unzip git \
       libegl1 libgl1 libfontconfig1 fonts-dejavu-core gh \
+      build-essential python3-dev pkg-config cmake ninja-build gfortran \
       libpango1.0-dev dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended \
     && curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google.gpg \
     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
@@ -15,11 +16,11 @@ RUN apt-get update -q && apt-get install -y -q --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ENV HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome CHROME=/usr/bin/google-chrome
 WORKDIR /app
-COPY requirements*.txt ./
+COPY requirements*.txt constraints.txt ./
 # every extra the machine uses: one environment for CI, Codespaces and any agent (see docs/MACHINE.md)
 RUN pip install --no-cache-dir -r requirements.txt -r requirements-motion.txt -r requirements-render.txt -r requirements-weather.txt \
       -r requirements-engines.txt -r requirements-gis.txt -r requirements-physics.txt -r requirements-graphics.txt \
-      -r requirements-intake.txt -r requirements-cad.txt pytest-timeout mcp \
+      -r requirements-intake.txt -r requirements-cad.txt -c constraints.txt pytest-timeout mcp \
     && pip install --no-cache-dir --force-reinstall --no-deps cadquery-ocp==7.9.3.1.1 \
     && python -c "import skia, cadquery, OCP, openclsim, pyvrp"
 RUN python -m playwright install-deps chromium || true
