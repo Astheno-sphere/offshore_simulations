@@ -1,0 +1,28 @@
+# FIRST LIVE RUN (2026-11-09): replay the real Entur timetable for Molde on real GTFS data
+# fetched locally the same day (fetch_world --place Molde --modes sea,road,bus).
+# The timetable IS the plan; this run measures what the published service actually does.
+paper:
+  id: molde-gtfs-replay
+  title: "Molde: Entur GTFS timetable replay, Monday 2026-11-09 06:00-10:00"
+  authors: []
+  year: 2026
+  doi: ""
+  licence: "NLOD 2.0 (Entur)"
+problem:
+  class: [TRANSIT-REPLAY]
+  objective: replay the published timetable
+  constraints: []
+  solver: none
+engine: gtfs
+world: molde
+sim:
+  gtfs:
+    dir: data/worlds/molde/gtfs
+    date: "2026-11-09"
+    t0: "06:00:00"
+    t1: "10:00:00"
+reported: {}
+story:
+  question: "what does the published Molde timetable actually run on a Monday morning?"
+  accent: published service
+  comparison: ""
