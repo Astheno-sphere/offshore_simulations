@@ -19,8 +19,10 @@ COPY requirements*.txt ./
 # every extra the machine uses: one environment for CI, Codespaces and any agent (see docs/MACHINE.md)
 RUN pip install --no-cache-dir -r requirements-motion.txt -r requirements-render.txt -r requirements-weather.txt \
       -r requirements-engines.txt -r requirements-gis.txt -r requirements-physics.txt -r requirements-graphics.txt \
-      -r requirements-intake.txt -r requirements-cad.txt -c constraints.txt pytest-timeout mcp \
-    && python -m playwright install-deps chromium || true
+      -r requirements-intake.txt -r requirements-cad.txt pytest-timeout mcp \
+    && pip install --no-cache-dir --force-reinstall --no-deps cadquery-ocp==7.9.3.1.1 \
+    && python -c "import skia, cadquery, OCP, openclsim, pyvrp"
+RUN python -m playwright install-deps chromium || true
 COPY offsim/render_deck/package*.json offsim/render_deck/
 COPY offsim/motion/package*.json offsim/motion/
 RUN npm ci --prefix offsim/render_deck && (npm ci --prefix offsim/motion || npm install --prefix offsim/motion)
