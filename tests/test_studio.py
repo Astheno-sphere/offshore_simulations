@@ -60,7 +60,7 @@ def test_every_real_command_exists_in_the_cli():
             argv = shlex.split(cmd)
             assert argv[:3] == ["python", "-m", "offsim"], cmd
             assert argv[3] in names, f"{s['id']}: `offsim {argv[3]}` is not a CLI command"
-    assert all(s.get("planned") for s in load_funnel() if s["id"] in ("findings", "article", "publish"))
+    assert all(s.get("planned") for s in load_funnel() if s["id"] in ("findings",))     # why: W8 made article and publish real
 
 
 def test_run_command_parses_with_the_real_parser():

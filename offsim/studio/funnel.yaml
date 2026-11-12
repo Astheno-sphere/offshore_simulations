@@ -122,23 +122,21 @@ stages:
     why: Dry-run checks every ref and shot headlessly, then the render. 1080p goes to the render workflow.
   - id: article
     kind: auto
-    planned: true
     command: python -m offsim article {id}
     inputs: ["{out}/report.json", "{storyboard}"]
-    outputs: ["{paper_dir}/article.md"]
+    outputs: ["{paper_dir}/article.md", "{paper_dir}/article.md.meta.json"]
     exit: {file: ["{paper_dir}/article.md"]}
     owner: sim-narrator
     model: sonnet
-    why: Article from report refs only; every number resolves.
+    why: Article from report refs only; every number resolves, and a failed gate or synthetic weather refuses.
   - id: publish
     kind: decide
-    planned: true
     command: python -m offsim publish {id}
     inputs: ["{paper_dir}/article.md", "{film}"]
-    outputs: ["{paper_dir}/published.json"]
+    outputs: ["{paper_dir}/published.json", "{out}/publish/manifest.json"]
     exit: {file: ["{paper_dir}/published.json"]}
     decision_completes: false
     question: Approve article and film for publication?
     owner: sim-narrator
     model: haiku
-    why: Publishing is irreversible and public; a human approves it.
+    why: The command stages the bundle (article, figures, manifest, optional muse.ai upload); a human approves and posts it.

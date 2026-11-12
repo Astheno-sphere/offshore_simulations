@@ -1,0 +1,45 @@
+# Narration rules shared by every article template (first matching `when` wins; the last rule is the default).
+# Literal text may not contain digits: every number is a {ref} placeholder.
+figure_caption:
+- text: 'Still from the film of this run. Status: {status}.'
+narration:
+  hook:
+  - when: derived.status_key == "reproduced"
+    text: We re-ran {derived.paper_title} and the reported numbers held.
+  - when: derived.status_key == "did not reproduce"
+    text: We re-ran {derived.paper_title}. The reported numbers did not hold, and that is the finding.
+  - when: derived.status_key == "re-run under assumptions"
+    text: We re-ran {derived.paper_title}. Some inputs are our assumptions, listed below.
+  - text: We ran {derived.paper_title} and wrote down only what the run measured.
+  credit:
+  - when: derived.has_authors > 0
+    text: 'Method: {provenance.solver} on the {provenance.engine} engine, after {derived.authors_line} ({paper.year}).'
+  - text: 'Method: {provenance.solver} on the {provenance.engine} engine. No paper authors are recorded for this run.'
+  status_line:
+  - when: derived.status_key == "reproduced"
+    text: 'Status: reproduced. Our {derived.paper_kpi} is {derived.paper_ours:.1f} against the reported {derived.paper_value:.1f}, a gap of {derived.paper_gap_pct:.1f}%.'
+  - when: derived.status_key == "re-run under assumptions"
+    text: 'Status: re-run under assumptions. Our {derived.paper_kpi} is {derived.paper_ours:.1f} against the reported {derived.paper_value:.1f}, a gap of {derived.paper_gap_pct:.1f}%.'
+  - when: derived.status_key == "did not reproduce"
+    text: 'Status: did not reproduce. Our {derived.paper_kpi} is {derived.paper_ours:.1f} against the reported {derived.paper_value:.1f}, a gap of {derived.paper_gap_pct:.1f}%.'
+  - when: derived.status_key == "not comparable"
+    text: 'Status: not comparable. The paper reports no figure this run can be checked against, so nothing here claims a reproduction.'
+  - text: 'Status: {status}.'
+  answer:
+  - when: derived.has_comparison > 0 and derived.cmp_excludes_zero > 0 and derived.cmp_sign < 0
+    text: '{derived.cmp_a} lowers {derived.cmp_label} by {derived.cmp_pct:.1f}% against {derived.cmp_b}. The paired bootstrap interval runs from {derived.cmp_lo_pct:.1f}% to {derived.cmp_hi_pct:.1f}% over {derived.cmp_n:.0f} paired runs.'
+  - when: derived.has_comparison > 0 and derived.cmp_excludes_zero > 0
+    text: '{derived.cmp_a} raises {derived.cmp_label} by {derived.cmp_pct:.1f}% against {derived.cmp_b}. The paired bootstrap interval runs from {derived.cmp_lo_pct:.1f}% to {derived.cmp_hi_pct:.1f}% over {derived.cmp_n:.0f} paired runs.'
+  - when: derived.has_comparison > 0
+    text: '{derived.cmp_a} against {derived.cmp_b} on {derived.cmp_label}: the paired bootstrap interval, {derived.cmp_lo_pct:.1f}% to {derived.cmp_hi_pct:.1f}%, includes zero. Inconclusive, so we claim no difference.'
+  - when: derived.has_ensemble > 0
+    text: Across {ensemble.n_valid:.0f} valid runs, {derived.head_label} under {derived.head_variant} has a median of {derived.head_p50:.1f} {derived.head_unit}, with a lower decile of {derived.head_p10:.1f} and an upper decile of {derived.head_p90:.1f}.
+  - text: 'Single run, no ensemble: {kpis.distance_km:.1f} km sailed, fleet makespan {derived.makespan_h:.1f} hours. With no spread measured, read this as an illustration, not a distribution.'
+  doi:
+  - when: derived.has_doi > 0
+    text: 'Paper: doi {paper.doi}.'
+  - text: 'Paper: no DOI is recorded for this run.'
+  caveat:
+  - when: derived.has_ensemble > 0
+    text: The spread comes from {ensemble.n_runs:.0f} runs across weather years and seeds, {ensemble.n_valid:.0f} of them valid, on weather from {derived.weather_sources}.
+  - text: No ensemble was run, so there is no measured spread and no weather claim. A distribution needs the ensemble gate.
