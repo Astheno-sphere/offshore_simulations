@@ -88,7 +88,7 @@ version: 2
 name: alesund                          # slug = offsim/worlds/<name>.yaml = release world-<name>
 place: {name: Ålesund, lon: 6.15, lat: 62.47, source: "approx centre (Claude, unverified); refine via stedsnavn"}
 bbox: [west, south, east, north]       # WGS84; from the centre and radius with a cos(lat) correction
-modes: [sea, road, bus]                # any non-empty subset of sea | road | bus | walk | air
+modes: [sea, road, bus]                # any non-empty subset of sea | road | bus | walk | air | rail
 layers: [land, coast, sealanes, quays, ferry, roads, gtfs]   # derived from modes (place.layers_for)
 osm_land: true                         # v1 keys (sodir_keywords, depth, manual, ais_*, osm_pbf_url) pass through
 ```
@@ -100,6 +100,7 @@ osm_land: true                         # v1 keys (sodir_keywords, depth, manual,
 | road, walk | `roads` | OSM via Geofabrik extract (`--osm`) |
 | bus | `roads` + `gtfs` | OSM + Entur national aggregated GTFS (NLOD), clipped by `offsim.transit.gtfs.clip` (`--gtfs`) |
 | air | `helipads` | OSM `aeroway=helipad|heliport` (aerodromes are not an OSM layer yet) |
+| rail | `rail`, `stations` | OSM `railway=rail|light_rail|subway|tram` and `railway=station|halt|tram_stop` via the Geofabrik extract (`--osm`); `offsim.worlds.rail.RailGraph`. Does not imply `gtfs`: add `--gtfs` for timetables |
 
 Resolution (`place.resolve`): `"lon0,lat0,lon1,lat1"` bbox, else a built-in gazetteer key (about 20 logistics places,
 case- and diacritics-insensitive, centres flagged *approx, unverified*), else the Kartverket stedsnavn API

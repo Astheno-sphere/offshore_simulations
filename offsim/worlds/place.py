@@ -21,12 +21,13 @@ World spec v2 (YAML; documented in docs/ARCHITECTURE.md "Worlds v2")
     name: alesund                       # slug; file name offsim/worlds/<name>.yaml
     place: {name, lon, lat, source}     # provenance of the centre point
     bbox: [west, south, east, north]    # WGS84
-    modes: [sea, road, bus, walk, air]  # any non-empty subset
+    modes: [sea, road, bus, walk, air, rail]  # any non-empty subset
     layers: [land, coast, sealanes, roads, ...]   # DERIVED from modes by `layers_for` (written for readability)
     osm_land: true                      # v1 keys stay valid: osm_land, sodir_keywords, depth, manual, ais_*, osm_pbf_url
     sodir_keywords: []
 Layers by mode: always `land`; sea -> coast, sealanes (+ depth only when requested); road/walk -> roads (+ quays, ferry
-for sea); bus -> roads + gtfs; air -> helipads + aerodromes (OSM aeroway helipad|heliport, aerodrome).
+for sea); bus -> roads + gtfs; air -> helipads + aerodromes (OSM aeroway helipad|heliport, aerodrome);
+rail -> rail + stations (OSM railway=*, see offsim.worlds.rail; a rail GTFS is added with bus, or fetch_world --gtfs).
 A v1 YAML (no `version`) loads as modes [sea] with place derived from the bbox centre.
 """
 from __future__ import annotations
@@ -42,7 +43,7 @@ from typing import Callable, Optional, Sequence
 
 import yaml
 
-MODES = ("sea", "road", "bus", "walk", "air")
+MODES = ("sea", "road", "bus", "walk", "air", "rail")
 KM_PER_DEG = 111.195          # mean Earth radius 6371 km
 STEDSNAVN = "https://ws.geonorge.no/stedsnavn/v1/navn"
 STEDSNAVN_LICENCE = "CC BY 4.0 (Kartverket)"
@@ -208,6 +209,8 @@ def layers_for(modes: Sequence[str], depth: bool = False) -> list:
         L += ["gtfs"]
     if "air" in modes:
         L += ["helipads", "aerodromes"]
+    if "rail" in modes:
+        L += ["rail", "stations"]
     return list(dict.fromkeys(L))
 
 

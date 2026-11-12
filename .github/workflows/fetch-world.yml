@@ -14,7 +14,7 @@ on:
         required: false
         default: ""
       modes:
-        description: "With place: comma list of sea,road,bus,walk,air (road/walk/bus/air imply OSM, bus implies Entur GTFS)"
+        description: "With place: comma list of sea,road,bus,walk,air,rail (road/walk/bus/air/rail imply OSM, bus implies Entur GTFS)"
         required: false
         default: "sea"
       radius_km:

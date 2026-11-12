@@ -90,6 +90,20 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
   zero-time hops floored at 1 s (counted in `meta["dropped"]`); ferries without a shape run straight and may cross land, so give `World.land` to `validate`;
   no weather. `clip` keeps whole trips with >= 2 in-bbox stops, so long-distance trips pull in stops outside the box.
 
+### rail (network layer for `gtfs`, not an engine)
+- **What:** `offsim.worlds.rail.RailGraph` over the OSM `rail` layer (`railway=rail|light_rail|subway|tram`; `stations` layer for `station|halt|tram_stop`).
+  Same contract as `RoadGraph` (`snap`, `legs`, plus `chain` for consecutive stops and `snap_stations` with the snap distance reported). Fetch with
+  `fetch_world --modes rail` (implies `--osm`; add `--gtfs` for timetables).
+- **Build rules:** lines split at shared vertices (switches); both directions; `service=yard|siding|spur` excluded unless `include_service=True`; tunnels, bridges,
+  `electrified`, `voltage`, `gauge` kept as edge attributes; speed = `maxspeed` else a class default (main 120, branch 80, industrial 40, light_rail/subway 70, tram 40 km/h),
+  **all defaults are assumptions** (`assumption: true`; Bane NOR / Norske tog figures not verified in this workspace). Unreachable pair or a station beyond
+  `max_snap_m` (500 m) raises or is reported (`snapped=False`); never a silent straight line.
+- **Hook in `gtfs`:** a rail or tram trip without a `shapes.txt` shape follows the rail graph between its stops (`build(rail="auto")` reads `<world>/osm/rail.geojson`
+  next to the GTFS folder; `rail=False` disables). Order: shapes.txt, rail graph, straight. `meta["geometry_by_trip"]`, `meta["geometry"]`, `meta["rail_fallback"]`,
+  `meta["rail_snap_m_max"]` record what was used. Timetable times are unchanged; only geometry and along-track distance change (so `vehicle_km` and `vmax` follow the track).
+- **Not modelled:** single-track capacity and crossing logic, signalling and block sections, platform occupancy, dwell models, electrification as a constraint or
+  energy, gradients and curve speeds, acceleration profiles, freight paths, Bane NOR network statements (slots, capacity), delays and real-time.
+
 ### road
 - **Mapping:** same as `replay` (Plan.routes, fleet, `service_s`/`tw`/`demand`, `extra["berths"]`), with agents of domain `land`
   and moving state `drive`. `World.legs` = `offsim.worlds.roads.RoadGraph.legs` (fastest route on the OSM `roads` layer,
