@@ -4,6 +4,20 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-12 (evening) — main is the machine: P1 + Nordlys's film path merged. 670 pass, 6 skip.
+main = W0 + W1-W5 (conductor, doctor, concordance, live-check, agents+MCP) + R1 (Nordlys's N1 reconciled:
+section.py skia+CAD-HLR, mappanel, sheet.py, cad_sprites, ghia1982 harness, linkedin reports; drawing.py merged;
+S-92 now QA pass). CAD QA: 7 pass, aw189 fail, platform_jacket unmeasurable. Reports in coordination/reports/.
+Open, in order:
+  1. machine-image build (Dockerfile fixed after the first failure: constraints.txt was outside the build context).
+     Then Arshad: package access + Codespaces secrets, create the Codespace (docs/MACHINE.md).
+  2. CI on the hosted runner: the test step produced no output for 30 min; now `pytest -v -u` names the test live.
+     Read the newest tests run on main; if it is one test, fix it, else move the test job inside the image.
+  3. Arshad on Actions: live-check (first real probe of every host), papers (data branch + issue), fetch-world
+     bergen-ncs; set variable OFFSIM_MAILTO and secrets AMPL_LICENSE_UUID / MUSE_AI_KEY (Actions + Codespaces).
+  4. Then P2: W6 gap scout (18 of 26 gaps are no-code noise), W7 intake tables, W8 article generator.
+  5. Drafter: aw189 + platform_jacket to QA pass. Director: the visual gate (density, type, contrast, goldens).
+
 ## 2026-11-12 (later) — the machine on GitHub: docs/MACHINE.md
 .devcontainer/devcontainer.json (Codespaces), Dockerfile extended to every extra, machine-image.yml (GHCR image),
 tools/machine_setup.sh (AMPL activation from a Codespaces secret). NOT built yet (no Docker here): Arshad runs
