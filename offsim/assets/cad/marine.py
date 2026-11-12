@@ -13,7 +13,14 @@ Dimension sources (every principal dimension carries `src` or `assumption`):
   Jacket helideck D 20.88 m: CAP 437 D-value of the Sikorsky S-92 (UK CAA CAP 437, helicopter data table; quoted at
         https://www.pprune.org/rotorheads/395350-s-92-landing-specification.html). Safety net >= 1.5 m wide and
         helideck minimum size 1.0 D: CAP 437 / Offshore Norge 074 helideck manual.
-  Jacket geometry (leg batter 1:12, leg OD 1.2 m, bay count, deck heights) is generic North Sea practice: assumptions.
+  Jacket (default parameters): the Solan platform, Premier Oil Decommissioning Programmes AB-SO-LAP-LL-PM-PG-0001
+        Rev B01, May 2024, §1.3/§2.1 — 4-legged steel jacket, water depth ~136 m (LAT), jacket 158.5 m high,
+        20 m x 20 m at the top, 45 m x 45 m at the base
+        (https://assets.publishing.service.gov.uk/media/669a21af0808eaf43b50d290/Solan_Decommissiong_Programmes.pdf).
+        The model's defaults reproduce Solan exactly (136 + 22.5 = 158.5 m jacket height; 20 m top; batter solved
+        from the published top/base/height so the outside base width is 45.0 m). Leg OD 1.4 m, bay count, deck
+        heights, deck plan (3 m overhang) and all topsides are generic North Sea practice: assumptions. The Solan
+        document gives no topsides plan dimensions, so deck_width_m stays assumed.
 """
 from __future__ import annotations
 
@@ -388,21 +395,37 @@ def build_psv(loa_m=85.0, beam_m=20.0, depth_m=8.0, draught_m=6.5, deck_length_f
 # --------------------------------------------------------------------------------------------- jacket
 CAP437_D_S92 = 20.88
 
+# Solan jacket (see the module docstring): water depth ~136 m, jacket height 158.5 m, top 20x20 m, base 45x45 m.
+# deck_elev = jacket height - water depth = 22.5 m; batter is solved from the published top/base/height so that the
+# outside base width (leg-centre spacing at the seabed + leg OD 1.4 m) is exactly 45.0 m.
+_SOLAN_WATER_DEPTH_M = 136.0
+_SOLAN_JACKET_HEIGHT_M = 158.5
+_SOLAN_TOP_M = 20.0
+_SOLAN_BASE_M = 45.0
+_SOLAN_DECK_ELEV_M = _SOLAN_JACKET_HEIGHT_M - _SOLAN_WATER_DEPTH_M   # 22.5
+_SOLAN_BATTER = (_SOLAN_BASE_M - _SOLAN_TOP_M - 1.4) / (2 * _SOLAN_JACKET_HEIGHT_M)
+_SOLAN_SRC = ("Solan 4-legged steel jacket, Premier Oil Decommissioning Programmes AB-SO-LAP-LL-PM-PG-0001 "
+              "Rev B01, May 2024, §1.3/§2.1, "
+              "https://assets.publishing.service.gov.uk/media/669a21af0808eaf43b50d290/Solan_Decommissiong_Programmes.pdf")
+
 
 @register("platform_jacket")
-def build_platform_jacket(water_depth_m=80.0, deck_elev_m=22.0, helideck_d_m=CAP437_D_S92, legs=4, bays=4,
-                          top_spacing_m=26.0, batter=1 / 12, leg_od_m=1.4, deck_height_m=6.0):
+def build_platform_jacket(water_depth_m=_SOLAN_WATER_DEPTH_M, deck_elev_m=_SOLAN_DECK_ELEV_M,
+                          helideck_d_m=CAP437_D_S92, legs=4, bays=4, top_spacing_m=_SOLAN_TOP_M,
+                          batter=_SOLAN_BATTER, leg_od_m=1.4, deck_height_m=6.0):
     """Fixed steel jacket. Origin: z=0 on the seabed, x=y=0 at the plan centre of the legs. MSL at z=water_depth_m.
-    Cellar-deck plate underside at z = water_depth_m + deck_elev_m. Helideck cantilevers off the +x (forward) edge."""
+    Cellar-deck plate underside at z = water_depth_m + deck_elev_m. Helideck cantilevers off the +x (forward) edge.
+    Default parameters are the Solan platform (see _SOLAN_* above); other parameters give a generic jacket whose
+    principal dims are then assumptions."""
     Wd, E = float(water_depth_m), float(deck_elev_m)
     zdeck = Wd + E
     zleg_top = zdeck
     leg_r, br_r = leg_od_m / 2, leg_od_m / 2 * 0.42
     s_top = float(top_spacing_m)
-    # plan: 4 legs -> 2x2 ; 8 legs -> 2 x 4 (long in x)
+    # plan: 4 legs -> 2x2 square (Solan top is 20x20 m); 8 legs -> 2 x 4 (long in x)
     if legs == 4:
         nx, ny = 2, 2
-        sx_top, sy_top = s_top, s_top * 0.8
+        sx_top, sy_top = s_top, s_top
     elif legs == 8:
         nx, ny = 4, 2
         sx_top, sy_top = s_top * 1.5, s_top * 0.8
@@ -429,7 +452,8 @@ def build_platform_jacket(water_depth_m=80.0, deck_elev_m=22.0, helideck_d_m=CAP
                 xb_, yb = leg_xy(ix, iy, b)
                 members_leg.append(_cyl(leg_r, (xa, ya, a), (xb_, yb, b)))
             xa, ya = leg_xy(ix, iy, 0)
-            members_leg.append(_cyl(leg_r * 1.25, (xa, ya, 0), (xa, ya, 1.0)))
+            members_leg.append(_cyl(leg_r, (xa, ya, 0), (xa, ya, 1.0)))  # foot can, same OD as the leg: a fatter
+            # foot would push the measured base width past the published 45.0 m
     # vertical X-bracing on the four faces, per bay; plus horizontal frame members at every level
     nodes = lambda ix, iy, z: (*leg_xy(ix, iy, z), z)
     faces = []
@@ -614,17 +638,31 @@ def build_platform_jacket(water_depth_m=80.0, deck_elev_m=22.0, helideck_d_m=CAP
     shape = _comp([p for k, p in parts.items() if k != "helideck_plate"])
     src_d = ("CAP 437 (UK CAA) D-value of the Sikorsky S-92 = 20.88 m, quoted at "
              "https://www.pprune.org/rotorheads/395350-s-92-landing-specification.html; helideck diameter >= 1.0 D")
+    # principal dims, computed from the parameters so non-default builds stay consistent; sourced only when the
+    # parameters reproduce Solan (the defaults). height = seabed to cellar-deck underside = jacket height;
+    # base width = leg-centre spacing at the seabed + leg OD (outside-to-outside); deck width = topsides plan width.
+    _solan = (legs == 4 and abs(Wd - _SOLAN_WATER_DEPTH_M) < 0.5 and abs(E - _SOLAN_DECK_ELEV_M) < 0.5
+              and abs(s_top - _SOLAN_TOP_M) < 0.1 and abs(batter - _SOLAN_BATTER) < 1e-9
+              and abs(leg_od_m - 1.4) < 0.01)
+    _base_w = sy_top + 2 * zleg_top * batter + leg_od_m
+    _deck_w = 2 * yt
     dims = {
-        "water_depth_m": _dim(Wd, assumption=True),
-        "deck_elev_m": _dim(E, assumption=True),
+        "height_m": _dim(zdeck, _SOLAN_SRC + " (jacket 158.5 m high)") if _solan else _dim(zdeck, assumption=True),
+        "base_width_m": _dim(_base_w, _SOLAN_SRC + " (45 m x 45 m at the base)") if _solan else _dim(_base_w, assumption=True),
+        "deck_width_m": _dim(_deck_w, assumption=True),  # reason: no published Solan topsides plan dims; the deck
+        # plan is a 3 m overhang beyond the 20 m jacket top, generic North Sea practice (see module docstring)
+        "water_depth_m": _dim(Wd, _SOLAN_SRC + " (water depth ~136 m)") if _solan else _dim(Wd, assumption=True),
+        "deck_elev_m": _dim(E, _SOLAN_SRC + " (158.5 - 136 = 22.5 m, derived)") if _solan else _dim(E, assumption=True),
         "helideck_d_m": _dim(Dh, src_d) if abs(Dh - CAP437_D_S92) < 1e-6 else _dim(Dh, assumption=True),
         "leg_od_m": _dim(leg_od_m, assumption=True),
-        "leg_batter": _dim(batter, assumption=True),
-        "top_spacing_m": _dim(top_spacing_m, assumption=True),
+        "leg_batter": _dim(batter, _SOLAN_SRC + " (solved from the published top/base/height)") if _solan else _dim(batter, assumption=True),
+        "top_spacing_m": _dim(top_spacing_m, _SOLAN_SRC + " (20 m x 20 m at the top)") if _solan else _dim(top_spacing_m, assumption=True),
     }
     meta = {"class": "structure", "licence": "generated (CC0)", "generator": "offsim.assets.cad.marine.platform_jacket", "lod": 3,
             "msl_z": Wd, "cellar_deck_z": zdeck, "helideck_z": z_h, "helideck_centre": (hx, hy), "legs": legs, "bays": bays,
             "pivots": {"crane": (cx, cy, cz + 6.3)},
             "notes": "z=0 is the seabed; 'decks' bottom equals water_depth_m + deck_elev_m (cellar deck underside). "
-                     "'helideck_plate' is the landing disc of diameter helideck_d_m (not included in `shape` twice)."}
+                     "'helideck_plate' is the landing disc of diameter helideck_d_m (not included in `shape` twice). "
+                     "Default parameters are the Solan platform (see module docstring); height/base/top-spacing are "
+                     "sourced only for that parameter set, deck width and topsides are generic assumptions."}
     return AssetModel(shape=shape, parts=parts, dims=dims, meta=meta)
