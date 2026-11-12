@@ -64,12 +64,24 @@ OVERPASS = "https://overpass-api.de/api/interpreter"
 SODIR = "https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer"
 ENTUR_GTFS = "https://storage.googleapis.com/marduk-production/outbound/gtfs/rb_norway-aggregated-gtfs.zip"
 UA = {"User-Agent": "offshore-simulations (github.com/Astheno-sphere/offshore_simulations)"}
+GET_RETRY_S = 10.0                                # one retry on a 502/503 waits this long (tests set it to 0)
 
 
 def get(url, data=None, timeout=300):
     req = urllib.request.Request(url, data=data, headers=UA)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read()
+    for attempt in (1, 2):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            # Overpass answers a good query with 502/503 when its queue is full
+            # and the same query succeeds minutes later (verified 2026-11-13:
+            # the bergen-ncs coast stage failed in 2 s on a 502, then the same
+            # query succeeded; the live probe saw the same pattern). One retry
+            # on a gateway error only; other HTTP errors still raise at once.
+            if e.code not in (502, 503) or attempt == 2:
+                raise
+            time.sleep(GET_RETRY_S)
 
 
 def land_from_osm(bbox, out):
