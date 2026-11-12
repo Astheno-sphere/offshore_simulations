@@ -1,0 +1,17 @@
+{
+  // The machine: one environment on GitHub for every writer (Arshad, Claude, Nordlys, any other agent).
+  // Open it with Codespaces (Code -> Codespaces -> Create) or any devcontainer client. See docs/MACHINE.md.
+  "name": "offsim machine",
+  "image": "ghcr.io/astheno-sphere/offsim:latest",
+  "workspaceFolder": "/workspaces/offshore_simulations",
+  "remoteEnv": {
+    "PYTHONUNBUFFERED": "1",
+    "OFFSIM_MAILTO": "${localEnv:OFFSIM_MAILTO}",
+    "AMPL_LICENSE_UUID": "${localEnv:AMPL_LICENSE_UUID}",
+    "MUSE_AI_KEY": "${localEnv:MUSE_AI_KEY}"
+  },
+  "postCreateCommand": "bash tools/machine_setup.sh",
+  "postStartCommand": "python -m offsim resume || true",
+  "customizations": {"vscode": {"extensions": ["ms-python.python", "anthropic.claude-code"]}},
+  "hostRequirements": {"cpus": 4, "memory": "8gb", "storage": "32gb"}
+}

@@ -4,6 +4,12 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-12 (later) — the machine on GitHub: docs/MACHINE.md
+.devcontainer/devcontainer.json (Codespaces), Dockerfile extended to every extra, machine-image.yml (GHCR image),
+tools/machine_setup.sh (AMPL activation from a Codespaces secret). NOT built yet (no Docker here): Arshad runs
+Actions -> machine-image, then creates a Codespace. Open: CI test job hangs on the runner (per-test timeout added,
+read the durations in the last tests run); then move the test job into the image; merge PR #1.
+
 ## 2026-11-12 — W0 + P1 (W1-W5) built and merged into wip/cad-assets-heli. 607 pass, 5 skip locally.
 W0: CI apt retries + requirements-cad, papers workflow -> data branch + issue, papers/auto data merged, coordination/
 channel (task N1 for Nordlys: bring uncommitted CAD sources + section.py v7-v10 in on agent/nordlys/N1-cad-sources).
