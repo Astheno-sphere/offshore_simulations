@@ -1,0 +1,34 @@
+code: VIS-GATE
+gate: visual-gate
+meaning: a rendered frame fails offsim.cinema.visual_gate (balance, edges, strokes, palette, accent, contrast, type scale,
+  margins); story.check refuses the storyboard and names the rule
+symptoms:
+- balance, empty half, bottom half holds N percent of the ink
+- contrast, a text box below 4.5 to 1
+- margins, ink clipped at the frame edge
+- edges, the frame is empty or mush
+- palette, pixels outside the declared palette, or the accent covers more than 8 percent
+checks:
+- visual_gate_rule
+repairs:
+- id: fill-the-vacated-band
+  kind: human
+  action: Give the empty region to a neighbouring panel (craft rule 6, every region earns its space) instead of shrinking
+    the frame. Precedent, 2026-11-12, a section without its map grew the chart into the map's band.
+  why_safe: Layout only; no number, source or measurement changes.
+- id: raise-the-tone
+  kind: human
+  action: Move the failing text to a palette tone that clears 4.5 to 1 against the band it sits on, measured with offsim.cinema.visual_gate
+    rather than by eye. Precedent, chart tick labels from muted at 3.84 to streak_hi at 7.
+  why_safe: Colour choice inside the declared palette; the text itself is unchanged.
+- id: cut-a-type-size
+  kind: human
+  action: Merge two of the frame's text sizes until three remain plus the methods line (rule 17).
+  why_safe: Typography only.
+- id: report-golden-refresh
+  kind: human
+  action: For an intended renderer change only, run PYTHONPATH=. python tests/golden/make_goldens.py and commit the new reference
+    frames with the reason.
+  why_safe: A human confirms the renderer change is intended before the reference moves.
+question: Is this frame's layout wrong, or is the threshold wrong for this shot kind (then it needs a measured reference frame,
+  not a waiver)?

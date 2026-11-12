@@ -3,7 +3,7 @@
 Generated from `offsim/doctor/lessons.jsonl` by `python -m offsim learn` (offsim.doctor.lessons). Do not edit by hand.
 A lesson is closed only when its guard (a test or a playbook check) exists. Open lessons come first.
 
-11 lessons, 2 open.
+12 lessons, 2 open.
 
 ## Open (no guard yet)
 
@@ -97,3 +97,12 @@ A lesson is closed only when its guard (a test or a playbook check) exists. Open
 - Cause: Premises of the tests were wrong, but nobody checked them first; an edited test can hide a real defect
 - Fix: Check the test's premise against the paper/engine docs before editing; an edit carries a why: line and a LESSONS entry; doctor check tests_weakened lists removed asserts
 - Guard: `playbook:UNKNOWN::tests_weakened`
+
+## VIS-GATE
+
+### L12 (2026-11-12) VIS-GATE
+
+- Symptom: a section frame without its map left the bottom half at 11 percent of the ink; chart tick labels on the crew-zone band measured 3.84 to 1
+- Cause: the layout left a void when map is None, and the muted tone is only 3.8 to 1 over that band
+- Fix: the chart band grows into the vacated space (craft rule 6); tick labels moved to streak_hi at 7 to 1
+- Guard: `tests/test_visual_gate.py::test_check_accepts_a_storyboard_that_passes_the_gate`

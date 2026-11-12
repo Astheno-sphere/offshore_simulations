@@ -69,6 +69,7 @@ GATE_ENTRIES = {   # code -> (gate, detail) that the pipeline writes
 for _k, _code in {"speed": "G3-SPEED", "teleport": "G3-TELEPORT", "land": "G3-LAND-CROSSING", "capacity": "G3-CAPACITY", "state": "G3-STATE"}.items():
     GATE_ENTRIES[_code] = ("3_contract", None)       # detail filled lazily (needs shapely/pandas)
 TEXT_CASES = {"DATA-HOST-TIMEOUT": "fetch: metocean nora3_wind exceeded 2400 s", "DATA-SCHEMA": "KeyError: 'objective_total'",
+              "VIS-GATE": "shot 2 (section): visual gate: balance: empty half: bottom half holds 11% of the ink (< 13%)",
               "CI-ENV": "ImportError: libEGL.so.1: cannot open shared object file", "UNKNOWN": "the flux capacitor is out of phase"}
 QA_CASE = {"name": "s92", "dims": [{"name": "rotor_diameter_m", "value": 20.0, "sourced": True, "measured": 16.0, "rel_err": 0.2, "pass": False}],
            "tol": 0.01, "dims_checked": 1, "dims_failed": ["rotor_diameter_m"], "missing_required": [], "principal_sourced": ["rotor_diameter_m"]}

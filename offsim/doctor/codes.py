@@ -33,6 +33,7 @@ CODES = {
     "G4B-AIS": ("4b_ais", "simulated speeds/port-call dwell disagree with the AIS calibration, or nothing was comparable"),
     "G4C-ENTUR": ("4c_entur", "timetable replay disagrees with observed Entur vehicle positions"),
     "QA-ASSET-DIM": ("asset-qa", "a CAD asset's solid disagrees with its declared dimensions, or required dims are missing"),
+    "VIS-GATE": ("visual-gate", "a rendered frame fails offsim.cinema.visual_gate: ink balance, edge density, stroke width, palette, accent share, text contrast, type scale or safe margins"),
     "DATA-HOST-TIMEOUT": ("data", "an external data host timed out, rate-limited (429) or did not answer"),
     "DATA-SCHEMA": ("data", "a file, table or API answer does not have the shape the code expects"),
     "CI-ENV": ("ci", "the runner/workspace environment lacks a system library, display or package index"),
@@ -50,6 +51,7 @@ GATE_CODE = {"1b": "G1B-GAP", "2": "G2-REPLAY-DRIFT", "3e": "G3E-ENSEMBLE", "4":
 _VIOLATION = re.compile(r"\[(schema|time|teleport|speed|state|capacity|land)\]")
 _TEXT_RULES = [   # (regex, code): first match wins; order matters (most specific first)
     (r"dims off by more than|principal dimension|missing required dims|dims_failed|asset '[^']*'[: ]", "QA-ASSET-DIM"),
+    (r"visual gate|empty half|ink density in region|below 4\.5:1|text sizes.*rule 17|ink clipped|accent (share|covers)", "VIS-GATE"),
     (r"libEGL|libGL\b|apt-get|Unable to locate package|E: (Failed|Unable)|no display|DISPLAY|HYPERFRAMES_BROWSER_PATH|"
      r"chrome (was )?not found|externally-managed-environment", "CI-ENV"),
     (r"timed out|timeout|StageTimeout|exceeded \d+ ?s|HTTP 429|429 Client|Too Many Requests|ConnectionError|Max retries exceeded|"

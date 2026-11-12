@@ -394,3 +394,14 @@ def lessons_have_guards(ctx):
     from offsim.doctor import lessons
     bad = [(i, ls["code"]) for i, ls in enumerate(lessons.load(), 1) if not ls.get("open") and not lessons.guard_exists(ls.get("guard"), ctx["root"])]
     return _r(not bad, bad=bad)
+
+
+def visual_gate_rule(ctx):
+    """Which visual_gate rule failed, from the refusal text story.check produced."""
+    import re
+    d = ctx.get("detail") or ""
+    if isinstance(d, dict):
+        d = d.get("detail") or str(d)
+    rules = re.findall(r"visual gate: ([a-z_]+):", str(d))
+    return _r(not rules, rules=sorted(set(rules)) or None,
+              hint="offsim.cinema.visual_gate.GATE_SPEC holds every threshold with its source")
