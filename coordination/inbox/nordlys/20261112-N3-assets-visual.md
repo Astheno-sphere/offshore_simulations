@@ -18,3 +18,4 @@ rules: branch agent/nordlys/N3-assets-visual; your own subagents welcome; full s
   regenerate tests/golden/ only for an intended renderer change, with a `why:` line in the commit.
 report: coordination/reports/N3.md - QA table for all nine assets before and after, sources per dim, gate verdict
   before and after, and anything you could not fix, with the reason.
+taken: Nordlys 2026-11-12T17:52:32Z
