@@ -291,7 +291,10 @@ def render(sc, st, series, frame, nframes, out_path, deck_text, mp=None, ctx=Non
     if hl is None:
         d = shot["headline"]
         hl = [[(d["top"], False)], [(d["accent"], True), (" " + d["rest"], False)]]
-    _text(cv, 56, 44, kicker or shot["kicker"], 17, "Bold", P["accent"])
+    # Type scale (rule 17): 52 headline / 20 body / 15 small + the 13 methods line. The clock stays at 20:
+    # at 22 its ring reaches a dense streak patch and its worst-background ratio falls to 3.2:1, while
+    # at 20 it measures 6.9:1 on the same field. Nothing else draws text.
+    _text(cv, 56, 44, kicker or shot["kicker"], 15, "Bold", P["accent"])
     for y, line in zip((76, 136), hl):
         x = 56
         for text, accent in line:
@@ -362,34 +365,38 @@ def render(sc, st, series, frame, nframes, out_path, deck_text, mp=None, ctx=Non
     else:
         clock = f"t +{off:4.1f} s"
     _text(cv, 56, top + 14, clock, 20, "Bold", P["ink"])
-    _text(cv, 56, top + 40, f"WIND {sc.u10:.0f} m/s  ·  Hs {sc.hs:.1f} m  ·  Tp {sc.tp:.0f} s", 15, "Regular", P["muted"])
-    _text(cv, W - 56, top + 14, "SECTION, 2D AIRFLOW", 14, "Bold", P["muted"], anchor="r")
+    # the panel-top labels sit over the streak field: ink, not muted — muted measures 2.6-2.8:1
+    # there (gate contrast, textured field), ink measures ~7:1 worst-background, like the clock.
+    # The conditions line sits 52 px below the panel top, not 40: at the 1/3 preview scale its ink
+    # glyphs otherwise leak into the clock's contrast ring (the clock then reads 3.4:1, not 6.9:1).
+    _text(cv, 56, top + 52, f"WIND {sc.u10:.0f} m/s  ·  Hs {sc.hs:.1f} m  ·  Tp {sc.tp:.0f} s", 15, "Regular", P["ink"])
+    _text(cv, W - 56, top + 14, "SECTION, 2D AIRFLOW", 15, "Bold", P["ink"], anchor="r")
     # readouts (measured this frame)
     y = top + ph + 30
     vals = [("CREW ZONE AIR", f"+{series[-1][1]:.0f} °C", True), ("HEAVE", f"{sc.heave:+.1f} m", False),
             ("PITCH", f"{np.degrees(sc.pitch):+.1f}°", False)]
     x = 56
     for lab, val, hot in vals:
-        _text(cv, x, y, lab, 19, "Bold", P["ink"])
-        x += cv.measure(lab + " ", ("Inter", "Bold"), 19)
-        _text(cv, x, y, val, 19, "Bold", P["accent"] if hot else P["muted"])
-        x += cv.measure(val, ("Inter", "Bold"), 19) + 34
+        _text(cv, x, y, lab, 20, "Bold", P["ink"])
+        x += cv.measure(lab + " ", ("Inter", "Bold"), 20)
+        _text(cv, x, y, val, 20, "Bold", P["accent"] if hot else P["muted"])
+        x += cv.measure(val, ("Inter", "Bold"), 20) + 34
     # chart: air temperature over the aft deck, drawn as time advances
     # The chart takes the band the map would have used when there is no map: craft rule 6, every region earns its
     # space. Without this a mapless section leaves the bottom half at ~11 % of the ink and the visual gate refuses it.
     cx0, cy0, cw = 56, y + 50, W - 112
     chh = 170 if mp is not None else 170 + 300
-    _text(cv, cx0, cy0 - 4, "LOWEST EDGE OF THE HOT PLUME (>20 °C) ABOVE THE AFT DECK, m", 14, "Bold", P["muted"])
+    _text(cv, cx0, cy0 - 4, "LOWEST EDGE OF THE HOT PLUME (>20 °C) ABOVE THE AFT DECK, m", 15, "Bold", P["muted"])
     gy0, gy1 = cy0 + 26, cy0 + chh
     ymax = 30.0
     zy = gy1 - (gy1 - gy0) * 2.5 / ymax
     cv.polygon([(cx0, zy), (cx0 + cw, zy), (cx0 + cw, gy1), (cx0, gy1)], fill="#4a2a2a")   # crew breathing zone
-    _text(cv, cx0 + 8, zy - 2, "crew zone 0–2.5 m", 12, "Regular", P["accent"])
+    _text(cv, cx0 + 8, zy - 2, "crew zone 0–2.5 m", 15, "Regular", P["accent"])
     for v in (0, 10, 20, 30):
         yy = gy1 - (gy1 - gy0) * v / ymax
         cv.line([(cx0, yy), (cx0 + cw, yy)], "#4a3236", 1.0)
         # tick labels sit on the crew-zone band, where `muted` falls to 3.8:1; streak_hi keeps them legible (7:1)
-        _text(cv, cx0 + cw - 30, yy - 18, f"{v}", 13, "Regular", P["streak_hi"])
+        _text(cv, cx0 + cw - 30, yy - 18, f"{v}", 15, "Regular", P["streak_hi"])
     t0, t1 = series[0][0], series[0][0] + nframes * (series[1][0] - series[0][0] if len(series) > 1 else 1)
     pts = [(cx0 + cw * (t - t0) / (t1 - t0), gy1 - (gy1 - gy0) * min(max(h, 0), ymax) / ymax)
            for t, _, h in series if np.isfinite(h)]
@@ -405,28 +412,30 @@ def render(sc, st, series, frame, nframes, out_path, deck_text, mp=None, ctx=Non
             h, m = int(run_t // 3600), int(run_t % 3600 // 60)
             agents = " + ".join(ctx["agents"])
             _text(cv, 56, my0, f"WHERE: {agents} ON THE OSLOFJORD DEMO SUPPLY RUN, {h} h {m:02d} min IN",
-                  14, "Bold", P["muted"])
+                  15, "Bold", P["muted"])
             done_k, marker = route_at(ctx["routes"][ctx["agent"]], ctx["times"][ctx["agent"]], run_t)
             panel = mp.frame((frame + 1) / nframes, ctx["routes"][ctx["agent"]], done_k, marker,
                              wind=(sc.u10, 0.0), others=others, follow=True)
         else:
             label = (shot.get("map") or {}).get("label") or ctx["paper"].upper().replace("-", " ")
             _text(cv, 56, my0, f"WHERE: {ctx['agent']} ON THE {label}, {int(ctx['t_h'])} h {int(ctx['t_h'] % 1 * 60):02d} min IN",
-                  14, "Bold", P["muted"])
+                  15, "Bold", P["muted"])
             panel = mp.frame((frame + 1) / nframes, ctx["route"], ctx["k"] + 1, ctx["marker"], wind=(sc.u10, 0.0))
         my1 = my0 + 24 + panel.size[1]
     else:
         my1 = my0
-    # deck + method
-    yb = my1 + 28
-    _text(cv, 56, yb, deck_text[0], 22, "Regular", P["ink"])
-    _text(cv, 56, yb + 30, deck_text[1], 22, "Regular", P["ink"])
-    _text(cv, 56, yb + 70, "Air: 2D Boussinesq stable fluids (Stam 1999), 0.4 m grid, IEC 61400-3 wind profile. Sea: JONSWAP.",
+    # deck + method. The block sits 16 px below the map panel and the methods lines run at +62/+78/+94:
+    # with the map on, the DRAFT line's box bottom lands at ~1308 of 1350, inside the gate's 3 % safe
+    # area (safe bottom 1317.6); the old +28 / +70/+88/+106 put it at 1332, outside (margins finding).
+    yb = my1 + 16
+    _text(cv, 56, yb, deck_text[0], 20, "Regular", P["ink"])
+    _text(cv, 56, yb + 30, deck_text[1], 20, "Regular", P["ink"])
+    _text(cv, 56, yb + 62, "Air: 2D Boussinesq stable fluids (Stam 1999), 0.4 m grid, IEC 61400-3 wind profile. Sea: JONSWAP.",
           13, "Regular", P["muted"])
     if ctx:
-        _text(cv, 56, yb + 88, f"Map: coastline OpenStreetMap (ODbL); route from offsim run {ctx['paper']} (gates 0-3 passed); map wind uniform.",
+        _text(cv, 56, yb + 78, f"Map: coastline OpenStreetMap (ODbL); route from offsim run {ctx['paper']} (gates 0-3 passed); map wind uniform.",
               13, "Regular", P["muted"])
-    _text(cv, 56, yb + 106, draft_text if draft_text is not None else assumption_line(shot), 13, "Regular", P["muted"])
+    _text(cv, 56, yb + 94, draft_text if draft_text is not None else assumption_line(shot), 13, "Regular", P["muted"])
     _text(cv, W - 56, 46, "offshore_simulations", 15, "Bold", P["muted"], anchor="r")
     img = cv.to_pil()
     if panel is not None:
