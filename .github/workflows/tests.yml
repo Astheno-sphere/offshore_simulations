@@ -22,7 +22,8 @@ jobs:
       - run: pip install -r requirements-render.txt -r requirements-weather.txt -r requirements-engines.txt -r requirements-gis.txt -r requirements-physics.txt -r requirements-graphics.txt -r requirements-intake.txt -r requirements-cad.txt
       - run: python -c "import skia, cadquery, OCP; print('graphics + cad ok')"
       - run: python tools/catalog_build.py --check
-      - run: python -m pytest -q tests
+      - run: pip install pytest-timeout
+      - run: python -m pytest -q tests --timeout=300 --durations=15   # a hung test fails with its name instead of eating the job
 
   render-check:
     # renderer smoke test: builds the deck.gl bundle and draws frames headlessly; writes no images
