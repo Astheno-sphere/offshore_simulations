@@ -17,7 +17,7 @@ GRADES = {
 # Editorial palettes (docs/STYLE_REFERENCE.md). Colours are data; renderers and templates read them from here.
 PALETTES = {
     # warm dark ground, streak greys, one hot accent, diverging field (sampled from the reference, then ours to tune)
-    "section-plan": {"ground": "#331c22", "ground_deep": "#2a161a", "streak_lo": "#846a5d", "streak_hi": "#c9a98c",
+    "section-plan": {"ground": "#331c22", "ground_deep": "#2a161a", "sea": "#16323a", "streak_lo": "#846a5d", "streak_hi": "#c9a98c",
                      "accent": "#e5a028", "ink": "#f2e9df", "muted": "#9c8a80",
                      "field_diverging": ["#4f8f9c", "#9cc3c4", "#efe3cf", "#e89a5b", "#c8442f"]},
 }
