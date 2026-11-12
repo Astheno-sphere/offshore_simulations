@@ -1,0 +1,67 @@
+# TEMPLATE: land logistics on real roads (trucks / vans / workers driving to a depot, quay or heliport).
+# Copy to offsim/papers/<id>/scenario.yaml (paper-extract skill). Every value: {value, src: page/table/eq} or
+# {value, assumption: true, why}. Coordinates, demand and fleet below are PLACEHOLDERS around Molde (all assumptions);
+# replace each with the paper's values and a src before reporting anything.
+#
+# World: roads come from OpenStreetMap, never committed. Fetch them (Actions or laptop) and pull them here:
+#     python -m offsim.worlds.fetch_world --place molde --modes road        # writes data/worlds/molde/osm/roads.geojson
+#     python -m offsim.worlds.fetch_world --pull molde                      # in the Claude workspace (no direct OSM access)
+# A missing file stops the run at gate 0 and prints the fetch command.
+#
+# How it runs: `fleet[].domain: land` (or the explicit `world_mode: road`) makes offsim.pipeline build
+# offsim.worlds.roads.RoadGraph from that file, snap every point onto the nearest road (report: snap_m), route on the
+# fastest path (one-way streets respected), and replay through offsim.engines.road_engine in state "drive".
+# Speeds: OSM `maxspeed`, else class defaults (Statens vegvesen general limits 50/80/90/110 km/h; not verified per road;
+# listed as assumptions in the report). `speed_mps` below is the vehicle's TOP speed: it caps the road speed, never raises it.
+# Not modelled: congestion, signals, turn restrictions, access=private, vehicle weight/height limits.
+#
+# Optional AIS calibration gate (4b) for scenarios that have it: add `validate: {ais: true}` below and make sure
+# data/worlds/<world>/ais/calibration.json exists (fetch_world --ais <HAIS file>); a failing comparison stops the run.
+paper:
+  id: molde-road-cvrp          # folder name
+  title: "Molde: road CVRP on the real OSM road graph (placeholder demand)"
+  authors: []
+  year: null
+  doi: ""
+  licence: ""
+problem:
+  class: [CVRP]                      # CVRP or VRPTW (time windows replay on the road clock)
+  objective: total distance driven
+  constraints:
+    - {name: capacity, formula_or_text: "sum of demand on a route <= vehicle capacity", assumption: true, why: "placeholder"}
+  solver: pyvrp
+solver: pyvrp                        # registry name (offsim.engines.base): pyvrp (default) | pyomo | ampl | none
+engine: road                         # registry name: road (default for land) | replay | openclsim (road needs the road legs)
+world: molde                         # data/worlds/<world>/osm/roads.geojson (see the header)
+world_mode: road
+fleet:
+  - cls: truck                       # truck | van | worker
+    count: {value: 2, assumption: true, why: "placeholder fleet"}
+    capacity: {value: 10, unit: pallets, assumption: true, why: "placeholder"}
+    speed_mps: {value: 22.2, assumption: true, why: "80 km/h top speed: the rural general limit (Statens vegvesen), placeholder"}
+    domain: land
+instance:
+  source: "synthetic placeholder (said on screen)"
+  service_s: {value: 900, assumption: true, why: "15 min unloading per stop, placeholder"}
+  base: {name: Depot, lon: 7.158774, lat: 62.741771, assumption: true, why: "placeholder on Moldelivegen, on the largest strongly connected component; the Molde graph has 911 weak components (endpoint-only noding), so off-core points cannot be served"}
+  stops:
+    - {name: C1, kind: customer, lon: 7.470171, lat: 62.774602, demand: {value: 3, assumption: true}, assumption: true}
+    - {name: C2, kind: customer, lon: 7.142125, lat: 62.739953, demand: {value: 4, assumption: true}, assumption: true}
+    - {name: C3, kind: customer, lon: 7.240360, lat: 62.816831, demand: {value: 2, assumption: true}, assumption: true}
+    - {name: C4, kind: customer, lon: 7.457117, lat: 62.687963, demand: {value: 5, assumption: true}, assumption: true}
+sim:
+  max_snap_m: {value: 500, assumption: true, why: "a stop farther than this from any road is a wrong coordinate, not a snap"}
+  # road_speeds_kph: {value: {residential: 40}, src: "p. N, Table M"}     # override a class default with a paper value
+# certify:                           # gate 1b (opt-in): heuristic objective vs an exact solve; fails when the gap exceeds gap_tol
+#   max_clients: 12                  # more clients: the gate is recorded as skipped
+#   gap_tol: {value: 0.02, assumption: true, why: "2 % optimality gap"}
+#   solver: pyomo                    # or ampl (where AMPL is activated)
+# ensemble:                          # gate 3e (opt-in): seeds x weather years through the chosen engine -> report.ensemble
+#   seeds: 5
+#   weather: {dir: data/worlds/molde/metocean, point: [7.16, 62.75], years: [2000, 2023], season: DJF}   # tests: {synthetic: {n: 2, hours: 72}} (not reportable)
+# validate: {ais: true}              # gate 4b: needs data/worlds/<world>/ais/calibration.json
+reported: {}
+story:
+  question: "how far do the trucks drive to serve the customers?"
+  accent: optimised plan
+  comparison: ""
