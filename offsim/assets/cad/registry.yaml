@@ -10,7 +10,9 @@
 #                                 `python -m offsim.assets.cad.qa <name>`; story.check re-runs the gate regardless)
 #     required_dims: principal dimensions; the asset must provide ALL of them (each {value, src} or {value, assumption: true}),
 #                    and at least ONE must be sourced (src) for a film to use the asset
-#     measure:       (optional) {dim: {axis: x|y|z|xy, part: <substring of a part name>}} overrides how qa measures a dim
+#     measure:       (optional) {dim: {axis: x|y|z|xy|r, part: <substring of a part name>}} overrides how qa measures a dim
+#                    axis "r" = radial: 2x the farthest tessellated vertex from the pivot axis — the true diameter of
+#                    a rotor, which no bbox axis spans when the blade count is odd (see aw189 note)
 #     min_lod:       (optional) minimum LOD for films (base.py: 1 silhouette, 2 structure, 3 detail); default 2
 #     module:        (optional) module that registers it; base.MODULES is authoritative
 #     notes:         (optional) free text, e.g. the class drawing / data sheet to source from
@@ -21,9 +23,18 @@ psv:
   notes: "Platform supply vessel; LOA 85.5 / depth 7.8 / draught 6.5 sourced from a shipselector.com 85 m class listing (beam assumed 20.0). QA gate passes 2026-11-11."
 platform_jacket:
   class: structure
-  status: built
+  status: qa-pass
   required_dims: [height_m, base_width_m, deck_width_m]
-  notes: "Fixed steel jacket + topside; source from a field development plan or Sodir fact page. QA 2026-11-11: no principal dim measurable, required dims missing, all assumed — module builds, gate fails."
+  measure:
+    height_m: {axis: z, part: jacket}
+    base_width_m: {axis: y, part: jacket}
+    deck_width_m: {axis: y, part: decks}
+  notes: "Solan platform (Premier Oil Decommissioning Programmes AB-SO-LAP-LL-PM-PG-0001 Rev B01, May 2024): 4-legged
+    steel jacket, water depth ~136 m (LAT), jacket 158.5 m high, 20x20 m at the top, 45x45 m at the base. The model
+    defaults reproduce Solan exactly (136 + 22.5 = 158.5 m; batter solved from top/base/height). height_m is the
+    jacket part alone (whole-shape z is the crane-boom tip, 197.8 m); it measures 158.794 m — the +0.294 m is the top
+    frame tube radius above the 158.5 m leg-top node, inside the 1% gate. deck_width_m is the topsides plan (26.0 m,
+    3 m overhang past the 20 m top) and stays assumed — the Solan document gives no topsides plan dimensions."
 s92:
   class: aircraft
   status: qa-pass
@@ -35,13 +46,21 @@ s92:
   notes: "Sikorsky S-92A: EASA TCDS R.011 / CAP 437 / manufacturer data sheet. QA gate passes 2026-11-12 (R1): the 2026-11-11 failure (rotor 21.2 %, fuselage 28.0 %, width 341.4 %) was the measurement map, not the solid: substring 'rotor' also matched tail_rotor, the fuselage part excludes the tailboom, and whole-shape width includes the rotor. Measure now = exact rotor / fuselage+tailboom / fuselage+sponsons; the solid was already 20.88 x 17.17 x 5.47 m."
 aw189:
   class: aircraft
-  status: built
+  status: qa-pass
   required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
   measure:
     fuselage_length_m: {axis: x, part: [fuselage, tailboom]}
-    rotor_diameter_m: {axis: xy, part: "=rotor"}
+    rotor_diameter_m: {axis: r, part: "=rotor"}
     width_m: {axis: y, part: [fuselage, sponsons]}
-  notes: "Leonardo AW189: manufacturer data sheet. QA 2026-11-12 (R1, after the same measure-map fix as s92): only rotor_diameter_m fails, 4.2 % — a 5-blade rotor at azimuth 0 does not span its full diameter on the bbox (13.99 m max(x,y) vs 14.60 m); module builds, gate fails. Left as is."
+  notes: "Leonardo AW189: manufacturer data sheet (current Energy brochure 2025: overall length 17.57 m, overall
+    height 5.07 m, rotor diameter 14.60 m) + EASA OEB draft report 14/01/2014 §3.2 dimensioned drawing (rotor-head
+    height 4040 mm, tail-rotor Ø2900 mm, mast-to-tail-rotor 8855 mm). QA 2026-11-12 (N3): the solid was CORRECT and
+    only the bbox measurement under-read — verified 2x max tessellated tip radius from the hub axis = 14.604 m
+    (0.027% off 14.60). A 5-blade star can never span its diameter on a bbox: with blades at 72 deg no two oppose,
+    so the widest bbox axis is 2R·cos(18 deg) = 13.89 m + chord = 13.99 m measured; hence the radial measure. The
+    same pass also fixed a real solid error the drawing exposed: rotor-head height was 4.45 m (assumption), the
+    drawing says 4.04 m — hub_top corrected to 4.04, now sourced. Fuselage length 15.40 m stays assumed (no public
+    figure; the EASA §3.1 table's '17.605 m' is the overall length, and §3.2 gives no airframe length)."
 bus:
   class: vehicle
   status: qa-pass
@@ -60,15 +79,21 @@ person:
   notes: "Scale figure; stature from an anthropometric table (cite it). QA gate passes 2026-11-11."
 tree:
   class: tree
-  status: built
+  status: qa-pass
   required_dims: [height_m, crown_diameter_m]
   min_lod: 1
-  notes: "Species-typical height and crown from a forestry reference. QA 2026-11-11: crown_diameter_m missing, all dims assumed — module builds, gate fails."
+  notes: "Norway spruce (Picea abies), default specimen at the low end of the cited mature range: height 30 m (range
+    30-46 m), crown diameter 8.4 m (spread 7.6-13.7 m), https://dimensions.com/element/norway-spruce-picea-abies.
+    crown_diameter_m is the same physical quantity as crown_width_m under the registry's required-dim name. Pine /
+    birch defaults stay assumptions (inside a cited maximum only, no cited spread). QA gate passes 2026-11-12 (N3)."
 building:
   class: building
-  status: built
+  status: qa-pass
   required_dims: [length_m, width_m, height_m]
-  notes: "Footprint and height from the cadastre / OSM tags (cite which). QA 2026-11-11: length_m/width_m missing, all dims assumed — module builds, gate fails."
+  notes: "Default is Molde Mølle, Molde (OSM way 1355114723: height=19, building:levels=5, building=office; ©
+    OpenStreetMap contributors, ODbL 1.0; Overpass 2026-11-12). length_m / width_m are the projected footprint bounds
+    (21.42 x 18.06 m), height_m the OSM height tag (19 m). A caller-supplied footprint measures the same way from its
+    own polygon. QA gate passes 2026-11-12 (N3)."
 psv_v10:
   class: vessel
   status: built
