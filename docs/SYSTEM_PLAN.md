@@ -47,10 +47,10 @@ apart, and nothing proves the outside world (data hosts, AMPL, CI runners) still
    (overtime, weekend flights, carry-over, spare helicopter). Also: no benchmark validation for the fluid solver,
    gate 4 compares one run instead of ensemble medians, ensemble reports keep quantiles but not runs, no cost or
    emissions model, weather limits unsourced, Stavanger and Bergen never solved in CI (skipped as slow).
-7. **Visual chain is unstitched.** (Correction from Nordlys, 2026-11-12: section.py v7 to v10 on his VM already draws
-   with skia and CAD HLR; it is uncommitted. Task N1 brings it in. The text below describes the repo as committed.) CAD solids -> HLR drawings exist. skia Canvas exists. Inter exists. Hillshade and
-   sun() exist. The films use none of them (section.py still draws `vessel_lineart` with PIL). No visual gate
-   (density, type scale, contrast, golden frames), so quality is judged by eye in chat.
+7. **Visual chain partly stitched; no visual gate.** (Corrected 2026-11-12 on Nordlys's evidence, report N1.) His
+   section.py v7 to v10 renders with skia and draws the vessel from the CAD HLR projection; it arrives with the R1
+   reconcile. Still true: no visual gate (density, type scale, contrast, golden frames), findings.py is PIL, and
+   quality is judged by eye in chat.
 8. **Intake is shallow.** pdfplumber glues words and misses unruled tables; the helicopter paper's appendix was
    read by hand. No table reader, no GROBID, no structured equations.
 9. **Gap finder is a counter, not a scout.** No ranking, no dedupe, no feasibility check against what our engines
