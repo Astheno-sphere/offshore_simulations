@@ -26,3 +26,5 @@ do, in this order, firing your own subagents where it helps:
 rules: branch agent/nordlys/N2-actions for any code change; never push to main; `python -m pytest -q tests` before
   each commit; log every live failure and its fix in docs/TESTLOG.md and, where it has a guard, `python -m offsim learn`.
 report: coordination/reports/N2.md - per workflow: ran / green / what broke / what you changed / still unverified.
+
+taken: Nordlys 2026-11-12 17:52 UTC
