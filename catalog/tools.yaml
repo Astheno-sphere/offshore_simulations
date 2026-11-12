@@ -83,10 +83,12 @@ tools:
    role: "Ready filtered AIS sets for testing trajectory code without ordering data."}
 
 # ---------------- metocean ----------------
-- {id: metocean-api, name: metocean-api (MET Norway), url: "https://github.com/MET-OM/metocean-api", layer: metocean, licence: check, status: candidate, runs: actions, priority: next,
-   role: "Time series from NORA3 wind/wave hindcast (and ERA5) at a point: weather windows for PSV, crane and helideck operations."}
-- {id: metocean-stats, name: metocean-stats (MET Norway), url: "https://github.com/MET-OM/metocean-stats", layer: metocean, licence: check, status: candidate, runs: actions, priority: later,
-   role: "Operability statistics (Hs exceedance, windows) from those series."}
+- {id: metocean-api, name: metocean-api (MET Norway), url: "https://github.com/MET-OM/metocean-api", layer: metocean, licence: "LGPL-2.1-or-later (v1.1.14 metadata; imported lazily, unmodified, never vendored)", status: wired, runs: actions, priority: next,
+   evidence: "offsim/worlds/metocean_api.py tests/test_metocean_api.py tests/fixtures/metocean/make_fixtures.py docs/ENGINES.md",
+   role: "NORA3 wave + wind point series (NORA3_wave_sub, NORA3_wind_sub at 10 m) behind offsim.worlds.metocean_api: one request per product-month, each in a killable subprocess, atomic files, manifest, resume. WIRED, NOT TESTED LIVE: proven offline against synthetic fixtures (its real code path, URLs served from disk); thredds.met.no is blocked here. Promote to tested after the first live bergen-ncs run is logged in docs/TESTLOG.md. Note: it rejects start/end with a time part for the *_sub products ('YYYY-MM-DD' only), so offsim.weather.fetch.point_series with ISO times fails."}
+- {id: metocean-stats, name: metocean-stats (MET Norway), url: "https://github.com/MET-OM/metocean-stats", layer: metocean, licence: "MIT, but it requires lmoments3 (GPL-3.0) and pydap: separate process only, never imported in-process", status: wired, runs: actions, priority: later,
+   evidence: "offsim/worlds/metocean_api.py tests/test_metocean_api.py docs/ENGINES.md",
+   role: "Hs weather-window statistics per winter (stats.general.weather_window_length) run in a CHILD process by `python -m offsim.worlds.metocean_api stats`, as a cross-check on the fetched series; not an input to any run. WIRED: ran offline on fixture series only, not on real NORA3. Do not install it in the fetch environment: it pulls pydap, which can change xarray's OPeNDAP engine choice."}
 - {id: met-oceanforecast, name: MET Norway oceanforecast API, url: "https://api.met.no/doc/oceanforecast/datamodel", layer: metocean, licence: CC-BY-4.0 (MET terms), status: candidate, runs: actions, priority: later,
    role: "Forecast Hs, wave direction, currents for live-looking scenarios."}
 - {id: copernicusmarine, name: Copernicus Marine Toolbox, url: "https://github.com/mercator-ocean/copernicus-marine-toolbox", layer: metocean, licence: check, status: candidate, runs: actions, priority: later,

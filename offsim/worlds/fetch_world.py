@@ -156,7 +156,8 @@ def stage(name, budget_s, errors):
             signal.signal(signal.SIGALRM, old)
 
 
-BUDGET_S = {"coast": 15 * 60, "sodir": 10 * 60, "metocean": 40 * 60, "osm": 40 * 60, "gtfs": 30 * 60, "ais": 20 * 60}
+BUDGET_S = {"coast": 15 * 60, "sodir": 10 * 60, "metocean": 40 * 60, "osm": 40 * 60, "gtfs": 30 * 60, "ais": 20 * 60,
+            "metocean_api": 8 * 3600}     # outer cap only; the backend enforces its own per-request kill and --metocean-max-minutes
 
 
 def metocean(bbox, out, start_utc, hours, datasets=METOCEAN_DATASETS):
@@ -236,7 +237,15 @@ def fetch_ais(cfg, out, path):
 
 
 def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None, gtfs=False, gtfs_zip=None,
-          metocean_datasets=METOCEAN_DATASETS):
+          metocean_datasets=METOCEAN_DATASETS, metocean_backend="legacy", metocean_api=None):
+    """`metocean_backend` 'legacy' (default) is the bbox/OPeNDAP subsetter driven by `metocean_args`; 'metocean-api' is the
+    resumable point-series backend (offsim.worlds.metocean_api) driven by `metocean_api` = {point, years, season, ...}."""
+    if metocean_backend not in ("legacy", "metocean-api"):
+        raise ValueError(f"metocean_backend must be 'legacy' or 'metocean-api', got {metocean_backend!r}")
+    if metocean_backend == "metocean-api" and metocean_args:
+        raise ValueError("--metocean (bbox subset) belongs to the legacy backend; the metocean-api backend takes point/years/season")
+    if metocean_backend == "legacy" and metocean_api:
+        raise ValueError("metocean_api options need metocean_backend='metocean-api'")
     cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
     out.mkdir(parents=True, exist_ok=True)
     man = {"world": world, "bbox": cfg["bbox"], "fetched_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "sources": []}
@@ -257,6 +266,12 @@ def fetch(world, out, metocean_args=None, osm=False, osm_pbf=None, ais_path=None
                                    "licence": "CC BY 4.0 — MET Norway", "credit": "MET Norway (CC BY 4.0)",
                                    "datasets": metocean(cfg["bbox"], out, metocean_args[0], int(metocean_args[1]),
                                                         tuple(metocean_datasets))})
+    if metocean_backend == "metocean-api" and metocean_api:
+        with stage("metocean (metocean-api point series)", BUDGET_S["metocean_api"], errors):
+            from offsim.worlds import metocean_api as mapi
+            res = mapi.fetch_series(Path(out) / "metocean_point", **metocean_api)
+            man["sources"].append(mapi.manifest_source(res))
+            errors.extend(res.get("errors", []))
     if osm or osm_pbf:
         with stage("osm (Geofabrik + pyrosm)", BUDGET_S["osm"], errors):
             om = fetch_osm(cfg, out, osm_pbf)
@@ -481,6 +496,14 @@ if __name__ == "__main__":
     ap.add_argument("--metocean", nargs=2, metavar=("START_UTC", "HOURS"), help="also subset wind/wave/current, e.g. 2024-01-10T00:00 48")
     ap.add_argument("--metocean-datasets", default=",".join(METOCEAN_DATASETS),
                     help="comma list of " + ",".join(METOCEAN_DATASETS) + " (helicopter/PSV studies: nora3_wind,nora3_wave)")
+    ap.add_argument("--metocean-backend", choices=("legacy", "metocean-api"), default="legacy",
+                    help="legacy (default): bbox subset via --metocean START HOURS. metocean-api: resumable NORA3 point series "
+                    "(needs --metocean-point and --metocean-years; docs/ENGINES.md 'Weather data: two backends')")
+    ap.add_argument("--metocean-point", metavar="LON,LAT", help="metocean-api backend: site, e.g. 3.0,60.6")
+    ap.add_argument("--metocean-years", metavar="Y0-Y1", help="metocean-api backend: e.g. 2000-2023 (season year Y starts in Y)")
+    ap.add_argument("--metocean-season", default="DJF", help="metocean-api backend: month initials, default DJF")
+    ap.add_argument("--metocean-max-minutes", type=float, default=120.0,
+                    help="metocean-api backend: stop cleanly after this long; re-run to resume (default 120)")
     ap.add_argument("--depth", action="store_true",
                     help="also fetch raw DEM (EMODnet, Kartverket DTM) into <out>/dem_raw; with --pull: pull world-<name>-dem-raw")
     ap.add_argument("--osm", action="store_true", help="also download the Geofabrik pbf and write osm/<layer>.geojson (needs pyrosm)")
@@ -511,8 +534,16 @@ if __name__ == "__main__":
         plan = plan_layers(modes or placemod.load_world_spec(HERE / f"{world}.yaml")["modes"])
         dest = Path(a.out or ROOT / "data/worlds" / world)
         if not a.depth_only:
+            mapi_args = None
+            if a.metocean_backend == "metocean-api":
+                if not (a.metocean_point and a.metocean_years):
+                    ap.error("--metocean-backend metocean-api needs --metocean-point and --metocean-years")
+                from offsim.worlds import metocean_api as mapi
+                mapi_args = {"point": mapi.parse_point(a.metocean_point), "years": mapi.parse_years(a.metocean_years),
+                             "season": a.metocean_season, "max_runtime_s": a.metocean_max_minutes * 60}
             fetch(world, dest, a.metocean, osm=a.osm or plan["osm"], osm_pbf=a.osm_pbf, ais_path=a.ais,
                   gtfs=a.gtfs or plan["gtfs"], gtfs_zip=a.gtfs_zip,
-                  metocean_datasets=[d for d in a.metocean_datasets.split(",") if d])
+                  metocean_datasets=[d for d in a.metocean_datasets.split(",") if d],
+                  metocean_backend=a.metocean_backend, metocean_api=mapi_args)
         if a.depth or a.depth_only:
             fetch_depth(world, dest)
