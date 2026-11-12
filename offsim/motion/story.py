@@ -10,9 +10,15 @@ Shot types
   section   PIL + numpy: vertical sea section (2D air, JONSWAP sea, line-art vessel) + optional real-layers map;
             deck text chosen from the measured values by `narration:` rules (offsim/motion/section.py)
             `diptych` is accepted as an alias for a section shot that has a map.
-  findings  PIL: what the ensemble says (kind fan | paired | state_gantt), only from report["ensemble"] / the run's
+  findings  skia: what the ensemble says (kind fan | paired | state_gantt), only from report["ensemble"] / the run's
             trajectory, spread and status word always on screen (offsim/motion/findings.py)
 Assembly    ffmpeg xfade between shots.
+
+Visual gate: `check()` renders the dry-run frame of every section and findings shot and refuses the storyboard when
+offsim.cinema.visual_gate fails it (edges, strokes, palette, accent, contrast, margins, balance; the reason names the rule).
+A shot may carry `visual: {strict: true|false, kind: section|findings|map, spec: {<GATE_SPEC overrides>}}`: strict also fails
+the soft rules (type scale, sparse cells, text over a textured field); `spec` overrides are deep-merged over GATE_SPEC and a
+typo in a key is a refusal. Shots that render outside Python (map, card, equation) have no frame here and are not gated.
 
 Narration: any on-screen sentence in a section / findings shot (and optionally a card title) is a `narration:` list of
 {when, text} rules (offsim/motion/narrate.py) evaluated over measured values; never a literal claim.
@@ -91,8 +97,49 @@ def asset_problems(asset):
     return qa.gate(asset["name"], asset.get("params"), asset.get("drawn_height_px"))
 
 
-def check(sb, report):
-    """Narration gate + refs + tools. Returns a list of problems (empty = go)."""
+VISUAL_KEYS = ("strict", "kind", "spec")
+VISUAL_FRAME_SHOTS = ("section", "findings")
+
+
+def visual_problems(sb, report, shot, traj=None, weather=None, agents=None, warnings=None):
+    """Visual gate on one shot's dry-run frame (section: 0.2 s, short spin-up, indicative deck; findings: the final hold frame).
+    Returns refusals '<rule>: <measured vs limit>'; soft-rule failures go to `warnings` (a list) unless the shot is strict."""
+    import tempfile
+
+    from offsim.cinema import visual_gate as vg
+    st = shot_type(shot)
+    vis = shot.get("visual") or {}
+    if not isinstance(vis, dict) or set(vis) - set(VISUAL_KEYS):
+        return [f"visual: must be a mapping with keys from {list(VISUAL_KEYS)}, got {vis!r}"]
+    kind = vis.get("kind", st)
+    try:
+        vg.spec_for(kind, vis.get("spec"))
+    except KeyError as e:
+        return [f"visual: {e.args[0]}"]
+    fmt_size = tuple(size(sb.get("format", "square")))
+    with tempfile.TemporaryDirectory() as tmp:
+        try:
+            if st == "section":
+                from offsim.motion import section
+                with vg.capture_text(canvas=(section.W, section.H)) as texts:
+                    res = section.run_section({**normalize(shot), "seconds": 0.2}, sb, tmp, 30, report, fmt_size, 0,
+                                              strict_map=False, spinup_steps=40, log=lambda *_: None)
+            else:
+                from offsim.motion import findings
+                with vg.capture_text(canvas=(findings.W, findings.H)) as texts:
+                    res = findings.run_findings(shot, report, tmp, 30, traj, weather, agents, fmt_size, -1, log=lambda *_: None)
+            rep = vg.inspect(res["frames"][0], {**(vis.get("spec") or {}), "kind": kind, "text": texts or None})
+        except Exception as e:                    # a frame that cannot be rendered cannot be judged
+            return [f"visual gate could not render or inspect the frame: {type(e).__name__}: {e}"]
+    ok, reasons = vg.passes(rep, strict=bool(vis.get("strict")))
+    if warnings is not None:
+        warnings += [w for w in rep["warnings"] if not any(w == r for r in reasons)]
+    return [f"visual gate: {r}" for r in reasons]
+
+
+def check(sb, report, visual=True, warnings=None):
+    """Narration gate + refs + tools + visual gate. Returns a list of problems (empty = go). `warnings` (a list) receives
+    the soft visual findings of shots that passed. visual=False skips the frame renders (data checks only)."""
     probs = []
     failed = [g for g, r in report["gates"].items() if g != "4_paper" and not r["pass"]]
     if failed:
@@ -106,6 +153,7 @@ def check(sb, report):
     have = tools()
     for i, shot in enumerate(sb["shots"]):
         st = shot_type(shot)
+        n_before = len(probs)
         if shot.get("asset"):                    # CAD asset gate: dims within 1 %, >= 1 principal dim sourced (cad/qa.py)
             probs += [f"shot {i}: {p}" for p in asset_problems(shot["asset"])]
         if st not in SHOT_TYPES:
@@ -139,6 +187,13 @@ def check(sb, report):
             from offsim.motion import findings
             traj, _ = load_traj(sb) if shot.get("kind") == "state_gantt" else (None, None)
             probs += [f"shot {i} (findings): {p}" for p in findings.problems(shot, report, traj is not None)]
+        if visual and st in VISUAL_FRAME_SHOTS and len(probs) == n_before:
+            tr, ag = load_traj(sb) if (st == "findings" and shot.get("kind") == "state_gantt") else (None, None)
+            wx = load_weather(shot) if st == "findings" and shot.get("weather_csv") else None
+            wl = []
+            probs += [f"shot {i} ({st}): {p}" for p in visual_problems(sb, report, shot, tr, wx, ag, wl)]
+            if warnings is not None:
+                warnings += [f"shot {i} ({st}): {w}" for w in wl]
     return probs
 
 
@@ -307,11 +362,14 @@ def build(storyboard, dry_run=False):
     sb = yaml.safe_load(Path(storyboard).read_text())
     report = json.loads((ROOT / sb["run"] / "report.json").read_text())
     fmt = sb.get("format", "square")
-    probs = check(sb, report)
+    warns = []
+    probs = check(sb, report, warnings=warns)
     print(f"storyboard {sb['id']}: {len(sb['shots'])} shots, format {fmt}, run status: {report['status']}")
     for i, s in enumerate(sb["shots"]):
         print(f"  {i}: {s['type']:8s} {s.get('seconds', '?')} s  {s.get('title') or s.get('agents') or ''}")
     print("tools:", {k: v for k, v in tools().items()})
+    if warns:
+        print("visual warnings (soft rules, not blocking):\n  " + "\n  ".join(warns))
     if probs:
         print("REFUSED:\n  " + "\n  ".join(probs))
         return 1

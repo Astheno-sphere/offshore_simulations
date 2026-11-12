@@ -42,10 +42,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageDraw
 
+from offsim.cinema.draw import Canvas
 from offsim.motion import narrate
-from offsim.motion.section import P, encode, fit, font
+from offsim.motion.section import P, encode, fit
 
 W, H = 1080, 1350
 KINDS = ("fan", "paired", "state_gantt")
@@ -304,6 +304,15 @@ def problems(shot, report, traj_available=True):
 
 
 # ----------------------------------------------------------------------------------------------- drawing
+# skia (offsim.cinema.draw.Canvas) with Inter (look.font_path), rules 12 and 17. One type scale for every finding frame:
+# CAP 15 (labels, ticks, readouts), BODY 22 (deck, lane names, values), HEAD 52 (headline, status word), METHODS 13
+# (the methods block, the only smaller size). Three sizes plus the methods line, checked by offsim.cinema.visual_gate.
+CAP, BODY, HEAD, METHODS = 15, 22, 52, 13
+ASC = 0.96875                      # Inter ascender / em: baseline = top + ASC * size (the PIL "top-left" layout we keep)
+FONT_R, FONT_B = ("Inter", "Regular"), ("Inter", "Bold")
+SS = 2
+
+
 def _ease(u):
     u = min(max(u, 0.0), 1.0)
     return u * u * (3 - 2 * u)
@@ -323,6 +332,28 @@ def _fade(u, start=0.55, end=0.8):
     return min(max((u - start) / (end - start), 0.0), 1.0)
 
 
+class _Pen:
+    """Thin top-left-anchored drawing helper over the skia Canvas (the layout below was written for top-left text)."""
+
+    def __init__(self):
+        self.cv = Canvas(W, H, bg=P["ground"], ss=SS)
+
+    def text(self, x, y, s, size, color, bold=False, tracking=0.0, anchor="l"):
+        self.cv.text(x, y + ASC * size, s, font=FONT_B if bold else FONT_R, size=size, color=color, tracking=tracking, anchor=anchor)
+
+    def width(self, s, size, bold=False, tracking=0.0):
+        return self.cv.measure(s, FONT_B if bold else FONT_R, size, tracking)
+
+    def rect(self, x0, y0, x1, y1, fill):
+        self.cv.polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], fill=fill)
+
+    def line(self, pts, color, width=1.0):
+        self.cv.line(pts, color, width)
+
+    def image(self):
+        return self.cv.to_pil()
+
+
 def _methods(report, shot):
     e = report.get("ensemble") or {}
     lines = []
@@ -339,44 +370,50 @@ def _methods(report, shot):
     return lines
 
 
-def _frame(shot, report, deck, status=None):
-    img = Image.new("RGB", (W, H), P["ground"])
-    d = ImageDraw.Draw(img)
-    d.text((56, 44), shot["kicker"], font=font(17, True), fill=P["accent"])
-    hf, hl = font(52, True), shot["headline"]
-    d.text((56, 76), hl["top"], font=hf, fill=P["ink"])
-    d.text((56, 136), hl["accent"], font=hf, fill=P["accent"])
-    d.text((56 + d.textlength(hl["accent"] + " ", font=hf), 136), hl["rest"], font=hf, fill=P["ink"])
-    d.text((W - 56 - d.textlength("offshore_simulations", font=font(15, True)), 46), "offshore_simulations", font=font(15, True), fill=P["muted"])
+def _frame(shot, report, deck):
+    d = _Pen()
+    hl = shot["headline"]
+    d.text(56, 44, shot["kicker"], CAP, P["accent"], True, tracking=1.0)
+    d.text(56, 76, hl["top"], HEAD, P["ink"], True)
+    d.text(56, 136, hl["accent"], HEAD, P["accent"], True)
+    d.text(56 + d.width(hl["accent"] + " ", HEAD, True), 136, hl["rest"], HEAD, P["ink"], True)
+    d.text(W - 56, 46, "offshore_simulations", CAP, P["muted"], True, anchor="r")
     yb = 1010
     for i, line in enumerate(deck):
-        d.text((56, yb + 30 * i), line, font=font(22), fill=P["ink"])
+        d.text(56, yb + 30 * i, line, BODY, P["ink"])
     for i, line in enumerate(_methods(report, shot)):
-        d.text((56, yb + 90 + 18 * i), line, font=font(13), fill=P["muted"])
-    return img, d
+        d.text(56, yb + 90 + 18 * i, line, METHODS, P["muted"])
+    return d
 
 
 def _axis(d, a0, a1, ticks, y, x0, x1, label, fmt="{:g}"):
-    d.line([(x0, y), (x1, y)], fill=P["muted"], width=1)
+    d.line([(x0, y), (x1, y)], P["muted"], 1)
     for t in ticks:
         x = x0 + (x1 - x0) * (t - a0) / (a1 - a0)
-        d.line([(x, y), (x, y + 6)], fill=P["muted"], width=1)
-        d.text((x - d.textlength(fmt.format(t), font=font(13)) / 2, y + 10), fmt.format(t), font=font(13), fill=P["muted"])
-        d.line([(x, 250), (x, y)], fill="#4a3236", width=1)
+        d.line([(x, 250), (x, y)], "#4a3236", 1)
+        d.line([(x, y), (x, y + 6)], P["muted"], 1)
+        d.text(x, y + 10, fmt.format(t), CAP, P["muted"], anchor="m")
     if label:
-        d.text((x1 - d.textlength(label, font=font(13, True)), y + 30), label, font=font(13, True), fill=P["muted"])
+        d.text(x1, y + 30, label, CAP, P["muted"], True, anchor="r")
 
 
 def _status_badge(d, status, x, y, a):
+    """STATUS caption + the status word; returns the word's right edge (for the line beside it), or x when hidden."""
     if a <= 0:
-        return
+        return x
     col = P["accent"] if status == "supported" else P["ink"]
-    d.text((x, y), "STATUS", font=font(14, True), fill=_mix(P["muted"], a))
-    d.text((x, y + 20), status.upper(), font=font(44, True), fill=_mix(col, a))
+    d.text(x, y, "STATUS", CAP, _mix(P["muted"], a), True, tracking=1.0)
+    d.text(x, y + 20, status.upper(), HEAD, _mix(col, a), True)
+    return x + d.width(status.upper(), HEAD, True)
+
+
+def _effect_lines(data, a, mn):
+    return [f"effect {100 * data['effect']:+.0f} % (95% CI {100 * data['effect_ci'][0]:+.0f} to {100 * data['effect_ci'][1]:+.0f} %)",
+            f"positive = better; threshold {mn}"]
 
 
 def draw_fan(data, u, shot, report, deck):
-    img, d = _frame(shot, report, deck)
+    d = _frame(shot, report, deck)
     rows, (a0, a1) = data["rows"], data["axis"]
     x0, x1, ytop, ybot = 56, W - 56, 262, 840
     lane = min(110, (ybot - ytop - 20) / max(len(rows), 1))
@@ -386,110 +423,131 @@ def draw_fan(data, u, shot, report, deck):
     e, fa = _ease(u), _fade(u)
     for i, r in enumerate(rows):
         y = ytop + i * lane
-        d.text((x0, y), r["label"].upper(), font=font(17, True), fill=P["ink"])
-        by = y + 30
+        d.text(x0, y, r["label"].upper(), BODY, P["ink"], True)
+        by = y + 38
         grow = lambda lo, mid, hi: (mid - (mid - lo) * e, mid + (hi - mid) * e)
         l10, h90 = grow(r["p10"], r["p50"], r["p90"])
-        d.rectangle([px(l10), by, px(h90), by + 26], fill=_mix(P["streak_lo"], 0.9))
+        d.rect(px(l10), by, px(h90), by + 26, _mix(P["streak_lo"], 0.9))
         if "p25" in r and "p75" in r:
             l25, h75 = grow(r["p25"], r["p50"], r["p75"])
-            d.rectangle([px(l25), by, px(h75), by + 26], fill=_mix(P["streak_hi"], 0.95))
-        d.rectangle([px(r["p50"]) - 2, by - 8, px(r["p50"]) + 2, by + 34], fill=P["accent"])
+            d.rect(px(l25), by, px(h75), by + 26, _mix(P["streak_hi"], 0.95))
+        d.rect(px(r["p50"]) - 2, by - 8, px(r["p50"]) + 2, by + 34, P["accent"])
         if fa > 0:
             txt = f"P50 {fmt.format(r['p50'])}  ·  P10–P90 {fmt.format(r['p10'])}–{fmt.format(r['p90'])} {unit}  ·  n={r['n']}"
-            d.text((x1 - d.textlength(txt, font=font(15)), y + 2), txt, font=font(15), fill=_mix(P["muted"], fa))
+            d.text(x1, y + 4, txt, CAP, _mix(P["muted"], fa), anchor="r")
     if "status" in data:
         a, b = data["compare"]
-        d.text((x0, 900), f"{a.upper()} VS {b.upper()}", font=font(14, True), fill=P["muted"])
-        _status_badge(d, data["status"], x0, 922, _fade(u, 0.7, 0.95))
-        if _fade(u, 0.7, 0.95) > 0:
-            t = (f"effect {100 * data['effect']:+.0f} % (95% CI {100 * data['effect_ci'][0]:+.0f} to {100 * data['effect_ci'][1]:+.0f} %), "
-                 f"positive = better; threshold {100 * float(data['min_effect']):.0f} %")
-            d.text((x0 + 330, 944), t, font=font(15), fill=_mix(P["muted"], _fade(u, 0.7, 0.95)))
-    return img
+        d.text(x0, 900, f"{a.upper()} VS {b.upper()}", CAP, P["muted"], True, tracking=1.0)
+        fs = _fade(u, 0.7, 0.95)
+        xr = _status_badge(d, data["status"], x0, 922, fs)
+        if fs > 0:
+            for k, t in enumerate(_effect_lines(data, fs, f"{100 * float(data['min_effect']):.0f} %")):
+                d.text(xr + 36, 950 + 22 * k, t, CAP, _mix(P["muted"], fs))
+    return d.image()
 
 
 def draw_paired(data, u, shot, report, deck):
-    img, d = _frame(shot, report, deck)
+    d = _frame(shot, report, deck)
     a0, a1 = data["axis"]
     x0, x1, ybot = 56, W - 56, 700
     px = lambda v: x0 + (x1 - x0) * (v - a0) / (a1 - a0)
     unit, fmt = shot.get("unit", ""), shot.get("fmt", "{:.1f}")
     _axis(d, a0, a1, data["ticks"], ybot, x0, x1, f"paired difference {data['a']} − {data['b']} ({unit})" if unit else f"paired difference {data['a']} − {data['b']}", "{:g}")
-    d.line([(px(0), 250), (px(0), ybot)], fill=P["ink"], width=2)
-    d.text((px(0) + 8, 252), "no difference", font=font(13), fill=P["muted"])
-    arrow = "← lower is better" if data["better"] == "lower" else "higher is better →"
-    ax = x0 if data["better"] == "lower" else x1 - d.textlength(arrow, font=font(13, True))
-    d.text((ax, 252), arrow, font=font(13, True), fill=P["muted"])
+    d.line([(px(0), 250), (px(0), ybot)], P["ink"], 2)
+    d.text(px(0) + 8, 252, "no difference", CAP, P["muted"])
+    if data["better"] == "lower":
+        d.text(x0, 252, "← lower is better", CAP, P["muted"], True)
+    else:
+        d.text(x1, 252, "higher is better →", CAP, P["muted"], True, anchor="r")
     e = _ease(u)
     diffs = data["diffs"]
     show = int(len(diffs) * min(1.0, u / 0.7))
     for i, v in enumerate(diffs[:show]):               # strip: one dot per (year, seed) pair, jittered by index
-        d.ellipse([px(v) - 4, 330 + (i % 7) * 12 - 4, px(v) + 4, 330 + (i % 7) * 12 + 4], fill=_mix(P["streak_hi"], 0.8))
+        d.cv.circle(px(v), 330 + (i % 7) * 12, 4, fill=_mix(P["streak_hi"], 0.8))
     m, lo, hi = data["mean"], data["ci"][0], data["ci"][1]
     yb = 520
-    d.rectangle([px(m - (m - lo) * e), yb - 8, px(m + (hi - m) * e), yb + 8], fill=_mix(P["streak_lo"], 0.95))
-    d.polygon([(px(m), yb - 18), (px(m) + 12, yb), (px(m), yb + 18), (px(m) - 12, yb)], fill=P["accent"])
+    d.rect(px(m - (m - lo) * e), yb - 8, px(m + (hi - m) * e), yb + 8, _mix(P["streak_lo"], 0.95))
+    d.cv.polygon([(px(m), yb - 18), (px(m) + 12, yb), (px(m), yb + 18), (px(m) - 12, yb)], fill=P["accent"])
     fa = _fade(u)
     if fa > 0:
-        d.text((x0, 580), "MEAN DIFFERENCE", font=font(14, True), fill=_mix(P["muted"], fa))
-        d.text((x0, 600), f"{fmt.format(m)} {unit}   (95% CI {fmt.format(lo)} to {fmt.format(hi)})", font=font(26, True), fill=_mix(P["ink"], fa))
-        d.text((x0, 640), f"relative to {data['b']}: {100 * data['rel']:+.0f} % (95% CI {100 * data['rel_ci'][0]:+.0f} to {100 * data['rel_ci'][1]:+.0f} %)  ·  n = {data['n_pairs']} pairs (year × seed)",
-               font=font(15), fill=_mix(P["muted"], fa))
+        d.text(x0, 580, "MEAN DIFFERENCE", CAP, _mix(P["muted"], fa), True, tracking=1.0)
+        d.text(x0, 604, f"{fmt.format(m)} {unit}   (95% CI {fmt.format(lo)} to {fmt.format(hi)})", BODY, _mix(P["ink"], fa), True)
+        d.text(x0, 640, f"relative to {data['b']}: {100 * data['rel']:+.0f} % (95% CI {100 * data['rel_ci'][0]:+.0f} to {100 * data['rel_ci'][1]:+.0f} %)  ·  n = {data['n_pairs']} pairs (year × seed)",
+               CAP, _mix(P["muted"], fa))
     fs = _fade(u, 0.7, 0.95)
-    d.text((x0, 780), f"{data['a'].upper()} VS {data['b'].upper()}", font=font(14, True), fill=P["muted"])
-    _status_badge(d, data["status"], x0, 802, fs)
+    d.text(x0, 780, f"{data['a'].upper()} VS {data['b'].upper()}", CAP, P["muted"], True, tracking=1.0)
+    xr = _status_badge(d, data["status"], x0, 802, fs)
     if fs > 0:
         mn = f"{100 * float(data['min_effect']):.0f} %" if data["min_effect"] is not None else "n/a"
-        d.text((x0 + 380, 826), f"effect {100 * data['effect']:+.0f} % (CI {100 * data['effect_ci'][0]:+.0f} to {100 * data['effect_ci'][1]:+.0f} %), positive = better; threshold {mn}",
-               font=font(15), fill=_mix(P["muted"], fs))
-    return img
+        for k, t in enumerate(_effect_lines(data, fs, mn)):
+            d.text(xr + 36, 830 + 22 * k, t, CAP, _mix(P["muted"], fs))
+    return d.image()
 
 
 def draw_gantt(data, u, shot, report, deck):
-    img, d = _frame(shot, report, deck)
+    d = _frame(shot, report, deck)
     t0, t1 = data["t0"], data["t1"]
     x0, x1, ytop = 56, W - 56, 290
     lanes = data["lanes"][:10]
-    lh = min(56, 440 / max(len(lanes), 1))
+    lh = min(110, 440 / max(len(lanes), 1))         # a one-vessel run gets tall lanes, not a void under a thin one
     px = lambda t: x0 + (x1 - x0) * (t - t0) / max(t1 - t0, 1e-9)
     cut = t0 + (t1 - t0) * _ease(u)
-    lx = 262
+    lx, lxx = 262, 56
     for s in data["states"]:                                 # legend
         c = STATE_COLORS.get(s, P["muted"])
-        d.rectangle([x0, lx - 0, x0 + 14, lx + 14], fill=c)
-        d.text((x0 + 22, lx - 2), s.upper(), font=font(13, True), fill=P["ink"])
-        x0_ = x0 + 22 + d.textlength(s.upper(), font=font(13, True)) + 26
-        x0 = x0_ if x0_ < W - 150 else 56
-    x0 = 56
+        d.rect(lxx, lx + 2, lxx + 14, lx + 16, c)
+        d.text(lxx + 22, lx, s.upper(), CAP, P["ink"], True, tracking=1.0)
+        nx = lxx + 22 + d.width(s.upper(), CAP, True, 1.0) + 26
+        lxx = nx if nx < W - 150 else 56
     for i, ln in enumerate(lanes):
         y = ytop + i * lh
-        d.text((x0, y - 2), ln["label"], font=font(14, True), fill=P["ink"])
+        d.text(x0, y - 2, ln["label"], CAP, P["ink"], True)
         for a, b, s in ln["segments"]:
             if a >= cut:
                 continue
-            d.rectangle([px(a), y + 20, px(min(b, cut)), y + 20 + lh * 0.45], fill=STATE_COLORS.get(s, P["muted"]))
+            d.rect(px(a), y + 20, px(min(b, cut)), y + 20 + lh * 0.45, STATE_COLORS.get(s, P["muted"]))
     yb = ytop + len(lanes) * lh + 10
     if data["hs"]:
         hs = [h for _, h in data["hs"]]
         hmax = max(hs) or 1.0
-        d.text((x0, yb), "Hs, m", font=font(13, True), fill=P["muted"])
+        d.text(x0, yb, "Hs, m", CAP, P["muted"], True)
         pts = [(px(t), yb + 120 - 90 * h / hmax) for t, h in data["hs"] if t <= cut]
         if len(pts) > 1:
-            d.line(pts, fill=P["streak_hi"], width=2)
+            d.line(pts, P["streak_hi"], 2)
         yb += 130
     hrs = (t1 - t0) / 3600.0
     step = next(s for s in (1, 2, 4, 6, 12, 24, 48, 96, 168, 336, 720, 1e9) if hrs / s <= 8)
-    d.line([(x0, yb + 8), (x1, yb + 8)], fill=P["muted"], width=1)
+    d.line([(x0, yb + 8), (x1, yb + 8)], P["muted"], 1)
     k = 0.0
     while k <= hrs + 1e-9:
         x = px(t0 + k * 3600)
-        d.line([(x, yb + 8), (x, yb + 14)], fill=P["muted"], width=1)
-        d.text((x - 8, yb + 18), f"{k:g}", font=font(13), fill=P["muted"])
+        d.line([(x, yb + 8), (x, yb + 14)], P["muted"], 1)
+        d.text(x, yb + 18, f"{k:g}", CAP, P["muted"], anchor="m")
         k += step
-    d.text((x1 - d.textlength("hours into the run", font=font(13, True)), yb + 38), "hours into the run", font=font(13, True), fill=P["muted"])
-    d.line([(px(cut), ytop - 10), (px(cut), yb + 8)], fill=P["accent"], width=2)
-    return img
+    d.text(x1, yb + 38, "hours into the run", CAP, P["muted"], True, anchor="r")
+    d.line([(px(cut), ytop - 10), (px(cut), yb + 8)], P["accent"], 2)
+    tot = sum(data["totals_h"].values())
+    if tot > 0:                                          # share of the run in each state: the same totals the narration reads
+        y0, fa = max(yb + 90, 660), _fade(u)
+        d.text(x0, y0, "TIME IN EACH STATE", CAP, P["muted"], True, tracking=1.0)
+        xx, ex = x0, 0.0
+        for s in data["states"]:
+            w = (x1 - x0) * data["totals_h"].get(s, 0.0) / tot
+            if w > 0:
+                d.rect(xx, y0 + 28, xx + w, y0 + 72, STATE_COLORS.get(s, P["muted"]))
+                xx += w
+        if fa > 0:
+            lx2, ly = x0, y0 + 90
+            for s in data["states"]:
+                h_ = data["totals_h"].get(s, 0.0)
+                txt = f"{s.upper()}  {h_:.1f} h  ·  {100 * h_ / tot:.0f} %"
+                wt = d.width(txt, CAP, False) + 40
+                if lx2 + wt > x1:
+                    lx2, ly = x0, ly + 24
+                d.rect(lx2, ly + 2, lx2 + 12, ly + 14, _mix(STATE_COLORS.get(s, P["muted"]), fa))
+                d.text(lx2 + 20, ly, txt, CAP, _mix(P["muted"], fa))
+                lx2 += wt
+    return d.image()
 
 
 DRAW = {"fan": draw_fan, "paired": draw_paired, "state_gantt": draw_gantt}

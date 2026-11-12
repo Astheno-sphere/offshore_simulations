@@ -114,3 +114,34 @@ gate `qa.py`, status `registry.yaml`).
 6. **Sources**: each principal dim carries `src` (class drawing, manufacturer data sheet, paper table, standard) with
    page/table; unsourced = `assumption: true` and listed in the QA report and on screen. External meshes need licence +
    source in `meta`. No hand-drawn outlines next to CAD assets in the same frame.
+
+## Visual gate (2026-11-12): the machine judges its own frames
+Rules 1-17 above were checked by eye in chat. `offsim/cinema/visual_gate.py` measures them on a rendered frame, and
+`story.check` refuses a storyboard whose section or findings frame fails. A failing frame is a finding about the frame, never a
+reason to retune the gate (a threshold changes only with a golden-frame measurement or a rule number to cite).
+
+    r = inspect(img, {"kind": "findings", "text": texts})   # texts from `with capture_text(canvas=(1080, 1350)) as texts:`
+    ok, reasons = passes(r, strict=False)                    # reasons: ["margins: ink clipped at the frame edge: right (51 px)"]
+    ok, why = compare(frame, "tests/golden/findings.png")    # structural regression, not pixel noise
+
+| Rule id | Severity | What is measured | Limit | Source |
+|---|---|---|---|---|
+| edges | hard | Sobel edge pixels (step >= 3 L*), whole frame and main panel (frame y 17 % to 75 %), on a 480 px wide copy | overall 0.050 to 0.374, panel 0.043 to 0.374: below = empty, above = mush | goldens: 0.5 x lowest (findings 0.0997 / 0.0870), 2 x highest (map 0.1871) |
+| strokes | hard | median equivalent width of strong linework and type (coverage-weighted: a 0.6 px hairline reads 0.6 whatever its pixel phase) | >= 0.75 px at the delivered size (x w / preview width for a reduced preview) | CAD rule 4 (0.75 px visibility floor); goldens measure 0.90 to 1.45 px at 1080 wide (the brief's 1 px fails muted type at 0.90 to 0.98) |
+| palette | hard | share of pixels farther than a tolerance from the palette gamut (declared colours, vessel fills and strokes, finding states, and every blend of two of them) | <= 5 %; tolerance = 0.5 x the palette's median nearest-neighbour Lab distance (4.9 Delta E, floor 3) | brief V1 (tolerance from the palette's own spread); goldens measure 0.5 to 0.8 % |
+| accent | hard / soft | share of accent-dominant pixels | hard above 8 %; soft below 0.1 % | rule 6 (one accent) and brief V1; floor = half the lowest golden (0.21 %): the brief's 1 % floor holds for no reference frame (0.2 to 0.4 %) |
+| contrast | hard / soft | WCAG ratio of every recorded text box against the ring of pixels around it | hard < 4.5:1 on a flat background; soft on a textured field (ring spread > 3 L*, streaks and maps have no single background) | WCAG 2.x AA; without text metadata only per-region luminance range, soft |
+| type_scale | soft | distinct text sizes in the renderer's canvas px, the methods line (smallest group in the lower 45 %) not counted | <= 4 (rule 17 says 3) | rule 17, brief V1 |
+| margins | hard | text boxes inside the safe area; ink in the safe band outside bleed boxes; ink touching the edge (clipped) | safe = 3 % of the short side, band ink <= 0.4 %, clip = any run of ink in the outer pixel row or column | findings golden sits >= 3.2 % from the edge; EBU R95 action-safe 3.5 % is the broadcast reference |
+| balance | hard / soft | share of ink per half (top, bottom, left, right) and ink density per cell of a 3 x 3 grid | hard: smallest half >= 13 %; soft: <= 3 sparse cells (< 20 % of the mean) | goldens: smallest half 0.27 (findings), 0.42 (section); cells 0, 2, 0 sparse |
+
+- **Soft** rules fail only with `strict: true`; otherwise they are returned in `report["warnings"]` and printed by `story` dry-run.
+- **Kinds** (`section`, `map`, `findings`) set the main panel and bleed boxes (the sea section is full-bleed by design).
+  A shot may carry `visual: {strict: true|false, kind: ..., spec: {<GATE_SPEC overrides>}}`; a typo in a spec key is a refusal.
+- **Text metadata**: `capture_text()` records every `Canvas.text` and PIL `ImageDraw.text` call, so contrast, margins and type
+  scale use the film's own text boxes. Draws onto other canvases (a map panel pasted into the frame) are filtered with `canvas=`.
+- **Golden frames** (`tests/golden/`: section, map panel, findings fan; 1/3 scale; synthetic coast and ensemble) come from
+  `PYTHONPATH=. python tests/golden/make_goldens.py` (`--table` prints the measurements the thresholds come from). `compare`
+  fails on a 4 x 4 region whose ink or edge density moved more than 35 % (floors keep empty regions quiet).
+- **Cannot judge**: whether the physics, the numbers or the labels are right; wrong geometry (a rotor on the ground passes);
+  taste; colour-blind legibility; motion and timing; frames that render outside Python (map shots, cards, equations).
