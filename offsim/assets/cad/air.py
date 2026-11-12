@@ -1,353 +1,431 @@
-"""Aircraft CAD assets: Sikorsky S-92A (`s92`) and Leonardo AW189 (`aw189`), the two offshore helicopters of the studies.
+"""Aircraft CAD assets: S-92-like offshore helicopter.
 
-Exact solids at real scale (metres; x forward, y to port, z up). Origin: x = main-rotor axis, y = centreline,
-z = ground under the wheels. The fuselage is lofted from superellipse cross-sections (nose, cockpit, cabin, tail cone);
-rotors are separate parts (`rotor`, `tail_rotor`) with their pivots/axes in `meta["pivots"]`.
-Parameter `rotor_azimuth_deg` rotates the main rotor about its axis (blade 0 points forward at 0 deg).
+A stylised ~21 m offshore helicopter at real scale, built as an exact cadquery solid — the
+Gribkovskaia paper's fleet (S-92, 125 knots, 15-min slots; the paper's Bergen program is the
+next film). Proportions are STYLISED: no manufacturer drawing was sourced, so every principal
+dimension is `assumption: True` and appears in the asset QA report (same honesty rule as the
+PSV). Axes per the asset contract (offsim/assets/cad/base.py): x forward (nose), y to port,
+z up; origin at the ground on the centreline, under the main rotor mast. Units metres.
 
-Dimension sources
-S-92A
-  main rotor diameter 17.17 m, tail rotor 3.35 m, fuselage length 17.10 m, hull (sponson) width 3.89 m, height 4.32 m
-    (to the top of the rotor head): EASA TCDS R.011 S-92A, section III (https://easa.europa.eu/cs/downloads/7957/en)
-  overall length rotors turning 20.88 m (68 ft 6 in) and overall height 5.47 m (17 ft 11 in, tail rotor tip):
-    https://www.flugzeuginfo.net/acdata_php/acdata_s92_en.php and https://aerocorner.com/aircraft/sikorsky-s-92/
-  CAP 437 D-value 20.88 m: https://www.pprune.org/rotorheads/395350-s-92-landing-specification.html
-  cabin interior width 2.00 m: https://aerocorner.com/aircraft/sikorsky-s-92/ (exterior fuselage width of 3.04 m is
-    taken from the hull width less the sponsons: assumption)
-AW189
-  main rotor diameter 14.60 m, overall length 17.57 m, overall height 5.07 m (rotors turning), cabin width 2.40 m, 5-blade
-  main rotor, 4-blade tail rotor: Leonardo https://www.leonardo.com/en/-/aw189-1 and
-  https://www.fairlifts.com/helicopters/specifications/leonardo-aw189-helicopter-specifications/
-  Fuselage length, sponson width, tail rotor diameter, rotor-head height: assumptions (no public figure found).
+LOD 2, 20 parts: lofted fuselage + tail boom (elliptical sections), tail fin + stabiliser,
+main rotor split into mast / head (hub + swashplate + blade grips) / 4 separate blades,
+tail rotor split into hub (+ gearbox fairing) / 4 tapered blades, sponsons port + starboard,
+tricycle gear split into main (raked struts + wheels + hub discs) / nose (twin wheels +
+strut), twin engine deck + exhausts, rescue hoist (starboard), pitot + antenna. Cockpit
+glazing is NOT in the solid — windows are glazing, not structure: dark glass drawn 2D in the
+sprite sheet (the v10 PSV lesson: window boxes in the solid draw bright HLR rectangles and
+read as white squares).
 """
 from __future__ import annotations
 
-import math
-
-import numpy as np
 import cadquery as cq
-from cadquery import Vector as V
 
-from .base import AssetModel, register
+from offsim.assets.cad.base import AssetModel, register
 
+# --- principal dimensions (all assumed: no manufacturer drawing sourced) -----------------------
+# Stylised S-92-like proportions: overall length nose->tail tip, rotor diameter, overall height
+# ground->rotor head, fuselage max width. Values are by construction (see the builders below).
+LENGTH, ROTOR_DIA, HEIGHT, FUSELAGE_WIDTH = 20.9, 17.2, 5.15, 3.0
+MAST_X = 1.5          # main rotor mast station (x)
+ROTOR_Z = 5.05        # main rotor blade plane
+ROTOR_HEAD_TOP_Z = 5.15
+TAIL_ROTOR_X = -9.80  # tail rotor hub station (x, on the fin)
+TAIL_ROTOR_Z = 3.60   # tail rotor hub height (blades 1.50 m: tips 2.10..5.10, under the head)
+TAIL_ROTOR_BLADE = 1.50
 
-# --------------------------------------------------------------------------------------------- helpers
-def _box(x0, x1, y0, y1, z0, z1):
-    return cq.Solid.makeBox(x1 - x0, y1 - y0, z1 - z0, V(x0, y0, z0))
-
-
-def _cyl(r, p0, p1):
-    p0, p1 = V(*p0), V(*p1)
-    d = p1 - p0
-    return cq.Solid.makeCylinder(r, d.Length, p0, d.normalized())
-
-
-def _comp(items):
-    return cq.Compound.makeCompound([i for i in items if i is not None])
-
-
-def _loft(sections, ruled=False):
-    wires = [cq.Wire.makePolygon([V(*p) for p in s], close=True) for s in sections]
-    return cq.Solid.makeLoft(wires, ruled)
-
-
-def _prism_xz(pts, y0, y1):
-    w = cq.Wire.makePolygon([V(x, y0, z) for x, z in pts], close=True)
-    return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), V(0, y1 - y0, 0))
-
-
-def bbox(shape):
-    """Tight bounding box (OCC AddOptimal): (xmin, xmax, ymin, ymax, zmin, zmax)."""
-    from OCP.Bnd import Bnd_Box
-    from OCP.BRepBndLib import BRepBndLib
-    b = Bnd_Box()
-    BRepBndLib.AddOptimal_s(shape.wrapped, b, False, False)
-    x0, y0, z0, x1, y1, z1 = b.Get()
-    return x0, x1, y0, y1, z0, z1
-
-
-def _dim(value, src=None, assumption=False):
-    d = {"value": float(value)}
-    if assumption:
-        d["assumption"] = True
-    else:
-        d["src"] = src
-    return d
-
-
-def _superellipse(x, hw, zb, zt, ex, n=24):
-    zc, hh = (zb + zt) / 2, (zt - zb) / 2
-    pts = []
-    for k in range(n):
-        th = 2 * math.pi * k / n
-        c, s = math.cos(th), math.sin(th)
-        pts.append((x, hw * math.copysign(abs(c) ** (2 / ex), c), zc + hh * math.copysign(abs(s) ** (2 / ex), s)))
-    return pts
-
-
-def _blade(r0, R, c0, c1, t0, t1, z_c, droop=0.0):
-    """One rotor blade along +x (leading edge +y, thickness z), root radius r0, tip radius R exactly."""
-    secs = []
-    for f in (0.0, 0.25, 0.6, 1.0):
-        r = r0 + (R - r0) * f
-        c = c0 + (c1 - c0) * f if f < 0.9 else c1
-        t = t0 + (t1 - t0) * f
-        zc = z_c - droop * f ** 2
-        p = [(0.5 * c, 0.0), (0.3 * c, 0.5 * t), (-0.1 * c, 0.5 * t), (-0.5 * c, 0.06 * t), (-0.5 * c, -0.06 * t),
-             (-0.1 * c, -0.5 * t), (0.3 * c, -0.5 * t)]
-        secs.append([(r, y, zc + z) for y, z in p])
-    return _loft(secs, ruled=True)
-
-
-def _rotor(n, R, r0, c0, c1, t0, t1, z_c, az_deg, hub_r, hub_z0, hub_z1):
-    """Main rotor: hub + n blades about the z axis through the origin; blade 0 at azimuth az_deg (0 = forward)."""
-    items = [cq.Solid.makeCylinder(hub_r, hub_z1 - hub_z0, V(0, 0, hub_z0), V(0, 0, 1))]
-    b0 = _blade(r0, R, c0, c1, t0, t1, z_c, droop=0.12)
-    for k in range(n):
-        a = az_deg + 360.0 * k / n
-        items.append(b0.rotate(V(0, 0, 0), V(0, 0, 1), a))
-        # root cuff / pitch horn
-        items.append(_cyl(0.07, (0.6 * math.cos(math.radians(a)), 0.6 * math.sin(math.radians(a)), z_c),
-                          (hub_r * math.cos(math.radians(a)), hub_r * math.sin(math.radians(a)), z_c)))
-    return _comp(items)
-
-
-def _tail_rotor(n, R, centre, y_off):
-    """Tail rotor (axis y) at `centre` (x, z); blade 0 along +x. Hub + n blades."""
-    cx, cz = centre
-    b0 = _blade(0.15, R, 0.26, 0.20, 0.045, 0.03, 0.0).rotate(V(0, 0, 0), V(1, 0, 0), 90)
-    items = [cq.Solid.makeCylinder(0.13, 0.22, V(0, -0.11, 0), V(0, 1, 0))]
-    for k in range(n):
-        items.append(b0.rotate(V(0, 0, 0), V(0, 1, 0), 360.0 * k / n))
-    items.append(_cyl(0.05, (0, -0.2, 0), (0, 0.0, 0)))
-    return _comp(items).translate(V(cx, y_off, cz))
-
-
-# --------------------------------------------------------------------------------------- builder
-def _heli(name, spec, rotor_azimuth_deg, tail_azimuth_deg):
-    S = spec
-    xn, Lf = S["x_nose"], S["fus_len"]
-    stn = S["stations"]
-    split = S["split"]
-
-    def at(frac):
-        return xn - frac * Lf
-
-    def secs(sel):
-        return [_superellipse(at(f), hw, zb, zt, ex) for f, hw, zb, zt, ex in sel]
-
-    def seg(lo, hi):
-        return [s for s in stn if lo - 1e-9 <= s[0] <= hi + 1e-9]
-
-    # segments are lofted (and cut) separately: boolean cuts on one long B-spline loft are 10x slower
-    c0, c1 = S["cabin_frac"]
-    cockpit_f = S["cockpit_frac"]
-    nose_seg = _loft(secs(seg(0.0, c0)))
-    cabin_seg = _loft(secs(seg(c0, c1)))
-    aft_seg = _loft(secs(seg(c1, split)))
-    tailboom = _loft(secs(seg(split, 1.0)))
-
-    # --- cabin windows (shallow recesses)
-    cab = seg(c0, c1)
-    hw_c, zb_c, zt_c, ex_c = cab[1][1], cab[1][2], cab[1][3], cab[1][4]
-    zc, hh = (zb_c + zt_c) / 2, (zt_c - zb_c) / 2
-    cuts = []
-    zw0, zw1 = S["win_z"]
-    f_w0, f_w1 = S["win_frac"]
-    n_w = S["n_win"]
-    pitch = (f_w1 - f_w0) * Lf / n_w
-    zmid = (zw0 + zw1) / 2
-    y_loc = hw_c * (1 - abs((zmid - zc) / hh) ** ex_c) ** (1 / ex_c)
-    for k in range(n_w):
-        xa = at(f_w0) - k * pitch
-        for sgn in (1, -1):
-            ya, yb = (y_loc - 0.05, y_loc + 0.6) if sgn > 0 else (-y_loc - 0.6, -y_loc + 0.05)
-            cuts.append(_box(xa - pitch * 0.7, xa, ya, yb, zw0, zw1))
-    cabin_seg = cabin_seg.cut(_comp(cuts))
-    # cockpit side windows (pilot + co-pilot)
-    cx0, cx1 = at(cockpit_f[0]), at(cockpit_f[1])
-    f_mid = (cockpit_f[0] + cockpit_f[1]) / 2
-    sec_mid = min(stn, key=lambda s: abs(s[0] - f_mid))
-    ccuts = []
-    for sgn in (1, -1):
-        yl = sec_mid[1] * 0.93
-        ya, yb = (yl - 0.06, yl + 0.6) if sgn > 0 else (-yl - 0.6, -yl + 0.06)
-        ccuts.append(_box(cx1, cx0, ya, yb, S["cockpit_z"][0], S["cockpit_z"][1]))
-    nose_seg = nose_seg.cut(_comp(ccuts))
-    fuselage = _comp([nose_seg, cabin_seg, aft_seg])
-
-    # --- windscreen panes (thin glazing proud of the nose roof)
-    gl = []
-    top_a = [s for s in stn if 0.02 <= s[0] <= 0.16]
-    xa_, xb_ = at(0.03), at(0.15)
-    za_, zb2 = np.interp([0.03, 0.15], [s[0] for s in stn], [s[3] for s in stn])
-    ang = math.degrees(math.atan2(zb2 - za_, xa_ - xb_))
-    L_ = math.hypot(xa_ - xb_, zb2 - za_)
-    for yc in (-0.42, 0.42):
-        pane = cq.Solid.makeBox(L_ * 0.85, 0.7, 0.04, V(-L_ * 0.425, -0.35, -0.02))
-        pane = pane.rotate(V(0, 0, 0), V(0, 1, 0), -ang)
-        pane = pane.translate(V((xa_ + xb_) / 2, yc, (za_ + zb2) / 2 + 0.02))
-        gl.append(pane)
-    glazing = _comp(gl)
-
-    # --- sponsons + landing gear
-    sx0, sx1 = sorted(S["sponson_x"])
-    sw_out, sw_in = S["width_m"] / 2, hw_c * 0.78
-    szb, szt = S["sponson_z"]
-    spons = []
-    for sgn in (1, -1):
-        sp = cq.Workplane("XY").box(sx1 - sx0, sw_out - sw_in, szt - szb).edges().fillet(min(0.22, 0.4 * (sw_out - sw_in))).val()
-        spons.append(sp.translate(V((sx0 + sx1) / 2, sgn * (sw_out + sw_in) / 2, (szb + szt) / 2)))
-    sponsons = _comp(spons)
-    wr, ww = S["wheel_r"], S["wheel_w"]
-    gear = []
-    gx = S["main_gear_x"]
-    for sgn in (1, -1):
-        gy = sgn * (sw_out - 0.25)
-        gear.append(cq.Solid.makeCylinder(wr, ww, V(gx, gy - ww / 2, wr), V(0, 1, 0)))
-        gear.append(_cyl(0.07, (gx, gy, szb), (gx, gy, wr)))
-        gear.append(_cyl(0.04, (gx + 0.5, gy, szb), (gx, gy, wr + 0.1)))
-    nx_ = S["nose_gear_x"]
-    nose_zb = float(np.interp((xn - nx_) / Lf, [s[0] for s in stn], [s[2] for s in stn]))
-    gear.append(cq.Solid.makeCylinder(wr * 0.75, ww * 0.8, V(nx_, -0.38, wr * 0.75), V(0, 1, 0)))
-    gear.append(cq.Solid.makeCylinder(wr * 0.75, ww * 0.8, V(nx_, 0.0, wr * 0.75), V(0, 1, 0)))
-    gear.append(_cyl(0.06, (nx_, 0, nose_zb + 0.1), (nx_, 0, wr * 0.75)))
-    # tail bumper
-    gear.append(_cyl(0.04, (at(0.93), 0, float(np.interp(0.93, [s[0] for s in stn], [s[2] for s in stn]))),
-                     (at(0.93) - 0.3, 0, float(np.interp(0.93, [s[0] for s in stn], [s[2] for s in stn])) - 0.25)))
-    gear = _comp(gear)
-
-    # --- engines / main gearbox on the roof
-    roof = max(s[3] for s in stn)
-    hub_top = S["hub_top"]
-    eng = []
-    for sgn in (1, -1):
-        ey = sgn * S["engine_y"]
-        ez = roof + S["engine_r"] * 0.55
-        e0, e1 = S["engine_x"]
-        eng.append(_cyl(S["engine_r"], (e0, ey, ez), (e1, ey, ez)))
-        eng.append(_cyl(S["engine_r"] * 1.08, (e0 + 0.1, ey, ez), (e0 - 0.25, ey, ez)))  # intake lip
-        eng.append(_cyl(S["engine_r"] * 0.7, (e1, ey, ez), (e1 - 0.5, ey, ez - 0.25)))  # exhaust nozzle
-    eng.append(_box(e1, e0, -S["engine_y"], S["engine_y"], roof, roof + 0.3))  # deck between nacelles
-    eng.append(cq.Solid.makeCylinder(0.95, 0.75, V(0, 0, roof), V(0, 0, 1)))  # main gearbox fairing
-    nacelles = _comp(eng)
-    mast = _comp([_cyl(0.24, (0, 0, roof + 0.7), (0, 0, hub_top - 0.32)),
-                  cq.Solid.makeCylinder(0.36, 0.12, V(0, 0, roof + 0.7), V(0, 0, 1)),
-                  _cyl(0.3, (0, 0, hub_top - 0.62), (0, 0, hub_top - 0.32))])
-
-    # --- fin, tail rotor pylon, stabiliser
-    Rt = S["tail_R"]
-    x_tr = xn - S["length_m"] + Rt
-    z_tr = S["height_m"] - Rt
-    fin_pts = [(p[0] if not isinstance(p[0], str) else 0, p[1]) for p in S["fin_pts"]]
-    fin = _prism_xz(fin_pts, -0.14, 0.14)
-    sx = S["stab"]
-    stab = _prism_xz([(sx[0], sx[2]), (sx[0] - sx[3], sx[2] + 0.02), (sx[0] - sx[3] * 1.0, sx[2] - 0.05), (sx[0] + 0.1, sx[2] - 0.12)], 0.1, 0.1 + sx[1])
-    tr_gb = _cyl(0.17, (x_tr, 0.0, z_tr), (x_tr, S["tr_y"] - 0.1, z_tr))
-    tail_rotor = _tail_rotor(S["n_tail"], Rt, (x_tr, z_tr), S["tr_y"]).rotate(V(x_tr, S["tr_y"], z_tr), V(x_tr, S["tr_y"] + 1, z_tr), tail_azimuth_deg)
-    tailfin = _comp([fin, stab, tr_gb])
-
-    # --- main rotor
-    R = S["rotor_d"] / 2
-    rotor = _rotor(S["n_main"], R, 0.55, S["chord"], S["chord"] * 0.85, 0.075, 0.05, hub_top - 0.15, rotor_azimuth_deg,
-                   0.5, hub_top - 0.32, hub_top).translate(V(0, 0, 0))
-
-    parts = {"fuselage": fuselage, "tailboom": tailboom, "glazing": glazing, "sponsons": sponsons, "gear": gear,
-             "nacelles": nacelles, "mast": mast, "tailfin": tailfin, "rotor": rotor, "tail_rotor": tail_rotor}
-    shape = _comp(list(parts.values()))
-    dims = S["dims"](spec)
-    meta = {"class": "aircraft", "licence": "generated (CC0)", "generator": f"offsim.assets.cad.air.{name}", "lod": 3,
-            "pivots": {"rotor": {"point": (0.0, 0.0, hub_top - 0.15), "axis": (0, 0, 1), "radius_m": R, "blades": S["n_main"],
-                                 "azimuth_deg": rotor_azimuth_deg},
-                       "tail_rotor": {"point": (x_tr, S["tr_y"], z_tr), "axis": (0, 1, 0), "radius_m": Rt, "blades": S["n_tail"]}},
-            "main_rotor_hub_z": hub_top, "notes": S["notes"], "d_value_m": S.get("d_value")}
-    return AssetModel(shape=shape, parts=parts, dims=dims, meta=meta)
-
-
-# --------------------------------------------------------------------------------------------- S-92
-_S92 = {
-    "x_nose": 8.65, "fus_len": 17.10, "split": 0.72, "length_m": 20.88, "height_m": 5.47, "rotor_d": 17.17, "tail_R": 3.35 / 2,
-    "n_main": 4, "n_tail": 4, "chord": 0.46, "hub_top": 4.32, "width_m": 3.89, "tr_y": 0.42,
-    "stations": [
-        (0.000, 0.06, 1.50, 1.75, 2.2), (0.020, 0.45, 1.25, 2.35, 2.2), (0.060, 0.85, 1.05, 2.85, 2.4),
-        (0.120, 1.20, 0.95, 3.15, 2.8), (0.200, 1.45, 0.90, 3.30, 3.5), (0.300, 1.52, 0.85, 3.32, 4.0),
-        (0.480, 1.52, 0.85, 3.32, 4.0), (0.620, 1.45, 0.90, 3.25, 3.8), (0.720, 1.05, 1.20, 3.10, 3.0),
-        (0.800, 0.62, 1.55, 2.95, 2.6), (0.900, 0.32, 1.90, 2.80, 2.4), (1.000, 0.16, 2.15, 2.70, 2.2)],
-    "cabin_frac": (0.20, 0.62), "win_frac": (0.27, 0.62), "n_win": 6, "win_z": (2.30, 2.95), "cockpit_frac": (0.10, 0.20), "cockpit_z": (2.05, 2.85),
-    "sponson_x": (3.4, -3.0), "sponson_z": (0.80, 2.00), "wheel_r": 0.35, "wheel_w": 0.26, "main_gear_x": -1.2,
-    "nose_gear_x": 5.6, "engine_y": 0.66, "engine_r": 0.48, "engine_x": (0.9, -2.9),
-    "fin_pts": [(-5.0, 2.75), (-9.65, 3.95), (-11.0, 3.85), (-9.1, 2.45), (-5.4, 2.40)],
-    "stab": (-6.9, 1.7, 2.45, 0.9),
-    "d_value": 20.88,
-    "notes": "S-92A. Overall length 20.88 m and height 5.47 m are rotors-turning / tail-rotor-tip figures; nose-to-tail-rotor "
-             "bbox reproduces both. Station table, fin planform, sponson and gear layout approximate (no public drawings).",
+DIMS = {
+    # length is the airframe length nose->tail tip, measured on the fuselage part (the
+    # helicopter convention): the tail rotor disc and the pitot stick out past it, and the
+    # fused bbox (22.30 m) is the overall length incl. rotors — reported in the QA notes.
+    "length_m": {"value": LENGTH, "assumption": True, "part": "fuselage"},
+    "rotor_diameter_m": {"value": ROTOR_DIA, "assumption": True},
+    "height_m": {"value": HEIGHT, "assumption": True},
+    "fuselage_width_m": {"value": FUSELAGE_WIDTH, "assumption": True, "part": "fuselage"},
 }
+_DIM_NOTE = "stylised S-92-like offshore helicopter (Gribkovskaia fleet); no manufacturer drawing sourced"
 
 
-def _dims_s92(S):
-    t = "EASA TCDS R.011 Sikorsky S-92A sect. III, https://easa.europa.eu/cs/downloads/7957/en"
-    f = "https://www.flugzeuginfo.net/acdata_php/acdata_s92_en.php; https://aerocorner.com/aircraft/sikorsky-s-92/"
-    return {
-        "rotor_diameter_m": _dim(S["rotor_d"], t + " (17.17 m)"),
-        "tail_rotor_diameter_m": _dim(2 * S["tail_R"], t + " (3.35 m)"),
-        "length_m": _dim(S["length_m"], f + " (overall length rotors turning 68 ft 6 in); CAP 437 D-value 20.88 m"),
-        "fuselage_length_m": _dim(S["fus_len"], t + " (17.10 m)"),
-        "width_m": _dim(S["width_m"], t + " (hull width 3.89 m, sponsons incl.)"),
-        "height_m": _dim(S["height_m"], f + " (17 ft 11 in overall, tail rotor tip)"),
-        "rotor_head_height_m": _dim(S["hub_top"], t + " (height 4.32 m)"),
-        "d_value_m": _dim(20.88, "CAP 437 D-value for S-92, https://www.pprune.org/rotorheads/395350-s-92-landing-specification.html"),
-        "main_rotor_blades": _dim(4, "Sikorsky S-92 4-blade main rotor (flugzeuginfo / aerocorner)"),
-        "tail_rotor_blades": _dim(4, assumption=True),
-    }
+def _box(x0, x1, z0, z1, y0, y1):
+    return cq.Solid.makeBox(x1 - x0, y1 - y0, z1 - z0, cq.Vector(x0, y0, z0))
 
 
-_S92["dims"] = _dims_s92
+def _ellipse_wire(x, y_half, zc, z_half):
+    """Closed elliptical wire in the YZ plane at station x (for the fuselage loft)."""
+    return cq.Wire.makeEllipse(y_half, z_half, center=(x, 0, zc), normal=(1, 0, 0),
+                               xDir=(0, 1, 0))
+
+
+def _fuselage():
+    """One loft, nose tip to tail tip: elliptical sections, belly ~0.95 m, cabin roof ~3.7 m,
+    tail boom tapering to the fin. Smooth (not ruled) so the loft seams stay quiet."""
+    stations = [  # (x, y_half, z_centre, z_half)
+        (10.45, 0.15, 2.30, 0.15),   # nose tip
+        (9.50, 1.05, 2.35, 1.05),    # nose
+        (7.00, 1.45, 2.30, 1.35),    # cockpit
+        (2.00, 1.50, 2.30, 1.40),    # cabin mid (widest)
+        (-3.00, 1.45, 2.35, 1.35),   # cabin aft
+        (-5.50, 0.90, 2.60, 0.90),   # tail boom base
+        (-8.00, 0.55, 2.90, 0.60),   # tail boom mid
+        (-10.45, 0.15, 3.10, 0.35),  # tail tip
+    ]
+    wires = [_ellipse_wire(x, yh, zc, zh) for x, yh, zc, zh in stations]
+    # Ruled (not smooth): a smooth B-spline loft overshoots the widest station by ~10%
+    # (measured 3.31 m vs the 3.0 m design width), so the stated width would be a lie.
+    # The ruled loft's section seams read as frame stations in the drawing — honest drafting.
+    return cq.Solid.makeLoft(wires, ruled=True)
+
+
+def _fin():
+    """Vertical tail fin: swept side profile, 0.25 m thick on the centreline."""
+    prof = [(-8.20, 2.80), (-10.45, 3.00), (-10.45, 4.60), (-9.60, 5.00), (-8.60, 3.60)]
+    return cq.Workplane("XZ").polyline(prof).close().extrude(0.125, both=True).val()
+
+
+def _stabilizer():
+    """Horizontal stabiliser at the tail: thin box across the boom. It sits LOW
+    (z 2.60..2.72), on the tail boom below the fin — the old z 3.50..3.62 put it
+    straight through the tail-rotor disc (the fore blade is z 3.46..3.74 at the
+    same x), so its top/bottom edges drew through the blade as a smaller second
+    rectangle (round-6 whipster catch, nit b). At 2.85 it clears the fore blade
+    (3.46) and the hub (3.45), and it embeds in the fin (2.80), and it still
+    meets the tail boom.
+    Chord 1.25 m (x -9.60..-8.35): the short 1.20 m chord (x -9.60..-8.40)
+    floated in the tail-rotor zoom, its forward end in mid-air over the pale fin
+    (round-7 whipster catch, finding 2). The forward end now runs to the fin's
+    leading edge (x -8.20), so it meets a visible edge in the zoom. The aft end
+    stays at x -9.60: the down blade hangs to z 2.10 at x -9.80 +/- 0.11, so
+    extending aft past x -9.69 would put the stabiliser through the down blade
+    (measured 0.00154 m^3 at x -10.00). The aft end's bottom-left corner touches
+    the boom diagonal, so the bar reads attached at both ends. ROUND-8
+    CORRECTION: that claim was wrong — the fin's bottom is z 2.80, so the bar
+    at z 2.60..2.72 sat 0.08 m BELOW the fin with no fin edge at its height, and
+    its forward end was a free edge over bare paper (round-8 whipster catch,
+    finding 2, half-fixed). The bar is raised to z 2.85..2.97 so it EMBEDS in
+    the fin's lower edge: the fin's bottom is a diagonal from (-8.20, 2.80) to
+    (-10.45, 3.00), and the bar straddles it (at x -8.20 the fin's bottom is
+    2.80, at x -9.60 it is 2.92), so the bar is inside the fin along its length
+    and its forward end meets the fin's leading-edge bottom corner. It still
+    clears the blades and hub (fore blade 3.46, hub 3.45) and the down blade
+    (x -9.80 +/- 0.11, no x overlap with the bar's x -9.60..-8.20). ROUND-9
+    CORRECTION (v10): the "forward end meets the leading edge" claim was wrong
+    in projection — the fin's leading edge KINKS at (-8.60, 3.60), so at the
+    bar's height its lower segment sits at x -8.225..-8.285, AFT of the bar's
+    end at -8.20: the bar poked 0.025..0.085 m past the fin, a free edge over
+    paper (round-9 whipster catch, the only fail). The chord is shortened to
+    x -9.60..-8.35 so both ends sit inside the fin's silhouette at the bar's
+    height, and the fin is filled faintly in the tail-rotor zoom so the bar
+    sits on fin tone, not paper."""
+    return _box(-9.60, -8.35, 2.85, 2.97, -2.00, 2.00)
+
+
+def _rotor_mast():
+    """Main rotor mast: the column from the roof to the head (z 3.70-4.90), at the mast
+    station x=1.5 (v2 fix: the first split build left it at x=0, so the mast drew on the
+    region's left edge and the MAST label pointed at empty space)."""
+    return cq.Solid.makeCylinder(0.18, 4.90 - 3.70, cq.Vector(MAST_X, 0, 3.70),
+                                 cq.Vector(0, 0, 1))
+
+
+def _rotor_head():
+    """Rotor head: hub + swashplate disc + one blade grip per blade + a mast nut (a wider
+    collar where the mast meets the head — the one piece of mechanism the round-2 head zoom
+    was missing: without it the mast read as a blank column). Built around the rotor axis
+    at x=0, z=0, then shifted to the mast station (like the blades)."""
+    hub = cq.Solid.makeCylinder(0.35, ROTOR_HEAD_TOP_Z - 4.85, cq.Vector(0, 0, 4.85),
+                                cq.Vector(0, 0, 1))
+    swash = cq.Solid.makeCylinder(0.45, 0.10, cq.Vector(0, 0, 4.70), cq.Vector(0, 0, 1))
+    nut = cq.Solid.makeCylinder(0.28, 0.10, cq.Vector(0, 0, 4.82), cq.Vector(0, 0, 1))
+    grip = _box(0.55, 0.95, 4.95, 5.08, -0.18, 0.18)
+    grips = [grip]
+    for ang in (90, 180, 270):
+        grips.append(grip.rotate(cq.Vector(0, 0, 0), cq.Vector(0, 0, 1), ang))
+    return hub.fuse(swash, nut, *grips).translate(cq.Vector(MAST_X, 0, 0))
+
+
+def _one_blade():
+    """One main-rotor blade: thin tapered plate, root 0.80 m from the axis, tip 8.60 m,
+    chord 0.65 -> 0.40 m. Built around the rotor axis, fore (+x); the caller rotates it."""
+    return (cq.Workplane("XY")
+            .polyline([(0.80, -0.325), (8.60, -0.20), (8.60, 0.20), (0.80, 0.325)])
+            .close().extrude(0.07).val())
+
+
+def _blades():
+    """4 blades as separate parts: fore / aft / port / starboard, stopped pose. Each blade is
+    rotated about the rotor axis, then the whole set is shifted to the mast station and UP to
+    the rotor plane (round-1 whipster: the blades were left at z=0 and drew on the ground)."""
+    base = _one_blade()
+    out = {}
+    for name, ang in (("blade_fore", 0), ("blade_port", 90), ("blade_aft", 180),
+                      ("blade_stbd", 270)):
+        b = base.rotate(cq.Vector(0, 0, 0), cq.Vector(0, 0, 1), ang) if ang else base
+        out[name] = b.translate(cq.Vector(MAST_X, 0, ROTOR_Z - 0.035))
+    return out
+
+
+def _tail_rotor_hub():
+    """Tail rotor hub on the port side of the fin + the gearbox fairing it sits on. The hub
+    axis is the y-axis through (TAIL_ROTOR_X, 0.275, TAIL_ROTOR_Z)."""
+    hub = cq.Solid.makeCylinder(0.12, 0.30, cq.Vector(TAIL_ROTOR_X, 0.125, TAIL_ROTOR_Z),
+                                cq.Vector(0, 1, 0))
+    fairing = _box(TAIL_ROTOR_X - 0.25, TAIL_ROTOR_X + 0.25, TAIL_ROTOR_Z - 0.15,
+                   TAIL_ROTOR_Z + 0.15, 0.10, 0.30)
+    return hub.fuse(fairing)
+
+
+def _tail_rotor_blades():
+    """Tail rotor: 4 tapered blades in the vertical (XZ) plane, 1.50 m long — a ~3.0 m disc,
+    the S-92 proportion (round 1: 0.95 m blades read as a diamond smudge on the fin). Built
+    as one tapered plate in XY, rotated into the XZ plane, then fanned about the hub axis.
+    Blade tips: z 2.10..5.10, x -11.30..-8.30 — inside the overall height (5.15)."""
+    plate = (cq.Workplane("XY")
+             .polyline([(0.25, -0.14), (TAIL_ROTOR_BLADE, -0.08),
+                        (TAIL_ROTOR_BLADE, 0.08), (0.25, 0.14)])
+             .close().extrude(0.06).val())
+    # into the XZ plane: rotate 90 deg about the x-axis (chord y -> z, thickness z -> -y)
+    plate = plate.rotate(cq.Vector(0, 0, 0), cq.Vector(1, 0, 0), 90)
+    plate = plate.translate(cq.Vector(TAIL_ROTOR_X, 0.275 + 0.03, TAIL_ROTOR_Z))
+    blades = [plate]
+    _axis = cq.Vector(TAIL_ROTOR_X, 0.275, TAIL_ROTOR_Z)
+    for ang in (90, 180, 270):
+        blades.append(plate.rotate(_axis, _axis + cq.Vector(0, 1, 0), ang))
+    return blades[0].fuse(*blades[1:])
+
+
+def _sponson(port: bool):
+    """One stub sponson (main-gear housing) on the cabin side."""
+    y0, y1 = (1.25, 1.95) if port else (-1.95, -1.25)
+    return _box(-1.00, 3.50, 1.35, 2.05, y0, y1)
+
+
+def _gear_main():
+    """Main gear, both sides: wheel + proud hub disc + a VERTICAL strut up to the sponson.
+    The strut ends at the TYRE TOP (z 0.90), not at the axle — the old strut ran to the
+    axle (z 0.45), so its outline continued inside the tyre down to the hub disc and
+    read as a box drawn on the wheel (round-5 whipster catch). The axle is inside the
+    wheel and not drawn; the strut landing on the tyre top is the honest attachment.
+    Round-2 whipster catch: the raked strut's sharp bottom corner poked through the
+    wheel and ended inside it, with no axle to terminate on."""
+    out = []
+    for y in (1.80, -1.80):
+        out.append(cq.Solid.makeCylinder(0.45, 0.30, cq.Vector(1.20, y - 0.15, 0.45),
+                                         cq.Vector(0, 1, 0)))
+        hub_y = y + 0.175 if y > 0 else y - 0.175
+        out.append(cq.Solid.makeCylinder(0.22, 0.06, cq.Vector(1.20, hub_y - 0.03, 0.45),
+                                         cq.Vector(0, 1, 0)))
+        y0, y1 = (1.55, 1.85) if y > 0 else (-1.85, -1.55)
+        out.append(_box(1.05, 1.35, 0.90, 1.35, y0, y1))
+    return out[0].fuse(*out[1:])
+
+
+def _gear_nose():
+    """Nose gear: twin wheels + a vertical strut up to the belly + an axle bar. The
+    strut (y ±0.15) does not overlap the twin wheels (y ±0.30..0.54) in the front
+    view, so without the axle the two wheels hung below the belly with a visible gap
+    and no strut connecting them (round-5 whipster catch, N1). The axle bar
+    (y -0.54..0.54, z 0.70..0.82) joins the wheels and overlaps the strut's foot
+    (z 0.76) and the wheel tops (z 0.76), so the whole gear reads as one assembly.
+    The strut ends at the tyre top (z 0.76), as the main gear does."""
+    out = []
+    for y in (0.42, -0.42):
+        out.append(cq.Solid.makeCylinder(0.38, 0.24, cq.Vector(7.30, y - 0.12, 0.38),
+                                         cq.Vector(0, 1, 0)))
+    out.append(_box(7.10, 7.50, 0.76, 1.05, -0.15, 0.15))
+    out.append(_box(7.22, 7.38, 0.70, 0.82, -0.54, 0.54))
+    return out[0].fuse(*out[1:])
+
+
+def _engines():
+    """Twin engine deck on the roof aft of the mast."""
+    out = []
+    for y0, y1 in ((0.35, 1.05), (-1.05, -0.35)):
+        out.append(_box(-2.50, -0.30, 3.65, 4.25, y0, y1))
+    return out[0].fuse(*out[1:])
+
+
+def _exhausts():
+    """Engine exhausts pointing aft, one per deck."""
+    out = []
+    for y in (0.70, -0.70):
+        out.append(cq.Solid.makeCylinder(0.18, 0.60, cq.Vector(-2.50, y, 3.95),
+                                         cq.Vector(-1, 0, 0)))
+    return out[0].fuse(*out[1:])
+
+
+def _hoist():
+    """Rescue hoist above the starboard cabin door: housing + cable + hook block. The
+    cable is r 0.05, not a hairline — the old r 0.02 cable read as a thin tick joining
+    a floating hook to the housing (round-5 whipster catch, N1, and the side-view
+    hoist-tab nit)."""
+    housing = _box(2.60, 3.40, 3.00, 3.35, -1.62, -1.50)
+    cable = cq.Solid.makeCylinder(0.05, 0.50, cq.Vector(3.00, -1.56, 2.50), cq.Vector(0, 0, 1))
+    hook = _box(2.88, 3.12, 2.30, 2.50, -1.64, -1.48)
+    return housing.fuse(cable, hook)
+
+
+def _pitot():
+    """Pitot tube on the nose, off-centre (port). Its base sits INSIDE the nose (x 10.00,
+    y 0.30, z 2.20 is inside the ruled loft: (0.30/0.58)^2 + ((2.20-2.32)/0.58)^2 < 1) and
+    it emerges from the nose surface at x ~10.28 and sticks out to x 11.00 — 0.55 m past
+    the nose tip (10.45), so it reads at sheet scale (round-3 whipster catch: the 0.60 m
+    tube showed only 0.15 m past the tip, a ~2 px nub). Round-2 whipster catch: the old
+    pitot sat at y 1.20, outside the fuselage surface (the nose half-width there is
+    < 1.05), so it drew as a thick black dash floating detached off the nose. A
+    forward-pointing pitot is hidden behind the nose in the front view — it reads in the
+    side and top views, not the front."""
+    return cq.Solid.makeCylinder(0.03, 1.00, cq.Vector(10.00, 0.30, 2.20), cq.Vector(1, 0, 0))
+
+
+def _antenna():
+    """Roof antenna, a blade on the centreline. Taller than the engine deck (top
+    z 4.40 vs the deck's 4.25) and 0.16 m thick, with its base sunk into the roof
+    (z 3.65) — the old 0.06 m hairline (z 3.70..4.10) ended below the deck tops and
+    read as a thin tan rod floating beside the mast in the front view (round-5
+    whipster catch, N1). It is a filled part now (SPRITE_FILLS), so it does not read
+    as an unfilled white box on the roof in the side view either."""
+    return _box(4.50, 5.00, 3.65, 4.40, -0.08, 0.08)
 
 
 @register("s92")
-def build_s92(rotor_azimuth_deg=0.0, tail_azimuth_deg=0.0):
-    return _heli("s92", _S92, float(rotor_azimuth_deg), float(tail_azimuth_deg))
+def build_s92(**params) -> AssetModel:
+    """Build the S-92-like helicopter asset. No parameters yet: one stylised S-92 (params
+    reserved for fleet variants)."""
+    if params:
+        raise ValueError(f"s92 takes no parameters yet; got {sorted(params)}")
+    parts = {"fuselage": _fuselage(), "fin": _fin(), "stabilizer": _stabilizer(),
+             "rotor_mast": _rotor_mast(), "rotor_head": _rotor_head(),
+             **_blades(),
+             "tail_rotor_hub": _tail_rotor_hub(), "tail_rotor_blades": _tail_rotor_blades(),
+             "sponson_port": _sponson(True), "sponson_stbd": _sponson(False),
+             "gear_main": _gear_main(), "gear_nose": _gear_nose(),
+             "engines": _engines(), "exhausts": _exhausts(), "hoist": _hoist(),
+             "pitot": _pitot(), "antenna": _antenna()}
+    shape = None
+    for p in parts.values():
+        shape = p if shape is None else shape.fuse(p)
+    dims = {k: dict(v, note=_DIM_NOTE) for k, v in DIMS.items()}
+    return AssetModel(shape=shape, parts=parts, dims=dims, meta={
+        "class": "aircraft",
+        "licence": "own work — generated solid, no external model",
+        "generator": "offsim.assets.cad.air:build_s92",
+        "lod": 2,
+        "notes": ("stylised S-92-like offshore helicopter (Gribkovskaia fleet); all dims assumed "
+                  "until a manufacturer drawing is sourced; lofted fuselage + tail boom, 4-blade "
+                  "main rotor stopped fore/aft + athwart (mast / head / 4 separate blades), tail "
+                  "rotor port (hub + 4 tapered blades, ~3.0 m disc), sponsons + tricycle gear "
+                  "(vertical struts), rescue hoist starboard; cockpit glazing is 2D (sprite sheet), "
+                  "not in the solid."),
+    })
 
 
-# -------------------------------------------------------------------------------------------- AW189
-_AW189 = {
-    "x_nose": 7.32, "fus_len": 15.40, "split": 0.70, "length_m": 17.57, "height_m": 5.07, "rotor_d": 14.60, "tail_R": 1.45,
-    "n_main": 5, "n_tail": 4, "chord": 0.40, "hub_top": 4.45, "width_m": 3.00, "tr_y": 0.38,
-    "stations": [
-        (0.000, 0.06, 1.40, 1.65, 2.2), (0.020, 0.42, 1.18, 2.20, 2.2), (0.060, 0.80, 1.00, 2.70, 2.4),
-        (0.120, 1.12, 0.90, 3.00, 2.8), (0.200, 1.32, 0.85, 3.12, 3.5), (0.300, 1.38, 0.82, 3.14, 4.0),
-        (0.480, 1.38, 0.82, 3.14, 4.0), (0.600, 1.30, 0.88, 3.08, 3.8), (0.700, 0.98, 1.15, 2.98, 3.0),
-        (0.800, 0.58, 1.50, 2.86, 2.6), (0.900, 0.30, 1.82, 2.72, 2.4), (1.000, 0.15, 2.05, 2.60, 2.2)],
-    "cabin_frac": (0.20, 0.60), "win_frac": (0.27, 0.60), "n_win": 5, "win_z": (2.20, 2.80), "cockpit_frac": (0.10, 0.20), "cockpit_z": (1.95, 2.70),
-    "sponson_x": (3.0, -2.6), "sponson_z": (0.78, 1.85), "wheel_r": 0.32, "wheel_w": 0.24, "main_gear_x": -1.0,
-    "nose_gear_x": 4.9, "engine_y": 0.62, "engine_r": 0.44, "engine_x": (0.8, -2.5),
-    "fin_pts": [(-4.4, 2.65), (-8.35, 3.75), (-9.4, 3.65), (-8.1, 2.40), (-4.8, 2.35)],
-    "stab": (-6.0, 1.5, 2.40, 0.8),
-    "d_value": 17.60,
-    "notes": "AW189. Overall length 17.57 m, height 5.07 m (rotors turning, Leonardo). Fuselage length, sponson width, tail rotor "
-             "diameter, hub height are assumptions; station table approximate.",
-}
+# --- sprite-sheet 2D details (view coords in metres, v up) --------------------------------------
+# Glazing is drawn 2D on the sheet, like the PSV's windows: dark glass with variation, no outline.
+# The 3/4 view carries projected 3D glass (sprite_glass_3d) instead of rects.
+# Line weights: W_PANEL (door/panel outlines) and W_FINE (mullions, stripes) — the sheet's tiers.
+
+W_PANEL, W_FINE = 0.9, 0.5
 
 
-def _dims_aw189(S):
-    l = "Leonardo AW189 https://www.leonardo.com/en/-/aw189-1 ; https://www.fairlifts.com/helicopters/specifications/leonardo-aw189-helicopter-specifications/"
-    return {
-        "rotor_diameter_m": _dim(S["rotor_d"], l + " (14.60 m)"),
-        "length_m": _dim(S["length_m"], l + " (17.57 m, rotors turning)"),
-        "height_m": _dim(S["height_m"], l + " (5.07 m, rotors turning)"),
-        "cabin_width_m": _dim(2.40, l + " (cabin width 2.40 m)"),
-        "main_rotor_blades": _dim(5, l + " (5-blade main rotor)"),
-        "tail_rotor_blades": _dim(4, l + " (4-blade tail rotor)"),
-        "tail_rotor_diameter_m": _dim(2 * S["tail_R"], assumption=True),
-        "fuselage_length_m": _dim(S["fus_len"], assumption=True),
-        "width_m": _dim(S["width_m"], assumption=True),
-        "rotor_head_height_m": _dim(S["hub_top"], assumption=True),
-    }
+def s92_sprite_details(view):
+    """2D detail prims for one view: (kind, points, weight, fill, outline)."""
+    P = []
+
+    def poly(pts, w, fill, outline=None):
+        P.append(("poly", pts, w, fill, outline))
+
+    def line(pts, w, outline="ink"):
+        P.append(("line", pts, w, None, outline))
+
+    if view == "side":
+        # cockpit glazing: wraparound nose glass, one dark band with a single centre mullion.
+        # Each glass pane carries a faint frame (a window, not a black tile — round-2
+        # whipster catch: five identical dark rects read as tiles).
+        poly([(7.35, 2.95), (8.55, 3.00), (9.05, 2.60), (8.80, 2.30), (7.50, 2.30)],
+             W_PANEL, "glass", "line_faint")
+        line([(8.15, 2.98), (8.05, 2.30)], W_FINE)
+        # cabin windows: varied widths, not five identical tiles — one per bay, with gaps,
+        # one tone (round-8 whipster nit: the alternating glass/glass_dim read as a
+        # fill inconsistency with no meaning, windows 2 and 4 lighter for no reason).
+        # The middle bay is the sliding door (faint outline + handle).
+        # The door window is narrower than the door outline so the panel reads around it
+        # (round-2 whipster catch: the window nearly filled the outline, a stray rectangle).
+        for x0, w, fill in ((0.70, 0.65, "glass"), (1.90, 0.50, "glass"),
+                            (3.15, 0.70, "glass"), (4.30, 0.50, "glass"),
+                            (5.50, 0.65, "glass")):
+            # the middle bay (3.15) is the sliding door's window: it takes NO frame of
+            # its own, because the door outline below is its frame — a second faint rect
+            # 0.20 m inside it read as a stray rectangle overlapping the window
+            # (round-3 whipster catch)
+            outline = None if x0 == 3.15 else "line_faint"
+            poly([(x0, 2.60), (x0 + w, 2.60), (x0 + w, 3.20), (x0, 3.20)], W_PANEL, fill,
+                 outline)
+        # sliding door: a FULL panel from the sponson top (z 2.05) to near the roof
+        # (z 3.50), not a small rectangle around the window — the old outline
+        # (v 2.45..3.35) read as a stray rectangle overlapping the window (round-3/4
+        # whipster catch). The window sits in the panel's upper half; the handle marks
+        # it as a door. Drawn at panel weight (W2) with a DARK outline (ink): the
+        # line_faint outline read as a pale ghost rectangle straddling the window
+        # (round-7 whipster catch, finding 3 — the door is a panel, not a ghost).
+        poly([(2.95, 2.05), (4.05, 2.05), (4.05, 3.50), (2.95, 3.50)], W_PANEL, None,
+             "ink")
+        line([(3.85, 2.90), (4.00, 2.90)], W_FINE, "line_faint")
+        # tail boom stripe (a painted line, not structure) + fin leading-edge line
+        line([(-5.40, 3.05), (-9.90, 3.35)], W_FINE, "line_faint")
+    elif view == "front":
+        # windshield: narrower than round 2 (the dark trapezoid still read as a face visor
+        # under the two round exhaust "eyes") and a stronger centre pillar.
+        poly([(-0.50, 2.30), (0.50, 2.30), (0.42, 3.15), (-0.42, 3.15)], W_PANEL, "glass",
+             "line_faint")
+        line([(0.0, 2.30), (0.0, 3.15)], W_PANEL)
+        # blank the exhaust "eyes": the two exhaust cylinders (r 0.18 at y +/-0.70,
+        # z 3.95) project as dark circles inside the engine-deck boxes and read as a
+        # pair of eyes above the windshield (round-3 whipster catch). Cover each with a
+        # 12-sided disc in the engine-deck tone, drawn after the HLR lines — the pipes
+        # still read in the side and top views, where they point aft.
+        import math as _math
+        for _cy in (0.70, -0.70):
+            _disc = [(_cy + 0.18 * _math.cos(2 * _math.pi * _k / 12),
+                      3.95 + 0.18 * _math.sin(2 * _math.pi * _k / 12))
+                     for _k in range(12)]
+            poly(_disc, W_FINE, "house_mid")
+    return P
 
 
-_AW189["dims"] = _dims_aw189
+def s92_glass_3d():
+    """Glazing as 3D quads on the body surface: (points, outward normal, fill). The sheet
+    projects them into the three-quarter view and keeps only the quads facing the viewer —
+    honest glass in 3/4, where flat 2D rects would be a lie."""
+    quads = []
+    # cabin windows, both sides (y = +/-1.51, just proud of the 1.50 half-width).
+    # One tone, like the 2D side windows (round-8 whipster nit).
+    for x0, w, fill in ((0.70, 0.65, "glass"), (1.90, 0.50, "glass"),
+                        (3.15, 0.70, "glass"), (4.30, 0.50, "glass"),
+                        (5.50, 0.65, "glass")):
+        for s in (1, -1):
+            y = s * 1.51
+            quads.append(([(x0, y, 2.60), (x0 + w, y, 2.60), (x0 + w, y, 3.20),
+                           (x0, y, 3.20)], (0, s, 0), fill))
+    # cockpit glass, both sides: a quad on the nose slope (the nose half-width is ~1.05-1.45
+    # here, so the quad sits on the surface, slightly proud)
+    for s in (1, -1):
+        quads.append(([(7.40, s * 1.30, 2.30), (8.85, s * 1.05, 2.30),
+                       (8.55, s * 1.00, 3.00), (7.45, s * 1.25, 3.00)],
+                      (0, s, 0.25), "glass"))
+    return quads
 
 
-@register("aw189")
-def build_aw189(rotor_azimuth_deg=0.0, tail_azimuth_deg=0.0):
-    return _heli("aw189", _AW189, float(rotor_azimuth_deg), float(tail_azimuth_deg))
+# Parts whose silhouette gets a tonal fill on the sheet (part -> fill key). The fin takes the
+# fuselage tone (round 1: a darker fin read as a separate brown sail). The four main-rotor
+# blades ARE filled (round 3: unfilled, the fore/aft blades read white while the
+# port/starboard ones read tan over the fuselage — the disc looked half see-through, and
+# the bodies were not opaque). A filled wheel is a black blob, so the gear stays linework
+# + hub discs. The tail-rotor blades ARE filled too (round 4: unfilled, a hidden hub/fin
+# arc showed through the lower blade — the disc is small enough that a solid fill reads
+# as the disc, and it covers the hidden line behind it).
+SPRITE_FILLS = {"fuselage": "house", "fin": "house", "stabilizer": "house_mid",
+                "sponson_port": "house_mid", "sponson_stbd": "house_mid",
+                "engines": "house_mid", "rotor_head": "house_mid", "rotor_mast": "house_mid",
+                "blade_fore": "house", "blade_aft": "house",
+                "blade_port": "house", "blade_stbd": "house",
+                "tail_rotor_blades": "house", "antenna": "house_mid",
+                "hoist": "house_mid"}
