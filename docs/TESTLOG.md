@@ -68,3 +68,31 @@ fresh CreationDate/ModDate on every run (timestamp-only diff, content identical)
 Build pushed an image without the Python extras: `-c constraints.txt` was not copied into the build context and a
 trailing `|| true` hid the pip error; the smoke test caught it (`No module named 'skia'`). Fix: no constraint file in
 the image install, failure no longer masked, import check inside the build. Lesson logged via `offsim learn` next.
+
+## 2026-11-12 — N2 live-check, first live run: 14 ok / 1 failed / 2 skipped
+`python -m offsim.live.cli` run locally (the workflow was never dispatched — no dispatch tool in the GitHub
+connector, `gh` not logged in, dispatch PAT unfilled). Overpass 502'd twice in full runs (<1 s) and passed
+standalone twice (57 ways, ~30-40 s): transient gateway error, not a dead host. Fix: `probe_overpass` retries
+once on 502/503 (5 s); a persistent 502/503 still fails. Runner probe failed on libegl1 (VM wipe; apt cache
+empty, lists stale) — fixed by installing `libegl-mesa0_25.2.8-0ubuntu0.24.04.4` + `dpkg --configure libegl1`
+(the installed mesa is 25.2.8, not 24.2.8). OpenAlex still 429s with Retry-After ~13,400 s on the polite pool
+(OFFSIM_MAILTO set) — shared egress IP credit exhausted; the mailto does not help here. barentswatch/ampl skipped
+(no secrets). Lesson L13 recorded (DATA-HOST-TIMEOUT). Full suite 727 passed, 9 skipped, 0 failed.
+
+## 2026-11-12 — N2 papers feed, OpenAlex 429s: retried, marked degraded
+`_retry_429` in `offsim/feed/sources.py` (2 retries, backoff 1 s/2 s, honours a short Retry-After, fails at once
+above the 60 s cap); `offsim/feed/run.py` writes `<out>.status.json` and reports a 429-only source once as
+degraded instead of once per query. Verified live on one query: "feed degraded: openalex returned 0 records, 1x
+429 after retries (Retry-After 13266s)"; crossref 50 records, nva 6, arxiv empty — 54 records. Open gap: the
+papers workflow commits only feed.jsonl/tags.jsonl/gaps.yaml, so `papers/feed.status.json` is never persisted to
+papers/auto — the workflow needs `papers/feed.status.json` added to its commit list (workflow-file change; the
+App cannot push it).
+
+## 2026-11-12 — N2 fetch-world bergen-ncs, coast stage: FAILED twice, now completes
+Run 1: coast timed out after 900 s (`sea_polygons` O(segments × faces)); run 2: coast failed in 2 s on HTTP 502.
+Fixes: `sea_polygons` vectorised (STRtree + prepared-geometry vote; synthetic split/island cases byte-identical
+areas to the old scan) and `fetch_world.get()` retries once on 502/503. Verified live:
+`land_from_osm` on bbox [1.40, 59.70, 5.80, 61.80] finished in 193.7 s, 33,976 coastline ways, land.geojson
+5,458 km². Sodir keyword fix (`facility` → `facilities`) lands 331 facilities (run 1 had only 47 fields).
+World complete on disk at `~/workspace/tmp-n2-fetch/world/` (land + sodir + metocean 744 h + osm 7 layers); no
+release `world-bergen-ncs` exists yet, so `--pull` was not run.
