@@ -22,7 +22,13 @@ Mapping to the contract (what a trip *means* as an agent)
 - Position: along the trip's shape polyline. Stop positions on the shape come from `shape_dist_traveled` when both
   shapes.txt and the trip's stop_times carry it for every row (units are normalised, so km or m both work);
   otherwise each stop is projected onto the polyline, searching forward only (a loop route cannot jump back).
-  No shape (or an unknown shape_id): straight lines between stops. Between stops speed is constant.
+  No shape (or an unknown shape_id): for rail and tram trips, when the world has a rail graph, the path between
+  consecutive stops follows the track (offsim.worlds.rail.RailGraph); otherwise straight lines between stops. Between
+  stops speed is constant. Order per trip: shapes.txt, then rail graph, then straight (last resort); the source used is
+  recorded per trip in `meta["geometry_by_trip"]` and counted in `meta["geometry"]`. The rail graph is `build(rail=...)`
+  (a RailGraph or a rail.geojson path), or by default `<gtfs dir>/../osm/rail.geojson` when present ("auto"); `rail=False`
+  turns it off. Stops are snapped onto the track (distance reported in `meta["rail_snap_m_max"]`); a stop too far from the
+  track or an unreachable pair falls back to straight for that trip and is counted in `meta["rail_fallback"]`.
 - State: "drive" ("sail" for ferries) while moving, "wait" while dwelling at a stop (arrival != departure) and at the
   terminus; "idle" is never used. A row is emitted at every stop arrival and departure plus every `sample_s`
   grid time (grid anchored at t0), so dwell is exact and the validator's "state of the leg is the state at its start"
@@ -374,8 +380,56 @@ def _shape_path(feed: Feed, shape_id) -> tuple[_Path, np.ndarray | None] | None:
 
 # --- trajectories -------------------------------------------------------------------------------------------
 
-def _profile(feed: Feed, stops_xy: dict, trip_id: str, g: pd.DataFrame, shape_id, stats: dict):
-    """(path, s_stop, arr, dep, stop_ids, has_shape) for one trip, or None when unusable. Times in service-day seconds."""
+def _resolve_rail(feed: Feed, rail):
+    """rail arg -> a RailGraph or None. "auto": <feed dir>/../osm/rail.geojson if it exists; a path: that file; an object: itself."""
+    if rail is None or rail is False:
+        return None
+    cache = feed._shape_cache
+    key = ("rail_graph", str(rail) if isinstance(rail, (str, Path)) else id(rail))
+    if key in cache:
+        return cache[key]
+    rg = None
+    if isinstance(rail, str) and rail == "auto":
+        p = Path(feed.path)
+        if p.is_dir():
+            from offsim.worlds.rail import load_world_rail
+            rg = load_world_rail(p.parent)
+    elif isinstance(rail, (str, Path)):
+        from offsim.worlds.rail import RailGraph
+        rg = RailGraph(rail)
+    else:
+        rg = rail
+    cache[key] = rg
+    return rg
+
+
+def _rail_path(feed: Feed, rg, sid, lon, lat, stats: dict):
+    """(path, s_stop) following the rail graph through the stops in order, or None (reason counted in stats)."""
+    key = ("rail_path", id(rg), tuple(sid))
+    cache = feed._shape_cache
+    if key not in cache:
+        res = None
+        try:
+            snapped = rg.snap(list(zip(lon, lat)))
+            pts, idx, _, _ = rg.chain(snapped)
+            path = _Path([q[0] for q in pts], [q[1] for q in pts])
+            res = (path, path.cum[np.asarray(idx)], max(rg.snap_m))
+        except ValueError as ex:
+            res = str(ex)
+        cache[key] = res
+    res = cache[key]
+    if isinstance(res, str):
+        stats["rail_fallback"] += 1
+        stats["rail_fallback_reasons"].setdefault(res[:120], 0)
+        stats["rail_fallback_reasons"][res[:120]] += 1
+        return None
+    stats["rail_snap_m_max"] = max(stats["rail_snap_m_max"], res[2])
+    return res[0], np.maximum.accumulate(res[1])
+
+
+def _profile(feed: Feed, stops_xy: dict, trip_id: str, g: pd.DataFrame, shape_id, stats: dict, rail=None, cls=None):
+    """(path, s_stop, arr, dep, stop_ids, has_shape) for one trip, or None when unusable. Times in service-day seconds.
+    Geometry source (shapes / rail_graph / straight) is left in stats["_last_geometry"]."""
     g = g.sort_values("stop_seq", kind="stable")
     sid = g["stop_id"].to_numpy()
     keep = np.array([s in stops_xy for s in sid])
@@ -398,9 +452,16 @@ def _profile(feed: Feed, stops_xy: dict, trip_id: str, g: pd.DataFrame, shape_id
             s = np.maximum.accumulate(f * path.length)
         else:
             s = path.project(lon, lat)
+        stats["_last_geometry"] = "shapes"
     else:
-        path = _Path(lon, lat)
-        s = path.cum.copy()
+        rp = _rail_path(feed, rail, sid, lon, lat, stats) if rail is not None and cls in ("rail", "tram") else None
+        if rp is not None:
+            path, s = rp
+            stats["_last_geometry"] = "rail_graph"
+        else:
+            path = _Path(lon, lat)
+            s = path.cum.copy()
+            stats["_last_geometry"] = "straight"
     has_shape = sp is not None
     # fill missing times by distance between timed stops
     t_known = np.where(np.isnan(dep), arr, dep)
@@ -430,16 +491,21 @@ def _profile(feed: Feed, stops_xy: dict, trip_id: str, g: pd.DataFrame, shape_id
     return path, s, seq_new[0::2], seq_new[1::2], sid, has_shape
 
 
-def build(feed: Feed, date, t0: float, t1: float, sample_s: float = 30.0, route_types=None):
+def build(feed: Feed, date, t0: float, t1: float, sample_s: float = 30.0, route_types=None, rail="auto"):
     """Like `trajectories` but returns (traj, agents, events, meta). events: agent_id, node (stop_id), event "dwell",
-    t (s from t0), duration_s. meta: counts of dropped / repaired trips."""
+    t (s from t0), duration_s. meta: counts of dropped / repaired trips, plus the geometry source per trip
+    (`geometry_by_trip`, `geometry` counts) and rail snap/fallback figures. `rail`: "auto" (the world's
+    osm/rail.geojson next to the GTFS folder, if any) | RailGraph | path | None/False (off); see the module docstring."""
     t0, t1, sample_s = float(t0), float(t1), float(sample_s)
     if t1 <= t0 or sample_s <= 0:
         raise ValueError("need t1 > t0 and sample_s > 0")
     tr = trips_on(feed, date, t0, t1, route_types)
-    stats = {"bad_trips": 0, "interpolated_times": 0, "floored_hops": 0, "unknown_route_type": 0, "no_shape": 0}
+    stats = {"bad_trips": 0, "interpolated_times": 0, "floored_hops": 0, "unknown_route_type": 0, "no_shape": 0,
+             "geometry": {"shapes": 0, "rail_graph": 0, "straight": 0}, "geometry_by_trip": {}, "rail_fallback": 0,
+             "rail_fallback_reasons": {}, "rail_snap_m_max": 0.0}
     stats["unknown_route_type"] = int(tr["cls"].isna().sum())
     tr = tr[tr["cls"].notna()]
+    rg = _resolve_rail(feed, rail) if tr["cls"].isin(["rail", "tram"]).any() else None
     stops_xy = {r.stop_id: (r.stop_lon, r.stop_lat) for r in feed.stops.dropna(subset=["stop_lat", "stop_lon"]).itertuples()}
     st = feed.stop_times[feed.stop_times["trip_id"].isin(set(tr["trip_id"]))]
     groups = {k: v for k, v in st.groupby("trip_id", sort=False)}
@@ -449,10 +515,13 @@ def build(feed: Feed, date, t0: float, t1: float, sample_s: float = 30.0, route_
         if g is None:
             stats["bad_trips"] += 1
             continue
-        prof = _profile(feed, stops_xy, r.trip_id, g, r.shape_id, stats)
+        prof = _profile(feed, stops_xy, r.trip_id, g, r.shape_id, stats, rg, r.cls)
         if prof is None:
             continue
         path, s, arr, dep, sid, has_shape = prof
+        src = stats["_last_geometry"]
+        stats["geometry"][src] += 1
+        stats["geometry_by_trip"][r.agent_id] = src
         stats["no_shape"] += 0 if has_shape else 1
         off = r.offset_s
         arr, dep = arr + off, dep + off
@@ -491,6 +560,7 @@ def build(feed: Feed, date, t0: float, t1: float, sample_s: float = 30.0, route_
     agents = pd.DataFrame(agent_rows, columns=["agent_id", "cls", "vmax_mps", "capacity", "domain", "trip_id", "route_id",
                                                "route_short_name", "route_type", "t_start", "t_end", "has_shape"])
     events = pd.DataFrame(ev, columns=["agent_id", "node", "event", "t", "duration_s"])
+    stats.pop("_last_geometry", None)
     return traj, agents, events, stats
 
 
@@ -501,10 +571,10 @@ def _observed_vmax(s, arr, dep) -> float:
     return float(max(_MIN_VMAX, (v.max() if len(v) else 0.0) * _VMAX_FACTOR))
 
 
-def trajectories(feed: Feed, date, t0: float, t1: float, sample_s: float = 30.0, route_types=None):
+def trajectories(feed: Feed, date, t0: float, t1: float, sample_s: float = 30.0, route_types=None, rail="auto"):
     """(traj, agents) in the trajectory contract for all trips running on `date` within [t0, t1] (service-day seconds).
     traj columns: agent_id, t (s from t0), lon, lat, alt_m, state. See the module docstring for the mapping."""
-    traj, agents, _, _ = build(feed, date, t0, t1, sample_s, route_types)
+    traj, agents, _, _ = build(feed, date, t0, t1, sample_s, route_types, rail)
     return traj, agents
 
 

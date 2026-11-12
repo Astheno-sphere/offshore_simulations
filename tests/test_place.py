@@ -75,8 +75,9 @@ def test_layers_for_modes():
     assert "depth" in place.layers_for("sea", depth=True)
     assert place.layers_for(["road"]) == ["land", "roads"] and place.layers_for(["walk"]) == ["land", "roads"]
     assert place.layers_for(["bus"]) == ["land", "roads", "gtfs"] and place.layers_for(["air"]) == ["land", "helipads", "aerodromes"]
+    assert place.layers_for(["rail"]) == ["land", "rail", "stations"]      # why: rail is now a mode (T1); the unknown-mode check uses "hyperloop"
     with pytest.raises(place.PlaceError):
-        place.layers_for(["rail"])
+        place.layers_for(["hyperloop"])
     with pytest.raises(place.PlaceError):
         place.layers_for([])
 

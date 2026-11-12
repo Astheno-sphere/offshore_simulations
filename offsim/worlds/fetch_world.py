@@ -205,9 +205,9 @@ def fetch_osm(cfg, out, pbf=None):
 
 def plan_layers(modes):
     """Modes -> what the fetcher must do: {'modes', 'osm', 'gtfs', 'sea', 'layers'}. road/walk/bus => osm; bus => gtfs;
-    air => osm (helipads); sea => coast/sealanes (land coastline is always fetched)."""
+    air => osm (helipads); rail => osm (rail + stations layers); sea => coast/sealanes (land coastline is always fetched)."""
     modes = placemod.check_modes(modes)
-    return {"modes": modes, "osm": bool({"road", "walk", "bus", "air"} & set(modes)), "gtfs": "bus" in modes,
+    return {"modes": modes, "osm": bool({"road", "walk", "bus", "air", "rail"} & set(modes)), "gtfs": "bus" in modes,
             "sea": "sea" in modes, "layers": placemod.layers_for(modes)}
 
 
@@ -489,8 +489,8 @@ if __name__ == "__main__":
     ap.add_argument("--depth-only", action="store_true", help="fetch only the raw DEM (skip OSM/Sodir)")
     ap.add_argument("--place", metavar="NAME", help='resolve a place ("Ålesund", a stedsnavn name, or "lon0,lat0,lon1,lat1") '
                     "and write data/worlds/<slug>/world.yaml + offsim/worlds/<slug>.yaml (if absent); fetch that world")
-    ap.add_argument("--modes", default=None, help="comma list of sea,road,bus,walk,air (default sea for --place); "
-                    "road/walk/bus/air imply --osm, bus implies --gtfs")
+    ap.add_argument("--modes", default=None, help="comma list of sea,road,bus,walk,air,rail (default sea for --place); "
+                    "road/walk/bus/air/rail imply --osm, bus implies --gtfs")
     ap.add_argument("--radius-km", type=float, default=None, help="half-width of the --place box in km (default: gazetteer / 15)")
     ap.add_argument("--gtfs", action="store_true", help="download Entur aggregated GTFS and clip it to the bbox -> <out>/gtfs")
     ap.add_argument("--gtfs-zip", metavar="FILE", help="use this local GTFS zip instead of downloading (implies --gtfs)")
