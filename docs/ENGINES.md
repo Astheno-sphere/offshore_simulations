@@ -8,9 +8,9 @@ the exact mapping they implement; anything not mapped raises `Unsupported`.
 
 | Name | Tool | Classes | Exact? | Runs | Notes |
 |---|---|---|---|---|---|
-| `pyvrp` | PyVRP 0.14 (HGS) | CVRP, VRPTW | heuristic | here | index traps handled in `pyvrp_adapter.py` |
-| `pyomo` | Pyomo + HiGHS | any MIP we write | exact (bound) | here | certifies heuristics on small instances |
-| `ampl` | AMPL academic + HiGHS/CBC | any `.mod` | exact (bound) | Actions, laptop | `.mod/.dat` live in the paper folder; Pyomo twin for cross-check |
+| `pyvrp` | PyVRP 0.14 (HGS) | CVRP, VRPTW | heuristic | here | index traps handled in `pyvrp_adapter.py`; VRPTW: `Problem.tw` + `service_s` -> `tw_early/tw_late/service_duration`, durations = `dist_m / speed_mps` rounded up (a PyVRP plan is feasible in the continuous replay); one fleet entry; refuses release times, a depot window, empty windows, windows without cls VRPTW |
+| `pyomo` | Pyomo + HiGHS | CVRP, VRPTW (exact, <= 12 clients) | exact (bound) | here | certifies heuristics on small instances (gate 1b); VRPTW = MTZ load + big-M time flow (`vrptw_exact`), continuous times so exact <= PyVRP objective; same refusals as `pyvrp` |
+| `ampl` | AMPL academic + HiGHS/CBC | CVRP (`cvrp.mod`), VRPTW (`vrptw.mod`) | exact (bound) | Actions, laptop | `write_dat` picks the model from `Problem.cls`; Pyomo twin for cross-check; `vrptw.mod` is text-checked only in the Claude workspace (no AMPL binary), its solve runs on Actions |
 | `whelp` | Pyomo + HiGHS (decomposition) | WFPPP | exact (Stage 1 bound) | here | weekly helicopter flight program, Gribkovskaia & Slettemark 2025; AMPL twin `solve/ampl/whelp.mod` |
 
 ## Engines (L2: Plan → SimResult)
@@ -166,6 +166,7 @@ the registered tools and names an unsupported class, a solver/engine that does n
 | Problem | `solver:` | `engine:` | Gate 2 |
 |---|---|---|---|
 | PSV supply / ferry / crew boat with a routing plan | `pyvrp` (`pyomo`/`ampl` to certify) | `replay`; `openclsim` for weather windows and the ensemble | simulated km = plan objective (1 %) |
+| Routing with time windows (VRPTW: windows per stop, service times, early arrival waits) | `pyvrp` (`pyomo` certifies up to 12 clients with `certify:`; `ampl` on Actions) | `replay` (state `wait`, events `tw_wait` / `tw_late`; `openclsim` has no windows); template `offsim/papers/_templates/vrptw/scenario.yaml` | same; the replay logs `tw_late` when service ENDS after `late`, the solvers require service to START by `late` (so with `service_s > 0` a feasible plan can still log `tw_late`) |
 | Land legs on roads (trucks, vans, workers) | `pyvrp` | `road` | same |
 | Wind O&M | `none` | `wombat` (needs hourly weather) | "engine dispatches itself" |
 | Wind installation | `none` | `orbit` (needs hourly weather) | "engine dispatches itself" |

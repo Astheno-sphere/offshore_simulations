@@ -1,4 +1,4 @@
-"""AMPL route solver (CVRP) behind the Solver protocol: Problem in, Plan out.
+"""AMPL route solver (CVRP and VRPTW) behind the Solver protocol: Problem in, Plan out.
 
 Runs where the AMPL binary and a solver module are installed and activated:
 - GitHub Actions: .github/workflows/solve.yml (secret AMPL_LICENSE_UUID)
@@ -33,7 +33,8 @@ import numpy as np
 from offsim.engines.base import Plan, Problem, Unsupported, register_solver
 
 MODEL = Path(__file__).resolve().parent / "ampl" / "cvrp.mod"
-CLASSES = {"CVRP"}
+MODEL_VRPTW = Path(__file__).resolve().parent / "ampl" / "vrptw.mod"      # VRPTW: parse-checked by text only in the Claude workspace
+CLASSES = {"CVRP", "VRPTW"}
 SOLVERS = ("highs", "cbc")
 HELP = ("AMPL is not usable here: amplpy could not start the AMPL binary or its solver module. "
         "Run the solve on GitHub Actions (.github/workflows/solve.yml, needs the secret AMPL_LICENSE_UUID) "
@@ -83,26 +84,43 @@ def route_distance(dist, routes, depot: int = 0) -> float:
 
 
 def check_plan(problem: Problem, routes: list[list[int]]) -> dict:
-    """Gate-1 style check outside the solver: every client once, loads within capacity, fleet size respected."""
+    """Gate-1 style check outside the solver: every client once, loads within capacity, fleet size respected.
+    For a VRPTW problem also `windows_ok`: every service starts by its window's close (replay semantics)."""
     fleet = problem.fleet[0]
     cap, veh = float(fleet["capacity"]), int(fleet["count"])
     clients = sorted(range(1, len(problem.nodes)))
     served = sorted(c for r in routes for c in r)
     loads = [sum(problem.demand[c] for c in r) for r in routes]
-    return {"served_once": served == clients,
-            "capacity_ok": all(load <= cap + 1e-9 for load in loads),
-            "fleet_ok": len(routes) <= veh,
-            "loads": loads, "capacity": cap, "vehicles_allowed": veh}
+    out = {"served_once": served == clients,
+           "capacity_ok": all(load <= cap + 1e-9 for load in loads),
+           "fleet_ok": len(routes) <= veh,
+           "loads": loads, "capacity": cap, "vehicles_allowed": veh}
+    if "VRPTW" in problem.cls:
+        from offsim.solve.pyvrp_adapter import windows_violations
+        bad = windows_violations(problem.dist_m, float(fleet["speed_mps"]), routes, problem.service_s, problem.tw)
+        out["windows_ok"] = not bad
+        out["window_violations"] = bad
+    return out
 
 
 def write_dat(problem: Problem, path) -> Path:
-    """Write the AMPL data file for cvrp.mod. Raises Unsupported for other classes, ValueError for bad data."""
+    """Write the AMPL data file for cvrp.mod (class CVRP) or vrptw.mod (class VRPTW: adds tt, svc, early, late).
+    Raises Unsupported for other classes and for VRPTW features the solvers do not map, ValueError for bad data."""
     if not set(problem.cls) <= CLASSES:
         raise Unsupported(f"AMPL adapter maps {sorted(CLASSES)} only; got {sorted(problem.cls)}")
     n = len(problem.nodes)
     D = np.asarray(problem.dist_m, dtype=float)
     if D.shape != (n, n):
         raise ValueError(f"dist_m shape {D.shape} does not match {n} nodes")
+    vrptw = "VRPTW" in problem.cls
+    tw = {}
+    if vrptw:
+        from offsim.solve.pyvrp_solver import check_vrptw_features
+        tw = check_vrptw_features(problem, "AMPL adapter")
+    elif problem.tw:
+        raise Unsupported("AMPL adapter: the problem has time windows but cls lacks 'VRPTW'; windows would be dropped")
+    if len(problem.fleet) != 1:
+        raise Unsupported(f"AMPL adapter: exactly one fleet entry supported, got {len(problem.fleet)}")
     fleet = problem.fleet[0]
     veh, cap = int(fleet["count"]), float(fleet["capacity"])
     if veh < 1:
@@ -129,6 +147,19 @@ def write_dat(problem: Problem, path) -> Path:
     for i in range(n):
         lines.append(f"{i} " + " ".join(num(D[i, j]) for j in range(n)))
     lines.append(";")
+    if vrptw:
+        speed = float(fleet["speed_mps"])
+        horizon = 1e7                                   # seconds: "no window" means open-ended
+        lines.append("param tt : " + " ".join(str(j) for j in range(n)) + " :=")
+        for i in range(n):
+            lines.append(f"{i} " + " ".join(num(D[i, j] / speed) for j in range(n)))
+        lines.append(";")
+        lines.append("param svc :=")
+        lines.append(" ".join(f"{c} {num((problem.service_s or {}).get(c, 0.0))}" for c in clients) + ";")
+        lines.append("param early :=")
+        lines.append(" ".join(f"{c} {num(tw.get(c, (0.0, horizon))[0])}" for c in clients) + ";")
+        lines.append("param late :=")
+        lines.append(" ".join(f"{c} {num(tw.get(c, (0.0, horizon))[1])}" for c in clients) + ";")
     path = Path(path)
     path.write_text("\n".join(lines) + "\n")
     return path
@@ -149,7 +180,11 @@ def problem_from_scenario(sc: dict) -> Problem:
     f = sc["fleet"][0]
     fleet = [{"cls": f["cls"], "count": int(v(f["count"])), "capacity": float(v(f["capacity"])),
               "speed_mps": float(v(f["speed_mps"])), "domain": f.get("domain", "sea")}]
-    return Problem(cls=classes, nodes=nodes, dist_m=matrix(nodes), demand=demand, fleet=fleet)
+    service, tw = {}, {}
+    if "VRPTW" in classes:                              # same extraction as offsim.pipeline.build_problem
+        service = {i: float(v(s.get("service_s", inst.get("service_s", 0))) or 0) for i, s in enumerate(stops, 1)}
+        tw = {i: tuple(v(s["tw"])) for i, s in enumerate(stops, 1) if s.get("tw")}
+    return Problem(cls=classes, nodes=nodes, dist_m=matrix(nodes), demand=demand, fleet=fleet, service_s=service, tw=tw)
 
 
 # --- AMPL: everything below imports amplpy lazily, so the module always imports ----------------------------
@@ -201,15 +236,17 @@ class AMPLSolver:
         if solver not in SOLVERS:
             raise ValueError(f"solver must be one of {SOLVERS}")
         self.model = Path(model or MODEL)
+        self._model_given = model is not None
         self.solver = solver
 
     def solve(self, problem: Problem, seconds: float = 2.0, seed: int = 1) -> Plan:
         if not set(problem.cls) <= CLASSES:
             raise Unsupported(f"AMPL adapter maps {sorted(CLASSES)} only; got {sorted(problem.cls)}")
+        model = self.model if self._model_given or "VRPTW" not in problem.cls else MODEL_VRPTW
         ampl = _start_ampl()
         with tempfile.TemporaryDirectory() as tmp:
             dat = write_dat(problem, Path(tmp) / "cvrp.dat")
-            ampl.read(str(self.model))
+            ampl.read(str(model))
             ampl.read_data(str(dat))
             ampl.set_option("solver", self.solver)
             if self.solver == "highs":
@@ -229,7 +266,7 @@ class AMPLSolver:
         routes = routes_from_arcs(arcs, depot=0)
         fleet = problem.fleet[0]
         check = check_plan(problem, routes)
-        if not (check["served_once"] and check["capacity_ok"] and check["fleet_ok"]):
+        if not (check["served_once"] and check["capacity_ok"] and check["fleet_ok"] and check.get("windows_ok", True)):
             raise RuntimeError(f"AMPL plan fails the plan check: {check}")
         recomputed = route_distance(problem.dist_m, routes)
         if abs(recomputed - objective) > 1e-3 * max(1.0, objective):
@@ -242,7 +279,7 @@ class AMPLSolver:
                     solver=f"ampl/{self.solver}", bound=objective if proven else None,
                     status="optimal" if proven else "time_limit",
                     meta={"solve_result": result, "wall_s": round(wall, 3), "seconds_limit": float(seconds),
-                          "seed": int(seed), "model": self.model.name, "plan_check": check})
+                          "seed": int(seed), "model": model.name, "plan_check": check})
 
 
 def solve(problem: Problem, seconds: float = 2.0, seed: int = 1, model=None, solver: str = "highs") -> Plan:
@@ -260,12 +297,12 @@ def main(argv=None) -> int:
     from offsim.pipeline import provenance_gaps
 
     ap = argparse.ArgumentParser(prog="python -m offsim.solve.ampl_adapter", description=__doc__.split("\n")[0])
-    ap.add_argument("--scenario", required=True, help="path to scenario.yaml (class CVRP)")
+    ap.add_argument("--scenario", required=True, help="path to scenario.yaml (class CVRP or VRPTW)")
     ap.add_argument("--out", default="out/solve", help="directory for plan.json")
     ap.add_argument("--solver", default="highs", choices=SOLVERS)
     ap.add_argument("--seconds", type=float, default=60.0)
     ap.add_argument("--seed", type=int, default=1)
-    ap.add_argument("--model", default=None, help="AMPL model (default: offsim/solve/ampl/cvrp.mod)")
+    ap.add_argument("--model", default=None, help="AMPL model (default: ampl/cvrp.mod, ampl/vrptw.mod for VRPTW)")
     ap.add_argument("--great-circle", action="store_true",
                     help="allow a scenario with a world, using great-circle distances (no sea lanes)")
     a = ap.parse_args(argv)
@@ -292,7 +329,7 @@ def main(argv=None) -> int:
         return 3
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    model_path = Path(a.model) if a.model else MODEL
+    model_path = Path(a.model) if a.model else (MODEL_VRPTW if "VRPTW" in problem.cls else MODEL)
     record = {"paper": sc["paper"]["id"], "scenario_sha256": _sha256(scenario), "model_sha256": _sha256(model_path),
               "solver": plan.solver, "status": plan.status, "objective_m": plan.objective,
               "bound_m": plan.bound, "routes": plan.routes,

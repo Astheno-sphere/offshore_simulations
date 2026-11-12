@@ -1,0 +1,59 @@
+# TEMPLATE: routing with time windows (VRPTW): vessels (or trucks) serve stops, each with a window [earliest, latest] in
+# seconds after the fleet leaves the base at t = 0. Copy to offsim/papers/<id>/scenario.yaml (paper-extract skill).
+# Every value: {value, src: page/table/eq} or {value, assumption: true, why}. Coordinates, demand, windows and fleet below
+# are PLACEHOLDERS (all assumptions) near Moss; replace each with the paper's values and a src before reporting anything.
+#
+# Semantics (offsim/solve/pyvrp_solver.py, offsim/sim/replay.py): a vehicle that arrives before `tw[0]` WAITS (trajectory
+# state `wait`, event `tw_wait`); service must START by `tw[1]`. Service lasts `service_s`. The objective is still total
+# distance. No window on the base; no release times; one fleet entry (all of these raise Unsupported, never approximated).
+# Replay note: the replay logs a `tw_late` event when service ENDS after `tw[1]`; the solvers use the standard rule
+# (service STARTS by `tw[1]`), so with service_s > 0 a plan that is feasible can still log `tw_late` (docs/ENGINES.md).
+#
+# World: `world: none` runs on great-circle legs in open sea (tests, quick checks). For a real run use a sea-lane world
+# (`world: oslofjord`, pulled with `python -m offsim.worlds.fetch_world --pull oslofjord`) and add the `sim:` lane block
+# from papers/demo-oslofjord-supply/scenario.yaml. Vessels route on lanes, never across land (CLAUDE.md).
+paper:
+  id: author-year-vrptw              # folder name
+  title: ""
+  authors: []
+  year: null
+  doi: ""
+  licence: ""
+problem:
+  class: [VRPTW]
+  objective: total distance sailed, every stop served inside its time window
+  constraints:
+    - {name: capacity, formula_or_text: "sum of demand on a route <= vessel capacity", assumption: true, why: "placeholder"}
+    - {name: time_window, formula_or_text: "service at stop i starts within [early_i, late_i]; early arrival waits", assumption: true, why: "placeholder"}
+  solver: pyvrp
+solver: pyvrp                        # registry name (offsim.engines.base): pyvrp (default) | pyomo | ampl | none
+engine: replay                       # registry name: replay (sea, honours windows) | road (land) ; openclsim has no time windows
+world: none                          # see the header
+fleet:
+  - cls: psv
+    count: {value: 2, assumption: true, why: "placeholder fleet"}
+    capacity: {value: 12, unit: deck slots, assumption: true, why: "placeholder"}
+    speed_mps: {value: 5.66, assumption: true, why: "11 knots service speed, typical PSV, placeholder"}
+    domain: sea
+instance:
+  source: "synthetic placeholder (said on screen)"
+  service_s: {value: 1800, assumption: true, why: "30 min alongside per stop, placeholder"}
+  base: {name: Base, lon: 10.6540, lat: 59.4330, assumption: true, why: "placeholder quay near Moss"}
+  stops:                             # tw: {value: [earliest_s, latest_s]}: seconds after departure at t = 0
+    - {name: S1, kind: platform, lon: 10.5700, lat: 59.2400, demand: {value: 3, assumption: true}, tw: {value: [0, 36000], assumption: true, why: "placeholder: open"}, assumption: true}
+    - {name: S2, kind: wind_turbine, lon: 10.6200, lat: 59.1500, demand: {value: 4, assumption: true}, tw: {value: [14400, 21600], assumption: true, why: "placeholder: opens after 4 h"}, assumption: true}
+    - {name: S3, kind: platform, lon: 10.5300, lat: 59.1700, demand: {value: 2, assumption: true}, tw: {value: [0, 9000], assumption: true, why: "placeholder: must be served early"}, assumption: true}
+    - {name: S4, kind: wind_turbine, lon: 10.6600, lat: 59.2200, demand: {value: 5, assumption: true}, tw: {value: [7200, 18000], assumption: true, why: "placeholder"}, assumption: true}
+    - {name: S5, kind: platform, lon: 10.5900, lat: 59.3300, demand: {value: 3, assumption: true}, tw: {value: [0, 5400], assumption: true, why: "placeholder: close to the base, early"}, assumption: true}
+# certify:                           # gate 1b (opt-in): heuristic objective vs an exact VRPTW solve (pyomo; ampl on Actions/laptop)
+#   max_clients: 12                  # more clients: the gate is recorded as skipped
+#   gap_tol: {value: 0.02, assumption: true, why: "2 % optimality gap"}
+#   solver: pyomo                    # or ampl (where AMPL is activated; offsim/solve/ampl/vrptw.mod)
+# ensemble:                          # gate 3e (opt-in): seeds x weather years through the chosen engine -> report.ensemble
+#   seeds: 5
+#   weather: {synthetic: {n: 2, hours: 72}}     # tests only (not reportable); real: {dir: data/worlds/<w>/metocean, point: [lon, lat], years: [y0, y1], season: DJF}
+reported: {}
+story:
+  question: "how far do two vessels sail to serve five stops inside their time windows?"
+  accent: optimised plan
+  comparison: ""

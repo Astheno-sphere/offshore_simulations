@@ -91,7 +91,7 @@ def test_write_dat_refuses_demand_above_capacity(tmp_path):
 
 def test_write_dat_refuses_other_classes(tmp_path):
     p = problem()
-    p.cls = {"VRPTW"}
+    p.cls = {"PSV-PDP"}          # why: M1 maps VRPTW (tests/test_vrptw.py); another class stays refused
     with pytest.raises(Unsupported):
         A.write_dat(p, tmp_path / "x.dat")
 
