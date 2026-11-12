@@ -177,6 +177,7 @@ def test_floro_decomposition_equals_the_flight_based_model():
     assert dec.objective == pytest.approx(full.objective, rel=1e-6)
 
 
+@SLOW
 def test_stavanger_structure_two_helicopters_16_and_12():
     p = W.problem_for("stavanger")
     t0 = time.perf_counter()
