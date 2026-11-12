@@ -11,6 +11,8 @@ Each source function takes (query, since, fetch=None) and returns a list of pape
 - since: "YYYY-MM-DD" publication-date floor. Applied in the API request where the API supports it, and
   again client-side for every source.
 - fetch: optional callable url -> bytes. Tests pass a fake; production uses urllib (see _get).
+  Every fetch is wrapped by _retry_429: HTTP 429 is retried with backoff honouring a short
+  Retry-After; a long Retry-After (> 60 s) fails at once and run.py marks the source degraded.
 - OFFSIM_MAILTO (env, optional): sent as `mailto` to OpenAlex and Crossref (polite pools).
 
 Field-name status: OpenAlex, Crossref and arXiv are written from their public API documentation shapes and are
@@ -22,6 +24,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -36,6 +39,59 @@ def _get(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
     with urllib.request.urlopen(req, timeout=60) as r:
         return r.read()
+
+
+# Rate-limit handling. OpenAlex answers 429 with a Retry-After that can be hours
+# (verified 2026-11-12: Retry-After 21596, X-RateLimit-Remaining 0, identical with
+# and without the OFFSIM_MAILTO polite pool — the shared egress IP's credit budget
+# is exhausted, so mailto does not help here). Honour a short Retry-After, but
+# never stall a run waiting out a reset that is far away: above the cap the call
+# fails at once and run.py marks the source degraded instead of retrying.
+_RETRY_AFTER_CAP_S = 60
+_RETRY_ATTEMPTS = 2  # retries after the first attempt
+_BACKOFF_BASE_S = 1.0
+
+
+def is_rate_limited(exc) -> bool:
+    """True for HTTP 429 (urllib raises HTTPError with .code == 429)."""
+    return getattr(exc, "code", None) == 429
+
+
+def retry_after_s(exc) -> int | None:
+    """Seconds from a 429's Retry-After header, or None when absent/unparseable."""
+    headers = getattr(exc, "headers", None)
+    if headers is None:
+        return None
+    try:
+        return int(str(headers.get("Retry-After")).strip())
+    except (TypeError, ValueError, AttributeError):
+        return None
+
+
+def _retry_429(fetch, sleep=None):
+    """Wrap a url -> bytes fetch: retry 429s, honouring Retry-After with backoff.
+
+    Short Retry-After (<= cap): sleep it and retry. Long Retry-After (> cap):
+    fail at once — the quota will not reset inside this run. No Retry-After:
+    exponential backoff 1 s, 2 s. At most _RETRY_ATTEMPTS retries.
+    `sleep` defaults to time.sleep (resolved at call time so tests can stub it).
+    """
+    sleep = time.sleep if sleep is None else sleep
+    def wrapped(url):
+        delay = _BACKOFF_BASE_S
+        for attempt in range(_RETRY_ATTEMPTS + 1):
+            try:
+                return fetch(url)
+            except Exception as exc:
+                if not is_rate_limited(exc) or attempt == _RETRY_ATTEMPTS:
+                    raise
+                wait = retry_after_s(exc)
+                if wait is not None and wait > _RETRY_AFTER_CAP_S:
+                    raise
+                sleep(max(0, wait) if wait is not None else delay)
+                delay *= 2
+        raise AssertionError("unreachable")
+    return wrapped
 
 
 def _now() -> str:
@@ -111,7 +167,7 @@ def openalex(query: str, since: str, per_page: int = 50, fetch=None) -> list[dic
     Abstract: abstract_inverted_index is rebuilt into text. Open-access link: open_access.oa_url, then
     best_oa_location.landing_page_url.
     """
-    fetch = fetch or _get
+    fetch = _retry_429(fetch or _get)
     name = _author(query)
     term = (f"authorships.author.display_name.search:{name}" if name
             else f"title_and_abstract.search:{query}")
@@ -141,7 +197,7 @@ def crossref(query: str, since: str, rows: int = 50, fetch=None) -> list[dict]:
     query.bibliographic=<query> or query.author=<surname>; filter from-pub-date:<since>.
     JATS markup in abstracts is stripped. Crossref does not state open access, so oa_url is None here.
     """
-    fetch = fetch or _get
+    fetch = _retry_429(fetch or _get)
     name = _author(query)
     params = {"filter": f"from-pub-date:{since}", "rows": rows}
     params["query.author" if name else "query.bibliographic"] = name or query
@@ -170,7 +226,7 @@ def arxiv(query: str, since: str, max_results: int = 50, fetch=None) -> list[dic
     Entry id 'http://arxiv.org/abs/2301.01234v1' gives 'arXiv:2301.01234' (version removed). A journal DOI
     from arxiv:doi overrides it as the canonical id. Entries whose id is not an abs URL (API errors) are skipped.
     """
-    fetch = fetch or _get
+    fetch = _retry_429(fetch or _get)
     name = _author(query)
     sq = f"au:{name}" if name else " AND ".join(f"all:{w}" for w in query.split())
     url = "https://export.arxiv.org/api/query?" + urllib.parse.urlencode({
@@ -205,7 +261,7 @@ def nva(query: str, since: str | None = None, results: int = 50, fetch=None) -> 
     empty value and a hit without a title is skipped. Plain text only (no author: prefix); the surname is
     sent as the query. oa_url is None.
     """
-    fetch = fetch or _get
+    fetch = _retry_429(fetch or _get)
     url = "https://api.nva.unit.no/search/resources?" + urllib.parse.urlencode(
         {"query": query, "results": results})
     data = json.loads(fetch(url))
