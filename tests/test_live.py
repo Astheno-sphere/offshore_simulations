@@ -128,6 +128,17 @@ def test_overpass_zero_ways_is_not_ok():
     assert r["ok"] is False
 
 
+def test_overpass_retries_once_on_gateway_error(monkeypatch):
+    # why: the probe retries once on 502/503 (Overpass 502s a good query when its
+    # queue is full and answers the same query minutes later); the test must
+    # prove the retry, not wait for it.
+    monkeypatch.setattr(P, "OVERPASS_RETRY_S", 0)
+    answers = [Resp(502, {}, b""), OVERPASS_OK]
+    f = fake(lambda u, m: answers.pop(0))
+    r = P.probe_overpass(fetch=f, env={})
+    assert r["ok"] is True and len(f.calls) == 2
+
+
 def test_sodir_lists_layers():
     r = P.probe_sodir(fetch=fake(only("FeatureServer", SODIR_OK)))
     assert r["ok"] is True and "layers" in r["schema"] and "1 layers" in r["detail"]
