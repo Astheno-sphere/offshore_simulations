@@ -4,7 +4,8 @@
     train(n_cars=4)       Stadler FLIRT regional EMU (Norske tog class 76 dimensions), pantograph with pivot
     person(stature_m, pose, phase, hard_hat, survival_suit)  anthropometric figure, Winter/Drillis-Contini ratios
     tree(species, seed, height_m, crown_width_m, lod)        deterministic recursive-branching tree
-    building(footprint, height_m, roof, lod)                 extrusion of a real footprint (+ buildings_from_geojson)
+    building(footprint, height_m, roof, lod)                 extrusion of a real footprint (+ buildings_from_geojson);
+                                                              default footprint is Molde Mølle, OSM way 1355114723
 
 Axes: x forward, y left, z up, metres, origin on the ground at the plan centre (see base.py).  Everything is built
 from OpenCASCADE primitives, booleans on single parts only; the whole-object `shape` is a Compound of the parts
@@ -28,6 +29,9 @@ SOURCES (also repeated in each dims entry):
       Scots pine "to 25 m" (https://www.rhs.org.uk/plants/13141/i-Pinus-sylvestris-i/Details);
       silver birch "up to 24 m" (https://www.forestryandland.gov.scot/learn/trees/silver-birch).
   Building floors: OSM building:levels x 3.0 m = offsim.worlds.osm.LEVEL_HEIGHT_M (an assumption, flagged).
+  Default building (Molde Mølle, Molde): OSM way 1355114723, height=19, building:levels=5, building=office
+      (Overpass 2026-11-12; © OpenStreetMap contributors, ODbL 1.0); footprint 17.88 x 12.76 m minimum rotated
+      rectangle, area 221.8 m2 (UTM 32N).
 """
 from __future__ import annotations
 
@@ -559,8 +563,10 @@ def build_person(stature_m: float = 1.75, pose: str = "standing", phase: float =
 
 # ================================================================================================== TREE
 SPECIES = {
-    # height, crown_w/H, slenderness H/dbh, crown base fraction  (defaults are assumptions inside the cited ranges)
-    "spruce": dict(h=25.0, cw=0.28, slender=60.0, base=0.10),
+    # height, crown_w/H, slenderness H/dbh, crown base fraction. The spruce default (30 m, crown 8.4 m) is the LOW END
+    # of the cited mature range (30-46 m, spread 7.6-13.7 m), so it is sourced, not assumed; pine/birch defaults sit
+    # inside a cited maximum only ("to 25 m" / "up to 24 m") with no cited spread, so they stay assumptions.
+    "spruce": dict(h=30.0, cw=0.28, slender=60.0, base=0.10),
     "pine": dict(h=22.0, cw=0.30, slender=55.0, base=0.50),
     "birch": dict(h=16.0, cw=0.40, slender=70.0, base=0.25),
 }
@@ -733,8 +739,21 @@ def build_tree(species: str = "spruce", seed: int = 0, height_m: float | None = 
     if twigs:
         parts["twigs"] = _comp([c for c in twigs if c is not None])
     shape = _comp(*parts.values())
-    dims = {"height_m": _src(H, f"caller parameter / species default; typical range: {TREE_SRC}") if height_m else _asm(H, f"species default inside cited range: {TREE_SRC}"),
-            "crown_width_m": _src(W, "caller parameter") if crown_width_m else _asm(W, f"default {sp['cw']:.2f} x height; spruce spread/height ~0.25-0.30 (dimensions.com 7.6-13.7 m for 30-46 m)"),
+    if height_m is not None:
+        h_dim = _src(H, "caller parameter")
+    elif species == "spruce":
+        h_dim = _src(H, "default = low end of the cited mature range 30-46 m: " + TREE_SRC)
+    else:
+        h_dim = _asm(H, f"species default inside cited range: {TREE_SRC}")
+    if crown_width_m is not None:
+        crown = _src(W, "caller parameter")
+    elif species == "spruce":
+        crown = _src(W, "default 0.28 x height = 8.4 m, inside the cited spread 7.6-13.7 m: " + TREE_SRC)
+    else:
+        crown = _asm(W, f"default {sp['cw']:.2f} x height; spruce spread/height ~0.25-0.30 (dimensions.com 7.6-13.7 m for 30-46 m)")
+    dims = {"height_m": h_dim,
+            "crown_width_m": crown,
+            "crown_diameter_m": dict(crown),  # same physical quantity under the registry's required-dim name
             "dbh_m": _asm(H / sp["slender"], "slenderness ratio H/DBH assumed per species")}
     meta = {"class": "tree", "licence": LICENCE, "generator": GEN, "lod": lod, "species": species, "seed": seed,
             "n_primary_branches": len(prim), "n_segments": len(segs), "crown_base_m": zb,
@@ -744,6 +763,20 @@ def build_tree(species: str = "spruce", seed: int = 0, height_m: float | None = 
 
 # ============================================================================================== BUILDING
 FLOOR_H = 3.0                    # offsim.worlds.osm.LEVEL_HEIGHT_M (assumption)
+
+# Default building: Molde Mølle, Molde — a real OSM footprint with a height tag, so the default asset's principal
+# dims are sourced, not assumed. Footprint corners (lon/lat, closed ring implied) and height=19 / building:levels=5
+# read from OSM way 1355114723 (Overpass 2026-11-12; © OpenStreetMap contributors, ODbL 1.0). Projected to local
+# metres by build_building (azimuthal equidistant about the footprint centroid); length/width are the projected
+# footprint bounds, so they measure exactly what the solid is.
+_MOLDE_MOLLE = {
+    "way": 1355114723, "name": "Molde Mølle",
+    "footprint_lonlat": [(7.182409, 62.736456), (7.182733, 62.736514), (7.182828, 62.736412),
+                         (7.182513, 62.736352), (7.182492, 62.736372)],
+    "height_m": 19.0, "levels": 5,
+}
+_MOLDE_MOLLE_SRC = (f"OSM way {_MOLDE_MOLLE['way']} ({_MOLDE_MOLLE['name']}, Molde; "
+                    "© OpenStreetMap contributors, ODbL 1.0)")
 
 
 @functools.lru_cache(maxsize=8)
@@ -874,10 +907,12 @@ def build_building(footprint=None, height_m: float | None = None, roof: str = "f
                    origin=None, levels: float | None = None, pitch_deg: float = 30.0, max_windows: int = 100, **_):
     """Extruded real footprint. footprint: shapely Polygon / coordinate list / GeoJSON geometry; crs 'metres' or 'lonlat'.
     height_m = total height to the top (OSM `height`); gable roofs take their rise out of it. Origin of the model = the
-    footprint centroid (returned in meta['origin']) unless `origin` is given (same crs as the footprint)."""
-    assumed_fp = footprint is None
-    if footprint is None:
-        footprint = [(-6, -4.5), (6, -4.5), (6, 4.5), (-6, 4.5)]
+    footprint centroid (returned in meta['origin']) unless `origin` is given (same crs as the footprint). No footprint
+    given: the default is Molde Mølle (OSM way 1355114723, height 19 m) — see _MOLDE_MOLLE."""
+    default_fp = footprint is None
+    if default_fp:
+        footprint = _MOLDE_MOLLE["footprint_lonlat"]
+        crs = "lonlat"
     poly = _as_polygon(footprint)
     if poly.geom_type == "MultiPolygon":
         poly = max(poly.geoms, key=lambda g: g.area)
@@ -891,19 +926,30 @@ def build_building(footprint=None, height_m: float | None = None, roof: str = "f
         poly = affinity.translate(poly, -o[0], -o[1])
         origin_out = {"metres": tuple(o)}
     poly = _clean_poly(poly)
-    h_assumed = height_m is None
+    h_given = height_m is not None
     if height_m is None:
-        height_m = (levels * FLOOR_H) if levels else 9.0
+        height_m = (levels * FLOOR_H) if levels else (_MOLDE_MOLLE["height_m"] if default_fp else 9.0)
     parts, info = _build_one(poly, float(height_m), roof, lod, pitch_deg, max_windows)
     shape = _comp(*parts.values())
-    dims = {"height_m": _asm(height_m, "default / levels x 3.0 m") if h_assumed else _src(height_m, "caller (OSM height_m / paper)"),
-            "footprint_area_m2": _src(poly.area, "footprint polygon (projected to local metres)" if not assumed_fp else "default 12 x 9 m"),
+    # length/width are the projected footprint bounds, so they measure exactly what the solid is (walls and roof are
+    # extrusions of the same polygon; window recesses never extend the bbox)
+    L = poly.bounds[2] - poly.bounds[0]
+    W = poly.bounds[3] - poly.bounds[1]
+    lw_src = (_MOLDE_MOLLE_SRC + " footprint, projected to local metres" if default_fp
+              else "caller footprint polygon (projected to local metres)")
+    if default_fp and not h_given and levels is None:
+        h_dim = _src(height_m, _MOLDE_MOLLE_SRC + f" height={height_m:g} tag")
+    elif h_given:
+        h_dim = _src(height_m, "caller (OSM height_m / paper)")
+    else:
+        h_dim = _asm(height_m, "default / levels x 3.0 m")
+    dims = {"length_m": _src(L, lw_src), "width_m": _src(W, lw_src), "height_m": h_dim,
+            "footprint_area_m2": _src(poly.area, lw_src),
             "floors": _asm(info["floors"], f"round(wall height / {FLOOR_H} m): offsim.worlds.osm.LEVEL_HEIGHT_M")}
-    if assumed_fp:
-        dims["footprint_area_m2"] = _asm(poly.area, "default 12 x 9 m rectangle, no footprint given")
     meta = {"class": "building", "licence": LICENCE, "generator": GEN, "lod": lod, "roof": roof, "origin": origin_out,
             "footprint_area_m2": poly.area, **info,
-            "notes": "floor lines and windows are shallow recesses (lod>=2), glass panes lod 3; floors are an assumption"}
+            "notes": ("default footprint is Molde Mølle (OSM way 1355114723); " if default_fp else "")
+                     + "floor lines and windows are shallow recesses (lod>=2), glass panes lod 3; floors are an assumption"}
     return AssetModel(shape=shape, parts=parts, dims=dims, meta=meta)
 
 
