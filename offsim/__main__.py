@@ -17,7 +17,10 @@ Data
 Research
     python -m offsim feed [--queries Q --out O --since D]                # literature feed -> papers/feed.jsonl
     python -m offsim tag [--feed F --out O]                              # rule-tag the feed -> papers/tags.jsonl
-    python -m offsim gaps [--tags T --out O --min-support N]             # gap table and gap list
+    python -m offsim gaps [--tags T --out O --min-support N]             # gap table and ranked gap list
+    python -m offsim gap list [--top N] [--all]                          # ranked gaps on the terminal
+    python -m offsim gap review <gap_id> --verdict take|drop|later --note "..."   # human verdict -> papers/review.yaml
+    python -m offsim gap draft <gap_id>                                  # experiment.yaml skeleton (nulls + assumptions)
 Publish
     python -m offsim article <paper_id|report.json> [--template linkedin|thought|readme_entry] [--out FILE] [--figure PNG ...]
                                                                          # report refs -> markdown article (every number a ref)
@@ -75,6 +78,11 @@ def _gaps(args):
     return main(args)
 
 
+def _gap(args):
+    from offsim.research.review import main
+    return main(args)
+
+
 def _entur(args):
     from offsim.transit.entur import main
     return main(args)
@@ -110,6 +118,9 @@ PASSTHROUGH = {
     "entur": (_entur, "Entur realtime: collect | departures"),
     "catalog": (_catalog, "search the tool catalog (tools/catalog_build.py --find X)"),
 }
+
+# Subcommand group `gap` (list | review | draft); dispatched before argparse like PASSTHROUGH.
+GAP = {"gap": (_gap, "ranked gaps: list, review (human verdict), draft (experiment skeleton)")}
 
 # Optional modules owned by other packages: dispatched like PASSTHROUGH, but absent modules give exit 2 and a message.
 LAZY = {
@@ -155,7 +166,7 @@ def build_parser():
     t = sub.add_parser("timetable", help="timetable.yaml from a paper -> GTFS folder")
     t.add_argument("timetable")
     t.add_argument("--out", metavar="DIR", required=True)
-    for name, (_, text) in {**PASSTHROUGH, **LAZY}.items():
+    for name, (_, text) in {**PASSTHROUGH, **LAZY, **GAP}.items():
         sub.add_parser(name, help=text, add_help=False)
     sub.add_parser("status", help="board of all papers: stage, blockers, next action, stale data branches")
     nx = sub.add_parser("next", help="the next command for one paper, and why")
@@ -234,6 +245,8 @@ def main(argv=None):
         return PASSTHROUGH[argv[0]][0](argv[1:])
     if argv and argv[0] in LAZY:
         return LAZY[argv[0]][0](argv[1:])
+    if argv and argv[0] in GAP:
+        return GAP[argv[0]][0](argv[1:])
     a = build_parser().parse_args(argv)
     if a.cmd == "run":
         from offsim.pipeline import run

@@ -14,6 +14,8 @@ Rules match regular expressions against title + abstract (case-insensitive):
 - method: exact | heuristic | simulation | hybrid (two or more families, or "matheuristic"); None when unknown.
 - code / data: first github/gitlab/bitbucket URL in the text is code. A zenodo/figshare/dryad/osf link is code when
   "code|software|implementation|algorithm" appears within 80 characters before it, otherwise data.
+- code_statement: "unavailable" when the text says code or data is not available / on request / proprietary; None
+  otherwise (silence is not evidence). The gap finder needs this before it can call a cell "no-code".
 - kpis: engine-vocabulary KPI names (makespan_s, wait_s, weather_wait_s, distance_km, fuel_t, co2_t, availability,
   install_days, service_level, cost) that the text mentions.
 - confidence: 0 with no class; otherwise 0.3 + 0.1 per filled field (second class hit, mode, region, method,
@@ -88,6 +90,16 @@ METHOD_RULES = {
     "simulation": [r"simulat(?!ed annealing)", r"discrete[- ]event", r"agent[- ]based", r"monte carlo"],
 }
 
+# An abstract that says the code or data is not available is evidence about availability; silence is not.
+# Used only as evidence for a no-code gap (offsim/research/gaps.py): a record with neither a link nor such a
+# statement says nothing about code, so it cannot support "no code" (abstracts rarely mention code at all).
+UNAVAILABLE = [
+    r"(?:code|data|software|implementation|dataset)s?\b[^.;]{0,60}\b(?:is |are )?(?:not|never|no longer) "
+    r"(?:publicly |openly )?(?:available|released|shared|published)",
+    r"(?:available|shared|provided|released)\s+(?:up)?on\s+request",
+    r"(?:proprietary|confidential|commercially sensitive) (?:data|dataset|information|model)",
+]
+
 CODE_LINK = re.compile(r"https?://(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)/[\w.\-]+/[\w.\-]+", re.I)
 ARCHIVE_LINK = re.compile(r"https?://(?:www\.)?(?:zenodo\.org|figshare\.com|datadryad\.org|osf\.io)/[^\s)\]>\"']*"
                           r"|10\.5281/zenodo\.\d+", re.I)
@@ -152,6 +164,11 @@ def _code_and_data(text: str) -> tuple[str | None, str | None]:
     return code, data
 
 
+def _code_statement(text: str) -> str | None:
+    """'unavailable' when the record says its code or data cannot be had; None when it says nothing either way."""
+    return "unavailable" if _hits(text, UNAVAILABLE) else None
+
+
 def tag(record: dict) -> dict:
     """Rule tags for one feed record. Pure function: same record, same tags."""
     text = f"{record.get('title', '')} {record.get('abstract', '')}"
@@ -163,6 +180,7 @@ def tag(record: dict) -> dict:
     method = _method(plain)
     code, data = _code_and_data(text)
     kpis = [k for k, pats in KPI_RULES.items() if _hits(plain, pats)]
+    code_statement = _code_statement(plain)
     if not classes:
         confidence = 0.0
     else:
@@ -171,8 +189,8 @@ def tag(record: dict) -> dict:
         confidence = round(min(0.9, 0.3 + 0.1 * filled), 2)
     return {
         "paper_id": record["id"], "classes": classes, "mode": modes, "region": regions,
-        "uncertainty": uncertainty, "method": method, "code": code, "data": data, "kpis": kpis,
-        "tagged_by": "rule", "confidence": confidence,
+        "uncertainty": uncertainty, "method": method, "code": code, "data": data, "code_statement": code_statement,
+        "kpis": kpis, "tagged_by": "rule", "confidence": confidence,
     }
 
 

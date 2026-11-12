@@ -227,9 +227,10 @@ def test_tagger_edge_cases():
 
 # ---------- gaps ----------
 
-def _tag(pid, classes, mode, region, unc, code=None, data=None):
+def _tag(pid, classes, mode, region, unc, code=None, data=None, statement=None):
     return {"paper_id": pid, "classes": classes, "mode": mode, "region": region, "uncertainty": unc,
-            "code": code, "data": data, "method": "heuristic", "kpis": [], "tagged_by": "rule", "confidence": 0.5}
+            "code": code, "data": data, "code_statement": statement, "method": "heuristic", "kpis": [],
+            "tagged_by": "rule", "confidence": 0.5}
 
 
 def test_no_norway_gap_on_constructed_set():
@@ -255,8 +256,9 @@ def test_norway_present_closes_no_norway_gap_and_deterministic_wind_om_is_flagge
     tags = [
         _tag("a", ["PSV-PDP"], ["psv"], ["NCS"], "weather", code="https://github.com/x/y"),
         _tag("b", ["PSV-PDP"], ["psv"], ["UK"], "demand", code="https://github.com/x/z"),
-        _tag("e", ["WIND-OM"], ["ctv"], ["Baltic"], "none"),
-        _tag("f", ["WIND-OM"], ["ctv"], ["Baltic"], "none"),
+        # why: no-code now needs the record to state its code/data availability; silent abstracts prove nothing
+        _tag("e", ["WIND-OM"], ["ctv"], ["Baltic"], "none", statement="unavailable"),
+        _tag("f", ["WIND-OM"], ["ctv"], ["Baltic"], "none", statement="unavailable"),
     ]
     kinds = {(g["kind"], g["class"]) for g in G.find_gaps(tags)}
     assert ("no-norway", "PSV-PDP") not in kinds
