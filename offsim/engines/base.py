@@ -41,6 +41,7 @@ class Problem:
     service_s: dict[int, float] = field(default_factory=dict)
     tw: dict[int, tuple[float, float]] = field(default_factory=dict)
     extra: dict = field(default_factory=dict)   # class-specific data (e.g. PSV departure days, turbine list)
+    pairs: dict[int, int] = field(default_factory=dict)  # PDP: {pickup node: delivery node}; demand[delivery] = +q, demand[pickup] = -q
 
 
 @dataclass
@@ -124,6 +125,7 @@ def register_engine(name: str):
 
 # module that registers each name; imported lazily so a missing optional dependency only breaks its own tool
 SOLVER_MODULES = {"pyvrp": "offsim.solve.pyvrp_solver", "pyomo": "offsim.solve.pyomo_solver",
+                  "ortools": "offsim.solve.ortools_solver",
                   "ampl": "offsim.solve.ampl_adapter", "whelp": "offsim.solve.whelp"}
 ENGINE_MODULES = {"replay": "offsim.engines.replay_engine", "openclsim": "offsim.engines.openclsim_adapter",
                   "wombat": "offsim.engines.wombat_adapter", "orbit": "offsim.engines.orbit_adapter",

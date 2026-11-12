@@ -45,10 +45,11 @@ def test_unsourced_values_and_unsupported_classes_stop_at_gate_0(tmp_path):
     _, sc = scenario(tmp_path)
     sc["fleet"][0]["capacity"] = {"value": 12}                       # no src, no assumption
     assert "fleet[0].capacity" in provenance_gaps(sc)
-    p, _ = scenario(tmp_path, problem={**sc["problem"], "class": ["PDP", "synchronisation"]})
+    # why: A1: ortools covers PDP now, so PSV-PDP (no tool) is the unsupported example
+    p, _ = scenario(tmp_path, problem={**sc["problem"], "class": ["PSV-PDP", "synchronisation"]})
     rep = run(p, tmp_path / "d", seconds=1)
     assert rep["status"] == "stopped at gate 0_provenance"
-    assert rep["gates"]["0_provenance"]["detail"]["unsupported_classes"] == ["PDP", "synchronisation"]
+    assert rep["gates"]["0_provenance"]["detail"]["unsupported_classes"] == ["PSV-PDP", "synchronisation"]
 
 
 def test_storyboard_refuses_literals_and_failed_runs():

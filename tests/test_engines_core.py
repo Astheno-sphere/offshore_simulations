@@ -26,7 +26,8 @@ def test_registry_lists_every_tool_we_ship():
     assert av["solvers"]["pyvrp"] == "ok" and av["solvers"]["pyomo"] == "ok"
     assert av["engines"]["replay"] == "ok" and av["engines"]["openclsim"] == "ok"
     assert set(av["engines"]) == {"replay", "openclsim", "wombat", "orbit", "road", "gtfs", "air"}    # unbuilt ones report an error string
-    assert set(av["solvers"]) == {"pyvrp", "pyomo", "ampl", "whelp"}
+    assert set(av["solvers"]) == {"pyvrp", "pyomo", "ortools", "ampl", "whelp"}      # why: A1 registers the ortools solver
+    assert av["solvers"]["ortools"] == "ok" and get_solver("ortools").classes == {"CVRP", "VRPTW", "PDP"}
     for name, cls in (("pyvrp", {"CVRP", "VRPTW"}), ("pyomo", {"CVRP", "VRPTW"})):      # why: M1 registers VRPTW
         assert get_solver(name).classes == cls and get_solver(name).name == name
     assert get_engine("replay").needs_weather is False and get_engine("openclsim").needs_weather is False

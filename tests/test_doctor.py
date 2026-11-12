@@ -100,7 +100,8 @@ def test_real_runs_get_codes_on_the_failing_gate(tmp_path):
     sc_unsourced["fleet"][0]["capacity"] = {"value": 12}
     r = real(tmp_path, "src", fleet=sc_unsourced["fleet"])
     assert r["gates"]["0_provenance"]["code"] == r["code"] == "G0-SRC-MISSING" and classify(r) == "G0-SRC-MISSING"
-    assert real(tmp_path, "cls", problem={**base["problem"], "class": ["PDP"]})["code"] == "G0-CLASS-UNSUPPORTED"
+    # why: A1: ortools covers PDP now, so PSV-PDP (no tool) is the unsupported class
+    assert real(tmp_path, "cls", problem={**base["problem"], "class": ["PSV-PDP"]})["code"] == "G0-CLASS-UNSUPPORTED"
     assert real(tmp_path, "tool", engine="nope")["code"] == "G0-TOOL-UNAVAILABLE"
     assert real(tmp_path, "mm", engine="gtfs")["code"] == "G0-TOOL-MISMATCH"
     r = real(tmp_path, "data", weather={"dir": "data/does-not-exist", "point": [10.0, 59.0], "years": [2000, 2001]})
