@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-160 tools · 32 tested · 13 wired · 10 installed · 55 candidate · 4 manual · 46 watch.
+161 tools · 33 tested · 13 wired · 10 installed · 55 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -19,7 +19,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 8 | 0 | 1 | 6 | 0 | 7 | 22 |
+| render | 9 | 0 | 1 | 6 | 0 | 7 | 23 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
@@ -54,6 +54,7 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [Inter 4.1 (static TTFs)](https://github.com/rsms/inter) | assets | tested | here | One open geometric sans (Regular, Medium, SemiBold, Bold) for headlines, decks and kickers (rule 17); look.FONTS / font_path; drawn by Canvas.text. |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | render | tested | here | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). |
 | [CadQuery](https://github.com/CadQuery/cadquery) | render | tested | here | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. |
+| [CAD sprite sheet (Nordlys N1 builders)](https://github.com/Astheno-sphere/offshore_simulations) | render | tested | here | Orthographic sprite sheet (S-92, FRAM 701 bus) and the gale film's CAD PSV profile, drawn from the same solids through OpenCASCADE HLR and skia. Registered as psv_v10, s92_sprite, bus_sprite (all-assumed dims, distinct from the sourced psv/s92/bus). Regenerate: python tools/cad_sprites.py. |
 | [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | render | tested | here | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. |
 | [FFmpeg](https://ffmpeg.org) | video | tested | here | Frames to H.264 (veryfast preset). |
 | [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | assets | tested | here | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. |
@@ -226,6 +227,7 @@ _Maps and 3D scenes from validated trajectories_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | MIT | candidate | here | now | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
+| [CAD sprite sheet (Nordlys N1 builders)](https://github.com/Astheno-sphere/offshore_simulations) | own work (generated solids) | tested | here | now | Orthographic sprite sheet (S-92, FRAM 701 bus) and the gale film's CAD PSV profile, drawn from the same solids through OpenCASCADE HLR and skia. Registered as psv_v10, s92_sprite, bus_sprite (all-assumed dims, distinct from the sourced psv/s92/bus). Regenerate: python tools/cad_sprites.py. Evidence: `tools/cad_sprites.py` `offsim/assets/cad/sheet.py` `offsim/assets/cad/air_sprite.py` `offsim/assets/cad/land_sprite.py` `offsim/assets/cad/marine_film.py` `tests/test_cad_sprites.py` `tests/test_cad_assets.py` |
 | [CadQuery](https://github.com/CadQuery/cadquery) | Apache-2.0 | tested | here | now | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. Evidence: `requirements-cad.txt` `offsim/assets/cad/marine.py` `offsim/assets/cad/air.py` `offsim/assets/cad/land.py` `tests/test_cad_marine_air.py` `tests/test_cad_land.py` `tests/test_cad_drawing.py` |
 | [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | Apache-2.0 (bindings to OpenCASCADE, LGPL-2.1 with exception, dynamically linked) | tested | here | now | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. Evidence: `requirements-cad.txt` `offsim/assets/cad/drawing.py` `tests/test_cad_drawing.py` |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | MIT | tested | here | now | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). Evidence: `offsim/render_deck/package.json` `offsim/render_deck/src/app.js` `.github/workflows/tests.yml` |
