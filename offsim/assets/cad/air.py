@@ -18,7 +18,13 @@ AW189
   main rotor diameter 14.60 m, overall length 17.57 m, overall height 5.07 m (rotors turning), cabin width 2.40 m, 5-blade
   main rotor, 4-blade tail rotor: Leonardo https://www.leonardo.com/en/-/aw189-1 and
   https://www.fairlifts.com/helicopters/specifications/leonardo-aw189-helicopter-specifications/
-  Fuselage length, sponson width, tail rotor diameter, rotor-head height: assumptions (no public figure found).
+  (current Leonardo AW189 Energy brochure, 2025: overall length 17.57 m, overall height 5.07 m, rotor diameter 14.60 m).
+  Rotor-head height 4.04 m, tail-rotor diameter 2.90 m, mast-to-tail-rotor 8.855 m, wheelbase 4.79 m: EASA OEB draft
+  report 14/01/2014 §3.1/§3.2 dimensioned drawing
+  (https://www.easa.europa.eu/sites/default/files/dfu/certification-experts-docs-oeb-reports-agusta-AW189-Draft-OEB-Report-10-01-14.pdf;
+  the §3.1 table's "fuselage length 17.605 m" is the overall length, not the airframe — the drawing gives no airframe length).
+  Fuselage length, sponson width: assumptions (no public figure found; the drawing's front view gives 2.55 / 2.80 / 3.02 m
+  widths — fuselage / sponsons / max — against the model's 3.00 m fuselage+sponsons).
 """
 from __future__ import annotations
 
@@ -312,7 +318,7 @@ def build_s92(rotor_azimuth_deg=0.0, tail_azimuth_deg=0.0):
 # -------------------------------------------------------------------------------------------- AW189
 _AW189 = {
     "x_nose": 7.32, "fus_len": 15.40, "split": 0.70, "length_m": 17.57, "height_m": 5.07, "rotor_d": 14.60, "tail_R": 1.45,
-    "n_main": 5, "n_tail": 4, "chord": 0.40, "hub_top": 4.45, "width_m": 3.00, "tr_y": 0.38,
+    "n_main": 5, "n_tail": 4, "chord": 0.40, "hub_top": 4.04, "width_m": 3.00, "tr_y": 0.38,
     "stations": [
         (0.000, 0.06, 1.40, 1.65, 2.2), (0.020, 0.42, 1.18, 2.20, 2.2), (0.060, 0.80, 1.00, 2.70, 2.4),
         (0.120, 1.12, 0.90, 3.00, 2.8), (0.200, 1.32, 0.85, 3.12, 3.5), (0.300, 1.38, 0.82, 3.14, 4.0),
@@ -324,13 +330,16 @@ _AW189 = {
     "fin_pts": [(-4.4, 2.65), (-8.35, 3.75), (-9.4, 3.65), (-8.1, 2.40), (-4.8, 2.35)],
     "stab": (-6.0, 1.5, 2.40, 0.8),
     "d_value": 17.60,
-    "notes": "AW189. Overall length 17.57 m, height 5.07 m (rotors turning, Leonardo). Fuselage length, sponson width, tail rotor "
-             "diameter, hub height are assumptions; station table approximate.",
+    "notes": "AW189. Overall length 17.57 m, height 5.07 m (rotors turning, Leonardo). Rotor-head height 4.04 m and tail "
+             "rotor diameter 2.90 m from the EASA OEB §3.2 dimensioned drawing. Fuselage length, sponson width are "
+             "assumptions; station table approximate.",
 }
 
 
 def _dims_aw189(S):
     l = "Leonardo AW189 https://www.leonardo.com/en/-/aw189-1 ; https://www.fairlifts.com/helicopters/specifications/leonardo-aw189-helicopter-specifications/"
+    e = ("EASA OEB draft report 14/01/2014 §3.2 dimensioned drawing, "
+         "https://www.easa.europa.eu/sites/default/files/dfu/certification-experts-docs-oeb-reports-agusta-AW189-Draft-OEB-Report-10-01-14.pdf")
     return {
         "rotor_diameter_m": _dim(S["rotor_d"], l + " (14.60 m)"),
         "length_m": _dim(S["length_m"], l + " (17.57 m, rotors turning)"),
@@ -338,10 +347,10 @@ def _dims_aw189(S):
         "cabin_width_m": _dim(2.40, l + " (cabin width 2.40 m)"),
         "main_rotor_blades": _dim(5, l + " (5-blade main rotor)"),
         "tail_rotor_blades": _dim(4, l + " (4-blade tail rotor)"),
-        "tail_rotor_diameter_m": _dim(2 * S["tail_R"], assumption=True),
+        "tail_rotor_diameter_m": _dim(2 * S["tail_R"], e + " (Ø2900 mm)"),
         "fuselage_length_m": _dim(S["fus_len"], assumption=True),
         "width_m": _dim(S["width_m"], assumption=True),
-        "rotor_head_height_m": _dim(S["hub_top"], assumption=True),
+        "rotor_head_height_m": _dim(S["hub_top"], e + " (4040 mm rotor-head height)"),
     }
 
 
