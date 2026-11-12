@@ -27,7 +27,7 @@ def test_registry_lists_every_tool_we_ship():
     assert av["engines"]["replay"] == "ok" and av["engines"]["openclsim"] == "ok"
     assert set(av["engines"]) == {"replay", "openclsim", "wombat", "orbit", "road", "gtfs", "air"}    # unbuilt ones report an error string
     assert set(av["solvers"]) == {"pyvrp", "pyomo", "ampl", "whelp"}
-    for name, cls in (("pyvrp", {"CVRP"}), ("pyomo", {"CVRP"})):
+    for name, cls in (("pyvrp", {"CVRP", "VRPTW"}), ("pyomo", {"CVRP", "VRPTW"})):      # why: M1 registers VRPTW
         assert get_solver(name).classes == cls and get_solver(name).name == name
     assert get_engine("replay").needs_weather is False and get_engine("openclsim").needs_weather is False
     with pytest.raises(KeyError):
@@ -41,7 +41,8 @@ def test_pyvrp_plan_shape_and_unsupported():
     assert sorted(c for r in plan.routes.values() for c in r) == [1, 2, 3, 4, 5, 6]
     assert all(sum(p.demand[c] for c in r) <= 9 for r in plan.routes.values())
     assert plan.solver == "pyvrp" and plan.objective_unit == "m" and plan.bound is None
-    for bad in (Problem(**{**p.__dict__, "cls": {"VRPTW"}}), Problem(**{**p.__dict__, "tw": {1: (0.0, 100.0)}}),
+    # why: M1: cls VRPTW is now supported (tests/test_vrptw.py); windows on a CVRP-only problem still raise (dropped silently otherwise)
+    for bad in (Problem(**{**p.__dict__, "cls": {"PSV-PDP"}}), Problem(**{**p.__dict__, "tw": {1: (0.0, 100.0)}}),
                 Problem(**{**p.__dict__, "demand": {**p.demand, 1: 2.5}})):
         with pytest.raises(Unsupported):
             get_solver("pyvrp").solve(bad, seconds=0.2)
