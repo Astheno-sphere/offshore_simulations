@@ -26,20 +26,22 @@ platform_jacket:
   notes: "Fixed steel jacket + topside; source from a field development plan or Sodir fact page. QA 2026-11-11: no principal dim measurable, required dims missing, all assumed — module builds, gate fails."
 s92:
   class: aircraft
-  status: built
+  status: qa-pass
   required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
   measure:
-    fuselage_length_m: {axis: x, part: fuselage}
-    rotor_diameter_m: {axis: xy, part: rotor}
-  notes: "Sikorsky S-92A: manufacturer data sheet. QA 2026-11-11: dims off by rotor 21.2%, fuselage 28.0%, width 341.4% — declared dims do not match the built solid; module builds, gate fails."
+    fuselage_length_m: {axis: x, part: [fuselage, tailboom]}
+    rotor_diameter_m: {axis: xy, part: "=rotor"}
+    width_m: {axis: y, part: [fuselage, sponsons]}
+  notes: "Sikorsky S-92A: EASA TCDS R.011 / CAP 437 / manufacturer data sheet. QA gate passes 2026-11-12 (R1): the 2026-11-11 failure (rotor 21.2 %, fuselage 28.0 %, width 341.4 %) was the measurement map, not the solid: substring 'rotor' also matched tail_rotor, the fuselage part excludes the tailboom, and whole-shape width includes the rotor. Measure now = exact rotor / fuselage+tailboom / fuselage+sponsons; the solid was already 20.88 x 17.17 x 5.47 m."
 aw189:
   class: aircraft
   status: built
   required_dims: [fuselage_length_m, rotor_diameter_m, height_m]
   measure:
-    fuselage_length_m: {axis: x, part: fuselage}
-    rotor_diameter_m: {axis: xy, part: rotor}
-  notes: "Leonardo AW189: manufacturer data sheet. QA 2026-11-11: dims off by rotor 20.2%, fuselage 30.0%, width 366.3% — declared dims do not match the built solid; module builds, gate fails."
+    fuselage_length_m: {axis: x, part: [fuselage, tailboom]}
+    rotor_diameter_m: {axis: xy, part: "=rotor"}
+    width_m: {axis: y, part: [fuselage, sponsons]}
+  notes: "Leonardo AW189: manufacturer data sheet. QA 2026-11-12 (R1, after the same measure-map fix as s92): only rotor_diameter_m fails, 4.2 % — a 5-blade rotor at azimuth 0 does not span its full diameter on the bbox (13.99 m max(x,y) vs 14.60 m); module builds, gate fails. Left as is."
 bus:
   class: vehicle
   status: qa-pass
@@ -67,3 +69,21 @@ building:
   status: built
   required_dims: [length_m, width_m, height_m]
   notes: "Footprint and height from the cadastre / OSM tags (cite which). QA 2026-11-11: length_m/width_m missing, all dims assumed — module builds, gate fails."
+psv_v10:
+  class: vessel
+  status: built
+  required_dims: [loa_m, beam_m, depth_m, draught_m]
+  notes: "Nordlys N1 PSV (gale film v7-v10 and the sprite sheet; offsim.assets.cad.marine_film). Repo gate 2026-11-12 (R1): fails (depth_m 34.4 % off the hull-bbox map, which has no waterline datum; no dim sourced). His own qa.check (by-construction depth/draught) passes. Parts hull/superstructure/funnel/mast/cargo + portholes, crane, davits, anchor, mullions; every dim assumed (no class drawing), so it is not film-eligible under base.py. Distinct from psv (sourced dims, parts hull/house/bridge)."
+s92_sprite:
+  class: aircraft
+  status: built
+  required_dims: [length_m, rotor_diameter_m, height_m]
+  measure:
+    length_m: {axis: x, part: fuselage}
+    fuselage_width_m: {axis: y, part: fuselage}
+  notes: "Nordlys N1 stylised S-92 (20 parts, sprite sheet; offsim.assets.cad.air_sprite); every dim assumed. Repo gate 2026-11-12 (R1): fails (rotor_diameter_m 20.1 % — the bbox of blades at azimuth 0 includes the stopped 4-blade cross; no dim sourced); his own qa.check passes. Distinct from s92 (EASA/CAP 437 sourced dims, 10 parts)."
+bus_sprite:
+  class: vehicle
+  status: built
+  required_dims: [length_m, width_m, height_m]
+  notes: "Nordlys N1 FRAM 701 city bus (8 parts, spline body, sprite sheet; offsim.assets.cad.land_sprite); every dim assumed. Repo gate 2026-11-12 (R1): fails (width_m 19.2 %: mirrors widen the whole-shape y; his check measures the body part); no dim sourced. Distinct from bus."

@@ -49,6 +49,10 @@ MODULES = {  # asset name -> module that registers it (lazy, like the engine reg
     "psv": "offsim.assets.cad.marine", "platform_jacket": "offsim.assets.cad.marine", "s92": "offsim.assets.cad.air",
     "aw189": "offsim.assets.cad.air", "bus": "offsim.assets.cad.land", "train": "offsim.assets.cad.land",
     "person": "offsim.assets.cad.land", "tree": "offsim.assets.cad.land", "building": "offsim.assets.cad.land",
+    # Nordlys N1 builders (R1 reconcile): the sprite sheet / gale-film assets, all-assumed dims, different part names
+    # from the repo assets above, so they are separate assets (see coordination/reports/R1.md).
+    "psv_v10": "offsim.assets.cad.marine_film", "s92_sprite": "offsim.assets.cad.air_sprite",
+    "bus_sprite": "offsim.assets.cad.land_sprite",
 }
 
 

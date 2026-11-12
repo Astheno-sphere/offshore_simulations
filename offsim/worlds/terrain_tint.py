@@ -21,13 +21,15 @@ def _rgb(h):
 
 
 def hillshade_rgba(dem_array, cellsize_m, palette, azimuth=315.0, altitude=45.0, z=1.0, alpha_range=(0.10, 0.90),
-                   slope_full_deg=40.0):
+                   slope_full_deg=40.0, smooth_sigma=0.0):
     """RGBA uint8 (H, W, 4) hillshade tinted with `palette` (ground_deep -> ground -> streak_hi), alpha rising with slope.
 
     dem_array: (H, W) metres, row 0 north; NaN = no data (alpha 0). cellsize_m: scalar, or (dx, dy). azimuth: light
     direction in degrees clockwise from north (315 = from the NW); altitude: light elevation above horizon; z: vertical
     exaggeration. Flat ground gets shade = sin(altitude) -> the palette ground colour at low alpha; lit flanks lighten
     toward streak_hi, shaded flanks darken toward ground_deep; alpha_range = (flat, slope_full_deg-or-steeper).
+    smooth_sigma: Gaussian blur (cells) applied to the DEM before the gradient — the 50 m EMODnet grid is noisy at
+    film scale, and unblurred it reads as dirt, not relief (v9 terrain fix).
     """
     dem = np.asarray(dem_array, dtype=np.float64)
     if dem.ndim != 2 or min(dem.shape) < 3:
@@ -35,6 +37,9 @@ def hillshade_rgba(dem_array, cellsize_m, palette, azimuth=315.0, altitude=45.0,
     dx, dy = (cellsize_m, cellsize_m) if np.isscalar(cellsize_m) else cellsize_m
     nodata = ~np.isfinite(dem)
     zz = np.where(nodata, np.nanmean(dem) if (~nodata).any() else 0.0, dem) * z
+    if smooth_sigma:
+        from scipy.ndimage import gaussian_filter
+        zz = gaussian_filter(zz, smooth_sigma)
     gy, gx = np.gradient(zz, dy, dx)                         # d/drow, d/dcol
     dz_de, dz_dn = gx, -gy
     slope = np.hypot(dz_de, dz_dn)
@@ -68,13 +73,16 @@ def _find_dem(world_dir):
     return cands[0]
 
 
-def for_bbox(world_dir, bbox, size, palette=None, azimuth=315.0, altitude=45.0, z=1.0, land_only=True):
+def for_bbox(world_dir, bbox, size, palette=None, azimuth=315.0, altitude=45.0, z=1.0, land_only=True,
+             smooth_sigma=0.0, alpha_range=None):
     """Hillshade RGBA for lon/lat bbox (w, s, e, n) at size (width_px, height_px) from the world's merged DEM
     (data/worlds/<world>/depth/<tier>/dem.tif from offsim.worlds.depth.build_world_depth).
 
     Returns (rgba (h, w, 4) uint8, "ok: <dem path>") or (None, reason). Never synthesises terrain: if there is no DEM, or
     it does not cover the bbox, the reason says what to fetch (fetch-world workflow, then fetch_world --pull). Sea cells
     (band 2) are transparent when land_only. Hillshade is computed at DEM resolution, then resampled to `size`.
+    smooth_sigma / alpha_range: v9 terrain tuning — blur the noisy 50 m grid and cap the slope alpha so relief reads
+    as texture, not speckle (defaults keep the old look).
     """
     if palette is None:
         from ..cinema import look
@@ -108,7 +116,8 @@ def for_bbox(world_dir, bbox, size, palette=None, azimuth=315.0, altitude=45.0, 
         dx, dy = abs(tf.a) * 111_320.0 * np.cos(np.radians(lat0)), abs(tf.e) * 111_320.0
     else:
         dx, dy = abs(tf.a), abs(tf.e)
-    rgba = hillshade_rgba(elev, (dx, dy), palette, azimuth, altitude, z)
+    rgba = hillshade_rgba(elev, (dx, dy), palette, azimuth, altitude, z,
+                          alpha_range=alpha_range or (0.10, 0.90), smooth_sigma=smooth_sigma)
     if land_only:
         rgba[..., 3] = np.where(sea, 0, rgba[..., 3])
     img = Image.fromarray(rgba, "RGBA")

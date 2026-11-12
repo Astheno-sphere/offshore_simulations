@@ -124,6 +124,22 @@ class Canvas:
             return
         self.cv.drawPath(_path(pts), _paint(color, alpha, True, width, dash))
 
+    def lines(self, polylines, color, width=1.0, dash=None, alpha=None):
+        """Many open polylines in one path / one draw call (road layers, coastlines).
+        Each polyline is a separate subpath — no connecting segment between them."""
+        path = skia.Path()
+        n = 0
+        for pts in polylines:
+            pts = list(pts)
+            if len(pts) < 2:
+                continue
+            path.moveTo(float(pts[0][0]), float(pts[0][1]))
+            for x, y in pts[1:]:
+                path.lineTo(float(x), float(y))
+            n += 1
+        if n:
+            self.cv.drawPath(path, _paint(color, alpha, True, width, dash))
+
     def circle(self, cx, cy, r, fill=None, stroke=None, width=1.0, alpha=None):
         if fill is not None:
             self.cv.drawCircle(float(cx), float(cy), float(r), _paint(fill, alpha))

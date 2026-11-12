@@ -21,6 +21,7 @@ Effort in working sessions (one session ≈ one focused Claude run). "You" = Ars
 | 12 | **Engine layer** (2026-11-08): interfaces `offsim/engines/base.py`; solvers pyvrp/pyomo/ampl; engines replay/openclsim/wombat/orbit; Monte Carlo ensemble; AIS calibration; OSM layers; paper feed + gap table; docs ARCHITECTURE/ENGINES | Claude + agents | 1–2 | every adapter tested here except AMPL solve (Actions) |
 | 13 | Wire engines into `offsim run` (scenario `engine:`/`ensemble:` blocks) and `experiment.yaml` runner; finding shots (`motion/findings.py`); emissions (`offsim/emissions`) | Claude | 2 | demo passes with `engine: openclsim` and an ensemble |
 | 14 | AMPL: add secret `AMPL_LICENSE_UUID`, run `solve.yml` on the demo; laptop `tools/ampl_mcp` | You (5 min) + Claude | 1 | AMPL objective = Pyomo objective |
+| 15 | **CAD reconcile** (R1, 2026-11-12): Nordlys N1 sprite sheet, skia section film and Ghia cavity merged with the repo CAD assets. His PSV/S-92/bus stay as `psv_v10`/`s92_sprite`/`bus_sprite` (all-assumed dims); repo `s92` now passes QA (measure map fixed). Next: source dims for the sprite assets; one visual gate (SYSTEM_PLAN 2.7) | Claude | done | `tests/test_cad_*` green |
 
 To the first post: about 5–8 Claude sessions and about 30 minutes of your time. Each later paper reuses
 the machine: 1–2 sessions.

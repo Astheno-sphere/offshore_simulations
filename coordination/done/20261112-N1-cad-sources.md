@@ -11,3 +11,4 @@ exit test: `python -m pytest -q tests` on your branch (report counts and skips),
   each of your CAD sources to the repo asset it duplicates or extends (offsim/assets/cad/{marine,air,land}.py), with
   your recommendation per asset: keep repo / keep yours / merge, and why (QA numbers from `python -m offsim.assets.cad.qa`).
 report: coordination/reports/N1.md. Include any disagreement with docs/SYSTEM_PLAN.md, with evidence.
+taken: Nordlys 2026-11-12T01:05:20Z

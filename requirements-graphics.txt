@@ -2,5 +2,8 @@
 skia-python==144.1      # BSD-3 (needs system libEGL/libGL: apt libegl1 libgl1): anti-aliased vector drawing (strokes, joins, dashes) to replace PIL in section/map panels
 datashader==0.19.1      # BSD-3: millions of AIS points as density rasters
 xarray-spatial==0.10.20 # MIT: hillshade, slope, viewshed for landscape panels
-gtfs-kit==14.1.1        # MIT: GTFS analysis cross-check for offsim.transit
+# gtfs-kit 14.1.1 requires pandas>=3, which conflicts with the pinned pandas==2.3.3 in
+# constraints.txt, so it stays out until the pandas pin moves (no repo code imports gtfs-kit today;
+# the GTFS work uses offsim/transit/gtfs.py on Entur data, not this package).
+# gtfs-kit==14.1.1        # MIT: GTFS analysis cross-check for offsim.transit
 r5py==1.1.7             # MIT (or GPL): multimodal accessibility; downloads the R5 engine on first use (Actions)

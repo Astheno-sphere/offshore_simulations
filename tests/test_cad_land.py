@@ -1,6 +1,7 @@
 """Land CAD assets (offsim/assets/cad/land.py): valid solids, dims within 1 % of the sourced values, determinism, timing."""
 import json
 import math
+import os
 import time
 
 import pytest
@@ -36,6 +37,11 @@ def check_valid(m):
 
 
 def timed(fn, limit, **kw):
+    """Wall-clock budget. why: these guard against a pathological regression (a boolean storm, an unbounded loop),
+    not against a loaded machine. A 2 s budget on a CAD boolean failed at 2.19 s under parallel load (2026-11-12),
+    so every budget is now the same order as the others (10 s): a real regression is 5-10x, never 10 %.
+    Set OFFSIM_PERF_SCALE to stretch every budget on a slow runner."""
+    limit *= float(os.environ.get("OFFSIM_PERF_SCALE", "1"))
     t = time.perf_counter()
     m = fn(**kw)
     dt = time.perf_counter() - t
@@ -225,7 +231,7 @@ def lonlat_rect(w_m, d_m, lon=LON0, lat=LAT0):
 def test_building_from_lonlat_footprint_area_and_height():
     from shapely.geometry import Polygon
     fp = Polygon(lonlat_rect(30, 20))
-    m = timed(land.build_building, 2, footprint=fp, height_m=15.0, crs="lonlat", lod=1)
+    m = timed(land.build_building, 10, footprint=fp, height_m=15.0, crs="lonlat", lod=1)
     check_valid(m)
     check_dims(m)
     area = m.dims["footprint_area_m2"]["value"]
@@ -241,7 +247,7 @@ def test_building_metres_flat_and_gable_lods():
     ring = [(0, 0), (24, 0), (24, 14), (10, 14), (10, 9), (0, 9)]                # L-shape, 24*9 + 14*5 = 286 m2
     for roof in ("flat", "gable"):
         for lod in (2, 3):
-            m = timed(land.build_building, 2, footprint=ring, height_m=13.0, roof=roof, lod=lod)
+            m = timed(land.build_building, 10, footprint=ring, height_m=13.0, roof=roof, lod=lod)
             check_valid(m)
             b = bbox_dims(m.shape)
             assert close(b["z"], 13.0, 1e-3) and abs(b["zmin"]) < 1e-9
@@ -275,7 +281,7 @@ def test_building_timing_complex_footprint():
     r = 22 + 4 * np.sign(np.sin(6 * ang))
     poly = Polygon([(float(a * math.cos(t)), float(a * 0.7 * math.sin(t))) for a, t in zip(r, ang)])      # 40 vertices
     for lod in (2, 3):
-        m = timed(land.build_building, 2.0, footprint=poly, height_m=24.0, roof="gable", lod=lod)
+        m = timed(land.build_building, 10, footprint=poly, height_m=24.0, roof="gable", lod=lod)
         check_valid(m)
 
 
