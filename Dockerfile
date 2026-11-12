@@ -17,7 +17,7 @@ ENV HYPERFRAMES_BROWSER_PATH=/usr/bin/google-chrome CHROME=/usr/bin/google-chrom
 WORKDIR /app
 COPY requirements*.txt ./
 # every extra the machine uses: one environment for CI, Codespaces and any agent (see docs/MACHINE.md)
-RUN pip install --no-cache-dir -r requirements-motion.txt -r requirements-render.txt -r requirements-weather.txt \
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-motion.txt -r requirements-render.txt -r requirements-weather.txt \
       -r requirements-engines.txt -r requirements-gis.txt -r requirements-physics.txt -r requirements-graphics.txt \
       -r requirements-intake.txt -r requirements-cad.txt -c constraints.txt pytest-timeout mcp \
     && python -m playwright install-deps chromium || true
