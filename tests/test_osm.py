@@ -80,3 +80,49 @@ def test_fetch_world_flags_exist():
     for flag in ("--world", "--out", "--pull", "--metocean", "--depth", "--depth-only", "--osm", "--ais"):
         assert f'"{flag}"' in src, flag
     assert "osm" in inspect.signature(fetch_world.fetch).parameters and "ais_path" in inspect.signature(fetch_world.fetch).parameters
+
+
+def test_fetch_world_get_retries_once_on_gateway_error(monkeypatch):
+    # why: the bergen-ncs coast stage failed in 2 s on a transient Overpass 502;
+    # get() must retry once on 502/503, and the test must prove the retry without waiting.
+    import urllib.error
+
+    from offsim.worlds import fetch_world
+    monkeypatch.setattr(fetch_world, "GET_RETRY_S", 0)
+
+    class Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b"ok"
+
+    calls = {"n": 0}
+
+    def flaky(req, timeout=300):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise urllib.error.HTTPError(req.full_url, 502, "Bad Gateway", {}, None)
+        return Resp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", flaky)
+    assert fetch_world.get("https://example.invalid/x") == b"ok" and calls["n"] == 2
+
+
+def test_fetch_world_get_raises_other_http_errors_at_once(monkeypatch):
+    import urllib.error
+
+    from offsim.worlds import fetch_world
+    calls = {"n": 0}
+
+    def flaky(req, timeout=300):
+        calls["n"] += 1
+        raise urllib.error.HTTPError(req.full_url, 404, "Not Found", {}, None)
+
+    monkeypatch.setattr(urllib.request, "urlopen", flaky)
+    with pytest.raises(urllib.error.HTTPError):
+        fetch_world.get("https://example.invalid/x")
+    assert calls["n"] == 1
