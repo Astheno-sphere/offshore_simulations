@@ -68,3 +68,14 @@ fresh CreationDate/ModDate on every run (timestamp-only diff, content identical)
 Build pushed an image without the Python extras: `-c constraints.txt` was not copied into the build context and a
 trailing `|| true` hid the pip error; the smoke test caught it (`No module named 'skia'`). Fix: no constraint file in
 the image install, failure no longer masked, import check inside the build. Lesson logged via `offsim learn` next.
+
+## 2026-11-13 — loop proof rehearsed end to end (synthetic weather, Florø instance)
+`python -m offsim run` on the helicopter scenario with `weather: {synthetic: {n: 1, hours: 336}}` attached at run time
+(the sanctioned path; the committed scenario stays pinned to the generator): gates 0, 1, 2, 3, 4 all pass.
+Gate 4 reproduces the paper's Florø instance: plan cost 9980.50 vs Table 4's 9980 (rel gap 5e-5, tol 5 %), 1 helicopter,
+10 h window, both exact. Status "re-run under assumptions (synthetic weather, not reportable)", reportable False.
+`python -m offsim article <id>` then REFUSED the run for exactly that reason. The chain works; only the data is fake.
+Without a weather block the same scenario stops at gate 0 with the fix message, which is the behaviour Nordlys first
+read as "weather has no home" and has since withdrawn.
+Next: swap the synthetic block for `weather: {dir: data/worlds/bergen-ncs/metocean, point: [...], years: [...], season: DJF}`
+when the 24 winters land; that run is the real loop proof and the article will build from it.
