@@ -1,0 +1,1014 @@
+                                                           Computers and Operations Research 128 (2021) 105158
+
+
+
+                                                               Contents lists available at ScienceDirect
+
+
+                                               Computers and Operations Research
+                                                 journal homepage: www.elsevier.com/locate/caor
+
+
+
+
+An exact solution method for a rich helicopter flight scheduling problem
+arising in offshore oil and gas logistics
+Gaute Messel Nafstad a, Amund Haugseth a, Vebjørn Høyland a, Magnus Stålhane a,⇑
+a
+    Norwegian University of Science and Technology, Department of Industrial Economics and Technology Management, Trondheim, Norway
+
+
+
+a r t i c l e          i n f o                         a b s t r a c t
+
+Article history:                                       This paper studies the problem of creating an optimal flight schedule for a heterogeneous fleet of heli-
+Received 2 January 2020                                copters tasked with transporting personnel to, from, and between offshore installations. The problem
+Revised 31 July 2020                                   can be modelled as a rich vehicle routing problem and combines the following properties from the vehi-
+Accepted 19 November 2020
+                                                       cle routing literature: pickup and delivery structure, heterogeneous fleet operating out of multiple
+Available online 29 November 2020
+                                                       depots, multi-trip, and temporal synchronization of transportation tasks. We present compact and
+                                                       extended mathematical models of the problem, where the extended model is based on generating all
+Keywords:
+                                                       trips apriori. When solving the extended model we apply delayed constraint generation (DCG) to parts
+Offshore logistics
+Helicopter routing
+                                                       of the model to speed up the solution process. Computational results are presented that show that the
+Multi-trip VRP                                         extended formulation and solution method can solve realistic instances of the problem within one hour.
+Multi-depot VRP                                        The results further show that the DCG method works significantly better than using lazy constraints from
+Temporal synchronization                               a commercial solver, especially when the number of transportation tasks requiring temporal synchro-
+                                                       nization becomes large.
+                                                          Ó 2020 The Author(s). Published by Elsevier Ltd. This is an open access article under the CC BY license
+                                                                                                                  (http://creativecommons.org/licenses/by/4.0/).
+
+
+
+
+1. Introduction                                                                            ducted by sea vessels, but for the last decades it has almost exclu-
+                                                                                           sively been handled by helicopters. In 2018, over 350,000 unique
+    Since the discovery of the Ekofisk field in 1969, the Norwegian                        deployments of personnel were conducted on the NCS according
+oil and gas sector has developed into the country’s largest industry                       to the number of bookings made in the Dawinci Industry Hub
+(Norwegian Petroleum, 2020a). Today, Norway is the seventh lar-                            (TietoEVRY, 2020). This equals approximately 1000 persons trans-
+gest producer of natural gas, and the 15th largest producer of oil                         ported every day, which corresponds to over 50 fully loaded Siko-
+worldwide (British Petroleum Company, 2020). The yearly accu-                              rsky S-92 helicopters, with a capacity of 19 passengers (Aerospace
+mulated export value for crude oil, natural gas, and condensate is                         Technology, 2018). Helicopter transportation is expensive, and one
+almost 435 billion NOK ( 44 billion USD) (Statistics Norway,                              operator on the NCS estimates annual total costs of chartering and
+2019), and approximately 140,000 people are, directly or indi-                             operating helicopters to be around two billion NOK. Today, char-
+rectly, employed in the petroleum industry (Statistics Norway,                             tering of helicopters, and planning their flights, is done manually
+2019). At the end of 2019, there were 87 fields in production on                           by each company operating installations on the NCS. However,
+the Norwegian continental shelf (NCS), while another 95 oil and                            because of the complexity of the planning problem, it is likely that
+gas discoveries are candidates for development (Norwegian                                  significant savings can be achieved by applying operational
+Petroleum, 2020b). The total petroleum resources on the NCS are                            research methods to solve the problem.
+estimated to be 15,6 billion standard cubic meter, of which only                              In this paper we study the problem of operating a heteroge-
+7.5 billion has been produced, sold and delivered thus far                                 neous fleet of helicopters to transport personnel between offshore
+(Norwegian Petroleum, 2020b).                                                              installations and/or heliports onshore. Personnel is available at his/
+    These petroleum resources are extracted by offshore installa-                          her pickup location at a given time, and has a latest time for when
+tions that are either fixed oil platforms or floating production ves-                      he/she is to arrive at the destination. The transportation of person-
+sels. These installations are operated by personnel who needs to be                        nel is mainly done from a heliport onshore to an installation off-
+transported to and from shore. This transportation was earlier con-                        shore or vice versa, but transportation between offshore
+                                                                                           installations also occur. The latter is typically transportation of per-
+                                                                                           sonnel between floating hotel facilities (flotels) and production
+    ⇑ Corresponding author.                                                                platforms, or when moving expert personnel between installations.
+      E-mail address: magnus.staalhane@ntnu.no (M. Stålhane).
+
+https://doi.org/10.1016/j.cor.2020.105158
+0305-0548/Ó 2020 The Author(s). Published by Elsevier Ltd.
+This is an open access article under the CC BY license (http://creativecommons.org/licenses/by/4.0/).
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                             Computers and Operations Research 128 (2021) 105158
+
+
+Further, there exist temporal dependencies that affect the allowed            2. Related literature
+pickup and/or delivery time of certain personnel. For key personnel
+it is required that the replacement must arrive at the installation at            Optimal transportation of personnel to and from offshore oil
+least a minimum amount of time before he/she can depart to allow              installations have been studied since the late 1980s when Galvão
+time for a debriefing. It also happens that certain personnel travel          and Guimarães (1987, 1990) presented a heuristic solution
+back and forth between a heliport and an installation on a single             method, and a decision support system utilizing this heuristic, to
+day to perform some key task, in which case they must be given                optimally transport crew to and from oil platforms off the coast
+sufficient time at the installation to perform their intended task.           of Brazil. The first paper presenting a mathematical model of the
+    To transport their personnel, each operator has a fleet of heli-          operational planning of personnel transport by helicopters
+copters at its disposal. The helicopters are stationed at different           between heliports onshore and offshore platforms is that of
+heliports along the coast, and each helicopter operates to and from           Sierksma et al. (1998), who present both exact and heuristic
+their assigned heliport. The fleet of helicopters is heterogeneous            approaches for solving the problem. The objective is to route each
+with respect to the number of seats available for passengers, the             helicopter such that a given number of personnel are replaced at
+fixed cost of operating each day, the fuel consumption per hour,              each location, and the total transportation costs are minimized.
+and the capacity of their fuel tanks. Flight time and fuel consump-           The problem is modelled as a split delivery vehicle routing prob-
+tion between locations are assumed to be based the distance                   lem, where more than one helicopter may meet the demand at a
+between them and the cruising speed of each helicopter, and not               given offshore installation.
+affected by wind conditions or the number of personnel on board.                  Since then, similar problems have been studied by Moreno et al.
+It is further assumed that the time spent at each offshore installa-          (2005), Moreno et al. (2006) and Menezes et al. (2010), who all
+tion is constant, regardless of the number of personnel (dis)em-              consider transportation of personnel from heliports to offshore
+barking, and that helicopters leave the offshore installation                 oil platforms off the Brazilian coast. Moreno et al. (2005) study
+immediately afterwards.                                                       the problem of planning trips for each helicopter for a single day,
+    A trip is defined as a flight sequence starting at a heliport, vis-       where the trips are limited by the number of intermediate landings
+iting installations in a given order and returning to the initial heli-       for both orders and trips, and the objective is to minimize costs
+port. In addition to the limitations of the helicopter stated above,          related to takeoff and landing, distance and hours travelled, and
+each trip is limited by safety regulations stipulating a maximum              personnel not transported. To solve this problem they propose a
+number of landings any personnel transported can partake in. Heli-            heuristic that constructs a set of trips and aggregates the trips into
+copters may perform several trips each day, and the sequence of               routes for each helicopter. Moreno et al. (2006) extend the work of
+trips conducted by a given helicopter on a given day is defined as            Moreno et al. (2005) by adding column generation procedures to
+a route. Between trips the helicopter must wait a given amount                the heuristic, utilizing information from the LP relaxation to con-
+of time to allow for refueling, which can only be done at heliports,          struct helicopter routes. The problem also involves the element
+and required rest for the pilots. Due to the limited number of heli-          of an imposed waiting time between trips. The work is further
+pads (usually just one) at an offshore installation, it is also neces-        extended by Menezes et al. (2010) who use a column generation-
+sary to ensure that no two helicopter routes are scheduled to                 based solution approach for the same problem.
+visit the same installation at the same time.                                     Another aspect of operational offshore helicopter planning is
+    The objective in this problem is to design a set of routes for the        safety and risk. This has been studied by Qian et al. (2011) and
+helicopters to fly, minimizing costs associated with operating a              Qian et al. (2014) who both analyze and propose approaches to
+helicopter and the distance flown, while transporting all personnel           minimize takeoff and landing risk, and suggest new operational
+from(to) their intended origin(destination), and adhering to all the          procedures intended to create safer flight schedules for pickups
+limitations described above.                                                  and deliveries of personnel.
+    The purpose of this paper is to present an exact solution method              Hermeto et al. (2014) and Fernández-Cuesta et al. (2017) solve
+for the problem of planning helicopter flights that transport per-            strategic problems where the goal is to minimize the long-term
+sonnel to, from, and between offshore installations. The problem              costs related to opening and operating airfields, and transporting
+statement is based on the operations on the NCS, however, the                 workers to and from offshore installations. Hermeto et al. (2014)
+same (or similar) problems are faced by operators of offshore                 apply a simple routing system which assume that each helicopter
+installations all over the world. A new mathematical formulation              only visits one platform on each trip, whereas Fernández-Cuesta
+is presented, that take into account several aspects of the problem           et al. (2017) establish a more complex routing component where
+that has previously not been addressed in the literature. Further,            a route may visit several offshore installations. In addition,
+we develop a second mathematical model where all possible trips               Fernández-Cuesta et al. (2017) incorporate the possibility of leas-
+are generated apriori, and the concatenation of trips into routes for         ing hubs for refueling off the coast.
+each helicopter is handled by the model. We further develop a cus-                What separates the problem studied in this paper from earlier
+tomized labeling algorithm to generate trips and apply delayed                works, is that we consider transportation of personnel between
+constraint generation when solving this model using branch-and-               offshore installations, in addition to between the installations
+bound. To make the solution method even more effective, we pre-               and the heliport. Further, we consider time dependencies between
+process both arcs and time windows, and add customized branch-                transportation of key personnel and enforce that no two heli-
+ing strategies. A computational study shows the effectiveness of              copters can be present at an installation at the same time. We thus
+the solution methodology.                                                     have a richer problem, incorporating more of the real-life con-
+    The remainder of the paper is organized as follows: In Section 2          straints and dependencies.
+we give an overview of the literature on helicopter planning, and a               The problem studied in this paper can be seen as a rich variant
+brief overview of the literature on relevant variants of the vehicle          of the vehicle routing problem (VRP) with time windows. It combi-
+routing problem. Then, in Section 3 we present both a compact                 nes several variants and extensions of the VRP where each aspect
+and an extended mathematical model of the problem, before dis-                has a rich body of research literature thoroughly reviewed in ded-
+cussing in detail the different parts of our solution methodology             icated surveys. The problem is a pickup and delivery problem
+in Section 4. Finally, we test the computational performance of               (PDP) (Berbeglia et al., 2007), with multiple depots (Montoya-
+the proposed solution method in Section 5, before giving some                 Torres et al., 2015), heterogeneous fleet (Koç et al., 2016), multiple
+concluding remarks in Section 6.                                              trips (Cattaruzza et al., 2016) and temporal synchronization of
+                                                                          2
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                             Computers and Operations Research 128 (2021) 105158
+
+
+operations (Drexl, 2012). In the following we will classify our prob-       synchronization, including handling the synchronization through
+lem within the classification schemes presented by the surveys              branching on the time windows. All the models are based on a
+cited above, and present the most recent papers on exact solution           branch-and-price approach. For the case of synchronized VRP with
+methods for each variant and extension.                                     pickup and deliveries, a comparison of branch-and-price based
+    According to the classification scheme of PDPs presented by             solution methods, is conducted by Gschwind (2015).
+Berbeglia et al. (2007), a PDP is categorized as a one-to-one-PDP               Common for all the extensions and variants of the VRP sur-
+(1-1-PDP) if it has exactly one pickup node and one delivery node           veyed, is that the solution methodology is based on a (generalized)
+for all orders and categorized as a one-to-many-to-one-PDP (1-M-            set partitioning formulation, where each variable represents a path
+1-PDP) if orders consist of either pickups at the depot and delivery        through the problem defining network. For the PDP, MDVRP, and
+to customers, or vice versa. If each customer has both positive             HFTW, the problem can be formulated as a standard set partition-
+pickup and delivery demands it is categorized as a problem with             ing model where each variable represents a feasible path through
+combined demands. According to this classification, the problem             the problem defining network, and there is one constraint per cus-
+studied in this paper is a combination of the 1-M-1-PDP and the             tomer, and one per vehicle. For the synchronization aspect, addi-
+1-1-PDP, however, as seen in Section 3, we model it as a strictly           tional constraints have to be added to the model to ensure that
+1-1-PDP. State of the art exact solution methods for the 1-1-PDP are        the different vehicles interact in accordance with the synchroniza-
+presented by Ropke and Cordeau (2009) and Baldacci et al. (2011).           tion requirements. For the multi-trip VRP, the complexity of the
+The former present a solution method based on branch-price-                 model depends on whether the variables in the model represent
+and-cut, while the latter is based on dual bounding techniques              single trips, or a complete route for each vehicle. In the former
+combined with enumeration of all routes with reduced cost in                case, one needs to coordinate the sequence and start times of the
+the interval between the best known primal and dual solutions.              trips for each vehicle, leading to additional constraints in the
+Both solution methods use a set partitioning model where each               model.
+variable represents a feasible route for each vehicle.
+    In the survey on VRP with heterogeneous fleet given by Koç
+et al. (2016), they divide the literature into categories based on          3. Mathematical models
+whether fleet composition is fixed (HF) or a decision variable
+(FSM), whether the objective includes fixed costs, variable costs,             When modelling this problem it is natural to aggregate all per-
+or both, and whether the problem includes time windows. Accord-             sonnel going from the same heliport to the same installation (or
+ing to their classification the problem studied here is a HFTW(D),          vice versa) and that has the same time restrictions and dependen-
+where the problem has a fixed fleet, includes time windows and              cies, into one order. In this section we present two mathematical
+the variable part of the costs are related to the distance travelled.       models for the transportation of a set of orders using helicopters.
+Exact solution methods for this problem are presented by                    In Section 3.1 we present a compact mathematical formulation of
+Baldacci et al. (2010) who apply a dual bounding algorithm and              the problem based on commodity flows along the arcs of the prob-
+route enumeration, and Pessoa et al. (2018) who combine a route             lem defining graph. Then in Section 3.2 we present a model based
+enumeration scheme for small vehicles with a tailored branch-               on pregeneration of all possible trips for each helicopter from its
+price-and-cut algorithm. Both methods rely on set partitioning              heliport to a set of installations and back to its heliport.
+models.
+    A literature review on the multi depot vehicle routing problem          3.1. Compact mathematical formulation
+is given by Montoya-Torres et al. (2015), which categorizes the
+multi depot VRP into two categories with single or multiple objec-            The problem of serving n orders may be modelled on a graph
+tives. The problem studied in this paper belongs to the former cat-         where the pickup and delivery location of orders are represented
+egory, for which recent exact algorithms are presented by Baldacci          by nodes. Let N P ¼ f1; 2; . . . ng be the set of pickup nodes, and
+and Mingozzi (2009) and Contardo and Martinelli (2014). As with
+                                                                            N D ¼ fn þ 1; n þ 2; . . . ; 2ng be the set of delivery nodes, where
+the problem variants described above, dual bounding and
+                                                                            ði þ nÞ is the delivery node of the order picked up at node i. Denote
+branch-and-price solution methods are used in this paper, both
+                                                                            the number of personnel picked up or delivered at node i as Pi , and
+based on set partitioning models. It is also worth mentioning that
+                                                                            let T i and T i denote the earliest and latest time a node may be ser-
+an extension of this problem, known as the location routing prob-
+lem, where the location of the depots must also be decided, has             viced, respectively. Let N C  N D  N P , indexed by ði; jÞ, be the set of
+gotten significant attention in the literature (Drexl and Schneider,        connected nodes, i.e a pair of nodes where node i must be visited at
+2015).                                                                      least T Cij time units before j. Let N Ii represent the set of nodes located
+    In the survey on multi-trip VRPs given by Cattaruzza et al.             at the same installation/heliport as node i. Further, we have a set of
+(2016), they identify four main academic extensions of the prob-            refueling nodes N F located at heliports where the helicopters may
+lem: time windows, service dependent loading times, limited trip                                                                     S
+                                                                            refuel between trips during the day, and a set N S  N P N D con-
+duration, and profits. The problem in this paper include time win-          taining all nodes that are not located at a heliport. Fig. 1 shows
+dows and limited trip durations, but not the other two. An exact            an example of how nodes are distributed across two heliports
+solution method to the multi-trip VRP is proposed by Mingozzi               and three offshore installations.
+et al. (2013), while an exact method for an extension of the prob-             Let H be the set of helicopters, indexed by h, where each heli-
+lem which include both time windows and limited trip durations is
+                                                                            copter has a given seat capacity K h and a fixed cost C Hh that occurs
+given by Hernandez et al. (2016). Both papers base their solution
+                                                                            if the helicopter is being used. Let sðhÞ and eðhÞ be the start node
+algorithm on first generating trips for the vehicles and then con-
+                                                                            and end node, respectively, representing the heliport where heli-
+catenating these trips into feasible routes for each vehicle.
+                                                                            copter h starts and ends its day. With each helicopter we associate
+    A survey on VRPs with synchronization is presented by Drexl                                                     S    S    S
+(2012). According to his classification scheme, the problem studied         a graph Gh ¼ ðN h ; Ah Þ where N h ¼ N P N D N Fh feðhÞ; sðhÞg, and
+in this paper includes temporal operation synchronization with              N Fh  N F is the set of refueling nodes located at the same heliport
+precedence, both with respect to when personnel is picked up/de-            as nodes eðhÞ and sðhÞ. Let F hi and F hi denote the maximum and
+livered and when the offshore installations are visited. Dohn et al.        minimum level of fuel on board helicopter h when arriving at node
+(2011) present four different formulations for handling temporal            i, respectively.
+                                                                        3
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                                          Computers and Operations Research 128 (2021) 105158
+
+
+
+
+Fig. 1. Example of nodes on installations and heliports. The white nodes represent pickup nodes, the grey represent delivery nodes and the black nodes, S; F, and E, represent
+start, refueling and end nodes for helicopters stationed at heliport number 1 and 2, respectively.
+
+
+                                                                                                  XXXX              X H
+   The set Ah  N h  N h define the arcs that are feasible for the                       min         C hij xhijk þ  C h zh ;                                                             ð1Þ
+helicopter to traverse. First, to avoid sub-tours at an installation,                             h2H i2Nh j2N h k2K                       h2H
+and ensuring that we deliver before picking up, we remove all arcs
+                                                                                          subject to:
+ði; jÞ from Ah if j 2 N Ii and i < j. Second, to enforce refueling every                  XXX
+time the helicopter returns to the heliport, we remove all arcs                              xhijk ¼ 1;                       i 2 NP ;                                                    ð2Þ
+between a pickup and a delivery node at a heliport, and ensure that                       h2H j2Nh k2K
+                                                                                          XX        XX
+no arc from a node at another installation can go directly to a                             xhijk    xhðnþiÞjk ¼ 0;                                  h 2 H; i 2 NP ;                     ð3Þ
+pickup node at a heliport. Thus all helicopters arriving at heliports                     j2Nh k2K               j2Nh k2K
+                                                                                          XX        XX
+must visit (a subset of) the delivery nodes, then the refueling node,                       xhijk    xhjik ¼ 0;                                  h 2 H; i 2 Nh n fsðhÞ; eðhÞg;           ð4Þ
+and finally (a subset of) the pickup nodes.                                               j2Nh k2K               j2Nh k2K
+                                                                                          X
+     With each arc ði; jÞ 2 Ah we associate a cost C hij , fuel consump-                   xhsðhÞj1 ¼ zh ;            h 2 H;                                                              ð5Þ
+                                                            L
+tion F hij , and a time T hij for traversing it. Let T be the landing time                j2N P
+                                                                                          XX
+at any installation, and let T Lij be the landing time at node i when                       xhieðhÞk ¼ zh ;                   h 2 H;                                                      ð6Þ
+travelling to node j specifically. Note that both T hij and T Lij are 0 if                i2N D k2K
+                                                                                          X        X        X
+j 2 N Ii , i.e. node i and j are at the same offshore installation. Due                    xhjik ¼  xhijk þ   xhijðkþ1Þ ;
+to safety regulations there is a maximum number of legs travelled                         j2Nh           j2NIi              j2N h nNIi
+
+between the pickup and delivery of an order, given by L. Let                               h 2 H; i 2 Nh n fsðhÞ; eðhÞg; k 2 K n fjKjg;                                                   ð7Þ
+                                                                                        XX                XX
+K ¼ 1; . . . ; K be the set of possible leg numbers, indexed by k,                             kxhjðiþnÞk       kxhjik 6 L; h 2 H; i 2 N P ;                                             ð8Þ
+where K is an upper bound on the number of legs a helicopter                              j2Nh k2K                    j2N h k2K
+                                                                                                                                                      !
+can fly on a given day.                                                                                                                  X
+   Let the binary variable xhijk be equal to one if helicopter h travels                  f hi  F hij  f hj þ M Fhij 1                 xhijk           P 0;
+                                                                                                                                         k2K
+from node i to j on leg k, and zero otherwise. Variable phi is the
+number of passengers when leaving node i, and f hi is the fuel level                         h 2 H; i 2 Nh ; j 2 Nh n NFh ;                                                               ð9Þ
+and thi is the time when helicopter h is arriving at node i. The bin-                     F hi 6 f hi ; 6 F hi ;
+                                                                                                             h 2 H; i 2 Nh ;                                                             ð10Þ
+ary variable zh equals one if helicopter h is used, and zero other-                                                         !
+                                                                                                                   X
+wise. Further, we introduce the binary variable chij which is equal                       phi þ Pj  phj  K h 1      xhijk 6 0;                                h 2 H; i 2 Nh ; j 2 NP ; ð11Þ
+                                                                                                                                    k2K
+to one if helicopter h service both nodes i 2 N and j 2 N Ii and zero                                                                             !
+otherwise, while dij is equal to zero if two different helicopters ser-                                                            X
+                                                                                          phi  Pj  phj  K h 1                         xhijk       6 0;       h 2 H; i 2 Nh ; j 2 ND ; ð12Þ
+vice nodes i and j and i is serviced at least T L time units before j.                                                              k2K
+                                                                                                                                         !
+     For ease of exposition, the constraints in the model below are                                                   X
+defined using sets of nodes and may therefore contain combina-                            phi  phj  K h          1  xhijk                 6 0;         h 2 H; i 2 Nh ; j 2 NFh ;      ð13Þ
+tions of the indices h; i, and j for which the corresponding arc                                                            k2K
+
+ði; jÞ 2 Ah does not exist (e.g. when i ¼ j). In these cases the corre-                   phi ¼ 0; h 2 H; i 2 NFh ;                                                                      ð14Þ
+                                                                                             XX                                                                  P
+sponding variable xhijk can be assumed to take the value zero. Using                      Pi      xhijk 6 phi 6 K h zh ;                     h 2 H; i 2 N ;                              ð15Þ
+this notation, the problem can be formulated as follows:                                     k2K j2Nh
+
+
+
+                                                                                      4
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                                                Computers and Operations Research 128 (2021) 105158
+
+                            XX
+0 6 phðiþnÞ 6 ðK h  Piþn Þ   xhðiþnÞjk ;                   h 2 H; i 2 NP ;             ð16Þ       a helicopter may perform during a day, indexed by s, indicating
+                                    k2K j2Nh
+                                                        !                                          which trip number it is currently performing. The parameter C Thr
+                                               X                                                   is the cost related to travelling trip r with helicopter h, and the bin-
+t hi þ T Lij þ T hij  t hj þ M 0hij 1         xhijk       P 0;                                   ary parameter Aihr indicates whether a node i is visited on trip r
+                                               k2K
+                                                                                                   with helicopter h or not. The time helicopter h uses on trip r is
+    h 2 H; i 2 Nh ; j 2 Nh n NFh ;                                                      ð17Þ       denoted T hr , while the time from the start of a trip to a specific
+                                                        !
+                                              X                                                    node i is denoted T ihr . Let T hr be the earliest and T hr be the latest
+t hi þ T Lij þ T hij  t hj þ M 00hij      1  xhijk        6 0;
+                                                                                                   possible time that trip r can be initiated with helicopter h. The
+                                               k2K
+                                                                                                   parameter T H is the minimum time consumption at a heliport
+    h 2 H; i 2 Nh ; j 2 Nh ;                                                            ð18Þ
+       XX                                                                                        between trips. The binary variable khrs equals one if helicopter h
+t hi þ        xhijk T hiðiþnÞ þ T LiðiþnÞ 6 t hðiþnÞ ;          h 2 H; i 2 NP ;         ð19Þ       travels trip r on trip number s, and zero otherwise. Variable ths rep-
+       j2Nh k2K                                                                                    resents the point in time when helicopter h starts trip number s
+X               X
+ t hi þ T Cij 6  t hj ;           ði; jÞ 2 NC ;                                         ð20Þ       from the heliport, while variable t i is the point in time when node
+h2H                 h2H
+                                                                                                 i is visited. With this notation, the the trip-based model is formu-
+X        X                   
+                                                                                                   lated as follows:
+  t hi    thj  T L þ T L þ T j dij P 0;                      i 2 NS ; j 2 N Ii ;      ð21Þ
+h2H          h2H
+                                                                                                          XXX T          XX H
+XX         XX                                                                                      min       C hr khrs þ   C h khr1 ;                                                 ð29Þ
+  xhii0k þ   xhjj0k 6 2chij ;                        h; 2 H; i 2 NS ; j 2 NIi ji < j;   ð22Þ               h2H r2Rh s2S                  h2H r2Rh
+i02N k2K            j02N k2K
+                     X
+dij þ dji 6 1 þ            chij ; i 2 NS ; j 2 NIi ji < j;                              ð23Þ       subject to:
+XX                   h2H
+                    XX                                                                             XXX
+  T i xhijk 6 thi 6    T i xhijk ;                    h 2 H; i 2 Nh ;                   ð24Þ                      Aihr khrs ¼ 1; i 2 NP ;                                             ð30Þ
+j2N h k2K                      j2N h k2K                                                           X
+                                                                                                   h2H r2Rh s2S
+                                                                                                        khrs 6 1; h 2 H; s 2 S;                                                       ð31Þ
+xhijk 2 f0; 1g;        h 2 H; ði; jÞ 2 Ah ; k 2 K;                                      ð25Þ
+                                                                                                   X
+                                                                                                   r2Rh           X
+zh 2 f0; 1g;        h 2 H;                                                              ð26Þ            khrs P         khrðsþ1Þ ; h 2 H; s 2 S n fjSjg;                               ð32Þ
+chij 2 f0; 1g; h 2 H; i 2 Nh ; j 2 NIi ;                                                ð27Þ       X
+                                                                                                   r2Rh           r2Rh       X
+                                                                                                        T hr khrs 6 ths 6        T hr khrs ; h 2 H; s 2 S;                            ð33Þ
+dij 2 f0; 1g;       i 2 N; j 2 NIi :                                                    ð28Þ       r2Rh                         r2Rh                                      !
+                                                                                                           X H                               X
+   The objective function (1) minimizes the cost related to travers-                               ths þ     T þ T hr khrs 6 t hðsþ1Þ þ Mh 1   khrðsþ1Þ ;
+                                                                                                           r2Rh                                               r2Rh
+ing arcs and utilizing helicopters. The constraints (2) and (3) make
+sure that all orders are handled and that the same helicopter visits                                  h 2 H; s 2 S n fjSjg;                                                           ð34Þ
+both the pickup node and the corresponding delivery node. Con-                                     tj  ti P T Cij ; ði; jÞ 2 NC ;                   !                                ð35Þ
+straints (4)-(6) ensure continuous flight sequences, while begin-                                             X                           X
+ning and ending in the correct nodes. The arcs are given the                                       ti P ths þ       T ihr khrs  M ih 1    Aihr khrs ;
+                                                                                                                  r2Rh                                r2Rh
+correct leg index with constraints (7), while constraints (8) limit
+the number of legs between a pickup node and the corresponding                                        i 2 N; h 2 H; s 2 S;                      !                                     ð36Þ
+delivery node. Constraints (9) and (10) handle fuel consumption                                               X                       X
+                                                                                                   ti 6 ths þ                   P
+                                                                                                                 T ihr khrs þ T i 1   Aihr khrs ;
+and limit the fuel levels. The big M is given by M Fhij ¼                                                         r2Rh                              r2Rh
+
+F hi þ F hij  F hj . Embarking and disembarking of personnel at pickup                                i 2 N; h 2 H; s 2 S;                                                         ð37Þ
+                                                                                                   ti  tj P T L  T j þ T L  T i dij ; i 2 NS ; j 2 NIi ;                           ð38Þ
+and delivery nodes are enforced with constraints (11) and (12),                                    XX                  XX
+respectively, while constraints (13) and (14) ensure that no per-                                          Aihr khrs þ       Ajhr khrs P 2chij ;
+                                                                                                   r2Rh s2S                   r2Rh s2S
+sonnel is on board the helicopter when refueling. Constraints
+(15) and (16) limit the number of passengers on board a helicopter                                     h 2 H; i 2 N ; j 2 NIi ji < j;
+                                                                                                                          S
+                                                                                                                                                                                      ð39Þ
+when leaving a pickup and delivery node, respectively. Updating                                    T i 6 ti 6 T i ; X
+                                                                                                                    i 2 N;                                                            ð40Þ
+the departure times from each node visited is handled by con-                                      dij þ dji 6 1 þ      chij ; i 2 NS ; j 2 NIi ji < j;                               ð41Þ
+straints (17) and (18). Note that the refueling nodes are not part                                                        h2H
+of constraints (17) because, unlike at installation nodes, you are                                 chij 2 f0; 1g; h 2 H; i 2 NS ; j 2 NIi ;                                           ð42Þ
+allowed to wait at the heliports before refueling. The big Ms are                                  dij 2 f0; 1g; i 2 N; j 2 NIi ;                                                     ð43Þ
+given as M 0hij ¼ T j þ T Lij þ T hij and M 00hij ¼ T i þ T Lij þ T hij , respectively.            khrs 2 f0; 1g; h 2 H; r 2 Rh ; s 2 S:ð44Þ
+Constraints (19) ensure that the pickup node is visited earlier than                                   The objective function (29) minimizes the cost of the selected
+the corresponding delivery node. The minimum time difference                                       trips and the fixed cost of using helicopters. Constraints (30)
+between handling the connected orders is enforced through con-                                     ensure that all orders are handled. Constraints (31) and (32) make
+straints (20). Constraints (21)-(23) ensure that no two helicopters                                sure that a helicopter can maximum do one trip for each trip num-
+are present at an installation simultaneously. The upper and lower                                 ber, and that a trip can be assigned to a trip number, only if the pre-
+limit of the departure time are stated with constraints (24). Finally,                             vious trip number has already been used. In constraints (33) the
+constraints (25)-(28) give the domain of each variable.                                            time windows for when a helicopter can initiate a trip are bounded
+                                                                                                   by which trip the helicopter is using. If a helicopter does not use
+3.2. Trip-based mathematical formulation                                                           trip number s, the starting time of that trip number is set to 0. Con-
+                                                                                                   straints (34) state the earliest point in time a helicopter can initiate
+                                                                                                                                                            
+   An alternative to the model presented above, is a formulation                                   a trip, with the big M given as: M h ¼ maxr2Rh T hr þ T hr þ T H . Con-
+where each variable represents a trip beginning and ending at a                                    straints (35) ensure that there is sufficient time between the ser-
+heliport. Let Rh be the set of all possible trips for helicopter h,                                vice of two connected orders. Constraints (36) and (37) ensure
+indexed by r, and let S ¼ f1; . . . ; jSjg be the set of trip numbers that                         that the service time of each order is calculated correctly. The big
+                                                                                               5
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                              Computers and Operations Research 128 (2021) 105158
+
+                             
+M is set to M ih ¼ maxr2Rh T hr  T i . Constraints (38)–(41) ensure                  resources are stored in R, what the resource extension functions
+that no two helicopters are present at any installation simultane-                    look like, and what the resource window is for each resource.
+ously. Finally, constraints (42)-(44) state the variable domains.
+                                                                                           Algorithm 1. Label algorithm for trip generation for
+                                                                                             helicopter h.
+4. Solution method
+                                                                                           1: Rh ¼ £
+    Mixed integer programming models such as those presented in                            2: U ¼ fLðs; R0 ; NULLÞg
+Section 3 may be solved by commercial solvers using the branch-                            3: while U–£
+and-bound (B&B) algorithm. However, a prerequisite for solving                             4: L ¼ ði; R; Þ ¼Remov eFirstðUÞ
+the trip-based model formulated in Section 3.2 is that all possible                        5: for ði; jÞ 2 A
+                                                                                                                
+trips for all helicopters can be generated apriori.In the following                        6: L0 ¼ j; f ij ðRÞ; L
+we describe such a trip generation algorithm in Section 4.1, before                        7: if aj 6 f ij ðRÞ 6 bj
+proposing an alternative formulation of parts of the trip-based
+                                                                                           8: if j ¼ eðhÞ
+model requiring delayed constraint generation in Section 4.2. In
+                                                                                           9: Rh ¼ Rh [ fL0g
+Section 4.3 we describe how the number of arcs in the problem
+                                                                                           10: else
+defining graph may be reduced, and how the width of the time
+                                                                                           11: U ¼ U [ fL0g
+windows may be decreased, before finally introducing some aggre-
+                                                                                           12: end if
+gated branching rules used when solving the trip-based mathe-
+                                                                                           13: end if
+matical model in Section 4.4.
+                                                                                           14: end for
+                                                                                           15: end while
+4.1. Apriori trip generation
+
+    The trips in the trip based model are generated apriori using a
+labeling algorithm. Labeling algorithms are commonly used to                          4.1.1. Resources
+solve shortest path problem with resource constraints (SPPRC)                             The resources are used to model constraints (3)-(12), (15)–(19)
+(Irnich and Desaulniers, 2005). For the trip generation algorithm                     and (24)–(25) in the mathematical model. The set of resources kept
+presented here, a labeling algorithm is run for each helicopter                       in a label is described in Table 1, as well as their value in the initial
+h 2 H and its corresponding graph Gh presented in Section 3. We
+                                                                                      label. The resource set, R, is defined as R ¼                 O; U; Lo ; f ; t; t; t Ci ,
+do, however, make one minor modification to Gh : since we are gen-
+erating trips, and refueling is done between trips, the set of refuel-                and R0 is the set of initial resource values.
+ing nodes N Fh is removed from the graph. A pseudo code for the trip                      The resources f ; t, and t keep track of the fuel left on board the
+generation is provided in Algorithm 1.                                                helicopter and the earliest and latest feasible arrival time at node i.
+     A label is used to store a partial path through the network, and                 Further, the resource O keeps track of the orders on board the heli-
+the resources accumulated along that path. A label Lði; R; L Þ, con-                 copter when reaching node i, while the resource Lo keep track of
+tains the last node on the path, i, a set of resources, R, and a pointer              the number of legs travelled for each order o 2 O. The set U keeps
+to the parent label, L . The parent label pointer is necessary in order              track of orders which can no longer be serviced on the partial path.
+to retrace the path represented by the label. The labeling algorithm                  This may be because the order has already been served on the (par-
+starts by initiating a set of unprocessed labels, U, only consisting of               tial) path, or because the time windows of the pickup and/or deliv-
+the start label LðsðhÞ; R0 ; NULLÞ. The initial set of resources are                  ery node makes it impossible to service the order on any feasible
+referred to as R0 , and the parent label pointer is a zero pointer,                   extension of the path. Finally, the resource tCi keeps track of the
+NULL. In the algorithm, a selected label L ¼ ði; R; Þ, representing                  amount of time that has elapsed since the visit at node i. The cost
+a partial path from node s to i with accumulated resources R, is                      of travelling a trip can be calculated after a label has reached the
+removed from U. This partial path is extended along all arcs                          end node, and is therefore not tracked.
+ði; jÞ 2 Ah to create new partial paths, each one represented by a
+label L0. The resource consumption of label L0 is calculated accord-                  4.1.2. Resource extension functions
+ing to so-called resource extension functions, given by f ij ðRÞ, where                  This subsection presents the resource extension functions used
+R is the resource consumption of label L. The resource consump-                       when extending labels in the labeling algorithm.
+tion of each extended label is then checked to see if it is within                                     8
+                                                                                                      >
+                                                                                                       < OðLÞ [ f jg      j 2 NP
+the resource window aj ; bj . If it is, then the new label is added to                  O
+                                                                                      f ij ðOðLÞÞ ¼      OðLÞ n f j  ng j 2 ND                                          ð45Þ
+U unless j ¼ eðhÞ, in which case the label has been extended to                                        >
+                                                                                                       :
+the sink node. The algorithm terminates when there are no unpro-                                       ( OðLÞ             j ¼ eðhÞ
+cessed labels left in U. In the following we describe which                            U                U ðLÞ [ f jg j 2 NP
+                                                                                      f ij ðU ðLÞÞ ¼                                                                     ð46Þ
+                                                                                                          U ðLÞ
+                                                                                                          (            otherwise
+                                                                                       L                    Lo ðLÞ þ 1 j R NIi ^ o 2 OðLÞ
+Table 1                                                                               f ij o ðLo ðLÞÞ ¼                                                                  ð47Þ
+Label attributes and initial values.                                                                          Lo ðLÞ          otherwise
+                                                                                        f
+                                                                                      f ij ð f ðLÞÞ ¼ f ðLÞ n
+                                                                                                             F hij                                                      ð48Þ
+   Resource       Description                                     Initial value                                                       o
+                                                                                        t
+   O              Open orders (started, but not yet completed)    £                   f ij ðt ðLÞÞ ¼ max T hj ; t ðLÞ þ T Lij þ T hij                                    ð49Þ
+                                                                                                        n                             o
+   U              Unreachable orders                              £                     t
+                                                                                      f ij t ðLÞ ¼ min T hj ; t ðLÞ þ T Lij þ T hij                                      ð50Þ
+   Lo             Legs travelled for order o                      0                                   8       n                             o
+   f              Remaining fuel                                  F hsðhÞ                             >
+                                                                                                      < max T Cjk ; tCk ðLÞ  T hij  T Lij   ð j; kÞ 2 NC
+                                                                                        t Ck
+   t              Earliest possible arrival at the current node   T hsðhÞ                      C
+                                                                                      f ij t k ðLÞ ¼          n                         o                                ð51Þ
+   t              Latest possible arrival at the current node     T hsðhÞ                             >
+                                                                                                      : max 0; t Ck ðLÞ  T hij  T Lij       otherwise
+   tCi            Time counter for node i                         0
+
+
+                                                                                  6
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                     Computers and Operations Research 128 (2021) 105158
+
+                                                                                                                            !
+   The sets of open and unreachable orders are extended using                               X                     X
+                                                                              t i P ths þ    T ihr khrs  Mih 1   Aihr khrs ; ði; Þ; ð; iÞ 2 NC ; h 2 H; s 2 S;
+Eqs. (45) and (46), respectively. In addition, the set of unreachable                       r2Rh                    r2Rh
+orders can be updated by considering the possible extensions. If an
+                                                                                                                                                                ð59Þ
+extension to a pickup node is found to be infeasible due to lack of                                                        !
+                                                                                          X                      X
+fuel, or because the earliest possible arrival time is outside the time       t i 6 ths þ  T ihr khrs þ T Pi 1   Aihr khrs ; ði; Þ; ð; iÞ 2 NC ; h 2 H; s 2 S:
+window, the pickup node is added to the set of unreachable orders.                          r2Rh                  r2Rh
+
+These resource windows cannot become feasible. Thus, it is impos-                                                                                                   ð60Þ
+sible for any extension to the end node to handle the order. For a
+pair of time connected orders, the order related to the service that             This is done in order to handle constraints (35). Note that the
+must be conducted first is added to the set U, when the service               number of connected orders is usually quite small in practice, lead-
+related to the other order has been conducted. Eqs. (47) update               ing to few constraints of this type.
+the number of intermediate landings for each open order, and Eq.                 Second, to enforce that at most one helicopter is present at each
+(48) update the fuel level. Eqs. (49) and (50) extend the lower               offshore installation at any given time we introduce an alternative
+and upper limits for the arrival at the current node, while Eqs.              formulation, using an exponential number of constraints. Let
+(51) update the time counter for all nodes.                                   Hi ¼ fðh; r; sÞjh 2 H; r 2 Rh s 2 S; Aihr ¼ 1g
+
+4.1.3. Resource windows                                                       and for ease of exposition we define hk ¼ ðhk ; r k ; sk Þ. Using this nota-
+                                                                              tion we can re-formulate the model as:
+    An extension to node j is feasible for a label L if criteria (52)–
+(58) are met. Criterion (52) states that the extension cannot be a            th1 s1 þ T h1 r1 i kh1 r1 s1  t h2 s2 þ T h2 r2 j kh2 r2 s2  T L P M2h2 1  dh1 h2 ;
+part of the set of unreachable orders if the evaluated extension is
+a pickup node. This criterion ensures that the related order has                 i 2 N S ; j 2 NIi ; h1 2 Hi ; h2 2 Hj jh1 –h2                                     ð61Þ
+to be open in order to extend to a delivery node, and that a label
+                                                                              dh1 h2 þ dh2 h1 P kh1 r1 s1 þ kh2 r2 s2  1
+cannot be extended to the end node if it has any open orders. Cri-            i 2 NS ; j 2 NIi ; h1 2 Hi ; h2 2 Hj ji < j; h1 –h2 ;                                ð62Þ
+terion (53) states that the maximum leg counters cannot exceeded              dh1 h2 2 f0; 1g;      i 2 NS ; j 2 N Ii ; h1 2 Hi ; h2 2 Hj jh1 –h2 :                ð63Þ
+their limits. Sufficient fuel level for the helicopter to return to the
+heliport is stated in criterion (54). Criterion (55) enforces that the            Constraints (61) correspond to constraints (36)–(38), with
+                                                                                             
+number of personnel on board the helicopter does not violate its              M 2h ¼ maxr2Rh T hr  T i  T L . Note that each of these constraints
+capacity. Criteria (56) and (57) ensure that the time window at               contains exactly five variables, making them very sparse. Con-
+the last node of the path is not violated. Finally, criterion (58)            straints (62) correspond to constraints (39), and constraints (63)
+enforces that the time counter resource must be zero or negative,             put binary restrictions on the d-variables.
+if node j is part of a connected pair of orders.                                  Since there is an exponential number of these constraints, it
+8                       9                                                     would be impractical, and in many cases impossible to add all of
+>
+> jRU          j 2 NPh >>
+>
+>                       >
+                        >                                                     them to the model apriori. To avoid this we instead use delayed
+<                       =
+  ð j  nÞ 2 O j 2 NDh                                                        constraint generation, where constraints (37)-(43) are initially
+                                                                  ð52Þ
+>
+>O ¼ £         j ¼ eðhÞ >
+                        >                                                     removed from the model, and the B&B algorithm is applied to
+>
+>                       >
+                        >
+:                       ;                                                     the relaxed model. Whenever a potential best integer solution is
+                                                                              found, we check whether it violates any of the constraints (61)–
+Lk 6 L; k 2 O                                                     ð53Þ        (63). If it does not, then the solution provides a primal bound,
+f ðLÞ P F hj                                                      ð54Þ        otherwise the violated constraints are added to make the solution
+ X                                                                            infeasible, and the B&B node is re-solved.
+      Pi 6 K h                                                    ð55Þ
+i2OðLÞ
+                                                                              4.3. Preprocessing
+tðLÞ P T hj                                                       ð56Þ
+                                                                                 Both the set of arcs for a given helicopter Ah and time windows
+tðLÞ 6 T hj                                                       ð57Þ        of some of the orders can be preprocessed in order to reduce the
+tCj 6 0                                                           ð58Þ        number of variables in the arc-flow model, the number of label
+                                                                              extensions in Algorithm 1, and the size of the solution space. This
+                                                                              section proposes a number of conditions that imply that an arc can
+                                                                              be removed from the graph or that a time window can be
+4.2. Delayed constraint generation
+                                                                              narrowed.
+
+   A drawback of the model presented in Section 3.2 is that there is
+                                                                              4.3.1. Preprocessing of arcs
+a large number of constraints ((36)–(43)), and a large number of
+                                                                                 Consider a helicopter h and the arc ði; jÞ 2 Ah . Under the follow-
+binary variables (d and c) that are needed only to ensure that no
+                                                                              ing circumstances may the arc be removed from the problem:
+two helicopters visit the same installation at the same time. One
+way to handle this, would be to categorize these constraints as lazy
+                                                                                  1. Arc is going from a start node or refueling node to a delivery
+constraints, a concept available in most commercial solvers that                                 F S                D
+removes the constraints from the model, and re-inserts them as                       node. i 2 N     fsðhÞg ^ j 2 N
+they are needed throughout the B&B tree. However, these con-                      2. Arc from a pickup node to an end node or refueling node.
+                                                                                           P        F S
+straints are potentially quite weak because of the big-M formula-                    i2N ^j2N           feðhÞg
+tions used in constraints (36)–(38), and constraints (36) and (37)                3. Node i or j, or their corresponding pickup/delivery node, is
+are quite dense as they sum over the set of trips Rh .                               located at a another heliport than the one used by helicopter
+   Instead, we can reformulate the part of the mathematical model                    h.
+covering constraints (37)–(43). First, we re-define constraints (36)              4. The nodes i and j are at the same installation, and
+and (37) to only be active for nodes i that are part of a pairing N C ,               j 2 N Ii ^ i < j. This also breaks symmetry.
+by re-writing them as:                                                            5. Arrival at node j is too late. T hi þ T Lij þ T hij > T hj
+                                                                          7
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                                            Computers and Operations Research 128 (2021) 105158
+
+
+      6. Arrival at node j is too early. T hi þ T Lij þ T hij < T hj                               connection between these variables and the original variables in
+                                                                                         C         the model.
+      7. The nodes are connected in the opposite order. ð j; iÞ 2 N
+                                                                                                           X
+      8. It is impossible to get the required time difference if the arc                           lhs ¼          khrs ;   h 2 H; s 2 S                                           ð68Þ
+         is used.                                                                                          r2Rh
+         T hij þ T Lij < T Cij and ði; jÞ 2 N C
+                                                                                                      The set of aggregated branching variables with the second high-
+      9. Given the maximum amount of fuel it is possible to have
+                                                                                                   est priority, are similar to the binary variables applied by
+         when arriving at node i, it must be possible to fulfill the
+                                                                                                   Andersson et al. (2011). The binary variable jih , equals 1 if heli-
+         orders related to nodes i and j, and travel back to the heli-
+                                                                                                   copter h conducts a pickup at node i, and 0 otherwise. The variables
+         copter’s heliport.
+                                                                                                   are connected with the original variables through Eq. (69).
+                                                                                                           XX
+                                        F hjðiþnÞ þ F hð jþnÞeðhÞ                                  jih ¼               Aihr khrs ;   i 2 NP ; h 2 H                               ð69Þ
+         F hij þ F hðiþnÞð jþnÞ þ min                                > F hi     i; j 2 NP
+                                        F hið jþnÞ þ F hðiþnÞeðhÞ                                          r2Rh s2S
+
+                                                                                        ð64Þ
+         F hij þ F hjðiþnÞ þ F hðiþnÞeðhÞ > F hi i 2 NP ; j 2 ND                        ð65Þ
+         F hij þ F hjð jþnÞ þ F hð jþnÞeðhÞ > F hi i 2 ND ; j 2 NP                      ð66Þ       5. Computational study
+         F hij þ F hjeðhÞ > F hi i; j 2 N D                                             ð67Þ
+                                                                                                      In this section we perform a study of the computational perfor-
+                                                                                                   mance of the two mathematical models presented in Section 3,
+  10. Node i is a pickup node at an installation with a related
+                                                                                                   when solved using Gurobi 9.0.0. All tests were conducted on a Len-
+      delivery node located at another installation, while j is a
+                                                                                                   ovo NextScale nx360 M5 computer, with an Intel E5-2643v3 six
+      node located on a heliport.
+                                                                                                   core 23.40GHz processor and 512.0 GB installed memory, run-
+  11. Node i is a delivery node located at a heliport and j is a
+                                                                                                   ning on a Linux operating system. The test instance generation
+      pickup node.
+                                                                                                   and labeling algorithm were implemented in C++.
+  12. The helicopter does not have enough capacity to handle the
+                                                                                                      In Section 5.1 we explain how the test instances used in this
+      orders related to nodes i, and j simultaneously.
+                                                                                                  computational study were generated, before we compare the com-
+       P i þ P j > K h ^ : i 2 N D ^ j 2 N P ).                                                    putational performance of the compact and trip-based model for-
+  13. The helicopter does not have enough capacity to handle the                                   mulations in Section 5.2. Further, we test the effect the number
+      order size of node i or j. max P i ; P j > K h .                                             of connected orders in the set N C has on the computational time
+                                                                                                   in Section 5.3, before finally comparing the computational effect
+   Applying all of these rules, we can greatly reduce the solution                                 of solving instances with a single, rather than multiple, heliport
+space of the compact formulation, and the number of extensions                                     (s) in Section 5.4.
+made in the labeling algorithm.
+                                                                                                   5.1. Test instance generation
+4.3.2. Preprocessing of time windows
+   The time dependent orders create the possibility of reducing                                        The input for the test instance generation was extracted from
+their respective time windows. This method is based on the time                                    flight records for helicopters on the Norwegian continental shelf
+window reduction presented by Dohn et al. (2011). The reduction                                    in 2018. Selected heliports were Bergen Airport Flesland and Sta-
+                                                                                                   vanger Airport Sola, which are the two most used heliports on
+of the time windows for a given pairing ði; jÞ 2 N C is formulated in
+                                                                                                   the NCS. In addition we selected ten installations, which have fre-
+Table 2.
+                                                                                                   quent flights to or from these heliports, and are reachable from
+                                                                                                   both heliports. This created a network where all locations can be
+4.4. Aggregated branching variables                                                                reached from an arbitrary location in the network. A map showing
+                                                                                                   the location of the heliports and the offshore installations can be
+    The choice of what variables to branch on in each node in the                                  seen in Fig. 2.
+B&B tree, affects the effectiveness of the algorithm (Gamrath                                          Each instance is characterized by the following features:
+et al., 2015). Dumas et al. (1991) and Andersson et al. (2011)
+include variables in their PDPs for the sole purpose of branching                                    Number of orders, i.e. the instance size.
+on them. Dumas et al. (1991) branch on variables related to each                                     Number of personnel in each order.
+order in a PDP, while Andersson et al. (2011) use aggregated                                         Pickup and delivery location of each order.
+branching variables, also referred to as constraint branching, in                                    Time windows for each order.
+the maritime pickup and delivery problem with split loads.                                           What orders that are time connected orders, and required time
+    Aggregated branching variables have been utilized in the the                                      differences.
+trip based model. Here, variables with the highest branching prior-
+ity are a set of variables lhs , which equals 1 if helicopter h travels                               Three instances were generated per instance size. The number
+any trip on trip number s, and 0 otherwise. Eq. (68) provides the                                  of personnel per order, was drawn randomly in the interval
+                                                                                                   between 6 and 10, and the time windows were given widths of
+                                                                                                   one hour. The number of orders between installations were set
+                                                                                                   to be 25 % of the total orders in an instance, although flight records
+Table 2                                                                                            suggest that the actual percentage is closer to 5 %. This relatively
+Preprocessing of time windows for connected orders.
+                                                                                                   high percentage imposes a stronger need for coordination and syn-
+  Node                     Pre-reduction                      Post-reduction                       chronization between helicopters, as helicopters must conduct
+                                                             h         n                oi        more visits at installations. We thus get test instances where this
+  i                          Ti; Ti                            T i ; min T i ; T j  T C
+                                                                                                   aspect is prominent.
+                                                             h   n               o      i
+  j                            Tj; Tj                          max T j ; T i þ T C ; T j              The helicopters used in the test instances were the Super Puma
+                                                                                                   and Sikorsky S-92, which are the most used helicopter types on the
+                                                                                               8
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                             Computers and Operations Research 128 (2021) 105158
+
+
+
+
+               Fig. 2. Overview of the two airports (squares) and the location of the 10 offshore installations (crosses) used to generate the test instances.
+
+
+
+NCS. The number of helicopters included in each instance depends                             It is clear from the results presented in Table 3 that the trip-
+on the number of orders. For a given number of orders, n, the num-                       based model outperforms the compact model in terms of solution
+ber of helicopters included, jHj, was given by jHj ¼ 2  dn5e þ 2. This                  quality within a limited computing time when applying standard
+number just needs to be large enough to make the instance feasi-                         commercial solvers to both model formulations. To see how the
+ble, since a part of the objective is to minimize the number of heli-                    trip-based model handles larger test instances, we compare three
+copters used. The helicopters were evenly distributed among the                          solution methods based on this model formulation. The first is to
+two heliports.                                                                           use standard branch-and bound (B&B) to solve the model pre-
+   The testing of the solution methods is divided into three parts.                      sented in Section 3, while the second one is to define constraints
+For the first part, presented in Section 5.2, one pair of time con-                      (37)–(43) as lazy constraints during the execution of the B&B algo-
+nected orders was included in each instance. In the second part                          rithm (Lazy). The third is to use delayed constraint generation
+of the testing, presented in Section 5.3 we increased the number                         (DCG), as described in Section 4.2.
+of pairs of connected orders in each instance from 0 and up to 8.                            Common for all the solution methods, is that all trips have to be
+In both these parts, the time connected orders were determined                           generated apriori. In Table 4 we report the time used for generating
+by randomly choosing the pickup and the delivery of two different                        trips, and the number of trips generated, for instances with 17 to
+orders. Finally, in the third part of the testing, presented in Sec-                     52 orders. Each row is an aggregation of 9 instances, with 3
+tion 5.4, we removed the heliport Flesland from each instance                            instances of each order size. For each of these sets of 9 instances,
+and moved all pickup and delivery nodes, and helicopters, to Sola                        we give the minimum, average, and maximum time, and number
+Airport.                                                                                 of trips, respectively. Unsurprisingly, the general trend is that both
+                                                                                         the time and number of trips increase with an increasing number
+                                                                                         of orders, however, there are some exceptions. E.g. the maximum
+5.2. Comparison of models                                                                time spent on the instances with an order size in the 44–46 inter-
+                                                                                         val is larger than the maximum time spent on instances with an
+   A comparison of the computational effort needed to solve the                          order size in the 50–52 interval. In general we see that the total
+compact and trip based models, respectively, using a commercial                          time spent is less than one minute for all the instances up to 40
+solver for instances between 8 and 16 orders is presented in                             orders, and even for some of the instances up to 52 orders. In the
+Table 3. For the compact model we give the optimality gap at the                         worst case over all instances tested, it takes less than 12 min
+termination of the B&B search (Opt. gap) and the computing time                          (720 s) to generate all trips. We further observe that the number
+in seconds (Comp. time). For the trip-based model we give the                            of trips generated varies a lot within each order interval, with
+optimality gap, the time spent generating trips (Trip gen. time),                        e.g. the instances in the 44–46 interval ranging from 100,000 to
+the time spent solving the mathematical model using a commer-                            10,000,000 trips. This indicates that the distribution of orders
+cial solver (B&B time), and the total computing time (Comp. time)                        across heliports and offshore installations, and the possibilities to
+which is the sum of the two. Maximum computing time for both                             remove arcs and reduce time windows, have a large impact on
+solution methods was set to 3600 seconds.                                                the number of feasible trips for each helicopter.
+   As can be seen from the table, the compact model struggles to                             The results of running the three solution methods for larger
+solve instances with 10 orders, and once the number of orders is                         instances are presented in Table 5. For each of the solution meth-
+increased to 12 or more, none of the instances may be solved                             ods, and each order size interval, we give the number of instances
+within one hour. Most of the instances also have an optimality                           solved to optimality (# Opt.), the average optimality gap (Opt. gap),
+gap of 100%, indicating that not even a feasible solution was found                      and the total computing time in seconds (Comp. time). The last line
+to the problem within the time limit. However, the trip based                            of the table (Tot./Avg.) gives the total number of instances solved,
+model can solve all instances from 8 to 16 orders within two                             and the average optimality gap and computing time, respectively,
+seconds.                                                                                 over all tested instances. For each instance, the maximal time of
+
+                                                                                     9
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                                     Computers and Operations Research 128 (2021) 105158
+
+
+Table 3
+Table comparing the computational performance of the compact model presented in Section 3.1 and the trip-based model presented in Section 3.2. For the compact model we
+present the optimality gap (Opt. gap) and the computing time (Comp. time), while for the trip-based model we present the optimality gap (Opt. gap) the time spent generating
+trips (Trip gen. time), the time spent in the B&B search (B&B time) and the total computing time (Comp. time).
+
+                                      compact model                                                                     trip-based model
+  # Orders                 Opt. gap             Comp. time [s]              Opt. gap                  Trip gen. time [s]                TtB&B time [s]           Comp. time [s]
+  8                        0.00 %               37                          0.00 %                    0.01                              0.03                     0.04
+  8                        0.00 %               11                          0.00 %                    0.00                              0.03                     0.03
+  8                        0.00 %               298                         0.00 %                    0.01                              0.12                     0.13
+  10                       100.00 %             3600                        0.00 %                    0.01                              0.32                     0.33
+  10                       0.00 %               619                         0.00 %                    0.01                              0.09                     0.10
+  10                       25.20 %              3600                        0.00 %                    0.01                              0.31                     0.32
+  12                       100.00 %             3600                        0.00 %                    0.01                              0.33                     0.35
+  12                       100.00 %             3600                        0.00 %                    0.01                              0.04                     0.05
+  12                       53.65 %              3600                        0.00 %                    0.01                              0.44                     0.45
+  14                       100.00 %             3600                        0.00 %                    0.03                              1.12                     1.15
+  14                       100.00 %             3600                        0.00 %                    0.01                              0.28                     0.29
+  14                       100.00 %             3600                        0.00 %                    0.02                              0.52                     0.54
+  16                       100.00 %             3600                        0.00 %                    0.04                              1.48                     1.52
+  16                       100.00 %             3600                        0.00 %                    0.02                              0.86                     0.88
+  16                       100.00 %             3600                        0.00 %                    0.05                              1.73                     1.77
+
+
+
+
+Table 4
+This table gives an overview of the minimum, average, and maximum time spent generating trips using Algorithm 1, and the minimum, average, and maximum number of trips
+produced for subsets of 9 test instances with an increasing number of orders.
+
+                                               Time generating trips                                                                     Number of trips
+  Orders                     Min                      Average                   Max                           Min                         Average                       Max
+  17–19                      0.01                     0.05                      0.20                          845                         4 231                     18 115
+  20–22                      0.01                     0.11                      0.39                          1 390                       8 427                     25 902
+  23–25                      0.03                     0.11                      0.32                          2 868                       8 616                     22 230
+  26–28                      0.08                     0.40                      1.97                          6 720                       21 087                    75 117
+  29–31                      0.09                     0.74                      2.23                          6 790                       34 368                    87 416
+  32–34                      0.19                     5.51                      18.50                         13 472                      172 859                   535 536
+  35–37                      1.30                     7.18                      16.14                         50 616                      198 262                   441 960
+  38–40                      1.56                     11.56                     42.35                         53 442                      278 478                   871 101
+  41–43                      3.66                     35.85                     82.94                         103 800                     780 779                   1 697 120
+  44–46                      4.36                     123.47                    696.44                        132 187                     2 137 780                 10 902 628
+  47–49                      16.13                    92.33                     274.94                        762 245                     2 021 542                 4 945 039
+  50–52                      15.51                    218.86                    621.90                        942 007                     3 793 540                 9 411 108
+
+
+
+
+Table 5
+Table comparing solving the trip-based model with standard B&B, with B&B using lazy constraints (Lazy), and delayed constraint generation (DCG), respectively. For each method
+we give the number of instances solved to optimality (# Opt.), the average optimality gap (Opt. gap), and the average computing time (comp. time).
+
+                                         B&B                                                   Lazy                                                        DCG
+  Orders          # Opt.           Opt. gap       Comp. time [s]       # Opt.            Opt. gap            Comp. time [s]        # Opt.           Opt. gap     Comp. time [s]
+  17–19           9                0.00 %         16.36                9                 0.00 %              5.49                  9                0.00 %       4.73
+  20–22           9                0.00 %         190.40               9                 0.00 %              54.31                 9                0.00 %       10.39
+  23–25           9                0.00 %         275.82               9                 0.00 %              33.98                 9                0.00 %       44.76
+  26–28           8                1.58 %         928.97               9                 0.00 %              395.29                9                0.00 %       63.68
+  29–31           7                2.57 %         1541.25              9                 0.00 %              969.34                8                0.62 %       772.64
+  32–34           1                20.61 %        3233.70              3                 35.80 %             2540.17               3                16.18 %      2579.32
+  35–37           1                28.76 %        3413.04              3                 28.07 %             2935.91               3                14.84 %      2585.45
+  38–40           0                23.51 %        3600.00              2                 67.07 %             3365.38               2                41.16 %      3151.38
+  41–43           0                53.18 %        3600.00              0                 68.79 %             3600.00               0                39.12 %      3600.00
+  44–46           0                64.36 %        3600.00              0                 48.61 %             3600.00               0                71.34 %      3600.00
+  47–49           0                90.69 %        3600.00              0                 100.00 %            3600.00               0                100.00 %     3600.00
+  50–52           0                91.34 %        3600.00              0                 100.00 %            3600.00               0                100.00 %     3600.00
+  Tot/Avg         44               31.38 %        2300.0               53                37.36 %             2058.3                52               31.94 %      1967.7
+
+
+
+the B&B search is adjusted to account for the time spent generating                           size interval can be solved, and once the number of orders passes
+the trips so that the maximal total computing time is one hour                                40, none of the methods can solve any instance to optimality
+(3600 s).                                                                                     within one hour, though feasible solutions can be found for many
+   As can be seen from the table, all methods solve all instances                             of the instances. Overall, we see that both delayed constraint gen-
+with up to 25 orders, though the standard B&B method is signifi-                              eration and applying lazy constraints outperforms standard B&B,
+cantly slower than the other two. For the instances with between                              both when it comes to the number of instances solved, and the
+26 and 31 orders, the three methods can solve 15, 18, and 17 out                              average computing time. It is, however, notable that B&B finds fea-
+of 18 instances, respectively. Once the number of orders becomes                              sible solutions to some of the largest instances, which neither of
+greater than 31, less than half of the instances within each order                            the other solution methods do. Comparing DCG with Lazy shows
+                                                                                         10
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                               Computers and Operations Research 128 (2021) 105158
+
+
+that neither outperforms the other. Using lazy constraints we are                                 When comparing the number of nodes in the B&B tree, there is
+able to solve one more instance to optimality than when using                                 also a trend that the delayed constraint generation creates a larger
+DCG, while the latter has a lower average optimality gap and com-                             B&B tree than the other two. In some cases, this may be explained
+puting time. Thus, for instances with one pair of connected orders,                           by the fact that the other two methods did not terminate their
+both of these methods seem to be equally good at solving the                                  search. However, e.g. for 2 connected orders we can see that using
+problem.                                                                                      lazy constraints gives roughly 53; 000 B&B nodes on average, while
+                                                                                              delayed constraint generation gives 145; 000 nodes when all
+5.3. Testing the effect of connected orders                                                   instances are solved to optimality. Despite generating much larger
+                                                                                              B&B trees, we still get significantly shorter computing times, when
+    In the tests presented above, the instances contained only one                            using DCG, indicating that less time is used in each node. This is
+pair of connected orders. In order to test the effect of the number                           likely due to the fact that fewer constraints are added to the formu-
+of connected orders on the computational performance of the pro-                              lation at a time, and the added constraints are less dense. Both
+posed methods, we have generated 5 additional instances with 30                               these factors are known to influence the time it takes to solve a lin-
+orders each. Each of these instances has been solved 9 times, with                            ear program.
+an increasing number of connected orders, from 0 to 8 pairs. The
+computational performance of these tests can be seen in Table 6.                              5.4. Testing the effect of one vs two heliports
+Here we have aggregated the results according to the number of
+connected orders, and give the number of instances solved to opti-                                To show that the presented methodology is also viable in the sin-
+mality within one hour (# Opt.), the average optimality gap (Opt.                             gle heliport case, and to compare the computational performance,
+gap), and the computing time (Comp. time). For the DCG method                                 we have altered the instances presented in Section 5.1 by moving
+we also list the average number of times constraints (61)–(63)                                all pickup and delivery nodes located at the heliport in Bergen, to
+were added during the B&B search (# Cons.).                                                   Stavanger. The results of using the DCG solution method on the test
+    The table shows that the trend from the previous tests, where                             instances from 17 to 37 orders are presented in Table 8. Each row is
+the standard B&B performed inferior to the other two methods, is                              an aggregation of nine instances, while the first three columns pre-
+present in these tests as well. It solves the least number of                                 sents the number of instances solved to optimality (# Opt), the aver-
+instances, and has a higher average computing time than the other                             age optimality gap (Opt. gap), and the average total computing time
+two. What is interesting in Table 6 is that the delayed constraint                            (Comp time). The last two columns show the percentage deviation
+generation seems to significantly outperform the B&B with lazy                                in objective value (D obj.) and the deviation in the number of trips
+constraints, which spends, on average, about 50 % longer, and                                 generated (D trips), respectively, when comparing the results with
+solves 4 instances less within one hour, compared with the DCG                                the original test instances with two heliports. When calculating
+method. The general trend for all three methods is also that                                  these deviations, we have only considered the subset of instances
+increasing the number of connected orders, increases the comput-                              where both versions have been solved to optimality.
+ing time, however, there are some outliers. E.g. when using lazy                                  As seen in Table 8 we can solve all instances up to 31 order to
+constraints, the instances without any connected orders take, on                              optimality, and further 8 of the instances from 32 to 37 orders.
+average, longer to solve than 1–6 pairs of connected orders, and                              Comparing these results to those presented in Table 3 we can see
+it is unable to solve one of the instances.                                                   that the DCG solution method can solve 3 more instances, and
+    In Table 7 we give the average number of trips generated (#                               has, on average, both smaller optimality gaps and shorter comput-
+Trips), and the average number of B&B nodes generated (# B&B                                  ing times. We also see that the number of trips generated is not
+nodes), when using the three different methods proposed in the                                effected much by the reduction from two to one heliports. Thus,
+paper. First, we notice that the number of trips is reduced signifi-                          we may conclude that the methodology works equally well for
+cantly, when the number of connected orders increase. This is                                 instances with a single heliport.
+due to the preprocessing techniques described in Section 4.3,                                     Studying the results presented in Table 8, we further see that
+where we both remove arcs and narrow time windows for the                                     the objective values, on average, increase slightly when going from
+nodes representing these orders. There thus exists fewer feasible                             two to one heliports. This is not surprising, as the helicopters have
+paths through the problem defining network, reducing the number                               to fly a longer distances to service those installations closest to Ber-
+of trips generated by the labeling algorithm described in Sec-                                gen. Comparing the optimal solutions of the test instances with
+tion 4.1. When the number of connected orders reaches 8, we see                               one and two heliports, the number of helicopters used are mostly
+an almost 30 % reduction in the the average number of trips, com-                             the same in both cases, however, there are both instances where
+pared with when there are no connected orders.                                                it increases and decreases by one.
+
+
+Table 6
+Table comparing solving the trip-based model with B&B, Lazy, and DCG, respectively, when the number of connected orders is increased. For each method we give the number of
+instances solved to optimality (# Opt.), the average optimality gap (Opt. gap), and the average computing time (Comp. time). For the DCG method, the number of times constraints
+were added is also listed (# Cons).
+
+                                   B&B                                            Lazy                                                  DCG
+     C
+  jN j           # Opt.       Opt. gap       Comp. time         # Opt.       Opt. gap          Comp. time      # Opt.       Opt. gap       Comp. time        # Cons.
+
+  0              5            0.00 %         2595.24            4            0.33 %            1668.36         5            0.00 %         471.59            73.6
+  1              3            0.95 %         2804.86            5            0.00 %            1095.65         5            0.00 %         359.72            76.0
+  2              3            0.95 %         2501.21            5            0.00 %            1089.97         5            0.00 %         737.95            94.6
+  3              3            1.44 %         2368.23            5            0.00 %            1001.42         5            0.00 %         816.27            151.8
+  4              3            3.15 %         3067.16            5            0.00 %            1034.59         5            0.00 %         1177.73           99.6
+  5              3            4.03 %         2469.74            4            0.72 %            1545.19         5            0.00 %         909.73            137.0
+  6              4            1.58 %         2223.34            4            0.33 %            1583.26         4            1.34 %         1194.56           144.0
+  7              3            3.27 %         2222.25            4            0.20 %            1722.28         5            0.00 %         737.87            145.2
+  8              3            4.19 %         2215.46            3            3.47 %            2058.27         4            0.94 %         1829.65           161.8
+  Tot/Avg        30           2.17 %         2496.39            39           0.56 %            1422.11         43           0.25 %         915.01            120.4
+
+                                                                                         11
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                                  Computers and Operations Research 128 (2021) 105158
+
+
+Table 7
+Table listing the average number of trips generated (# Trips) and the average number of B&B nodes (# B&B nodes) generated when solving the trip-based model with B&B, Lazy,
+and DCG, respectively, when the number of connected orders is increased.
+
+  jN C j                                  # Trips                                                                         # B&B nodes
+
+                                                                                  B&B                                      Lazy                                       DCG
+  0                                       47695.2                                 57440.8                                  77568.0                                    69721.2
+  1                                       45564.4                                 33261.0                                  53397.0                                    55336.6
+  2                                       45151.4                                 29664.0                                  53671.8                                    144530.4
+  3                                       42890.4                                 21094.4                                  59297.4                                    132799.2
+  4                                       41573.0                                 47016.0                                  88488.6                                    345396.4
+  5                                       38420.2                                 30898.8                                  93327.4                                    271439.8
+  6                                       36524.6                                 38656.6                                  207333.6                                   327316.6
+  7                                       33749.8                                 34993.0                                  194810.0                                   147105.4
+  8                                       30298.8                                 35063.6                                  171104.2                                   635135.6
+
+
+
+Table 8
+Table comparing solving the test instances with one and two heliports using the DCG solution method. The table lists the number of instances solved to optimality (# Opt), the
+average optimality gap (Opt. gap) and total computing time (Comp time), as well as the average difference in objective value objective value (D obj.) and number of trips (D trips)
+when using one instead of two heliports.
+
+  Orders                         # Opt.                         Opt. gap                         Comp time [s]                          D obj.                        D trips
+  17–19                          9                              0.00 %                           3.90                                   1.21 %                        -5.56
+  20–22                          9                              0.00 %                           8.51                                   0.41 %                        -196.22
+  23–25                          9                              0.00 %                           59.13                                  1.38 %                        -98.00
+  26–28                          9                              0.00 %                           95.60                                  1.99 %                        -597.33
+  29–31                          9                              0.00 %                           376.69                                 0.34 %                        175.33
+  32–34                          4                              14.14 %                          2273.47                                0.15 %                        2199.11
+  35–37                          4                              6.20 %                           2378.85                                1.13 %                        -4214.44
+
+
+
+
+6. Concluding remarks                                                                        CRediT authorship contribution statement
+
+    In this paper we have studied a rich helicopter flight scheduling                          Gaute Messel Nafstad: Conceptualization, Methodolody, Soft-
+problem from the offshore oil and gas industry. The problem con-                             ware, Investigation, Writing - review & editing, Visualization.
+sists of designing routes for helicopters to transport personnel                             Amund Haugseth: Conceptualization, Methodolody, Software.
+either between heliports onshore and offshore installations or                               Vebjørn Høyland: Conceptualization, Methodolody, Software.
+between offshore installations. The problem can be modelled as a                             Magnus Stålhane: Conceptualization, Methodolody, Supervision,
+rich vehicle routing problem, which includes a pickup and delivery                           Writing - original draft, Writing - review & editing.
+structure, heterogeneous fleet of vehicles, multiple trips, multiple
+depots, and temporal synchronization of transportation tasks.
+                                                                                             Acknowledgements
+    To solve this problem, we have presented a trip-based model,
+where all trips are generated apriori, and a mathematical model
+                                                                                                 We would like to thank the two referees for their valuable com-
+that puts these trips together to form feasible routes. To further
+                                                                                             ments and suggestions. We would further like to thank TietoEVRY
+improve the solution time when solving these models using
+                                                                                             for their cooperation and for providing us with industry data.
+branch-and-bound (B&B), we have re-formulated the model using
+an exponential number of constraints which is added to the model
+using delayed constraint generation (DCG) during the B&B search.                             References
+The computational experiments indicate that when the number of
+                                                                                             Andersson, H., Christiansen, M., Fagerholt, K., 2011. The maritime pickup and
+temporal dependencies in the model become large, the delayed                                     delivery problem with time windows and split loads. INFOR 49 (2), 79–91.
+constraint generation method outperforms both standard B&B,                                  Baldacci, R., Bartolini, E., Mingozzi, A., 2011. An exact algorithm for the pickup and
+and using the lazy constraints option built into (most) commercial                               delivery problem with time windows. Oper. Res. 59 (2), 414–426.
+                                                                                             Baldacci, R., Bartolini, E., Mingozzi, A., Roberti, R., 2010. An exact solution
+solvers. Further investigation of the computational results indicate                             framework for a broad class of vehicle routing problems. Comput. Manage.
+that the using DCG generates larger B&B trees than the other two                                 Sci. 7 (3), 229–268.
+methods, and thus the explanation for its improved performance                               Baldacci, R., Mingozzi, A., 2009. A unified exact method for solving different classes
+                                                                                                 of vehicle routing problems. Math. Program. 120 (2), 347.
+is likely to stem from the fact that it adds fewer and sparser con-
+                                                                                             Berbeglia, G., Cordeau, J.-F., Gribkovskaia, I., Laporte, G., 2007. Static pickup and
+straints to the model, thus affecting the time needed to solve each                              delivery problems: a classification scheme and survey. TOP 15 (1), 1–31.
+node in the B&B tree less than when adding lazy constraints.                                 Aerospace Technology, 2018. Norway’s largest industries. URL:https://www.
+Finally, testing of the DCG indicates that there is little difference                            aerospace-technology.com/projects/s92/..
+                                                                                             British Petroleum Company, 2020. bp Statistical Review of World Energy 2020. URL:
+in the computational effort needed to solve instances with one                                   https://www.bp.com/content/dam/bp/business-sites/en/global/corporate/pdfs/
+and two heliports.                                                                               energy-economics/statistical-review/bp-stats-review-2020-full-report.pdf..
+                                                                                             Cattaruzza, D., Absi, N., Feillet, D., 2016. Vehicle routing problems with multiple
+                                                                                                 trips. 4OR 14 (3), 223–259.
+                                                                                             Contardo, C., Martinelli, R., 2014. A new exact algorithm for the multi-depot vehicle
+Declaration of Competing Interest                                                                routing problem under capacity and route length constraints. Discr. Optim. 12,
+                                                                                                 129–146.
+    The authors declare that they have no known competing finan-                             Dohn, A., Rasmussen, M.S., Larsen, J., 2011. The vehicle routing problem with time
+                                                                                                 windows and temporal dependencies. Networks 58 (4), 273–289..
+cial interests or personal relationships that could have appeared to                         Drexl, M., 2012. Synchronization in vehicle routing–a survey of VRPs with multiple
+influence the work reported in this paper.                                                       synchronization constraints. Transp. Sci. 46 (3), 297–316.
+
+                                                                                        12
+Gaute Messel Nafstad, A. Haugseth, Vebjørn Høyland et al.                                                                        Computers and Operations Research 128 (2021) 105158
+
+
+Drexl, M., Schneider, M., 2015. A survey of variants and extensions of the location-              Montoya-Torres, J.R., Franco, J.L., Isaza, S.N., Jiménez, H.F., Herazo-Padilla, N., 2015.
+    routing problem. Eur. J. Oper. Res. 241 (2), 283–308.                                             A literature review on the vehicle routing problem with multiple depots.
+Dumas, Y., Desrosiers, J., Soumis, F., 1991. The pickup and delivery problem with                     Comput. Ind. Eng. 79, 115–129.
+    time windows. Eur. J. Oper. Res. 54, 7–22.                                                    Moreno, L., de Aragão, M.P., Uchoa, E., 2006. Column generation based heuristic for a
+Fernández-Cuesta, E., Norddal, I.K., Andersson, H., Fagerholt, K., 2017. Base location                helicopter routing problem. In: Àlvarez, C., Serna, M. (Eds.), Experimental
+    and helicopter fleet composition in the oil industry. In: INFOR: Information                      Algorithms. Springer Berlin Heidelberg, Berlin, Heidelberg, pp. 219–230.
+    Systems and Operational Research, pp. 71–92. URL:https://doi.org/10.1080/                     Moreno, L., Poggi de Aragao, M., Porto, O., Reis, M., 2005. Planning offshore
+    03155986.2016.1262583.                                                                            helicopter flights on the Campos Basin. XXXVII Simpósio Brasileiro de Pesquisa
+Galvão, R., Guimarães, J., 1987. An algorithm for helicopter routing in the support of                Operacional (SBPO), Gramado, Brazil, pp. 967–976..
+    offshore oil exploration. In: Proceedings of the XX Brazilian OR Symposium, pp.               Norwegian Petroleum, 2020a. ECONOMY. URL: https://www.norskpetroleum.no/
+    96–108.                                                                                           en/economy/..
+Galvão, R.D., Guimarães, J., 1990. The control of helicopter operations in the                    Norwegian Petroleum, 2020b. Everything you need to know about norwegian
+    Brazilian oil industry: Issues in the design and implementation of a                              petroleum activities. URL: https://www.norskpetroleum.no/en/.
+    computerized system. Eur. J. Oper. Res. 49 (2), 266–270.                                      Pessoa, A., Sadykov, R., Uchoa, E., 2018. Enhanced branch-cut-and-price algorithm
+Gamrath, G., Melchiori, A., Berthold, T., Gleixner, A.M., Salvagnin, D., 2015.                        for heterogeneous fleet vehicle routing problems. Eur. J. Oper. Res. 270 (2), 530–
+    Branching on multi-aggregated variables. In: Michel, L. (Ed.), Integration of AI                  543.
+    and OR Techniques in Constraint Programming. Springer International                           Qian, F., Gribkovskaia, I., Sr, Øyvind Halskau, 2011. Helicopter routing in the
+    Publishing, Cham, pp. 141–156.                                                                    norwegian oil industry: Including safety concerns for passenger transport. Int. J.
+Gschwind, T., 2015. A comparison of column-generation approaches to the                               Phys. Distrib. Logist. Manage. 41 (4), 401–415. URL:https://doi.org/10.1108/
+    synchronized pickup and delivery problem. Eur. J. Oper. Res. 247 (1), 60–71.                      09600031111131959.
+Hermeto, N. d. S.S., Filho, V.J.M.F., Bahiense, L., 2014. Logistics network planning for          Qian, F., Strusevich, V., Gribkovskaia, I., Halskau, Ø., 2014. Minimization of
+    offshore air transport of oil rig crews. Computers & Industrial Engineering 75,                   passenger takeoff and landing risk in offshore helicopter transportation:
+    41 – 54..                                                                                         models, approaches and analysis. Omega 51, 93–106.
+Hernandez, F., Feillet, D., Giroudeau, R., Naud, O., 2016. Branch-and-price                       Ropke, S., Cordeau, J.-F., 2009. Branch and cut and price for the pickup and delivery
+    algorithms for the solution of the multi-trip vehicle routing problem with                        problem with time windows. Transp. Sci. 43 (3), 267–286.
+    time windows. Eur. J. Oper. Res. 249 (2), 551–559.                                            Sierksma, G., Tijssen, G.A., Jan 1998. Routing helicopters for crew exchanges on off-
+Irnich, S., Desaulniers, G., 2005. Shortest path problems with resource constraints.                  shore locations. Ann. Oper. Res., 261–286
+    In: Desaulniers, G., Desrosiers, J., Solomon, M.M. (Eds.), Column Generation.                 Statistics Norway, 2019. External trade in goods. URL:https://www.ssb.no/en/
+    GERAD 25th Anniversary Series. Springer, pp. 33–65.                                               utenriksokonomi/statistikker/muh/aar..
+Koç, Ç., Bektasß, T., Jabali, O., Laporte, G., 2016. Thirty years of heterogeneous vehicle        Statistics Norway, 2019. Spillover-effects from the offshore petroleum to the
+    routing. Eur. J. Oper. Res. 249 (1), 1–21.                                                        mainland         economy.          URL:https://www.ssb.no/nasjonalregnskap-og-
+Menezes, F., Porto, O., Reis, M.L., Moreno, L., Aragão, M.P. d., Uchoa, E., Abeledo, H.,              konjunkturer/artikler-og-publikasjoner/_attachment/405655?
+    Nascimento, N.C. d., 2010. Optimizing helicopter transport of oil rig crews at                    _ts=16ecb1da138..
+    Petrobras. Interfaces 40 (5), 408–416..                                                       TietoEVRY, 2020. Dawinci industry hub - changing perspectives on oil & gas
+Mingozzi, A., Roberti, R., Toth, P., 2013. An exact algorithm for the multitrip vehicle               logistics.             URL:https://www.tietoevry.com/en/industries/oil-and-gas/
+    routing problem. INFORMS J. Comput. 25 (2), 193–207.                                              Integrated-logistics-management/..
+
+
+
+
+                                                                                             13
+

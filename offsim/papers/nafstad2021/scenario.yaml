@@ -1,0 +1,205 @@
+# Nafstad et al. (2021) — scenario extraction
+# Source: Nafstad, Haugseth, Høyland & Stålhane, "An exact solution method for a
+# rich helicopter flight scheduling problem arising in offshore oil and gas
+# logistics", Computers & Operations Research 128 (2021) 105158,
+# DOI 10.1016/j.cor.2020.105158. Open access CC BY 4.0.
+# Extracted 2026-11-06 from ~/workspace/papers/nafstad2021/nafstad2021.txt
+# (13,439 words, pdftotext of the published PDF).
+# RULE: every value below is quoted or paraphrased from the paper unless tagged
+# ASSUMPTION. Anything tagged ASSUMPTION is NOT in the paper and must be
+# decided (and recorded) by whoever builds the solver — never silently filled in.
+
+paper:
+  authors: [Gaute Messel Nafstad, Amund Haugseth, Vebjørn Høyland, Magnus Stålhane]
+  title: An exact solution method for a rich helicopter flight scheduling problem arising in offshore oil and gas logistics
+  journal: Computers & Operations Research
+  volume: 128
+  article: 105158
+  year: 2021  # received 2 Jan 2020; accepted 19 Nov 2020; online 29 Nov 2020
+  doi: 10.1016/j.cor.2020.105158
+  licence: CC BY 4.0 (open access, stated on p.1)
+  corresponding_author: Magnus Stålhane (magnus.staalhane@ntnu.no), NTNU Dept. of Industrial Economics and Technology Management, Trondheim
+
+problem:
+  type: Rich vehicle routing problem with time windows — pickup and delivery (PDP),
+    multi-depot, heterogeneous fleet, multi-trip, temporal synchronisation.
+    Berbeglia et al. (2007) classification — combination of 1-M-1-PDP and 1-1-PDP,
+    modelled as strictly 1-1-PDP. Koç et al. (2016) class HFTW(D) — fixed fleet,
+    time windows, distance-related variable costs.
+  story: >
+    Design one day's flight schedule for a heterogeneous fleet of helicopters that
+    transports personnel to, from, and between offshore installations on the
+    Norwegian continental shelf (NCS). Personnel are available at a pickup
+    location at a given time and have a latest arrival time at the destination.
+    Transport is mostly heliport <-> installation, but installation <-> installation
+    also occurs (flotel <-> production platform, expert personnel moving between
+    installations). Context (Introduction): ~350,000 unique personnel deployments
+    on the NCS in 2018 (~1,000/day, >50 fully loaded Sikorsky S-92s); one operator
+    estimates annual helicopter chartering/operating costs ~2 billion NOK.
+  objective: >
+    Minimise total cost = sum over arcs of travel cost C^h_ij + sum over helicopters
+    used of fixed daily cost C^H_h, while transporting ALL personnel from/to their
+    intended origin/destination and adhering to all constraints. (Compact model
+    objective (1); trip-based model objective (29).)
+    ASSUMPTION: cost units/currency are NOT stated in the paper. No cost
+    coefficients are reported anywhere. Any reproduction must choose a cost
+    convention (e.g. distance-based variable cost + fixed cost per helicopter used)
+    and record it as an assumption.
+
+orders:
+  definition: >
+    All personnel going from the same heliport to the same installation (or vice
+    versa) with the same time restrictions and dependencies are aggregated into
+    ONE order. Order i has pickup node i and delivery node i+n; P_i = number of
+    personnel picked up/delivered at node i; [T_i, Tbar_i] = earliest/latest service
+    time at node i.
+  pickup_delivery: "strictly one-to-one (each order: exactly one pickup node, one delivery node)"
+  connected_orders:
+    definition: >
+      Set N^C of node pairs (i,j) where node i must be visited at least T^C_ij time
+      units before node j (temporal precedence / synchronisation). Two kinds in
+      the problem: (a) key personnel — the replacement must arrive at least a
+      minimum time before the person being replaced can depart (debriefing);
+      (b) personnel travelling heliport -> installation -> heliport in a single day
+      who must be given sufficient time at the installation to perform a task.
+    in_tests:
+      section_5_2: 1 pair of connected orders per instance
+      section_5_3: 0 to 8 pairs, on 5 instances of 30 orders each (each solved 9 times)
+      how_chosen: randomly choosing the pickup and the delivery of two different orders
+    ASSUMPTION: the required time differences T^C_ij are NOT given numerically
+      anywhere in the paper. Any reproduction must choose values and record them.
+
+constraints:
+  - pickup_and_delivery_same_helicopter: the same helicopter visits both the pickup and the delivery node of an order (compact (3))
+  - all_orders_served: every order is handled exactly once (compact (2); trip-based (30))
+  - time_windows: each node served within [T_i, Tbar_i] (compact (24); trip-based (40))
+  - seat_capacity: passengers on board never exceed helicopter seat capacity K_h (compact (11)-(16))
+  - max_legs_per_order: safety regulation — maximum number of legs L travelled between the pickup and delivery of an order (compact (8); label resource L_o)
+    ASSUMPTION: the numeric value of L is NOT stated in the paper.
+  - fuel: fuel level on arrival between Fbar_hi (min) and F_hi (max); fuel consumption F^h_ij per arc; refuelling only at heliports, between trips; no personnel on board when refuelling (compact (9)-(10), (13)-(14))
+    ASSUMPTION: no fuel capacities, consumption rates, or tank sizes are reported.
+  - landing_time: constant time T^L spent at each offshore installation regardless of number of personnel (dis)embarking; helicopter leaves immediately afterwards. T^L_ij is the landing time at node i when travelling to j; T^h_ij = T^L_ij = 0 if i and j are at the same installation.
+    ASSUMPTION: the numeric value of T^L is NOT stated.
+  - flight_time_and_fuel: based on distance between locations and the cruising speed of each helicopter; NOT affected by wind or number of personnel on board.
+    ASSUMPTION: no distances, speeds, or consumption rates are reported.
+  - trip_structure: >
+      A trip = flight sequence starting at a heliport, visiting installations in a given
+      order, returning to the initial heliport. A route = sequence of trips flown by one
+      helicopter in one day. Between trips the helicopter must wait a given amount of
+      time for refuelling (heliports only) and required pilot rest; minimum heliport
+      time between trips is T^H (trip-based model).
+    ASSUMPTION: the numeric value of T^H (turnaround/refuel/rest time) is NOT stated.
+  - no_simultaneous_presence: "no two helicopter routes may be scheduled to visit the same installation at the same time (only one helipad, usually) (compact (21)-(23); trip-based (38)-(43), reformulated as (61)-(63) for DCG)"
+  - arc_rules: "no sub-tours at an installation; deliver before picking up at an installation (arcs (i,j) removed if j in N^I_i and i < j); helicopters arriving at a heliport must visit delivery nodes, then the refuelling node, then pickup nodes (no direct pickup->delivery arcs at heliports; no arc from another installation directly to a heliport pickup node)"
+  - refuel_every_return: refuelling enforced every time a helicopter returns to its heliport (compact model)
+
+vehicles_helicopters:
+  fleet: heterogeneous in (a) seat capacity, (b) fixed daily operating cost, (c) fuel consumption per hour, (d) fuel tank capacity
+  types_used_in_tests: [Super Puma, Sikorsky S-92]  # "the most used helicopter types on the NCS"
+  known_numbers:
+    sikorsky_S92_seats: 19  # Introduction, citing Aerospace Technology (2018); context, not a test-instance parameter
+  ASSUMPTION: >
+    No per-type seat capacities (Super Puma seats not stated), speeds, fuel
+    consumption, tank capacities, or fixed costs are reported anywhere in the
+    paper. The test instances' helicopter parameters are entirely unreported.
+    Any reproduction must choose a helicopter table and record it as an assumption.
+  basing: each helicopter is stationed at one heliport and starts/ends its day there (start node s(h), end node e(h))
+  fleet_size_rule: "|H| = 2 * ceil(n / 5) + 2, where n = number of orders. 'This number just needs to be large enough to make the instance feasible, since a part of the objective is to minimize the number of helicopters used.'"
+  fleet_distribution: helicopters evenly distributed among the two heliports
+
+depots_heliports:
+  - name: Bergen Airport Flesland
+    role: heliport / depot; refuelling node location; helicopter start/end
+  - name: Stavanger Airport Sola
+    role: heliport / depot; refuelling node location; helicopter start/end
+  # note: "the two most used heliports on the NCS", selected from 2018 flight records
+  # ASSUMPTION: no coordinates, distances, or flight times between heliports and installations are given in the paper (Fig. 2 is a schematic map only).
+
+installations:
+  count: 10
+  selection: "ten installations, which have frequent flights to or from these heliports, and are reachable from both heliports. This created a network where all locations can be reached from an arbitrary location in the network."
+  names_coordinates: NOT stated in the text; Fig. 2 shows them as crosses on a schematic map, unnamed and without coordinates
+  ASSUMPTION: >
+    Which 10 installations, and their coordinates/distances, are NOT in the paper.
+    Any reproduction must choose 10 real NCS installations reachable from both
+    Sola and Flesland and record the choice (names + coordinates + distance
+    source) as an assumption. This is the single largest unknown in the test design.
+
+instance_generation_section_5_1:
+  source_data: flight records for helicopters on the NCS in 2018 (provided via TietoEVRY; acknowledged, not published)
+  instances_per_size: 3
+  order_size_range: "6-10 personnel per order, drawn randomly (distribution not stated — ASSUMPTION: uniform on integers 6..10 unless the builder records otherwise)"
+  time_window_width: 1 hour for each order
+  time_window_start_times: NOT stated how drawn (distribution/start-of-day not given) — ASSUMPTION, must be chosen and recorded
+  pickup_delivery_locations: NOT stated how drawn — ASSUMPTION (presumably sampled from the 10 installations + 2 heliports; the sampling rule is not in the paper)
+  inter_installation_orders: 25% of total orders in an instance are between installations (pickup and delivery both offshore). Flight records suggest the real share is closer to 5%; 25% was chosen deliberately to force more coordination/synchronisation.
+  connected_orders: 1 pair per instance in §5.2 (see constraints.connected_orders); 0-8 pairs in §5.3
+  instance_sizes:
+    section_5_2_table_3: "[8, 10, 12, 14, 16] orders, 3 instances each = 15 instances"
+    section_5_2_tables_4_5: order intervals 17-19, 20-22, 23-25, 26-28, 29-31, 32-34, 35-37, 38-40, 41-43, 44-46, 47-49, 50-52; 9 instances per interval (3 per size) = 108 instances
+    section_5_3_tables_6_7: 5 instances of 30 orders each, each solved 9 times with 0-8 connected-order pairs
+    section_5_4_table_8: order intervals 17-19 through 35-37 (7 intervals, 9 instances each = 63 instances), Flesland removed, all nodes/helicopters moved to Sola
+  ASSUMPTION: no random seed is reported; no instance files are published (see availability below). Generated instances are therefore reproducible only in distribution, never instance-by-instance.
+
+solver_setup_section_5:
+  solver: Gurobi 9.0.0 (commercial solver, branch-and-bound)
+  machine: Lenovo NextScale nx360 M5, Intel E5-2643v3 six-core 2x3.40 GHz, 512.0 GB installed memory, Linux
+  implementation: test instance generation and labelling (trip generation) algorithm implemented in C++
+  time_limit: 3600 seconds (1 hour) maximum computing time per instance for both models in Table 3; for Tables 5-8 the B&B time is adjusted for trip-generation time so total (trip gen + B&B) <= 3600 s
+  methods_compared:
+    - compact model (Section 3.1) solved with standard B&B
+    - trip-based model (Section 3.2) solved with standard B&B
+    - trip-based model with constraints (37)-(43) as lazy constraints (Lazy)
+    - trip-based model with delayed constraint generation (DCG, Section 4.2)
+
+reported_results_summary:
+  # Full transcriptions are in reproduction_plan.md. Headlines only here.
+  table_3_compact_vs_trip_based_8_to_16_orders:
+    compact: "solves 8-order instances (0% gap, 11-298 s) but fails at 10+ orders; at 12+ orders NO instance solved in 1 h; most gaps 100% (no feasible solution found)"
+    trip_based: "all 15 instances solved to 0.00% gap, total time <= 1.77 s"
+  table_4_trip_generation_17_to_52_orders:
+    reading: "total trip-gen time < 1 min up to 40 orders; worst case over all instances < 12 min (720 s; observed max 696.44 s in the 44-46 interval). Trips generated per interval range from 845 (min, 17-19) to 10,902,628 (max, 44-46)."
+  table_5_BB_Lazy_DCG_17_to_52_orders:
+    solved_to_optimality_of_108: {B&B: 44, Lazy: 53, DCG: 52}
+    average_optimality_gap_pct: {B&B: 31.38, Lazy: 37.36, DCG: 31.94}
+    average_computing_time_s: {B&B: 2300.0, Lazy: 2058.3, DCG: 1967.7}
+    reading: "all instances to 25 orders solved by all methods; none above 40 orders solved by any method."
+  table_6_connected_orders_30_orders:
+    solved_to_optimality_of_45: {B&B: 30, Lazy: 39, DCG: 43}
+    average_optimality_gap_pct: {B&B: 2.17, Lazy: 0.56, DCG: 0.25}
+    average_computing_time_s: {B&B: 2496.39, Lazy: 1422.11, DCG: 915.01}
+    reading: "DCG clearly outperforms Lazy here (Lazy ~50% longer, 4 fewer solved)."
+  table_7_trips_and_BB_nodes_vs_connected_orders:
+    reading: "trips generated fall ~30% as connected pairs go 0 -> 8 (47,695.2 -> 30,298.8 average). DCG generates much larger B&B trees than the other methods at high connected-order counts (635,135.6 nodes at 8 pairs vs B&B 35,063.6) yet is faster per node."
+  table_8_one_vs_two_heliports_DCG_17_to_37_orders:
+    solved_to_optimality_of_63: "53 (all to 31 orders; 8 of 18 in 32-37)"
+    reading: "objective increases slightly with one heliport (D obj. +0.15% to +1.99%); trip counts roughly unchanged; helicopters used mostly the same (+/-1)."
+  NOTE: >
+    NO optimal objective VALUES are printed in any table (Tables 3-8 report only
+    optimality gaps, computing times, trip counts, B&B nodes, and constraint-add
+    counts). See reproduction_plan.md — this shapes the whole comparison rule.
+
+availability_of_instance_data:
+  data_appendix: none in the paper
+  repository_link: none in the paper
+  supplementary_material: none mentioned in the paper
+  instance_files: NOT published; instances exist only as the generative description in Section 5.1, driven by 2018 flight records provided by TietoEVRY (acknowledged, not published)
+  consequence: exact instance-by-instance reproduction is IMPOSSIBLE from the paper alone. The test reproduces the GENERATION RULES plus the solve, and compares aggregate table values (gaps, times, trip-count ranges), not per-instance exact values.
+
+flags_and_assumptions:
+  - ASSUMPTION: cost units and coefficients (arc costs, fixed helicopter costs) — not in paper
+  - ASSUMPTION: helicopter parameters per type (Super Puma seats/speed/fuel/tank/cost; S-92 speed/fuel/tank/cost) — not in paper (only S-92 = 19 seats, as context)
+  - ASSUMPTION: which 10 installations and their coordinates/distances — not in paper (Fig. 2 schematic only)
+  - ASSUMPTION: time-window start-time distribution — not in paper (only width = 1 hour)
+  - ASSUMPTION: pickup/delivery location sampling rule — not in paper
+  - ASSUMPTION: connected-order required time differences T^C_ij — not in paper
+  - ASSUMPTION: max legs per order L (numeric) — not in paper
+  - ASSUMPTION: landing time T^L (numeric) — not in paper
+  - ASSUMPTION: heliport turnaround time T^H (numeric) — not in paper
+  - ASSUMPTION: random seed for instance generation — not in paper
+  - 'ASSUMPTION: flight-time/fuel model details (distance metric, cruise speeds) — only "based on distance and cruising speed" in paper'
+  - 'PAPER QUIRK: Section 5.4 text says "Comparing these results to those presented in Table 3" — this must mean Table 5 (Table 3 is the 8-16 order compact comparison). Treat as a cross-reference error in the paper.'
+  - 'EXTRACTION NOTE (Table 3 header): pdftotext renders the trip-based B&B-time column header as "TtB&B time [s]"; read as "B&B time [s]". Values check out (trip-gen + B&B = comp. time, see reproduction_plan.md).'
+  - 'EXTRACTION NOTE (Table 3 arithmetic): two rows show a 0.01 s discrepancy between printed comp. time and trip-gen + B&B (12 orders row 1: 0.01+0.33=0.34 vs printed 0.35; 16 orders row 3: 0.05+1.73=1.78 vs printed 1.77). Consistent with rounding of unrounded values; not a transcription error.'
+  - 'EXTRACTION NOTE (Table 7 header): the table has one "# Trips" column (a single average per |N^C| row — trips are generated once, a priori, so the count is method-independent) followed by three "# B&B nodes" columns (B&B, Lazy, DCG). Header layout in the PDF is ambiguous; this reading follows the text of Section 5.3.'
+  - 'EXTRACTION NOTE (Table 8): "D trips" values are printed without units; read as absolute differences in average trip counts (not %), per the caption ("average difference in ... number of trips"). Flagged as uncertain — the paper does not state the unit.'
