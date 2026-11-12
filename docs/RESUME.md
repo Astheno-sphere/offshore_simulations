@@ -4,6 +4,17 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-12 — W0 + P1 (W1-W5) built and merged into wip/cad-assets-heli. 607 pass, 5 skip locally.
+W0: CI apt retries + requirements-cad, papers workflow -> data branch + issue, papers/auto data merged, coordination/
+channel (task N1 for Nordlys: bring uncommitted CAD sources + section.py v7-v10 in on agent/nordlys/N1-cad-sources).
+W1 tests/test_concordance.py (13 drift guards) + docs/GUARDS.md; gaps.py engine mapping fixed (HRP -> air).
+W2 offsim/studio (funnel.yaml, ledger, conductor): `offsim status | next | advance | decide`.
+W3 offsim/doctor (22 codes, playbooks, diagnose/repair, lessons): `offsim doctor | learn`; pipeline emits codes.
+W4 offsim/live (17 probes) + live-check.yml: `offsim live`. Unverified live until its first Actions run.
+W5 .claude/agents (9 roles), .mcp.json (ampl, Entur x2), AGENTS.md protocol.
+Next: CI green on this branch -> merge PR #1 -> Arshad runs live-check + papers + fetch-world on Actions, sets
+OFFSIM_MAILTO variable and AMPL_LICENSE_UUID secret -> Nordlys N1 -> then P2 (W6 gap scout, W7 intake, W8 article).
+
 ## 2026-11-11 (later) — system review, plan only: docs/SYSTEM_PLAN.md
 Nothing built. Verdict, measured state, 12 named flaws, five additions (conductor, doctor, concordance, live-check,
 agents+MCP), wave plan W0-W13 with models, owners, exit tests and firing commands, 6 decisions for Arshad.

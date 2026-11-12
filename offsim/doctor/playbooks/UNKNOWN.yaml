@@ -1,0 +1,21 @@
+code: UNKNOWN
+gate: '-'
+meaning: 'no rule matches: diagnose by hand, then add a playbook and a lesson'
+symptoms:
+- no code or rule matches the report
+- gate failed with a message the doctor has never seen
+checks:
+- tests_weakened
+- lessons_have_guards
+repairs:
+- id: investigate-then-learn
+  kind: human
+  action: Reproduce with the smallest scenario, read the gate detail, find the root cause; then add a playbook entry, a code and a lesson
+    (offsim learn) with a guard test.
+  why_safe: 'The point of the doctor: every new failure becomes a code once.'
+- id: check-premise-before-editing-tests
+  kind: human
+  action: 'If a test fails, check its premise against the paper/engine docs before editing it; an edit needs a why: line and a LESSONS
+    entry.'
+  why_safe: Tests edited to fit hide model gaps.
+question: What is the failure, in one sentence, and which gate or tool produced it?

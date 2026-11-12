@@ -1,0 +1,27 @@
+code: G3E-ENSEMBLE
+gate: 3e_ensemble
+meaning: an ensemble run failed the contract or an ensemble member could not run
+symptoms:
+- 'gate 3e detail.failures: runs that failed the contract or raised'
+- n_valid < n_runs
+- synthetic weather (test only) so the run is not reportable
+checks:
+- ensemble_failures
+- ensemble_weather_is_synthetic
+- contract_violations
+repairs:
+- id: rerun-unchanged
+  kind: auto
+  op: rerun_gate
+  action: Rerun the same scenario file with the same seed to separate a flaky host or workspace from a real failure.
+  why_safe: Same inputs, same code; the new report goes to a side directory and the failing report is kept.
+- id: fix-the-failing-member
+  kind: human
+  action: Diagnose the first failure as its own code (usually a G3-*) on the single seed/year that failed; an ensemble that hides failing
+    members is not allowed.
+  why_safe: Failures are never dropped from the ensemble.
+- id: real-weather
+  kind: human
+  action: Pull NORA3 metocean for the scenario's point and years before reporting; synthetic weather stays unreportable.
+  why_safe: Which data window is a modelling choice.
+question: Which seed/year failed first, and is the weather source real?

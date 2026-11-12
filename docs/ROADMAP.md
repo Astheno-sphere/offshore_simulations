@@ -24,3 +24,20 @@ Effort in working sessions (one session ≈ one focused Claude run). "You" = Ars
 
 To the first post: about 5–8 Claude sessions and about 30 minutes of your time. Each later paper reuses
 the machine: 1–2 sessions.
+
+## Spec stubs and refusals (modules that `raise NotImplementedError`)
+
+`tests/test_concordance.py` fails when an `offsim` module raises `NotImplementedError` and is not listed here. Specs are built
+to their docstring, then the tool's evidence goes into the catalog. A refusal is deliberate: the code fails loudly instead
+of guessing.
+
+| Module | Kind | What is missing | Unblocked by |
+|---|---|---|---|
+| `offsim/emissions` | spec | `vessel_energy`, `kpis`: fuel and CO2 per agent and state | roadmap step 13 (emissions); sourced fuel curves |
+| `offsim/motion/diptych.py` | spec | section + map diptych layout and frame (one clock) | visual chain (SYSTEM_PLAN W11) |
+| `offsim/weather/operability.py` | spec | `weather_windows` (Hs below limit for N hours) | step 8b follow-up; sourced HELI and CRANE limits |
+| `offsim/weather/fetch.py` | refusal | datasets whose server path is not traced to a source (`unverified:`) | first Actions run + `docs/TESTLOG.md` entry |
+| `offsim/worlds/fetch_world.py` | refusal | Kartverket seabed WCS and EMODnet endpoints not confirmed | first live fetch-world run |
+| `offsim/worlds/osm.py` | spec | Overture Maps buildings fetch | Actions run with the `overturemaps` CLI or DuckDB |
+| `offsim/research/run_experiment.py` | refusal | no builder passed: `build=None` raises; the CLI passes `offsim.pipeline.build_variant` | none (by design) |
+

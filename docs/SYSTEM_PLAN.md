@@ -47,7 +47,8 @@ apart, and nothing proves the outside world (data hosts, AMPL, CI runners) still
    (overtime, weekend flights, carry-over, spare helicopter). Also: no benchmark validation for the fluid solver,
    gate 4 compares one run instead of ensemble medians, ensemble reports keep quantiles but not runs, no cost or
    emissions model, weather limits unsourced, Stavanger and Bergen never solved in CI (skipped as slow).
-7. **Visual chain is unstitched.** CAD solids -> HLR drawings exist. skia Canvas exists. Inter exists. Hillshade and
+7. **Visual chain is unstitched.** (Correction from Nordlys, 2026-11-12: section.py v7 to v10 on his VM already draws
+   with skia and CAD HLR; it is uncommitted. Task N1 brings it in. The text below describes the repo as committed.) CAD solids -> HLR drawings exist. skia Canvas exists. Inter exists. Hillshade and
    sun() exist. The films use none of them (section.py still draws `vessel_lineart` with PIL). No visual gate
    (density, type scale, contrast, golden frames), so quality is judged by eye in chat.
 8. **Intake is shallow.** pdfplumber glues words and misses unruled tables; the helicopter paper's appendix was
@@ -126,7 +127,7 @@ def test_no_test_weakening():                   # a diff that edits an assert mu
 - `.mcp.json`: `ampl` (tools/ampl_mcp, laptop), Entur Journey Planner MCP, Entur Transit Data MCP. Optional later:
   a read-only `offsim` MCP exposing status, ledger and reports so any client can drive the machine.
 - Coordination protocol in AGENTS.md: one integration branch at a time, agents work in `agent/<role>/<task>`
-  branches, every agent writes `out/agent_reports/<task>.md` before it exits (reports can no longer be lost),
+  branches, every agent writes `coordination/reports/<task>.md` before it exits (reports can no longer be lost),
   RESUME is edited only by the integrator.
 
 ## 4. Depth work the machine needs (after section 3 exists)
@@ -171,7 +172,7 @@ Agent(subagent_type="general-purpose", model="<model from table>", run_in_backgr
       description="<W-id> <name>",
       prompt="Repo /home/claude/offshore_simulations. Read AGENTS.md and docs/SYSTEM_PLAN.md section <3.x/4> for
               <W-id>. You own only: <Owns>. Do not commit or push. Exit test: <Exit test>. Write your report to
-              out/agent_reports/<W-id>.md before you stop. Run python -m pytest -q tests at the end.")
+              coordination/reports/<W-id>.md before you stop. Run python -m pytest -q tests at the end.")
 ```
 
 After W5 lands, the same is a one-liner per role: `Agent(subagent_type="repairer", ...)` etc.

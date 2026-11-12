@@ -1,0 +1,27 @@
+code: G2-REPLAY-DRIFT
+gate: 2_replay_equals_plan
+meaning: the simulated replay does not reproduce the plan (distance/cost) or the engine could not replay it
+symptoms:
+- 'gate 2 rows: distance_km (or planned_variable_cost) ours vs plan outside rel_tol'
+- 'detail ''<engine>_engine'': exception text (bad route, KeyError, IndexError)'
+- replay used straight legs while the solver used sea lanes (or the reverse)
+checks:
+- replay_gap
+- graph_used
+- pyvrp_only_via_adapter
+repairs:
+- id: rerun-unchanged
+  kind: auto
+  op: rerun_gate
+  action: Rerun the same scenario file with the same seed to separate a flaky host or workspace from a real failure.
+  why_safe: Same inputs, same code; the new report goes to a side directory and the failing report is kept.
+- id: same-matrix
+  kind: human
+  action: Make solver and engine use the same distance matrix (sea lanes / roads); a large gap (>10 %) means they did not. Fix in code,
+    add a test.
+  why_safe: Code fix; never loosen the 1 % tolerance.
+- id: index-offsets
+  kind: human
+  action: Check client index offsets (PyVRP idx + depots) between the plan routes and the engine's node list.
+  why_safe: Code fix.
+question: Which distance matrix does the replay use vs the solver (check graph_used), and is that intended?

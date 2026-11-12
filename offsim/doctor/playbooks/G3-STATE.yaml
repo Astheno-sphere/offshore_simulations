@@ -1,0 +1,17 @@
+code: G3-STATE
+gate: 3_contract
+meaning: 'bookkeeping: moves while stationary, time runs backwards'
+symptoms:
+- 'contract [state]: moves M m while ''wait''/''load''/...'
+- 'contract [time]: time goes backwards'
+- state of a leg is the state at its start
+checks:
+- contract_violations
+- stationary_motion
+repairs:
+- id: state-at-leg-start
+  kind: human
+  action: Make the engine write the moving state (sail/drive/fly/walk) on the row that starts a leg, and a stationary state only after
+    arrival; order rows by t.
+  why_safe: Engine code fix with a test.
+question: Which engine writes the offending row (agent and time are in the contract line)?

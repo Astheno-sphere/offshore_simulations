@@ -1,0 +1,29 @@
+code: G4B-AIS
+gate: 4b_ais
+meaning: simulated speeds/port-call dwell disagree with the AIS calibration, or nothing was comparable
+symptoms:
+- 'gate 4b: failed rows (speed or port-call dwell vs AIS calibration)'
+- '''calibration has no metric comparable with this run'''
+checks:
+- ais_gate_rows
+- ais_calibration_present
+- world_manifest_errors
+repairs:
+- id: report-fetch-command
+  kind: auto
+  op: report_command
+  action: Print the exact fetch command recorded by the gate (and the fetch-world workflow to dispatch when the data was never released).
+  why_safe: 'Read-only: only reports a command.'
+- id: pull-world
+  kind: auto
+  op: pull_world
+  action: Pull the released world data for this scenario's world (python -m offsim.worlds.fetch_world --pull <world>) and rerun the
+    same scenario file unchanged.
+  why_safe: Downloads a released, versioned artifact into the git-ignored data/ tree; no scenario file is touched and the gate still
+    has to pass.
+- id: compare-assumptions
+  kind: human
+  action: 'A sim speed or service time that is an assumption disagrees with observed traffic: report it and let the human decide whether
+    the assumption or the AIS window is wrong.'
+  why_safe: Assumptions are the human's.
+question: Does the AIS calibration window/vessel class match this scenario, and is the disagreeing value an assumption?

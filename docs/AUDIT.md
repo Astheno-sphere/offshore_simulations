@@ -36,7 +36,7 @@ per clip.
 
 | # | Finding | Risk | Fix |
 |---|---|---|---|
-| 1 | `scenario.yaml` had a template but nothing consumed it; each stage was run by hand | steps skipped, gates forgotten | `python -m offsim run <scenario>`: gates 0–4 in order, stops at the first failure, writes `report.json` (`offsim/pipeline.py`) |
+| 1 | `scenario.yaml` had a template but nothing consumed it; each stage was run by hand | steps skipped, gates forgotten | `python -m offsim run <scenario>`: gates 0–4 in order (later also the opt-in 1b, 3e, 4b, 4c), stops at the first failure, writes `report.json` (`offsim/pipeline.py`) |
 | 2 | No provenance on results | a number cannot be traced to code, data or inputs | `report.json.provenance`: scenario SHA-256, git commit + dirty flag, package versions, world manifest, run time |
 | 3 | Gate 0 did not exist: unsourced parameters and unsupported problem classes went straight to the solver | silent approximation of a paper | gate 0 refuses values without `src`/`assumption` and classes outside `SUPPORTED` |
 | 4 | Status word ("reproduced") was the narrator's judgement | over-claiming | computed by the runner: assumptions present → at best "re-run under assumptions" |

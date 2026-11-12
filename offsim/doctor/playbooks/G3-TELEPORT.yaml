@@ -1,0 +1,16 @@
+code: G3-TELEPORT
+gate: 3_contract
+meaning: position jump with zero elapsed time
+symptoms:
+- 'contract [teleport]: position jump(s) with zero elapsed time'
+- two events at the same t with different positions
+checks:
+- contract_violations
+- teleport_count
+repairs:
+- id: engine-event-order
+  kind: human
+  action: Find the engine event that emits rows at equal t with different positions (arrival and next departure share a timestamp but
+    not a position); give moves positive duration or emit the arrival row first.
+  why_safe: Engine code fix with a test.
+question: Which engine emits the jump (see the agent and time in the contract line)?

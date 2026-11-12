@@ -1,0 +1,16 @@
+code: G3-CAPACITY
+gate: 3_contract
+meaning: load outside [0, capacity]
+symptoms:
+- 'contract [capacity]: load range [lo, hi] outside [0, capacity]'
+- negative load after unload, or load above capacity after a pickup
+checks:
+- contract_violations
+- capacity_range
+- plan_recheck
+repairs:
+- id: load-bookkeeping
+  kind: human
+  action: 'Check the engine''s load column: deliveries subtract, pickups add, start load = sum of deliveries; compare with gate 1 loads.'
+  why_safe: Engine bookkeeping fix with a test; capacity is a sourced value.
+question: Does the paper allow pickups and deliveries on the same route (then the load model is wrong), or is capacity mis-entered?

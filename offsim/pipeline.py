@@ -29,6 +29,8 @@ data/worlds/<world>/osm/roads.geojson (offsim.worlds.roads.RoadGraph) and replay
 "drive"; a missing file stops at gate 0 with the fetch command. report["provenance"]["graph"] says which graph was used:
 sealanes | roads | none. `run(..., data_root=)` points the data directory elsewhere (tests); default <repo>/data.
 Status words: reproduced | re-run under assumptions | did not reproduce | not comparable (no reported KPIs).
+Failure codes: Every failing gate entry carries a stable `code` (offsim.doctor.codes, e.g. G3-LAND-CROSSING); a stopped run also has
+  report["code"]. `python -m offsim doctor <report.json>` turns the code into checks, repairs and one question.
 """
 from __future__ import annotations
 
@@ -45,6 +47,7 @@ import pandas as pd
 import yaml
 
 from offsim.contract import compare_to_paper, kpis, validate
+from offsim.doctor.codes import code_for_gate
 from offsim.engines.base import (ENGINE_MODULES, SOLVER_MODULES, Plan, Problem, Unsupported, WeatherSeries, World,
                                  get_engine, get_solver)
 from offsim.solve.pyvrp_adapter import matrix
@@ -459,6 +462,8 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
     def stop(gate, ok, detail):
         report["gates"][gate] = {"pass": bool(ok), "detail": detail}
         if not ok:
+            code = code_for_gate(gate, detail)                  # stable failure code (offsim.doctor.codes)
+            report["gates"][gate]["code"] = report["code"] = code
             report["status"] = f"stopped at gate {gate}"
             (out / "report.json").write_text(json.dumps(report, indent=1, default=float))
             print(f"[{pid}] STOP at {gate}: {detail}")
@@ -657,6 +662,8 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
     else:
         status = "did not reproduce"
     report["gates"]["4_paper"] = {"pass": status in ("reproduced", "re-run under assumptions"), "detail": cmp.to_dict("records")}
+    if status == "did not reproduce":                       # "not comparable" has pass False too but is not a failure
+        report["gates"]["4_paper"]["code"] = code_for_gate("4_paper", None)
     final_status = status + (" (synthetic weather, not reportable)" if synthetic_wx else "")
     report.update(status=final_status, assumptions=assumed, quay_snap_m=snap, kpis=k, measured=measured,
                   plan={"routes": routes, "objective_m": cost}, events=events.to_dict("records"))

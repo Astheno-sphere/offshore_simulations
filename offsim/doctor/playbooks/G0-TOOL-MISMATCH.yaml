@@ -1,0 +1,15 @@
+code: G0-TOOL-MISMATCH
+gate: 0_provenance
+meaning: the chosen solver/engine exists but does not handle this problem class or validation
+symptoms:
+- 'detail.tool_mismatch: ''solver X handles [...], problem needs [...]'''
+- validate.entur set but engine is not gtfs
+checks:
+- tool_covers_classes
+- classes_registered
+repairs:
+- id: pick-covering-tool
+  kind: human
+  action: 'Set solver:/engine: to a tool listed in the check evidence, or drop the validate: option that needs another engine.'
+  why_safe: Selects the model; a human decision.
+question: Which solver/engine should this problem run on (the check lists the tools that cover its classes)?

@@ -1,0 +1,25 @@
+code: G0-TOOL-UNAVAILABLE
+gate: 0_provenance
+meaning: the chosen solver/engine is unknown or does not import
+symptoms:
+- detail.unavailable has 'solver:<x>' or 'engine:<x>' with an import error or 'unknown engine'
+- optional package (openclsim, wombat, orbit, amplpy) not installed in this environment
+checks:
+- tool_import_errors
+- ci_workflow_retries_apt
+repairs:
+- id: report-install-command
+  kind: auto
+  op: report_command
+  action: Report the pip package behind the tool (offsim.pipeline.TOOL_PACKAGES) and the requirements file that pins it.
+  why_safe: 'Read-only: names the package, installs nothing.'
+- id: rerun-unchanged
+  kind: auto
+  op: rerun_gate
+  action: Rerun the same scenario file with the same seed to separate a flaky host or workspace from a real failure.
+  why_safe: Same inputs, same code; the new report goes to a side directory and the failing report is kept.
+- id: install-or-switch
+  kind: human
+  action: Install the pinned package (constraints.txt) in this environment, or pick another registered tool that covers the class.
+  why_safe: Installing alters the environment; switching alters the model. Both are decisions.
+question: Install the missing package here (or run on the runner that has it), or switch tool?

@@ -11,9 +11,10 @@ Gap kinds, evaluated per (class, mode) with at least `min_support` papers:
 - no-code:        no supporting paper links code or data. The result cannot be reproduced from the paper alone.
 
 Each gap carries: gap_id, kind, class, mode, support, papers (ids), why, engine (suggested, from docs/ENGINES.md
-"Choosing"), status "open". Engine rules: WIND-INST or wtiv -> orbit; WIND-OM or sov -> wombat; psv, ferry or ctv
--> openclsim (replay checks the plan first); everything else -> replay. Helideck and truck cases are judgement
-calls: confirm them before a gap becomes an experiment.
+"Choosing"), status "open". Engine rules, class first: WIND-INST -> orbit; WIND-OM -> wombat; HRP -> air (WFPPP);
+VRPTW -> replay; CVRP -> openclsim for psv, ferry, ctv, else replay. Classes no engine covers (PSV-PDP, PDP, FSMP,
+MIRP, ...) follow the mode: wtiv -> orbit; sov -> wombat; heli -> air; psv, ferry, ctv -> openclsim (replay checks
+the plan first); else replay. Truck cases are judgement calls: confirm them before a gap becomes an experiment.
 
 A gap is a lead, not a result. Tags route work only; values come from paper-extract with page sources.
 
@@ -60,11 +61,24 @@ def gap_table(tags: list[dict]) -> pd.DataFrame:
 
 
 def suggest_engine(cls: str, mode: str) -> str:
-    """Engine for a gap, per docs/ENGINES.md 'Choosing'."""
-    if cls == "WIND-INST" or mode == "wtiv":
+    """Engine for a gap, per docs/ENGINES.md 'Choosing'. The class decides first (it must be one the engine's `classes`
+    covers: tests/test_concordance.py checks this against the registry); the mode only routes classes no engine covers."""
+    if cls == "WIND-INST":
         return "orbit"
-    if cls == "WIND-OM" or mode == "sov":
+    if cls == "WIND-OM":
         return "wombat"
+    if cls == "HRP":                        # helicopter routing = weekly flight program problem WFPPP (solver whelp)
+        return "air"
+    if cls == "VRPTW":                      # openclsim has no time windows
+        return "replay"
+    if cls == "CVRP":
+        return "openclsim" if mode in ("psv", "ferry", "ctv") else "replay"
+    if mode == "wtiv":
+        return "orbit"
+    if mode == "sov":
+        return "wombat"
+    if mode == "heli":
+        return "air"
     if mode in ("psv", "ferry", "ctv"):
         return "openclsim"
     return "replay"

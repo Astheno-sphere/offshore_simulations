@@ -1,0 +1,110 @@
+name: live-check
+
+# Weekly check that every external dependency still answers in the shape the code expects (offsim/live).
+# Results: docs/LIVE_STATUS.md and live_status.json on branch live/status (one commit per run, history kept there).
+# A failing probe or a changed response schema opens or comments on the open issue "live-check".
+# Probes that need a secret report "skipped" and never count as failures.
+on:
+  schedule:
+    - cron: "41 3 * * 1"            # Mondays 03:41 UTC
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma list of probe names to run (empty = all). Names: python -m offsim.live.cli --list"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: live-check
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OFFSIM_MAILTO: ${{ vars.OFFSIM_MAILTO }}
+      ENTUR_CLIENT_NAME: ${{ vars.ENTUR_CLIENT_NAME }}
+      ONLY: ${{ inputs.only }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install pyyaml amplpy
+
+      - name: AMPL solver module (only when the secret exists; the ampl probe is skipped otherwise)
+        env:
+          AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
+        run: |
+          if [ -z "$AMPL_LICENSE_UUID" ]; then
+            echo "AMPL_LICENSE_UUID not set: the ampl probe will report skipped"
+            exit 0
+          fi
+          python -m amplpy.modules install highs
+
+      - name: Previous status from branch live/status (keeps last-ok dates and schema hashes)
+        run: |
+          git fetch --no-tags origin '+refs/heads/live/status:refs/remotes/origin/live/status' 2>/dev/null || true
+          if git rev-parse -q --verify origin/live/status >/dev/null; then
+            git show origin/live/status:live_status.json > live_status.json 2>/dev/null || rm -f live_status.json
+          fi
+
+      - name: Run probes
+        env:
+          AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
+          BW_CLIENT_ID: ${{ secrets.BW_CLIENT_ID }}
+          BW_CLIENT_SECRET: ${{ secrets.BW_CLIENT_SECRET }}
+        run: |
+          args=(--json live_status.json --out docs/LIVE_STATUS.md --issue-body issue.md)
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          python -m offsim.live.cli "${args[@]}"
+
+      - name: Publish status to branch live/status
+        run: |
+          set -e
+          wt="$RUNNER_TEMP/status-wt"
+          if git rev-parse -q --verify origin/live/status >/dev/null; then
+            git worktree add -B live/status "$wt" origin/live/status
+          else
+            git worktree add --orphan -b live/status "$wt"
+          fi
+          mkdir -p "$wt/docs"
+          cp docs/LIVE_STATUS.md "$wt/docs/LIVE_STATUS.md"
+          cp live_status.json "$wt/live_status.json"
+          cd "$wt"
+          git add docs/LIVE_STATUS.md live_status.json
+          if git diff --cached --quiet; then
+            echo "No change in status"
+            exit 0
+          fi
+          git -c user.name="Arshad Akhtar Abbasia" \
+              -c user.email="github-actions[bot]@users.noreply.github.com" \
+              commit -q \
+              -m "live: status $(date -u +%F)" \
+              -m "Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>" \
+              -m "Claude-Session: https://claude.ai/code/session_01EHN9UJ5w8SDBDnkLYY6iDn"
+          git push origin HEAD:live/status
+
+      - name: Open or comment on the live-check issue (only when a probe failed or a schema changed)
+        if: ${{ hashFiles('issue.md') != '' }}
+        run: |
+          num=$(gh issue list --state open --limit 100 --json number,title --jq '.[] | select(.title=="live-check") | .number' | head -1)
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file issue.md
+          else
+            gh issue create --title "live-check" --body-file issue.md
+          fi

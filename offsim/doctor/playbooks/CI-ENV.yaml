@@ -1,0 +1,33 @@
+code: CI-ENV
+gate: ci
+meaning: the runner/workspace environment lacks a system library, display or package index
+symptoms:
+- apt-get install libegl1 ... fails at index download
+- 'skia-python import error: libEGL.so.1 / libGL.so.1'
+- pytest rejects numpy float32 in approx
+- no DISPLAY / chrome not found for render checks
+checks:
+- egl_available
+- ci_workflow_retries_apt
+- numpy_float_in_approx
+repairs:
+- id: rerun-unchanged
+  kind: auto
+  op: rerun_gate
+  action: Rerun the same scenario file with the same seed to separate a flaky host or workspace from a real failure.
+  why_safe: Same inputs, same code; the new report goes to a side directory and the failing report is kept.
+- id: report-system-packages
+  kind: auto
+  op: report_command
+  action: Report the apt packages the failing import needs (libegl1 libgl1 libfontconfig1) and the retry form with --fix-missing.
+  why_safe: Read-only.
+- id: install-system-libs
+  kind: human
+  action: Install the system libraries in the runner step (retry once), or skip the skia-dependent tests with a marker when the library
+    is absent.
+  why_safe: Changes the environment or the test selection; a decision.
+- id: float-before-approx
+  kind: human
+  action: Use float(...) around numpy scalars passed to pytest.approx.
+  why_safe: Test code fix.
+question: Is the runner image the problem (retry/pin), or should the test skip when the library is absent?

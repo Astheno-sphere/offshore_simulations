@@ -1,0 +1,29 @@
+code: G1-PLAN-INFEASIBLE
+gate: 1_plan
+meaning: the solver failed, or its plan fails the outside re-check (served once, capacity, vehicles)
+symptoms:
+- 'gate 1 detail: routes/loads/capacity with a client unserved, load above capacity or more routes than vehicles'
+- detail.error from the solver ('PyVRP returned an infeasible plan')
+- client index off by the number of depots
+checks:
+- plan_recheck
+- pyvrp_only_via_adapter
+- solver_seed_sensitivity
+repairs:
+- id: rerun-next-seed
+  kind: auto
+  op: rerun_seed
+  action: Rerun the same scenario file with solver seed + 1 and the same time budget.
+  why_safe: The seed is a run parameter, not a sourced value; the gate re-checks the new plan independently, and the seed used is recorded
+    in the diagnosis.
+- id: check-instance
+  kind: human
+  action: Compare demand, capacity and fleet count with the paper's instance table (page refs in the scenario); a typo in a sourced
+    number is the usual cause.
+  why_safe: Sourced values change only against the paper.
+- id: go-through-adapter
+  kind: human
+  action: 'If a route holds node 0 or a client twice, solver code bypassed offsim/solve/pyvrp_adapter.py: PyVRP 0.14 client idx counts
+    clients only (node = idx + depots) and is_client() is a method. Fix the caller.'
+  why_safe: Code fix with a test, not a data fix.
+question: Is the instance really feasible per the paper (vehicles x capacity >= demand)? If not, which table disagrees with the scenario?

@@ -1,0 +1,28 @@
+code: G1B-GAP
+gate: 1b_exact
+meaning: heuristic objective is further from the exact objective/bound than gap_tol (or the exact solve errored)
+symptoms:
+- gate 1b detail.gap > gap_tol
+- 'detail.error: heuristic below the exact bound (the two models differ)'
+- exact solver errored or proved no bound
+checks:
+- exact_gap_numbers
+- pyvrp_only_via_adapter
+repairs:
+- id: rerun-next-seed
+  kind: auto
+  op: rerun_seed
+  action: Rerun the same scenario file with solver seed + 1 and the same time budget.
+  why_safe: The seed is a run parameter, not a sourced value; the gate re-checks the new plan independently, and the seed used is recorded
+    in the diagnosis.
+- id: longer-time-budget
+  kind: human
+  action: Give the heuristic a longer --seconds budget in the command (a run parameter, not a scenario value) if gap is only slightly
+    above tolerance.
+  why_safe: Costs compute only, but a human should see the gap first.
+- id: models-differ
+  kind: human
+  action: 'If the heuristic is below the exact bound, the distance matrices or depot/demand handling differ between the two models:
+    diff them before anything else.'
+  why_safe: A modelling bug, not noise.
+question: 'Gap exceeds gap_tol: is the tolerance (a sourced/assumed value) right, or do the heuristic and exact model disagree?'

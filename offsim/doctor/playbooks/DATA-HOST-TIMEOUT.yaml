@@ -1,0 +1,35 @@
+code: DATA-HOST-TIMEOUT
+gate: data
+meaning: an external data host timed out, rate-limited (429) or did not answer
+symptoms:
+- 'manifest.errors: stage exceeded N s'
+- HTTP 429 Too Many Requests (OpenAlex)
+- fetch step silent for 30 min (buffered stdout)
+checks:
+- host_errors
+- world_manifest_errors
+- stage_budgets_present
+repairs:
+- id: clear-partial-downloads
+  kind: auto
+  op: clear_partial_downloads
+  action: Remove zero-byte and .part files in the world download caches so the next fetch restarts those files cleanly.
+  why_safe: Deletes only incomplete downloads in git-ignored cache folders.
+- id: pull-world
+  kind: auto
+  op: pull_world
+  action: Pull the released world data for this scenario's world (python -m offsim.worlds.fetch_world --pull <world>) and rerun the
+    same scenario file unchanged.
+  why_safe: Downloads a released, versioned artifact into the git-ignored data/ tree; no scenario file is touched and the gate still
+    has to pass.
+- id: report-fetch-command
+  kind: auto
+  op: report_command
+  action: Print the exact fetch command recorded by the gate (and the fetch-world workflow to dispatch when the data was never released).
+  why_safe: 'Read-only: only reports a command.'
+- id: backoff-or-key
+  kind: human
+  action: '429: use the polite pool (mailto) or an API key secret; timeouts: lower the box/dataset size or raise nothing blindly: set
+    a per-stage budget and retry only that stage on the runner.'
+  why_safe: Credentials and budgets are decisions.
+question: Retry that stage on the runner now, or reduce the request (smaller box, fewer datasets, other source)?

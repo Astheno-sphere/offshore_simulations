@@ -1,0 +1,35 @@
+code: G0-DATA-MISSING
+gate: 0_provenance
+meaning: world, metocean, gtfs, entur or ais data the scenario needs is absent (fetch hint recorded)
+symptoms:
+- detail has missing_world / missing_roads / missing_gtfs / missing_metocean / missing_ais_calibration / missing_entur_vehicles / weather_error
+  / road_graph_error
+- detail.fix holds the command
+checks:
+- data_paths_present
+- world_manifest_errors
+- weather_block_declared
+repairs:
+- id: report-fetch-command
+  kind: auto
+  op: report_command
+  action: Print the exact fetch command recorded by the gate (and the fetch-world workflow to dispatch when the data was never released).
+  why_safe: 'Read-only: only reports a command.'
+- id: pull-world
+  kind: auto
+  op: pull_world
+  action: Pull the released world data for this scenario's world (python -m offsim.worlds.fetch_world --pull <world>) and rerun the
+    same scenario file unchanged.
+  why_safe: Downloads a released, versioned artifact into the git-ignored data/ tree; no scenario file is touched and the gate still
+    has to pass.
+- id: fetch-via-workflow
+  kind: human
+  action: 'Dispatch the fetch-world (or entur-realtime) workflow: this workspace cannot reach Kartverket, Kystverket, Sodir, Overpass
+    or tile servers; then pull the release.'
+  why_safe: Runs on GitHub Actions with the right network; not something to do from here.
+- id: declare-weather
+  kind: human
+  action: 'If missing_weather: add a weather: block (dir, point, years, season) or ensemble.weather; tests use weather: {synthetic:
+    ...} (never reportable).'
+  why_safe: Which years and point is a modelling choice.
+question: Is the world/data released on GitHub (then pull), or must the fetch-world workflow be dispatched for this place and window?

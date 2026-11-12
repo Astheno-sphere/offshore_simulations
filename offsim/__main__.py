@@ -18,12 +18,19 @@ Research
     python -m offsim feed [--queries Q --out O --since D]                # literature feed -> papers/feed.jsonl
     python -m offsim tag [--feed F --out O]                              # rule-tag the feed -> papers/tags.jsonl
     python -m offsim gaps [--tags T --out O --min-support N]             # gap table and gap list
+Studio
+    python -m offsim status                                              # board of all papers: stage, blockers, next action
+    python -m offsim next <id>                                           # the next command for one paper, and why
+    python -m offsim advance <id> [--run] [--max-steps N]                # run auto stages (dry-run unless --run)
+    python -m offsim decide <id> <stage> --note TEXT                     # record a human decision at a decide stage
+    python -m offsim doctor|learn [...]                                  # diagnose a failed run; capture a lesson (offsim.doctor)
+    python -m offsim live [...]                                          # probe the outside world (offsim.live)
 Inspect
     python -m offsim tools                                               # solver and engine import status
     python -m offsim catalog --find X                                    # search the tool catalog
     python -m offsim resume [--tests]                                    # after any interruption: state + next step
 
-Commands with their own argparse (world, layer, feed, tag, gaps, entur, catalog) pass their remaining arguments
+Commands with their own argparse (world, layer, feed, tag, gaps, entur, catalog, doctor, learn, live) pass their remaining arguments
 through unchanged, so `python -m offsim world --help` shows the target's help.
 """
 import argparse
@@ -74,6 +81,21 @@ def _catalog(args):
                            env=_with_root_on_path())
 
 
+def _lazy(module, label, prefix=()):
+    """Passthrough to <module>.main(argv); exit 2 with a clear message when the module is not in this checkout."""
+    def run(args):
+        import importlib
+        try:
+            mod = importlib.import_module(module)
+        except ImportError as exc:
+            if not (exc.name and (module == exc.name or module.startswith(exc.name + "."))):
+                raise                       # the module exists but one of its own imports is broken
+            print(f"offsim {label}: {module} is not available in this checkout; nothing was run.", file=sys.stderr)
+            return 2
+        return mod.main([*prefix, *args])
+    return run
+
+
 # name -> (handler(args) -> int, one-line help). Dispatched before argparse so their flags and --help pass through.
 PASSTHROUGH = {
     "world": (_subprocess_cli("offsim.worlds.fetch_world"), "fetch a world: place, modes, OSM, GTFS, metocean"),
@@ -83,6 +105,13 @@ PASSTHROUGH = {
     "gaps": (_gaps, "gap table and gap list from papers/tags.jsonl"),
     "entur": (_entur, "Entur realtime: collect | departures"),
     "catalog": (_catalog, "search the tool catalog (tools/catalog_build.py --find X)"),
+}
+
+# Optional modules owned by other packages: dispatched like PASSTHROUGH, but absent modules give exit 2 and a message.
+LAZY = {
+    "doctor": (_lazy("offsim.doctor.cli", "doctor"), "diagnose a failed gate or report: code, checks, repairs, question"),
+    "learn": (_lazy("offsim.doctor.cli", "learn", prefix=("learn",)), "record a resolved failure as a lesson with its guard test"),
+    "live": (_lazy("offsim.live.cli", "live"), "probe the outside world (data hosts, APIs, runners)"),
 }
 
 
@@ -100,6 +129,7 @@ def build_parser():
     e.add_argument("experiment")
     e.add_argument("--engine", metavar="NAME", help="run every variant on this engine")
     e.add_argument("--workers", type=int, default=1)
+    e.add_argument("--out", metavar="FILE", help="also write the decision JSON to this file")
     s = sub.add_parser("story", help="storyboard.yaml -> shots -> final video")
     s.add_argument("storyboard")
     s.add_argument("--dry-run", action="store_true")
@@ -110,23 +140,73 @@ def build_parser():
     t = sub.add_parser("timetable", help="timetable.yaml from a paper -> GTFS folder")
     t.add_argument("timetable")
     t.add_argument("--out", metavar="DIR", required=True)
-    for name, (_, text) in PASSTHROUGH.items():
+    for name, (_, text) in {**PASSTHROUGH, **LAZY}.items():
         sub.add_parser(name, help=text, add_help=False)
+    sub.add_parser("status", help="board of all papers: stage, blockers, next action, stale data branches")
+    nx = sub.add_parser("next", help="the next command for one paper, and why")
+    nx.add_argument("paper_id")
+    ad = sub.add_parser("advance", help="run auto stages for a paper until a decision, failure or blocker (dry-run unless --run)")
+    ad.add_argument("paper_id")
+    ad.add_argument("--run", action="store_true", help="execute the commands (default: only show them)")
+    ad.add_argument("--max-steps", type=int, default=5)
+    dc = sub.add_parser("decide", help="record a human decision at a funnel stage")
+    dc.add_argument("paper_id")
+    dc.add_argument("stage")
+    dc.add_argument("--note", required=True)
+    dc.add_argument("--by", default="human")
     sub.add_parser("tools", help="solver and engine import status (offsim.engines.available)")
     rs = sub.add_parser("resume", help="where are we: branch, unpushed, worktrees, open roadmap, risks, next command")
     rs.add_argument("--tests", action="store_true", help="also run the test suite")
     return ap
 
 
+def _studio(a):
+    from offsim.studio import conductor, ledger
+    if a.cmd == "status":
+        print(conductor.format_status(conductor.status()))
+        return 0
+    if a.cmd == "next":
+        n = conductor.next_step(a.paper_id)
+        print(f"{n['paper_id']}: stage {n['stage']} ({n['kind']})")
+        print(f"command: {n['command'] or '(none)'}")
+        print(f"why: {n['why']}")
+        for k in ("missing_inputs", "blocked", "stale"):
+            if n.get(k):
+                print(f"{k}: {n[k]}")
+        return 0
+    if a.cmd == "decide":
+        try:
+            ledger.decide(a.paper_id, a.stage, a.note, by=a.by)
+        except ValueError as exc:
+            print(f"offsim decide: {exc}", file=sys.stderr)
+            return 2
+        print(f"decision recorded for {a.paper_id} at {a.stage}")
+        return 0
+    res = conductor.advance(a.paper_id, dry_run=not a.run, max_steps=a.max_steps)
+    tag = "would run" if res["dry_run"] else "ran"
+    for s in res["steps"]:
+        if not s["commands"]:
+            print(f"[{s['stage']}] {s['status']}")
+            continue
+        print(f"[{s['stage']}] {tag}: " + " && ".join(s["commands"]) + (f"  -> {s['status']}" if not res["dry_run"] else ""))
+    sp = res["stopped"]
+    print(f"stopped: {sp['reason']}" + (f" at {sp['stage']}" if sp["stage"] else "") + f" - {sp['detail']}")
+    return 1 if sp["reason"] in ("failed", "exit-check", "missing-input") and not res["dry_run"] else 0
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else list(argv)
     if argv and argv[0] in PASSTHROUGH:
         return PASSTHROUGH[argv[0]][0](argv[1:])
+    if argv and argv[0] in LAZY:
+        return LAZY[argv[0]][0](argv[1:])
     a = build_parser().parse_args(argv)
     if a.cmd == "run":
         from offsim.pipeline import run
         rep = run(a.scenario, a.out, a.seconds)
         return 0 if all(g["pass"] for k, g in rep["gates"].items() if k != "4_paper") else 1
+    if a.cmd in ("status", "next", "advance", "decide"):
+        return _studio(a)
     if a.cmd == "resume":
         from offsim.resume import main as resume
         return resume(a.tests)
@@ -161,7 +241,7 @@ def main(argv=None):
     if a.cmd == "experiment":
         from offsim.research.run_experiment import run as run_experiment
         try:
-            res = run_experiment(a.experiment, a.engine, workers=a.workers)
+            res = run_experiment(a.experiment, a.engine, workers=a.workers, out=a.out)
         except NotImplementedError as exc:
             print(f"offsim experiment: {exc}", file=sys.stderr)
             return 2

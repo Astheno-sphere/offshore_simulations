@@ -1,0 +1,30 @@
+code: G4C-ENTUR
+gate: 4c_entur
+meaning: timetable replay disagrees with observed Entur vehicle positions
+symptoms:
+- 'gate 4c detail.reason: median delay or travel-time ratio above limit'
+- observed vehicles.csv missing or empty
+- t0 (service-day midnight Europe/Oslo + window start) misaligned
+checks:
+- entur_gate_rows
+- entur_vehicles_present
+- data_paths_present
+repairs:
+- id: report-fetch-command
+  kind: auto
+  op: report_command
+  action: Print the exact fetch command recorded by the gate (and the fetch-world workflow to dispatch when the data was never released).
+  why_safe: 'Read-only: only reports a command.'
+- id: pull-world
+  kind: auto
+  op: pull_world
+  action: Pull the released world data for this scenario's world (python -m offsim.worlds.fetch_world --pull <world>) and rerun the
+    same scenario file unchanged.
+  why_safe: Downloads a released, versioned artifact into the git-ignored data/ tree; no scenario file is touched and the gate still
+    has to pass.
+- id: check-t0
+  kind: human
+  action: Check validate.entur_t0_utc / gtfs date and t0 against the collected window; time-zone misalignment looks like a constant
+    delay.
+  why_safe: Alignment is a human reading of the data.
+question: Does the collected Entur window cover the replayed service day, and are the delay limits the intended ones?

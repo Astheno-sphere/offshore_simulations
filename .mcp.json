@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "ampl": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["tools/ampl_mcp/server.py"],
+      "env": {
+        "AMPL_MCP_ROOTS": "offsim/solve/ampl:offsim/papers"
+      }
+    },
+    "entur-journey-planner": {
+      "type": "http",
+      "url": "https://api.entur.io/journey-planner-mcp/v1/mcp"
+    },
+    "entur-transit-data": {
+      "type": "http",
+      "url": "https://api.entur.io/transit-data/v1beta/mcp"
+    }
+  }
+}

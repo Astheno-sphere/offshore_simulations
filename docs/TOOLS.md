@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-159 tools · 33 tested · 13 wired · 8 installed · 55 candidate · 4 manual · 46 watch.
+160 tools · 32 tested · 13 wired · 10 installed · 55 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -19,14 +19,14 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 9 | 0 | 0 | 6 | 0 | 7 | 22 |
+| render | 8 | 0 | 1 | 6 | 0 | 7 | 22 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
 | design | 0 | 0 | 0 | 1 | 0 | 0 | 1 |
 | mcp | 0 | 1 | 0 | 3 | 0 | 2 | 6 |
 | skills | 1 | 0 | 0 | 4 | 0 | 1 | 6 |
-| benchmarks | 1 | 4 | 0 | 4 | 0 | 2 | 11 |
+| benchmarks | 1 | 4 | 1 | 4 | 0 | 2 | 12 |
 
 Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.py). Everything else is listed only.
 
@@ -54,7 +54,6 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [Inter 4.1 (static TTFs)](https://github.com/rsms/inter) | assets | tested | here | One open geometric sans (Regular, Medium, SemiBold, Bold) for headlines, decks and kickers (rule 17); look.FONTS / font_path; drawn by Canvas.text. |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | render | tested | here | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). |
 | [CadQuery](https://github.com/CadQuery/cadquery) | render | tested | here | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. |
-| [build123d](https://github.com/gumyr/build123d) | render | tested | here | Builder API on the same OpenCASCADE kernel; used alongside CadQuery in the asset modules. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. |
 | [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | render | tested | here | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. |
 | [FFmpeg](https://ffmpeg.org) | video | tested | here | Frames to H.264 (veryfast preset). |
 | [Microsoft Fluent Emoji (3D style)](https://github.com/microsoft/fluentui-emoji) | assets | tested | here | Cartoony 3D-look PNG sprites for agents (ship, ferry, helicopter, boats, worker, trucks...). 18 vendored in offsim/assets/sprites with licence; raw.githubusercontent is reachable here for more. |
@@ -126,14 +125,14 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 | [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | open | manual | browser | now | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | tested | here | now | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. Evidence: `offsim/traffic/ais.py` `tests/test_traffic.py` |
 | [BarentsWatch AIS API](https://www.barentswatch.no/) | NLOD-2.0 (check) | wired | actions | next | Live/recent AIS via OAuth2 (secrets BW_CLIENT_ID/BW_CLIENT_SECRET); endpoints unverified live. Evidence: `offsim/traffic/barentswatch.py` `.github/workflows/fetch-world.yml` |
-| [Datashader](https://github.com/holoviz/datashader) | BSD-3-Clause | installed | here | next | Render millions of AIS positions as density for map panels. Evidence: `requirements-graphics.txt` |
+| [Datashader](https://github.com/holoviz/datashader) | BSD-3-Clause | installed | here | next | Declared, not yet called: render millions of AIS positions as density for map panels (wire into an AIS density shot or drop). Evidence: `requirements-graphics.txt` |
 | [Entur Vehicle Positions API](https://api.entur.io/realtime/v2/vehicles/graphql) | open (credit Source: Entur AS) | wired | actions | next | Observed bus/ferry positions and delays (the AIS of public transport); gate 4c compares schedule replay vs reality. Evidence: `offsim/transit/entur.py` `offsim/transit/observed.py` `.github/workflows/entur-realtime.yml` `tests/test_entur.py` |
 | [AISdb (Dalhousie MERIDIAN)](https://pypi.org/project/aisdb/) | check | watch | here | later | SQLite AIS store with cleaning, interpolation, depth/shore joins; heavy if HAIS GeoParquet suffices. |
 | [Datasets of AIS trajectories from Danish waters](https://github.com/KristofferOlesen/Datasets-of-AIS-Trajectories-from-Danish-Waters) | BSD-3-Clause | watch | here | later | Ready filtered AIS sets for testing trajectory code without ordering data. |
 | [Entur Journey Planner API](https://api.entur.io/journey-planner/v3/graphql) | open (credit Source: Entur AS) | wired | actions | later | Departures per stop place; journey planning for worker-commute scenarios. Evidence: `offsim/transit/entur.py` `tests/test_entur.py` |
 | [GTFS Kit](https://github.com/mrcagney/gtfs_kit) | MIT | installed | here | later | Independent GTFS analysis to cross-check offsim.transit KPIs. Evidence: `requirements-graphics.txt` |
 | [pyais](https://github.com/M0r13n/pyais) | MIT | candidate | here | later | Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet. |
-| [r5py (Conveyal R5)](https://github.com/r5py/r5py) | MIT or GPL-3.0 | installed | actions | later | Multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use. Evidence: `requirements-graphics.txt` |
+| [r5py (Conveyal R5)](https://github.com/r5py/r5py) | MIT or GPL-3.0 | installed | actions | later | Declared, not yet called (Actions only): multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use. Wire on Actions or drop. Evidence: `requirements-graphics.txt` |
 
 ## metocean
 
@@ -193,7 +192,7 @@ _Time, queues, failures, weather delays (discrete-event, agent-based, vessel dyn
 | [OpenCLSim (TU Delft](https://github.com/TUDelft-CITG/OpenCLSim) | MIT | tested | here | now | Vessel logistics under weather windows; engine 'openclsim', cross-checked against the SimPy replay. Evidence: `offsim/engines/openclsim_adapter.py` `tests/test_engines_core.py` `tests/test_engine_crosscheck.py` |
 | [SimPy](https://gitlab.com/team-simpy/simpy) | MIT | tested | here | now | Discrete-event core of offsim/sim/replay.py: berths, helidecks, time windows. Evidence: `offsim/sim/replay.py` `tests/test_offsim.py` |
 | [PhiFlow](https://github.com/tum-pbs/PhiFlow) | MIT | installed | here | next | Differentiable fluid solver; reference to validate our stable-fluids section solver. Evidence: `requirements-physics.txt` |
-| [Taichi Lang](https://github.com/taichi-dev/taichi) | Apache-2.0 | installed | here | next | Accelerated kernels for the 2D section fluid solver (offsim/physics/fluid2d.py); imports on CPU here. Evidence: `requirements-physics.txt` |
+| [Taichi Lang](https://github.com/taichi-dev/taichi) | Apache-2.0 | installed | here | next | Declared, not yet called: optional accelerated backend for the 2D section fluid solver; offsim/physics/fluid2d.py runs in numpy. Wire the backend or drop. Evidence: `requirements-physics.txt` |
 | [Capytaine (BEM hydrodynamics)](https://github.com/capytaine/capytaine) | GPL-3.0 | candidate | here | later | Vessel RAOs from hull geometry for physical heave/roll in the section view; GPL: separate process only. |
 | [Mesa](https://github.com/projectmesa/mesa) | check | watch | here | later | Agent-based models (crew, workers, fleets with behaviour). |
 | [OpenTNSim (TU Delft)](https://github.com/TUDelft-CITG/OpenTNSim) | MIT | candidate | here | later | Waterway/port traffic networks on top of OpenCLSim; fairway congestion, locks, energy. |
@@ -227,7 +226,6 @@ _Maps and 3D scenes from validated trajectories_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [@luma.gl/effects shader passes](https://www.npmjs.com/package/@luma.gl/effects) | MIT | candidate | here | now | vignette, tiltShift, noise, hueSaturation, brightnessContrast (no bloom, no LUT: do those in ffmpeg). |
-| [build123d](https://github.com/gumyr/build123d) | Apache-2.0 | tested | here | now | Builder API on the same OpenCASCADE kernel; used alongside CadQuery in the asset modules. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. Evidence: `requirements-cad.txt` `offsim/assets/cad/marine.py` `tests/test_cad_marine_air.py` |
 | [CadQuery](https://github.com/CadQuery/cadquery) | Apache-2.0 | tested | here | now | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. Evidence: `requirements-cad.txt` `offsim/assets/cad/marine.py` `offsim/assets/cad/air.py` `offsim/assets/cad/land.py` `tests/test_cad_marine_air.py` `tests/test_cad_land.py` `tests/test_cad_drawing.py` |
 | [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | Apache-2.0 (bindings to OpenCASCADE, LGPL-2.1 with exception, dynamically linked) | tested | here | now | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. Evidence: `requirements-cad.txt` `offsim/assets/cad/drawing.py` `tests/test_cad_drawing.py` |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | MIT | tested | here | now | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). Evidence: `offsim/render_deck/package.json` `offsim/render_deck/src/app.js` `.github/workflows/tests.yml` |
@@ -236,6 +234,7 @@ _Maps and 3D scenes from validated trajectories_
 | [deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer](https://deck.gl/docs/api-reference/geo-layers/terrain-layer) | MIT | candidate | here | now | Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders. |
 | [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | tested | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. Evidence: `offsim/weather/visual.py` `offsim/render_deck/src/layers/weather.js` `tests/test_weather.py` |
 | [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
+| [build123d](https://github.com/gumyr/build123d) | Apache-2.0 | installed | here | next | Declared, not yet called: builder API on the same OpenCASCADE kernel. offsim/assets/cad accepts its shapes (drawing.py) but the asset modules use CadQuery only. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. Evidence: `requirements-cad.txt` |
 | [matplotlib streamplot/quiver textures](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html) | PSF-style | candidate | here | next | Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer. |
 | [skia-python](https://github.com/kyamagu/skia-python) | BSD-3-Clause | tested | here | next | Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing). Wrapped by offsim.cinema.draw.Canvas / draw_prims. Evidence: `requirements-graphics.txt` `offsim/cinema/draw.py` `tests/test_draw.py` |
 | [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |
@@ -247,7 +246,7 @@ _Maps and 3D scenes from validated trajectories_
 | [lonboard](https://github.com/developmentseed/lonboard) | check | watch | here | later | deck.gl from Python/Jupyter with TripsLayer from MovingPandas; interactive exploration. |
 | [mapbox/webgl-wind](https://github.com/mapbox/webgl-wind) | ISC | watch | browser | later | Reference ping-pong particle shader; random respawn, not frame-exact as shipped. |
 | [Martini (RTIN)](https://github.com/mapbox/martini) | check | watch | browser | later | TerrainLayer's internal mesher; needs 2^k+1 grids; we mesh offline instead. |
-| [PyVista](https://github.com/pyvista/pyvista) | MIT | tested | here | later | Off-screen VTK rendering works here: inspect glTF models, seabed meshes from depth grids, 3D stills without a browser. Evidence: `docs/TESTLOG.md` |
+| [PyVista](https://github.com/pyvista/pyvista) | MIT | tested | here | later | Off-screen VTK rendering works here (run by hand, docs/TESTLOG.md; not imported by repo code yet): inspect glTF models, seabed meshes from depth grids, 3D stills without a browser. Evidence: `docs/TESTLOG.md` |
 
 ## video
 
@@ -351,3 +350,4 @@ _Instances and papers to reproduce_
 | [Lubnina & Kochetov 2024, periodic pickup-delivery helicopter routing (YUJOR)](https://yujor.fon.bg.ac.rs/index.php/yujor/article/view/1297) | check | watch | here | later | VNS with split demands; reports 5-10% cost reduction. |
 | [MIRPLib.jl](https://github.com/rafaelmartinelli/MIRPLib.jl) | MIT | watch | laptop | later | Maritime inventory routing instances (Julia). |
 | [OCRmyPDF (Tesseract)](https://github.com/ocrmypdf/OCRmyPDF) | MPL-2.0 | candidate | actions | later | Text layer for scanned papers before intake. |
+| [pypdf](https://github.com/py-pdf/pypdf) | BSD-3-Clause | installed | here | later | Declared, not yet called: PDF metadata and page splitting fallback for offsim/intake/paper.py (its docstring names it); pdfplumber does the extraction today. Evidence: `requirements-intake.txt` |

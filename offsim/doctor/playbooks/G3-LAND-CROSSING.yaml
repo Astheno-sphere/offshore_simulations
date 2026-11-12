@@ -1,0 +1,36 @@
+code: G3-LAND-CROSSING
+gate: 3_contract
+meaning: a sea leg crosses land
+symptoms:
+- 'contract [land]: N sea leg(s) cross land'
+- run used straight legs (graph none) with a pulled world
+- quay snapped onto the wrong side of an island
+checks:
+- legs_cross_land_with_straight_graph
+- graph_used
+- quay_snaps
+- data_paths_present
+repairs:
+- id: pull-world
+  kind: auto
+  op: pull_world
+  action: Pull the released world data for this scenario's world (python -m offsim.worlds.fetch_world --pull <world>) and rerun the
+    same scenario file unchanged.
+  why_safe: Downloads a released, versioned artifact into the git-ignored data/ tree; no scenario file is touched and the gate still
+    has to pass.
+- id: report-fetch-command
+  kind: auto
+  op: report_command
+  action: Print the exact fetch command recorded by the gate (and the fetch-world workflow to dispatch when the data was never released).
+  why_safe: 'Read-only: only reports a command.'
+- id: use-sea-lanes
+  kind: human
+  action: Route sea legs on offsim.worlds.sealanes (world set, land.geojson pulled), never straight across land; solver distances come
+    from the same lanes.
+  why_safe: 'Switching the graph changes distances: gate 2 then re-checks plan = replay.'
+- id: quay-coordinates
+  kind: human
+  action: 'If lanes are used and a leg still crosses, the quay snap is wrong: give real quay coordinates (Kystverket port data) as sourced
+    values.'
+  why_safe: A sourced coordinate is a human-supplied fact.
+question: Is the world pulled for this scenario (land.geojson), and are the quay coordinates real ones?

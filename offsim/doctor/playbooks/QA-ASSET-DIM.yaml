@@ -1,0 +1,21 @@
+code: QA-ASSET-DIM
+gate: asset-qa
+meaning: a CAD asset's solid disagrees with its declared dimensions, or required dims are missing
+symptoms:
+- 'qa: dims off by more than 1 %'
+- missing required dims, or all principal dims assumed
+- s92/aw189 rotor 20 %, fuselage 30 %, width 340 % off
+checks:
+- asset_dims
+- asset_has_sourced_dim
+repairs:
+- id: rebuild-solid-to-dim
+  kind: human
+  action: Rebuild the CAD solid so its bounding box matches the cited dimension; never move the dim to match the solid.
+  why_safe: Dims carry sources; the model follows them.
+- id: add-source
+  kind: human
+  action: 'Add the missing required dims with a manufacturer/spec source, or mark assumption: true (then at least one principal dim
+    must be sourced).'
+  why_safe: A source is a human-checked fact.
+question: Which cited figure (spec sheet, page) is the truth for each failing dim?

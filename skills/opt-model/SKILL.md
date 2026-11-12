@@ -21,7 +21,7 @@ laptop (`tools/ampl_mcp`). It does not run in the Claude workspace (binary downl
 
 `--solver auto` picks the first available solver whose free edition fits the model and falls through on a
 license error. Every report says which solver produced it. AMPL itself (`amplpy`) needs an AMPL license
-(Community Edition on registration); `--export model.nl` writes AMPL's format for any AMPL solver.
+(Community Edition on registration; activated only on Actions or the laptop); `--export model.nl` writes AMPL's format for any AMPL solver.
 
 ## Models (`scripts/models.py`)
 - `transportation(supply, demand, cost)`: LP.

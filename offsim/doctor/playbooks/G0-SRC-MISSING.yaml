@@ -1,0 +1,22 @@
+code: G0-SRC-MISSING
+gate: 0_provenance
+meaning: 'a scenario value has neither src (page/table) nor assumption: true'
+symptoms:
+- gate 0 detail.unsourced lists paths such as fleet[0].capacity
+- status 'stopped at gate 0_provenance'
+- 'a {value: ..} leaf has neither src nor assumption: true'
+checks:
+- unsourced_paths
+- scenario_has_intake_candidates
+repairs:
+- id: source-from-paper
+  kind: human
+  action: 'Find the page/table in the paper for each listed path and add src: ''p.N, Table M''. Use the intake evidence rows (scenario.draft.yaml
+    candidates carry page refs).'
+  why_safe: A source is a claim about the paper; only a reader of the paper can make it.
+- id: declare-assumption
+  kind: human
+  action: 'If the paper does not give the value, mark the leaf assumption: true; it is printed on screen and caps the status word at
+    ''re-run under assumptions''.'
+  why_safe: Sets what is claimed about a value; a human decides it.
+question: 'For each listed path: which page/table of the paper gives the value, or is it an assumption?'

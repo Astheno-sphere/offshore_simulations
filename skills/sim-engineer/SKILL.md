@@ -36,7 +36,7 @@ python -m offsim experiment papers/<paper>/experiment.yaml
 ```
 Writes `experiment_report.json`. The Python API behind it: `offsim.research.run_experiment.run(path, build=..., workers=4, out=...)`.
 - `build(experiment, variant) -> (problem, plan, world, engine)`; `offsim.pipeline.build_variant` is the builder the CLI uses.
-- Plans for the base come from `python -m offsim run` (gates 0-4); an experiment reruns variants, it does not re-solve the base by hand.
+- Plans for the base come from `python -m offsim run` (gates 0-4, plus 1b, 3e, 4b, 4c where the scenario sets them); an experiment reruns variants, it does not re-solve the base by hand.
 - Weather data arrives via the `fetch-world` workflow (Actions) and `python -m offsim.worlds.fetch_world --pull <world>` (here or laptop). This workspace cannot reach MET Norway. Never substitute `synthetic_years`: it is TEST-ONLY, flagged `synthetic_weather`, and makes `reportable` False.
 - All variants get the same years and seeds (common random numbers); `Ensemble.compare` pairs on (year, seed) and bootstraps a 95% CI (2000 resamples, seeded). Use `Ensemble.merge` when variants need different problems or engines.
 - Use `validate=True` (default). `validate=False` is for profiling only and is recorded as `validated: false`.

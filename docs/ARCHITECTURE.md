@@ -9,13 +9,13 @@ Everything is a module behind an interface; tools are swappable, numbers are not
  L0 DATA       offsim.feed  offsim.worlds (OSM, depth, coast, Overture)  offsim.weather (NORA3, NorKyst)
                offsim.traffic (AIS: HAIS, BarentsWatch)          ◄── all fetched on Actions, pulled here
                     │                                             │
- L1 SOLVE      offsim.solve   pyvrp │ pyomo+HiGHS │ ampl (Actions/laptop) │ ortools (later)   Problem ─► Plan
+ L1 SOLVE      offsim.solve   pyvrp │ pyomo+HiGHS │ ampl (Actions/laptop) │ whelp │ ortools (later)   Problem ─► Plan
                     │
- L2 SIMULATE   offsim.engines replay (SimPy) │ openclsim │ wombat │ orbit                  Plan ─► SimResult
+ L2 SIMULATE   offsim.engines replay │ openclsim │ wombat │ orbit │ road │ gtfs │ air   Plan ─► SimResult
                     │                                              (trajectory contract)
  L3 ENSEMBLE   offsim.montecarlo  N weather years × seeds × variants (common random numbers) ─► distributions
                     │
- L4 VALIDATE   gates 0–4 (offsim.pipeline, offsim.contract) + AIS calibration (offsim.traffic) ─► report.json
+ L4 VALIDATE   gates 0–4 + 1b 3e 4b 4c (offsim.pipeline, offsim.contract) + AIS calibration (offsim.traffic) ─► report.json
                     │                                   scene.py refuses anything that failed
  L5 PRESENT    offsim.scene ─► render_deck (deck.gl)  │  motion (Manim, HyperFrames)  │  cinema (camera, vessel)
                offsim.physics (section fluid, ocean surface, streaks) + motion/mappanel ─► section + map film (tools/section_film.py)

@@ -1,0 +1,26 @@
+code: G4-KPI-MISMATCH
+gate: 4_paper
+meaning: measured KPIs are outside the paper's tolerance (status 'did not reproduce')
+symptoms:
+- status 'did not reproduce'
+- 'gate 4 rows: rel_gap > rel_tol for a reported KPI'
+- 'ours is None: KPI name not measured by the engine'
+checks:
+- kpi_gaps
+- kpi_names_measurable
+- tests_weakened
+repairs:
+- id: read-the-gap
+  kind: human
+  action: Report the result as 'did not reproduce' with the gaps; investigate the biggest gap first (units, objective definition, assumptions
+    flagged in the report). Never move a tolerance or a reported value to pass.
+  why_safe: The paper's numbers and tolerance are the test.
+- id: assumption-sensitivity
+  kind: human
+  action: Re-run the assumed values as an ensemble/sensitivity and show whether the paper's value lies inside.
+  why_safe: Adds evidence, claims nothing new.
+- id: name-mismatch
+  kind: human
+  action: If ours is None, align the reported KPI key with the engine's KPI name (docs/ENGINES.md lists them).
+  why_safe: Naming only, but the paper's meaning must match.
+question: Publish as 'did not reproduce' (with the gap table), or is there a documented reading of the paper that explains the gap?

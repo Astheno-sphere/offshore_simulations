@@ -1,0 +1,21 @@
+code: G3-SPEED
+gate: 3_contract
+meaning: a leg exceeds the agent's vmax
+symptoms:
+- 'contract [speed]: N leg(s) above vmax; worst X m/s'
+- vmax in knots entered as m/s (or reverse)
+- snapped quay far from the stated node makes a leg too long for its time
+checks:
+- contract_violations
+- worst_speed_vs_vmax
+- quay_snaps
+repairs:
+- id: check-units
+  kind: human
+  action: 'Compare fleet vmax with the paper (knots vs m/s: 12 kn = 6.17 m/s) and the quay snaps in the report.'
+  why_safe: 'vmax is a sourced value: only the paper decides it.'
+- id: engine-speed
+  kind: human
+  action: 'If vmax is right, the engine produced a leg faster than allowed: fix the engine or its time model; do not raise speed_tol.'
+  why_safe: Tolerances are never moved to pass.
+question: Is the fleet speed in the scenario the paper's speed in the right unit?

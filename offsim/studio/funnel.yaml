@@ -1,0 +1,144 @@
+# The funnel as data: one paper's journey from literature feed to published article + film.
+# Path and command templates use: {id} {paper_dir} {out} {scenario} {storyboard} {experiment} {pdf} {report} {film}
+# (all repo-relative; commands run with the repo root as cwd). `python` is replaced by the running interpreter.
+#
+# kind:     auto   = the conductor may run `command`; decide = a human or agent must record `offsim decide`
+# command:  null   = no CLI; the owner skill produces the outputs and the exit check verifies them
+# planned:  true   = command does not exist yet; advance stops there and says so
+# exit:     file: [paths] | report: gates_pass | decision: true | any: [...] | all: [...]
+# decision_completes (decide stages): true = a recorded decision completes the stage;
+#           false = a decision only approves, the stage completes when its exit check passes.
+# optional: stage is skipped when a later stage already has its artefacts (e.g. demo papers have no experiment).
+stages:
+  - id: feed
+    kind: auto
+    optional: true
+    command: python -m offsim feed
+    inputs: [papers/queries.yaml]
+    outputs: [papers/feed.jsonl]
+    exit: {file: [papers/feed.jsonl]}
+    owner: research-scout
+    model: haiku
+    why: Collect candidate papers from the literature APIs (global, not per paper).
+  - id: triage
+    kind: auto
+    optional: true
+    command: python -m offsim tag
+    inputs: [papers/feed.jsonl]
+    outputs: [papers/tags.jsonl]
+    exit: {file: [papers/tags.jsonl]}
+    owner: research-scout
+    model: haiku
+    why: Rule-tag every feed record by problem class, data and code mentions.
+  - id: gap
+    kind: decide
+    optional: true
+    command: python -m offsim gaps
+    inputs: [papers/tags.jsonl]
+    outputs: ["{paper_dir}/GAP.md"]
+    exit: {any: [{file: ["{paper_dir}/GAP.md"]}, {decision: true}]}
+    decision_completes: true
+    question: Which gap is worth a reproduction plus experiment? Pick one from papers/gaps.yaml and write GAP.md.
+    owner: research-scout
+    model: sonnet
+    why: A human or the scout chooses the gap; the machine never picks the research question alone.
+  - id: intake
+    kind: auto
+    command: python -m offsim paper {pdf}
+    inputs: ["{pdf}"]
+    outputs: ["{paper_dir}/extract.json", "{paper_dir}/evidence.csv"]
+    exit: {file: ["{paper_dir}/extract.json"]}
+    owner: paper-extract
+    model: sonnet
+    why: PDF to a DRAFT with page-referenced evidence. Drafts never run.
+  - id: extract
+    kind: decide
+    command: null
+    inputs: ["{paper_dir}/extract.json", "{paper_dir}/evidence.csv"]
+    outputs: ["{paper_dir}/evidence.csv"]
+    exit: {decision: true}
+    decision_completes: true
+    question: Is every candidate value confirmed with its page, or marked assumption, and are solver and engine chosen?
+    owner: paper-extract
+    model: sonnet
+    why: Values are confirmed by a human or the extractor agent against the page, never by the machine.
+  - id: scenario
+    kind: auto
+    command: null
+    inputs: ["{paper_dir}/evidence.csv"]
+    outputs: ["{scenario}"]
+    exit: {file: ["{scenario}"]}
+    owner: paper-extract
+    model: sonnet
+    why: scenario.yaml with a src or assumption on every value (gate 0 enforces this at run).
+  - id: run
+    kind: auto
+    command: python -m offsim run {scenario}
+    inputs: ["{scenario}"]
+    outputs: ["{out}/report.json"]
+    exit: {report: gates_pass}
+    owner: sim-corrector
+    model: sonnet
+    why: Gated pipeline (gates 0-4) writes report.json; a failure goes to the doctor.
+  - id: experiment
+    kind: auto
+    optional: true
+    command: python -m offsim experiment {experiment} --out {out}/experiment.json
+    inputs: ["{experiment}", "{out}/report.json"]
+    outputs: ["{out}/experiment.json"]
+    exit: {file: ["{out}/experiment.json"]}
+    owner: sim-engineer
+    model: sonnet
+    why: Pre-registered comparison answers the gap; the decision was written before the run.
+  - id: findings
+    kind: auto
+    optional: true
+    planned: true
+    command: python -m offsim findings {id}
+    inputs: ["{out}/report.json", "{out}/experiment.json"]
+    outputs: ["{out}/findings.json"]
+    exit: {file: ["{out}/findings.json"]}
+    owner: sim-corrector
+    model: sonnet
+    why: Distil report and experiment into sentences chosen from measured values (report refs only).
+  - id: storyboard
+    kind: auto
+    command: null
+    inputs: ["{out}/report.json"]
+    outputs: ["{storyboard}"]
+    exit: {file: ["{storyboard}"]}
+    owner: visual-director
+    model: sonnet
+    why: storyboard.yaml with shots; every number a report ref.
+  - id: film
+    kind: auto
+    command: python -m offsim story {storyboard}
+    precheck: python -m offsim story {storyboard} --dry-run
+    inputs: ["{storyboard}", "{out}/report.json"]
+    outputs: ["{film}"]
+    exit: {file: ["{film}"]}
+    owner: visual-director
+    model: sonnet
+    why: Dry-run checks every ref and shot headlessly, then the render. 1080p goes to the render workflow.
+  - id: article
+    kind: auto
+    planned: true
+    command: python -m offsim article {id}
+    inputs: ["{out}/report.json", "{storyboard}"]
+    outputs: ["{paper_dir}/article.md"]
+    exit: {file: ["{paper_dir}/article.md"]}
+    owner: sim-narrator
+    model: sonnet
+    why: Article from report refs only; every number resolves.
+  - id: publish
+    kind: decide
+    planned: true
+    command: python -m offsim publish {id}
+    inputs: ["{paper_dir}/article.md", "{film}"]
+    outputs: ["{paper_dir}/published.json"]
+    exit: {file: ["{paper_dir}/published.json"]}
+    decision_completes: false
+    question: Approve article and film for publication?
+    owner: sim-narrator
+    model: haiku
+    why: Publishing is irreversible and public; a human approves it.

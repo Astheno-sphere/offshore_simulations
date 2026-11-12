@@ -1,0 +1,28 @@
+code: DATA-SCHEMA
+gate: data
+meaning: a file, table or API answer does not have the shape the code expects
+symptoms:
+- KeyError on a column/phrase that a real paper or feed uses
+- missing columns [...] in a trajectory or table
+- API answer changed shape
+checks:
+- data_schema_columns
+- intake_kpi_label_tolerant
+- contract_violations
+repairs:
+- id: clear-partial-downloads
+  kind: auto
+  op: clear_partial_downloads
+  action: Remove zero-byte and .part files in the world download caches, then rerun the same command (a truncated file reads as a bad
+    schema).
+  why_safe: Deletes only incomplete downloads in git-ignored cache folders.
+- id: tolerant-parser
+  kind: human
+  action: Make the parser fall back (longest known key, kpi_<slug>) instead of raising on an unseen phrase, and add the real example
+    as a test fixture.
+  why_safe: Code fix with a guard test.
+- id: schema-changed
+  kind: human
+  action: If the host changed its answer, record the new schema in live-check and adapt the reader.
+  why_safe: Code fix.
+question: Is this a new real-world variant (add a fixture and make the reader tolerant) or a corrupt download?

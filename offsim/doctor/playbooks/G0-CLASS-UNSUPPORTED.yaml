@@ -1,0 +1,20 @@
+code: G0-CLASS-UNSUPPORTED
+gate: 0_provenance
+meaning: the problem class is handled by no registered solver or engine (or a tool raised Unsupported)
+symptoms:
+- detail.unsupported_classes is non-empty (e.g. PDP, synchronisation)
+- a tool raised Unsupported instead of approximating
+checks:
+- classes_registered
+- tool_import_errors
+repairs:
+- id: model-the-class
+  kind: human
+  action: Implement a Solver/Engine for the class (offsim/engines/base.py), with tests, a catalog entry with evidence and a docs/ENGINES.md
+    section; never approximate it by a neighbouring class.
+  why_safe: New modelling work; the machine refuses to approximate a paper.
+- id: drop-or-defer
+  kind: human
+  action: Record the paper as blocked on the class in the ledger and pick another gap.
+  why_safe: A funnel decision.
+question: Build the missing class now (which engine, which paper section defines it), or park this paper?
