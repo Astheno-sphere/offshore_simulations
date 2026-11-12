@@ -1,4 +1,4 @@
-generated_utc: '2026-11-12T21:37:52Z'
+generated_utc: '2026-11-12T22:25:09Z'
 gaps:
 - gap_id: no-norway-vrptw-psv
   kind: no-norway
@@ -22,14 +22,14 @@ gaps:
   factors:
     support: 0.6
     novelty: 0.958
-    feasibility: 0.667
+    feasibility: 1.0
     audience: 1.0
-    score: 0.3834
+    score: 0.5748
   factor_notes:
     support: 3 papers, saturates at 5
     novelty: 'largest neighbour 68 papers, this cell 3: 68/(3+68)'
-    feasibility: solver none covers VRPTW; engine replay covers VRPTW; data target
-      Norway reachable
+    feasibility: solver covers VRPTW; engine replay covers VRPTW; data target Norway
+      reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
 - gap_id: no-norway-pdp-heli
   kind: no-norway

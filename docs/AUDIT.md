@@ -141,3 +141,39 @@ source. A mistyped source value passes silently. Fix: the sourced number belongs
 QA should compare model -> spec -> registry, three-way. Task for the drafter.
 
 **Drift check: none.** Both tasks stayed on machine work; no film, no still, no place-specific artefact was built.
+
+---
+
+## Audit 7 — M1 (VRPTW) and T1 (rail) merged, 2026-11-12
+
+Both packages merged to main (full suite 779 passed, 7 skipped, the same 7 skips as before the merge).
+`no-norway-vrptw-psv` moves to feasibility 1.00 and score 0.5748: the first gap in the system that a
+registered solver and engine can actually run end to end.
+
+**Open risks the agents reported rather than hid. Neither is theirs to fix; both are pipeline or engine.**
+
+1. **Gate 1 does not check time windows.** `pipeline.py` validates plan feasibility for capacity but not for
+   `Problem.tw`, so a window-violating plan from any solver passes gate 1 and is caught only by the replay in
+   gate 2, or not at all when the engine's own rule differs (see 2). A window check belongs in gate 1 beside
+   the capacity check. Until it is there, VRPTW feasibility rests on the solver's own honesty.
+
+2. **`replay.py` and the solvers disagree on what `tw_late` means.** The replay logs `tw_late` when *service
+   ends* after the window closes; the solvers, and the standard VRPTW rule, require service to *start* by then.
+   With `service_s > 0` a correct, solver-feasible plan can therefore log `tw_late` in the replay. One of the
+   two definitions has to go; the standard rule is the one with a literature source behind it, so the engine is
+   the side to change. Nothing on screen may cite a `tw_late` count until it is settled.
+
+3. **Rail speed defaults are unsourced.** `offsim/worlds/rail.py` falls back to per-class speeds (main 120,
+   branch 80, industrial 40, light_rail/subway 70, tram 40 km/h) only where OSM carries no `maxspeed`. They are
+   flagged `assumption: true` and the agent stated plainly that the Bane NOR / Norske tog figures in its
+   docstring came from memory, not from a document. A rail result is not reportable until these are replaced
+   from the Bane NOR network statement.
+
+4. **The explicit rail path is unreachable from the engine.** `extra["gtfs"]` has no `rail` key, so only
+   auto-discovery of `<world>/osm/rail.geojson` works through `offsim run`. One-line engine change, deliberately
+   left out of T1's scope.
+
+**Process finding (mine).** Both agents branched from a stale `refs/remotes/origin/main` and so built on a main
+without W6, which is why their reported test counts did not match the baseline. `git fetch origin main` updates
+FETCH_HEAD, not the tracking ref. Every agent brief must use
+`git fetch origin +refs/heads/main:refs/remotes/origin/main` before `git worktree add`.
