@@ -209,3 +209,63 @@ Wired into `offsim run` as gate 4c_entur (scenario `validate: {entur: true}`, en
   <= 1.25 (both **assumptions**, unsourced), and fails when nothing could be judged. Record runs in `docs/TESTLOG.md`.
 - **Limits:** sampled positions only (30 s polls, vehicles report at their own rate); loop routes can project to the wrong lap; a dwell counts from its first
   arrival; trips are matched by id (Entur GTFS `trip_id` = ServiceJourney id), so a feed from another date or a re-planned journey simply does not match.
+
+## Weather data: two backends
+Engines read an hourly series per weather year (`offsim.weather.years.load_years`: `hs_m`, `wind_mps`, optional `tp_s`, `dir_deg`). Two fetchers
+produce the files it reads. Both write MET Norway NORA3 data (CC BY 4.0, credit "MET Norway (CC BY 4.0)"); neither runs in the Claude workspace
+(thredds.met.no is blocked), so both run on a VM or Actions and come back as files or a release.
+
+| | `legacy` (default) | `metocean-api` |
+|---|---|---|
+| Code | `offsim.weather.fetch.subset`, called by `fetch_world --metocean START HOURS` | `offsim.worlds.metocean_api` (`fetch_world --metocean-backend metocean-api`, or its own CLI) |
+| Output | a gridded box, regular lon/lat, int16: `metocean/<stamp>_<h>h_<dataset>.nc` | one cell per file: `metocean_point/pt_<product>_<YYYYMM>.nc` (dims time, lat 1, lon 1) + `manifest.json` |
+| Good for | maps, particles, currents (the visual layer); one period | many winters at one site (ensembles, `weather: {dir, point, years, season}`) |
+| Unit of work | one stage per dataset, one wall budget | one request per product-month; 24 winters of DJF = 144 |
+| Timeout | SIGALRM stage budget (cannot interrupt a blocked netCDF read) | each unit in a subprocess killed after `--unit-timeout` (default 600 s) |
+| Resume | none: a killed run starts over | files are written atomically and re-validated on start; only missing or invalid units are fetched |
+| Failures | `manifest.errors`, one entry per stage | per unit in `manifest.json` (status, attempts, error, permanent) and mirrored into `errors` |
+| Currents | yes (`norkyst_v3`) | no (not read by `load_years`) |
+| Status | `verified_source` only, never opened live | catalog `wired`: proven offline on fixtures, not live |
+
+### Variable mapping (metocean-api 1.1.14 -> stored name -> what `load_years` builds)
+| Product (`TimeSeries(product=...)`) | Library column | Stored as | Unit | Becomes | Direction convention (library) |
+|---|---|---|---|---|---|
+| `NORA3_wave_sub` | `hs` | `hs` | m | `hs_m` | n/a |
+| `NORA3_wave_sub` | `tp` | `tp` | s | `tp_s` | n/a |
+| `NORA3_wave_sub` | `thq` | `thq` | degrees | `dir_deg` | OCEANIC (towards), as the library declares it; the file's own `standard_name` was not seen live |
+| `NORA3_wind_sub`, `height=[10]` | `wind_speed_10m` | `wind_speed` | m/s | `wind_mps` | n/a |
+| `NORA3_wind_sub`, `height=[10]` | `wind_direction_10m` | `wind_direction` | degrees | not read | METEOROLOGICAL (from) |
+| `NORKYST800_V3` (not fetched here) | `u_eastward`, `v_northward` | `u`, `v` (legacy names) | m/s | not read | n/a |
+
+The wind request pins `height=[10]`: without it the library returns `wind_speed_10.0m`, `wind_speed_20.0m`, ... (all heights), and it refuses
+`start_time` / `end_time` with a time part for these products (`'YYYY-MM-DD'` only). Any column not in this table raises `VariableMappingError`;
+nothing is renamed by guess. The library rounds values to 0.01.
+
+### Fetch 24 Bergen winters (resumable)
+```
+pip install metocean-api
+python -m offsim.worlds.metocean_api fetch --world bergen-ncs --point 3.0,60.6 --years 2000-2023 --season DJF
+```
+- Writes `data/worlds/bergen-ncs/metocean_point/` (override with `--out`). Winter Y is Dec Y .. Feb Y+1, so this is Dec 2000 .. Feb 2024; 144 units.
+  The point 3.0 E, 60.6 N is an open-sea cell inside the `bergen-ncs` box near the Oseberg and Troll fields: an **assumption** (any cell inside the
+  box and over water works; the loader refuses land cells and cells more than 30 km away). A directory holds one point: another point needs another `--out`.
+- Time: **unmeasured**. Each unit costs about 4 s of Python start-up plus one monthly point read over OPeNDAP, expected 10 to 60 s, so roughly 1 to 2.5
+  hours in total. The line `[k/144] nora3_wave:200012: ok (N s ...)` gives N for the first unit; multiply by 144. `--max-runtime-min 100` stops cleanly
+  inside a job time limit.
+- Resuming looks like this, and a first run says `STARTING: 0/144 units on disk` instead:
+  `RESUMING: 37/144 units already on disk and valid (skipped); 107 to fetch`. Run the same command again after a kill, a timeout or a stop; valid
+  files are never fetched twice. `python -m offsim.worlds.metocean_api status --world bergen-ncs` shows what is on disk without fetching.
+- Exit code 0 only when all 144 are valid; 2 when some are missing (the failures are in `manifest.json`, `units`). Six failures in a row stop the run.
+- Use it: `weather: {dir: data/worlds/bergen-ncs/metocean_point, point: [3.0, 60.6], years: [2000, 2023], season: DJF}`. A run is reportable only if
+  the series are real, so check the manifest says 144 ok before dropping the synthetic block.
+- Inside a world fetch: `python -m offsim.worlds.fetch_world --world bergen-ncs --out world --metocean-backend metocean-api --metocean-point 3.0,60.6 --metocean-years 2000-2023`.
+  The fetch-world workflow does not expose these flags yet (a workflow change, not made in this package) and an Actions runner starts empty each time,
+  so on Actions the whole fetch must fit one job: use `--max-runtime-min`, and carry `metocean_point/` forward between runs (cache or release) to resume.
+- Cross-check windows with `python -m offsim.worlds.metocean_api stats --world bergen-ncs --point 3.0,60.6 --years 2000-2023`: metocean-stats runs in a
+  **child process** (it requires `lmoments3`, GPL-3.0, so it is never imported here). Do not install metocean-stats in the fetch environment: it pulls
+  `pydap`, which can change which backend xarray picks for OPeNDAP URLs.
+
+Not proven offline (first live run must check, then log it in `docs/TESTLOG.md` and promote the catalog entries to `tested`): that the live monthly files
+have the structure the fixtures assume (rotated grid `rlat`/`rlon` for waves, `height`/`y`/`x` for wind, 2D `longitude`/`latitude`); that they are hourly
+and whole-month (otherwise every unit fails loudly with the missing-hours count); that the 2000 to 2024 months exist on the server; the time per unit; the
+`HTTP.TIMEOUT` lines in the child's `.dodsrc` (the subprocess kill is the guarantee, not these); direction conventions of `thq`.

@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-161 tools · 33 tested · 13 wired · 10 installed · 55 candidate · 4 manual · 46 watch.
+161 tools · 33 tested · 15 wired · 10 installed · 53 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -13,7 +13,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 |---|---|---|---|---|---|---|---|
 | world | 5 | 3 | 2 | 7 | 3 | 8 | 28 |
 | traffic | 1 | 4 | 3 | 1 | 1 | 2 | 12 |
-| metocean | 0 | 0 | 1 | 7 | 0 | 5 | 13 |
+| metocean | 0 | 2 | 1 | 5 | 0 | 5 | 13 |
 | solver | 3 | 1 | 0 | 2 | 0 | 4 | 10 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
@@ -145,14 +145,14 @@ _Wind, waves, currents; weather windows for operations_
 | [NorKyst v3 800 m ocean forecast archive](https://data.met.no/dataset/1250dfdf-975c-4c5e-85d4-745506402f06) | CC-BY-4.0 | candidate | actions | now | Hourly u/v currents, 15 depth levels, from 2024-01-01; curvilinear grid (regrid); ~160 m nest covers Oslofjord. |
 | [xarray + netCDF4 (+ zarr)](https://pypi.org/project/xarray/) | Apache-2.0 / MIT (check) | installed | actions | now | OPeNDAP open, bbox/time .sel, regrid, write scaled NetCDF: the subsetting core of weather/fetch.py. Evidence: `offsim/weather/fetch.py` `requirements-weather.txt` `tests/test_weather.py` |
 | [MET Norway WAM 800 m coastal wave forecast](https://thredds.met.no/thredds/fou-hi/mywavewam800.html) | check | candidate | actions | next | Hs/Tp/direction at 800 m on five coastal domains; forecast archive only (NORA3 for hindcast). |
-| [metocean-api (MET Norway)](https://github.com/MET-OM/metocean-api) | check | candidate | actions | next | Time series from NORA3 wind/wave hindcast (and ERA5) at a point: weather windows for PSV, crane and helideck operations. |
+| [metocean-api (MET Norway)](https://github.com/MET-OM/metocean-api) | LGPL-2.1-or-later (v1.1.14 metadata; imported lazily, unmodified, never vendored) | wired | actions | next | NORA3 wave + wind point series (NORA3_wave_sub, NORA3_wind_sub at 10 m) behind offsim.worlds.metocean_api: one request per product-month, each in a killable subprocess, atomic files, manifest, resume. WIRED, NOT TESTED LIVE: proven offline against synthetic fixtures (its real code path, URLs served from disk); thredds.met.no is blocked here. Promote to tested after the first live bergen-ncs run is logged in docs/TESTLOG.md. Note: it rejects start/end with a time part for the *_sub products ('YYYY-MM-DD' only), so offsim.weather.fetch.point_series with ISO times fails. Evidence: `offsim/worlds/metocean_api.py` `tests/test_metocean_api.py` `tests/fixtures/metocean/make_fixtures.py` `docs/ENGINES.md` |
 | [NorKyst v3 hindcast catalogue](https://thredds.met.no/thredds/catalog/romshindcast/norkyst_v3/catalog.html) | check | watch | actions | next | Multi-year currents for historical paper scenarios; coverage unverified. |
 | [cfgrib + herbie-data (GRIB)](https://pypi.org/project/herbie-data/) | MIT / Apache-2.0 | watch | actions | later | GFS GRIB byte-range subsets; needs eccodes; coarse fallback only. |
 | [Copernicus Marine Arctic WAM forecast](https://data.marine.copernicus.eu/product/ARCTIC_ANALYSIS_FORECAST_WAV_002_014) | check | watch | actions | later | 3 km waves; free with registration (Actions secret). |
 | [Copernicus Marine Toolbox](https://github.com/mercator-ocean/copernicus-marine-toolbox) | check | candidate | actions | later | Subset currents/waves (NetCDF/Zarr) beyond the Nordic domain; needs free login. |
 | [ERA5 single levels (Copernicus CDS)](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels) | Copernicus licence (check) | watch | actions | later | Global 0.25° hourly u10/v10/swh fallback; CDS token as Actions secret. |
 | [MET Norway oceanforecast API](https://api.met.no/doc/oceanforecast/datamodel) | CC-BY-4.0 (MET terms) | candidate | actions | later | Forecast Hs, wave direction, currents for live-looking scenarios. |
-| [metocean-stats (MET Norway)](https://github.com/MET-OM/metocean-stats) | check | candidate | actions | later | Operability statistics (Hs exceedance, windows) from those series. |
+| [metocean-stats (MET Norway)](https://github.com/MET-OM/metocean-stats) | MIT, but it requires lmoments3 (GPL-3.0) and pydap: separate process only, never imported in-process | wired | actions | later | Hs weather-window statistics per winter (stats.general.weather_window_length) run in a CHILD process by `python -m offsim.worlds.metocean_api stats`, as a cross-check on the fetched series; not an input to any run. WIRED: ran offline on fixture series only, not on real NORA3. Do not install it in the fetch environment: it pulls pydap, which can change xarray's OPeNDAP engine choice. Evidence: `offsim/worlds/metocean_api.py` `tests/test_metocean_api.py` `docs/ENGINES.md` |
 | [OpenDrift (MET Norway)](https://github.com/OpenDrift/opendrift) | check | watch | here | later | Drift of objects/spills; a different video genre (emergency response logistics). |
 
 ## solver
