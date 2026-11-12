@@ -192,8 +192,15 @@ def test_tree_params_override_and_ranges():
     b = bbox_dims(m.shape)
     assert close(b["z"], 30.0, 0.005) and close(b["x"], 8.0, 0.01)
     assert m.dims["height_m"].get("src") and m.dims["crown_width_m"].get("src")
-    d = land.build_tree("spruce")                                       # defaults are flagged assumptions
-    assert d.dims["height_m"].get("assumption") is True
+    # why (N3): the spruce default moved to 30 m — the low end of the cited 30-46 m mature range, crown 8.4 m inside
+    # the cited 7.6-13.7 m spread — so the spruce defaults are sourced, not assumptions; pine/birch defaults (inside
+    # a cited maximum only, no cited spread) stay assumed.
+    d = land.build_tree("spruce")
+    assert d.dims["height_m"].get("src") and d.dims["crown_diameter_m"].get("src")
+    assert d.dims["height_m"]["value"] == 30.0 and d.dims["crown_diameter_m"]["value"] == d.dims["crown_width_m"]["value"] == 8.4
+    for sp in ("pine", "birch"):
+        dd = land.build_tree(sp)
+        assert dd.dims["height_m"].get("assumption") is True and dd.dims["crown_diameter_m"].get("assumption") is True
     with pytest.raises(ValueError):
         land.build_tree("oak")
 
