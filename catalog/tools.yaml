@@ -53,8 +53,8 @@ tools:
    role: "High-resolution seabed for inner Oslofjord hero shots."}
 - {id: kystverket-routes, name: Kystverket reference routes for navigation, url: "https://data.norge.no/en/datasets/00014e4a-0be4-3fac-868c-ede03b09ce5c/reference-routes-for-navigation", layer: world, licence: NLOD-2.0, status: manual, runs: actions, priority: next,
    role: "Fairway graph so vessels follow lanes, not straight lines."}
-- {id: searoute-py, name: searoute-py, url: "https://github.com/genthalili/searoute-py", layer: world, licence: Apache-2.0, status: candidate, runs: here, priority: later,
-   role: "Shortest global sea route for long-haul legs; its README says visualisation, not navigation."}
+- {id: searoute-py, name: searoute-py, url: "https://github.com/genthalili/searoute-py", layer: world, licence: Apache-2.0, status: tested, runs: here, priority: later, evidence: "offsim/traffic/searoute_adapter.py tests/test_searoute.py coordination/reports/A2.md",
+   role: "Shortest global sea route for long-haul legs, behind the (legs, dist_m, time_s) contract. Coarse (about 20 km lane mesh, no land input): a cross-check on SeaGraph, never a replacement. Measured 18 to 34 percent longer than SeaGraph on two North Sea pairs (docs/ENGINES.md). Apache-2.0, imported."}
 - {id: osm-ship-routing, name: OpenStreetMap-Ship-Routing, url: "https://github.com/sibmr/OpenStreetMap-Ship-Routing", layer: world, licence: check, status: watch, runs: here, priority: later,
    role: "Ocean routing graph built from OSM; reference for our own lane graph."}
 
@@ -73,8 +73,8 @@ tools:
    role: "Declared, not yet called (Actions only): multimodal travel-time matrices (walk+bus+ferry); downloads the R5 jar on first use. Wire on Actions or drop."}
 - {id: kystverket-hais, name: Kystverket Historic AIS (HAIS), url: "https://hais.kystverket.no/", layer: traffic, licence: open, status: manual, runs: browser, priority: now,
    role: "Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes."}
-- {id: pyais, name: pyais, url: "https://github.com/M0r13n/pyais", layer: traffic, licence: MIT, status: candidate, runs: here, priority: later,
-   role: "Decode raw NMEA AIS (AIVDM) if we ever take a raw stream instead of GeoParquet."}
+- {id: pyais, name: pyais, url: "https://github.com/M0r13n/pyais", layer: traffic, licence: MIT, status: tested, runs: here, priority: later, evidence: "offsim/traffic/ais.py tests/test_ais_decode.py tests/fixtures/ais/synthetic_nmea.txt tests/fixtures/ais/make_fixture.py coordination/reports/A2.md",
+   role: "Decodes raw NMEA AIS (types 1/2/3 position, 5 static, multipart) into the HAIS-shaped table and contract trajectory; every rejected line is reported. Offline-proven on synthetic sentences; the live feed is unproven. MIT, imported."}
 - {id: movingpandas, name: MovingPandas, url: "https://github.com/movingpandas/movingpandas", layer: traffic, licence: BSD-3-Clause, status: tested, runs: here, priority: now, evidence: "offsim/traffic/ais.py tests/test_traffic.py",
    role: "Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows."}
 - {id: aisdb, name: AISdb (Dalhousie MERIDIAN), url: "https://pypi.org/project/aisdb/", layer: traffic, licence: check, status: watch, runs: here, priority: later,
