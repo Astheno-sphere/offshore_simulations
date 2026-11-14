@@ -1,6 +1,6 @@
 """Visual gate: the machine judges its own frames (docs/STYLE_REFERENCE.md "Visual gate", SYSTEM_PLAN section 4 row Visual).
 
-    r = inspect(img_or_path, spec=None)          # measure one rendered frame (PIL image, ndarray or path) -> dict
+    r = inspect(img_or_path, spec=None)          # measure one rendered frame (kind 'intervention' adds the frame-budget rules, with meta=) (PIL image, ndarray or path) -> dict
     ok, reasons = passes(r, strict=False)        # reasons = ["<rule>: <what was measured vs the limit>", ...]
     with capture_text() as texts:                # optional: record every text draw the renderer makes (skia Canvas.text and
         img = render_something()                 #   PIL ImageDraw.text), so contrast, type scale and margins use the film's
@@ -35,6 +35,7 @@ from __future__ import annotations
 import contextlib
 import copy
 import math
+import re
 from pathlib import Path
 
 import numpy as np
@@ -42,6 +43,7 @@ from PIL import Image, ImageDraw
 from scipy import ndimage as ndi
 from scipy.spatial import cKDTree
 
+from offsim.cinema import rules
 from offsim.cinema.look import PALETTES
 
 HARD, SOFT = "hard", "soft"
@@ -98,12 +100,31 @@ GATE_SPEC = {
         "src": "G: smallest half share of the section/findings goldens is 0.27 (findings, text is left-aligned), halved with margin; map golden 0.15 (coast on one side) thirded; thin cells 0/2/0 on the goldens, 3 allowed",
     },
 }
+# The `intervention` frame budget (docs/VISUAL_GRAMMAR.md section 4). The NUMBERS are rules.FRAME_BUDGET and are never repeated here;
+# the entries below are definitions of the measuring instruments (D).
+GATE_SPEC["frame_budget"] = {
+    **copy.deepcopy(rules.FRAME_BUDGET),
+    "scene_row_ink": 0.5,              # D: a frame row belongs to a scene panel when at least half of its pixels are ink (off both grounds)
+    "sat_chroma": 38.0,                # D: Lab chroma at or above which a pixel is saturated (the accent measures 68; every palette grey and the sea are under 25)
+    "sat_hue_bin_deg": 40.0,           # D: hues closer than this are one hue
+    "sat_min_share": 0.0005,           # D: a hue counts when it covers at least 0.05 % of the frame
+    "footnote_chars": 60, "footnote_max_px": 14.0,      # D: a footnote is a long line (>= 60 characters) set at <= 14 px (the methods line is 13 px; the 16 px kicker is not one)
+    "readout_min_items": 4,            # D: a readout row is >= 4 text boxes on one baseline
+    "tick_min_items": 3,               # D: chart axis ticks are >= 3 numeric-only labels on one x
+    "src": "rules.FRAME_BUDGET (numbers); the D entries define the instruments",
+}
 # per kind: panel box / bleed boxes / bands measured on the matching golden
 KINDS = {
     "section": {"edges": {"panel": [0.0, 0.17, 1.0, 0.75]}, "margins": {"bleed": [[0.0, 0.17, 1.0, 0.43]]}},   # sea section is full-bleed (section.py: y 236..573 of 1350)
     "map": {"edges": {"panel": [0.0, 0.0, 1.0, 1.0]}, "margins": {"bleed": [[0.0, 0.0, 1.0, 1.0]]}, "balance": {"min_half_share": 0.05, "max_thin_cells": 9},
             "type_scale": {"max_soft": 9}},      # a panel inside the section frame: balance, bleed and type scale are judged on the composed frame
     "findings": {"edges": {"panel": [0.0, 0.17, 1.0, 0.75]}},
+    # two stacked full-bleed scene panels (74 % of the frame) over a caption block; panel box = both scenes
+    "intervention": {"edges": {"panel": [0.0, 0.0, 1.0, 0.741], "overall": [0.050, 0.60], "in_panel": [0.043, 0.75],
+                               "src": "NEW KIND, no reference measurement: the 0.374 ceiling above is calibrated on frames whose scene is a ~20 % strip; an intervention "
+                                      "frame is 74 % scene with a field covering >= 85 % of it (rules.FRAME_BUDGET), so its density is structurally higher. Ceilings = 1.2 x the "
+                                      "densest of our own intervention stills (overall 0.50, in panel 0.62); revisit when the reference film is measured"},
+                     "margins": {"bleed": [[0.0, 0.0, 1.0, 0.741]]}},
 }
 
 
@@ -501,12 +522,168 @@ def margin_stats(rgb: np.ndarray, texts, spec) -> dict:
     return {"text_outside": out_text, "ink_band_share": float((ink & band).sum() / max(band.sum(), 1)), "clipped": clipped}
 
 
+# ----------------------------------------------------------------------------------------------------- intervention frame budget
+def _scene_rows(rgb: np.ndarray, spec, meta):
+    """Boolean per analysis row: the row belongs to a scene panel. From meta['panels'] (frame-height fractions) when the renderer
+    declares them, otherwise measured: a row is scene when at least `scene_row_ink` of its pixels are ink."""
+    a = _analysis(rgb)
+    h = a.shape[0]
+    rows = np.zeros(h, bool)
+    if meta and meta.get("panels"):
+        for y0, y1 in meta["panels"]:
+            rows[int(round(y0 * h)):int(round(y1 * h))] = True
+        return rows
+    ink = ink_mask(a, spec)
+    return ink.mean(axis=1) >= spec["frame_budget"]["scene_row_ink"]
+
+
+def _text_blocks(texts, fw, fh):
+    """Merge recorded text boxes into blocks: boxes on one baseline are one row; consecutive rows of the same size and left edge are one
+    paragraph. Returns [(x0, y0, x1, y1, size, n_boxes)] in frame px."""
+    items = sorted((_place(r, fw, fh) + (r,) for r in texts), key=lambda t: (round(t[3] / 3), t[0]))
+    rows = []
+    for x0, y0, x1, y1, sz, r in items:
+        for row in rows:
+            if abs(row["y1"] - y1) <= 0.3 * sz and abs(row["size"] - sz) < 0.2 * sz + 4:
+                row["x0"], row["x1"] = min(row["x0"], x0), max(row["x1"], x1)
+                row["y0"] = min(row["y0"], y0)
+                row["n"] += 1
+                break
+        else:
+            rows.append({"x0": x0, "y0": y0, "x1": x1, "y1": y1, "size": sz, "n": 1, "left": x0})
+    rows.sort(key=lambda r: r["y0"])
+    blocks = []
+    for r in rows:
+        for b in blocks:
+            if abs(b["size"] - r["size"]) < 0.75 and abs(b["left"] - r["left"]) <= 2.0 and 0.0 <= r["y0"] - b["y1"] <= 1.1 * r["size"]:
+                b["y1"] = r["y1"]
+                b["x1"] = max(b["x1"], r["x1"])
+                b["n"] += r["n"]
+                break
+        else:
+            blocks.append(dict(r))
+    return [(b["x0"], b["y0"], b["x1"], b["y1"], b["size"], b["n"]) for b in blocks]
+
+
+def _saturated_hues(rgb: np.ndarray, fb):
+    a = _analysis(rgb)
+    lab = rgb_to_lab(a.reshape(-1, 3).astype(float))
+    chroma = np.hypot(lab[:, 1], lab[:, 2])
+    sat = chroma >= fb["sat_chroma"]
+    if not sat.any():
+        return []
+    hue = (np.degrees(np.arctan2(lab[sat, 2], lab[sat, 1])) + 360.0) % 360.0
+    nb = int(round(360.0 / fb["sat_hue_bin_deg"]))
+    cnt = np.bincount((hue / fb["sat_hue_bin_deg"]).astype(int) % nb, minlength=nb) / len(chroma)
+    # merge adjacent bins so one hue straddling a bin edge counts once
+    out, i = [], 0
+    bins = [(k, float(cnt[k])) for k in range(nb) if cnt[k] > 0]
+    groups = []
+    for k, v in bins:
+        if groups and (k - groups[-1][-1][0]) % nb == 1:
+            groups[-1].append((k, v))
+        else:
+            groups.append([(k, v)])
+    if len(groups) > 1 and (groups[0][0][0] == 0 and groups[-1][-1][0] == nb - 1):
+        groups[0] = groups.pop() + groups[0]
+    for g in groups:
+        share = sum(v for _, v in g)
+        if share >= fb["sat_min_share"]:
+            out.append({"hue_deg": round(float(np.mean([(k + 0.5) * fb["sat_hue_bin_deg"] for k, _ in g])), 0), "share": round(share, 5)})
+    return out
+
+
+def frame_budget_findings(rgb: np.ndarray, texts, meta, spec):
+    """The `intervention` frame budget (docs/VISUAL_GRAMMAR.md section 4; numbers = rules.FRAME_BUDGET). Returns (stats, findings) where
+    findings = [(rule, ok, msg)], every rule HARD with a stable message. Pixel measures need nothing from the renderer; what a pixel
+    cannot show (scale figures, field cover and static share) comes from `meta` and a frame without it fails that rule."""
+    fb = spec["frame_budget"]
+    h, w = rgb.shape[:2]
+    meta = meta or {}
+    texts = texts or []
+    rows = _scene_rows(rgb, spec, meta)
+    ah = len(rows)
+    scene = float(rows.mean())
+    stats = {"scene_height": scene}
+    out = []
+    out.append(("scene_height", scene >= fb["scene_height_min"],
+                f"scene panels take {scene:.0%} of the frame height (< {fb['scene_height_min']:.0%}): the scene is the film, the caption is a block under it"
+                if scene < fb["scene_height_min"] else f"scene panels take {scene:.0%} of the frame height"))
+    # caption block: text outside the scene rows
+    cap = []
+    inside = []
+    for r in texts:
+        x0, y0, x1, y1, sz = _place(r, w, h)
+        yc = int(min(ah - 1, max(0, 0.5 * (y0 + y1) / h * ah)))
+        (inside if rows[yc] else cap).append((x0, y0, x1, y1, sz, r))
+    cap_h = (max(c[3] for c in cap) - min(c[1] for c in cap)) / h if cap else 0.0
+    stats["caption_height"] = cap_h
+    out.append(("caption_height", cap_h <= fb["caption_height_max"],
+                f"the caption block spans {cap_h:.0%} of the frame height (> {fb['caption_height_max']:.0%}): text belongs in one block at the bottom"
+                if cap_h > fb["caption_height_max"] else f"the caption block spans {cap_h:.0%} of the frame height"))
+    # text roles: caption blocks + one role for everything set inside the scene panels (the chips)
+    blocks = _text_blocks([c[5] for c in cap], w, h) if cap else []
+    roles = len(blocks) + (1 if inside else 0)
+    stats["text_roles"] = roles
+    out.append(("text_roles", roles <= fb["text_roles_max"],
+                f"{roles} text roles ({len(blocks)} caption blocks + {1 if inside else 0} scene chips) > {fb['text_roles_max']}: kicker, headline, body, handle and the chips are the whole vocabulary"
+                if roles > fb["text_roles_max"] else f"{roles} text roles"))
+    # forbidden elements: declared by the renderer, plus what the recorded text gives away
+    found = {e for e in meta.get("elements", []) if e in fb["forbidden"]}
+    if any(len(str(r["text"])) >= fb["footnote_chars"] and r["size"] <= fb["footnote_max_px"] for r in texts):
+        found.add("footnote")
+    rowsy: dict = {}
+    for r in texts:
+        rowsy.setdefault(round(r["box"][3] / 4), []).append(r)
+    if any(len(v) >= fb["readout_min_items"] for v in rowsy.values()):
+        found.add("readout_row")
+    cols: dict = {}
+    for r in texts:
+        if re.fullmatch(r"[0-9.,+\-]+", str(r["text"]).strip()):
+            cols.setdefault(round(r["box"][0] / 4), []).append(r)
+    if any(len(v) >= fb["tick_min_items"] for v in cols.values()):
+        found.add("chart")
+    stats["forbidden"] = sorted(found)
+    out.append(("forbidden", not found,
+                f"forbidden element(s) in an intervention frame: {', '.join(sorted(found))}" if found else "no chart, colour bar, readout row, footnote or inset"))
+    # saturated hues
+    hues = _saturated_hues(rgb, fb)
+    stats["saturated_hues"] = hues
+    out.append(("saturated_hues", len(hues) <= fb["saturated_hues_max"],
+                f"{len(hues)} saturated hues {[x['hue_deg'] for x in hues]} (> {fb['saturated_hues_max']}): only the subject is saturated"
+                if len(hues) > fb["saturated_hues_max"] else f"{len(hues)} saturated hue"))
+    # scale figures per panel
+    figs = meta.get("scale_figures")
+    n_pan = len(meta.get("panels") or []) or 2
+    figs = list(figs) if figs else [0] * n_pan
+    stats["scale_figures"] = figs
+    low = [i + 1 for i, n in enumerate(figs) if n < fb["scale_figures_min"]]
+    out.append(("scale_figures", not low,
+                f"panel {low[0]} holds {figs[low[0] - 1]} scale figures (< {fb['scale_figures_min']} per panel)" + ("" if meta.get("scale_figures") else " (the frame declares none)")
+                if low else f"{min(figs)} or more scale figures in every panel"))
+    # field cover and static share (from the streak renderer)
+    fields = meta.get("field") or []
+    covers = [f.get("cover") for f in fields if f.get("cover") is not None]
+    stats["field_cover"] = covers
+    bad = [i + 1 for i, c in enumerate(covers) if c < fb["field_cover_min"]]
+    out.append(("field_cover", bool(covers) and not bad,
+                (f"the field covers {covers[bad[0] - 1]:.0%} of panel {bad[0]}'s free area (< {fb['field_cover_min']:.0%})" if bad else "the frame declares no field coverage")
+                if (bad or not covers) else f"the field covers {min(covers):.0%} or more of every panel's free area"))
+    stat = [f.get("static") for f in fields if f.get("static") is not None]
+    stats["field_static"] = stat
+    bad = [i + 1 for i, c in enumerate(stat) if c > fb["field_static_max"]]
+    out.append(("field_static", bool(stat) and not bad,
+                (f"{stat[bad[0] - 1]:.2%} of the drawn field in panel {bad[0]} does not move between frames (> {fb['field_static_max']:.0%}): no frozen texture" if bad else "the frame declares no static share")
+                if (bad or not stat) else "no frozen streak in the drawn field"))
+    return stats, out
+
+
 # ----------------------------------------------------------------------------------------------------- inspect / passes
 def inspect(image_or_path, spec=None) -> dict:
     """Measure one frame. `spec` = dict of overrides merged over GATE_SPEC (plus optional keys: kind, text = records from
     capture_text, strict is not a measuring option). Returns the report: measures, per-rule findings, warnings."""
     over = dict(spec or {})
-    kind, texts = over.pop("kind", None), over.pop("text", None)
+    kind, texts, meta = over.pop("kind", None), over.pop("text", None), over.pop("meta", None)
     sp = spec_for(kind, over)
     rgb = _load(image_or_path)
     h, w = rgb.shape[:2]
@@ -595,6 +772,10 @@ def inspect(image_or_path, spec=None) -> dict:
     add("balance", SOFT, bs["thin_cells"] <= bsp["max_thin_cells"],
         f"{bs['thin_cells']} of 9 grid cells are sparse (< {bsp['thin_cell_ratio']:.0%} of the mean ink density; allowed {bsp['max_thin_cells']})"
         if bs["thin_cells"] > bsp["max_thin_cells"] else f"{bs['thin_cells']} sparse grid cells")
+    if kind == "intervention":
+        rep["frame_budget"], fbf = frame_budget_findings(rgb, texts, meta, sp)
+        for rule, ok, msg in fbf:
+            add(rule, HARD, ok, msg)
     rep["warnings"] = [f"{f['rule']}: {f['msg']}" for f in F if f["severity"] == SOFT and not f["ok"]]
     return rep
 

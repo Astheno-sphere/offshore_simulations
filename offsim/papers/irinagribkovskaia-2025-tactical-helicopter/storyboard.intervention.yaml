@@ -1,0 +1,32 @@
+# V1 demo: the intervention shot kind on the Florø helicopter run (synthetic weather: DRAFT by construction).
+# One counterfactual: the S-92 on the helideck, then gone. Two cases: two wind states drawn from the run's weather series.
+# Forcing is report: refs only (offsim.motion.intervention.weather_view re-loads the scenario's weather block with the run's own loader).
+id: irinagribkovskaia-2025-tactical-helicopter-intervention
+run: out/irinagribkovskaia-2025-tactical-helicopter-synth
+scenario: offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.synth.yaml
+format: vertical
+shots:
+  - type: intervention
+    seconds: 20
+    subject: s92_on_helideck
+    subject_params:
+      mtow_kg: {value: 12020, assumption: true}       # S-92A maximum gross weight; not checked against the data sheet here
+      thrust_frac: {value: 0.1, assumption: true}     # rotors turning on the deck at flight idle: a tenth of the hover disc loading
+    forcing:
+      direction: {value: from_left, assumption: true}   # the synthetic weather has no direction; the section is drawn with the wind from the left
+      cases:
+        - {place: "FLORØ", wind: "report:weather.q10.wind_mps", hs: "report:weather.q10.hs_m"}    # a calm hour of the run's week
+        - {place: "FLORØ", wind: "report:weather.max.wind_mps", hs: "report:weather.max.hs_m"}    # its windiest hour
+    kicker: "{flights:.0f} FLIGHTS A WEEK  ·  WIND {lo:.1f} TO {hi:.1f} M/S  ·  {status}"
+    kicker_values:
+      flights: "report:measured.flights_planned"
+    headline:
+      - when: "deck_change_min >= 0.10"
+        text: "THE S-92 MAKES\n|ITS OWN WIND|"
+      - text: "THE S-92 BARELY\n|MOVES THE AIR|"
+    body:
+      - text: "Held fixed: the platform, the wind and the {measured.flights_planned:.0f}-flight Florø plan.\nVaried: one S-92 on the helideck, rotors turning, then gone."
+    chips:
+      states: ["S-92 ON DECK", "S-92 LEAVES", "DECK CLEAR"]
+    handle: "offshore_simulations"
+    visual: {kind: intervention, strict: false}

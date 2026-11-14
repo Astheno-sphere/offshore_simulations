@@ -134,9 +134,9 @@ budget, or as an amendment when it is a form already held. Forms are never blend
 
 ## 9. Build order
 
-1. `INTERVENTION` and `FRAME_BUDGET` in `offsim/cinema/rules.py` (done with this file).
-2. The `intervention` shot kind: panel solver with obstacle and switchable subject, full-panel streaks, chips,
+1. [x] `INTERVENTION` and `FRAME_BUDGET` in `offsim/cinema/rules.py` (done with this file).
+2. [x] The `intervention` shot kind (`offsim/motion/intervention.py`; physics in `offsim/physics/panel2d.py`, `masks.py`, `FieldStreaks` in `streaks.py`; tests `tests/test_intervention.py`): panel solver with obstacle and switchable subject, full-panel streaks, chips,
    caption block, two cases on one clock; frame-budget checks in `offsim/cinema/visual_gate.py`; a golden.
-3. Script derivation (section 6) in `offsim/motion/narrate.py`, refusing as listed.
-4. One still triptych (before, event, after) from a validated run, judged against section 2's table.
-5. Only then a 1080p render, on the VM or the `render` workflow.
+3. [ ] Script derivation (section 6) in `offsim/motion/narrate.py`, refusing as listed.
+4. [x] (DRAFT, demo storyboard `storyboard.intervention.yaml`) One still triptych (before, event, after) from a validated run, judged against section 2's table.
+5. [ ] Only then a 1080p render, on the VM or the `render` workflow.

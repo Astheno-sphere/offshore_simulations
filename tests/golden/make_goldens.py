@@ -3,6 +3,8 @@
     PYTHONPATH=. python tests/golden/make_goldens.py            # rewrite tests/golden/{section,map,findings}.png + .text.json
     PYTHONPATH=. python tests/golden/make_goldens.py --table    # print the measurements the GATE_SPEC thresholds come from
 
+intervention  (separate: `--intervention [--from DIR]`) the three stills of the intervention shot kind (before, event, after), 1/3 scale, with
+          their recorded text and frame meta; never part of all_frames()/write() so the existing goldens are untouched
 section   section.run_section with a synthetic coast + route standing in for the world data (the film's full layout, map panel on)
 map       mappanel.MapPanel on the same synthetic coast (panel only)
 findings  findings fan from the synthetic ensemble of tests/test_story_shots.py
@@ -84,6 +86,46 @@ def findings_frame(tmp: Path):
     return Image.open(res["frames"][0]).convert("RGB"), texts
 
 
+INTERVENTION_SB = "offsim/papers/irinagribkovskaia-2025-tactical-helicopter/storyboard.intervention.yaml"
+INTERVENTION_NAMES = ("before", "event", "after")
+
+
+def intervention_stills(tmp: Path, src: Path | None = None):
+    """The three intervention stills as {act: (full-size PIL image, texts, meta)}. Renders them (one solve of both cases through the whole
+    film, ~5 min) unless `src` is a directory written by `python -m offsim.motion.intervention` (stills + .text.json + .meta.json)."""
+    import yaml
+    from PIL import Image
+    out = {}
+    if src is not None:
+        for png in sorted(Path(src).glob("intervention_*.png")):
+            act = png.name.split("_")[1]
+            meta = json.loads(png.with_suffix(".meta.json").read_text())
+            texts = json.loads(png.with_suffix(".text.json").read_text())
+            out[act] = (Image.open(png).convert("RGB"), texts, meta)
+        return out
+    from offsim import pipeline
+    from offsim.motion import intervention
+    sb = yaml.safe_load((ROOT / INTERVENTION_SB).read_text())
+    if not (ROOT / sb["run"] / "report.json").exists():
+        pipeline.run(ROOT / sb["scenario"], ROOT / sb["run"])
+    report = json.loads((ROOT / sb["run"] / "report.json").read_text())
+    shot = next(s for s in sb["shots"] if s["type"] == "intervention")
+    res = intervention.run_intervention(shot, sb, report, tmp)
+    for p, meta, texts in zip(res["frames"], res["meta"], res["texts"]):
+        out[meta["act"]] = (Image.open(p).convert("RGB"), texts, meta)
+    return out
+
+
+def write_intervention(tmp: Path, src: Path | None = None):
+    from PIL import Image
+    for act, (img, texts, meta) in intervention_stills(tmp, src).items():
+        small = img.resize((SIZE[0], SIZE[1]), Image.LANCZOS)
+        small.save(HERE / f"intervention_{act}.png", optimize=True)
+        (HERE / f"intervention_{act}.text.json").write_text(json.dumps(texts))
+        (HERE / f"intervention_{act}.meta.json").write_text(json.dumps(meta))
+        print("wrote", f"intervention_{act}", small.size)
+
+
 def all_frames(tmp: Path):
     return {"section": section_frame(tmp / "s") + ("section",), "map": map_frame() + ("map",), "findings": findings_frame(tmp / "f") + ("findings",)}
 
@@ -110,4 +152,8 @@ def table(tmp: Path):
 if __name__ == "__main__":
     import tempfile
     with tempfile.TemporaryDirectory() as t:
-        (table if "--table" in sys.argv else write)(Path(t))
+        if "--intervention" in sys.argv:
+            src = Path(sys.argv[sys.argv.index("--from") + 1]) if "--from" in sys.argv else None
+            write_intervention(Path(t), src)
+        else:
+            (table if "--table" in sys.argv else write)(Path(t))
