@@ -150,6 +150,13 @@ def test_qa_refuses_all_assumed():
     assert not ok and any("assumption" in w for w in why) and r["assumed"] == 3 and not r["dims_failed"]
 
 
+def test_registry_gate_passes_all_nine_main_assets():
+    # why (N3): locks in the CAD QA work — every film-eligible asset passes qa.gate with no drawn size. The N1 sprite
+    # assets (psv_v10, s92_sprite, bus_sprite) are all-assumed by design and stay out of this list.
+    for name in ("psv", "s92", "bus", "train", "person", "tree", "building", "aw189", "platform_jacket"):
+        assert Q.gate(name) == [], name
+
+
 def _storyboard(asset):
     return {"id": "t", "format": "square", "shots": [{"type": "card", "seconds": 1, "kpis": [], "asset": asset}]}
 
