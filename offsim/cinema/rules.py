@@ -50,3 +50,27 @@ LOOK = {
     "grades": ["north-sea-steel", "golden-hour", "night-ops"],  # one grade per film, applied in ffmpeg
     "max_screen_passes": 2,              # luma.gl effects per frame on SwiftShader (vignette, tiltShift)
 }
+
+# The intervention form (docs/VISUAL_GRAMMAR.md): one counterfactual, two cases, one clock, no camera.
+INTERVENTION = {
+    "acts": {"before": 0.40, "event": 0.15, "after": 0.45},   # share of the film; measured on the reference (8 / 3 / 9 s of 20)
+    "film_s": (15.0, 25.0),
+    "cases": 2,                       # two instances under the same treatment; one is an anecdote
+    "switched_variables": 1,          # exactly one thing differs between before and after
+    "event_dim": (0.45, 0.65),        # panel luminance during the event, as a share of the before act
+    "camera_rate_max": 0.0,           # the form forbids camera moves
+    "headline_words_max": 7,
+    "body_words_max": 40,
+    "state_chips": 3,                 # before, event, after
+}
+
+FRAME_BUDGET = {                      # read by the visual gate for `intervention` shots
+    "scene_height_min": 0.65,         # scene panels' share of frame height
+    "caption_height_max": 0.28,
+    "text_roles_max": 5,              # kicker, headline, body, handle, chips
+    "forbidden": ["chart", "colour_bar", "readout_row", "footnote", "map_inset"],
+    "saturated_hues_max": 1,          # the subject
+    "scale_figures_min": 2,           # per panel
+    "field_cover_min": 0.85,          # share of each panel's free area carrying streaks
+    "field_static_max": 0.0,          # share of drawn field with zero frame-to-frame displacement
+}

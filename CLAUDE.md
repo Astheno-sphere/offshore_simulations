@@ -21,7 +21,9 @@ paper → scenario.yaml → `python -m offsim run` (gates 0–4 plus the opt-in 
   secret `AMPL_LICENSE_UUID`) or on the laptop (`tools/ampl_mcp`); the Pyomo twin runs here.
 - Numbers on screen come only from `report:` refs. Verify renders with `render.py --check` / `story --dry-run`
   before producing video; do not render images during audits unless asked.
-- Visual work follows `docs/VISUAL_SPEC.md`; numbers are in `offsim/cinema/rules.py`. Interfaces that raise
+- Visual work follows `docs/VISUAL_SPEC.md`; numbers are in `offsim/cinema/rules.py`. A film argues by a form in
+  `docs/VISUAL_GRAMMAR.md`; a reference video is studied by `docs/REFERENCE_STUDY.md` (measure, name, budget, gate,
+  build) and nothing from it is ever committed. Interfaces that raise
   NotImplementedError are specs: build them to their docstring, then add the tool's evidence to the catalog.
 - Catalog status `tested`/`wired`/`installed` needs `evidence:` paths (checked); manual runs go in `docs/TESTLOG.md`.
 - Heavy renders (1080p, Blender) go to the `render` workflow; drafts and stills are fine here.
