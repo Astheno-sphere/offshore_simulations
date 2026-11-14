@@ -127,3 +127,14 @@ Target grade: the reference set Arshad supplies (Abhinav Bhardwaj's work, to be 
 notes on what to take: palette, line weight, typography, pacing). Until then the house style is section 1 + 6.
 When the reference arrives, extract it as data (palette, stroke widths, type scale, easing, shot lengths) into
 `offsim/cinema/look.py` and `rules.py`, so the style is reproducible and checkable, not imitated by eye.
+
+## 11. The `intervention` shot (V1)
+
+`python -m offsim.motion.intervention <storyboard> --out out/x` renders one still per act; `story --dry-run` renders a quick frame and gates it.
+Two stacked panels, one clock, one switchable subject (`Subject`: solid, momentum source, heat, porous drag) in a 2D MAC-grid solver
+(`offsim/physics/panel2d.py`, direct pressure solve, no-slip, boundary-layer inflow plus seeded perturbation). Forcing comes only from
+`report:weather.*` refs (derived from the scenario's weather block at storyboard time); literal forcing is refused. Synthetic or assumed
+parameters force DRAFT into the kicker. World mask = orthographic shadow of QA-passed CAD solids at true scale; jacket, crane and flare are
+treated as open lattice, not solid.
+Limits: 2D extrusion (a rotor disc is a slice, no 3D vortex); the lid at the panel top blocks flow (blockage); thrust fraction, MTOW and wind
+direction are assumptions; `from_right` is not built. Cost: grid 300x139 at 0.4 m, 5500 streaks per panel, about 0.24 s solve plus 1.1 s draw per frame.

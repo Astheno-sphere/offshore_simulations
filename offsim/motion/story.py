@@ -12,6 +12,10 @@ Shot types
             `diptych` is accepted as an alias for a section shot that has a map.
   findings  skia: what the ensemble says (kind fan | paired | state_gantt), only from report["ensemble"] / the run's
             trajectory, spread and status word always on screen (offsim/motion/findings.py)
+  intervention  skia + a 2D flow solve: ONE counterfactual in TWO stacked panels on one clock (docs/VISUAL_GRAMMAR.md); the
+            subject is switched at the event and the field is computed through the switch. Forcing must be `report:` refs to the
+            run's weather (literals are refused); the frame budget (scene share, caption share, text roles, forbidden elements,
+            saturated hues, scale figures, field cover, static share) is a hard visual gate (offsim/motion/intervention.py)
 Assembly    ffmpeg xfade between shots.
 
 Visual gate: `check()` renders the dry-run frame of every section and findings shot and refuses the storyboard when
@@ -59,9 +63,9 @@ def tools():
 
 
 NEEDS = {"equation": ("manim", "latex"), "map": ("node", "chrome"), "card": ("hyperframes", "chrome"),
-         "section": ("ffmpeg",), "findings": ("ffmpeg",)}
+         "section": ("ffmpeg",), "findings": ("ffmpeg",), "intervention": ("ffmpeg",)}
 ALIASES = {"diptych": "section"}
-SHOT_TYPES = ("equation", "map", "card", "section", "findings")
+SHOT_TYPES = ("equation", "map", "card", "section", "findings", "intervention")
 
 
 def shot_type(shot):
@@ -98,7 +102,7 @@ def asset_problems(asset):
 
 
 VISUAL_KEYS = ("strict", "kind", "spec")
-VISUAL_FRAME_SHOTS = ("section", "findings")
+VISUAL_FRAME_SHOTS = ("section", "findings", "intervention")
 
 
 def visual_problems(sb, report, shot, traj=None, weather=None, agents=None, warnings=None):
@@ -124,11 +128,16 @@ def visual_problems(sb, report, shot, traj=None, weather=None, agents=None, warn
                 with vg.capture_text(canvas=(section.W, section.H)) as texts:
                     res = section.run_section({**normalize(shot), "seconds": 0.2}, sb, tmp, 30, report, fmt_size, 0,
                                               strict_map=False, spinup_steps=40, log=lambda *_: None)
+            elif st == "intervention":
+                from offsim.motion import intervention
+                res = intervention.run_intervention(shot, sb, report, tmp, quick=True, log=lambda *_: None)
+                texts = res["texts"][0]
             else:
                 from offsim.motion import findings
                 with vg.capture_text(canvas=(findings.W, findings.H)) as texts:
                     res = findings.run_findings(shot, report, tmp, 30, traj, weather, agents, fmt_size, -1, log=lambda *_: None)
-            rep = vg.inspect(res["frames"][0], {**(vis.get("spec") or {}), "kind": kind, "text": texts or None})
+            extra = {"meta": res["meta"][0]} if st == "intervention" else {}
+            rep = vg.inspect(res["frames"][0], {**(vis.get("spec") or {}), "kind": kind, "text": texts or None, **extra})
         except Exception as e:                    # a frame that cannot be rendered cannot be judged
             return [f"visual gate could not render or inspect the frame: {type(e).__name__}: {e}"]
     ok, reasons = vg.passes(rep, strict=bool(vis.get("strict")))
@@ -187,6 +196,9 @@ def check(sb, report, visual=True, warnings=None):
             from offsim.motion import findings
             traj, _ = load_traj(sb) if shot.get("kind") == "state_gantt" else (None, None)
             probs += [f"shot {i} (findings): {p}" for p in findings.problems(shot, report, traj is not None)]
+        elif st == "intervention":
+            from offsim.motion import intervention
+            probs += [f"shot {i} (intervention): {p}" for p in intervention.problems(shot, intervention.weather_view(report, scenario_of(sb)), sb)]
         if visual and st in VISUAL_FRAME_SHOTS and len(probs) == n_before:
             tr, ag = load_traj(sb) if (st == "findings" and shot.get("kind") == "state_gantt") else (None, None)
             wx = load_weather(shot) if st == "findings" and shot.get("weather_csv") else None
@@ -195,6 +207,12 @@ def check(sb, report, visual=True, warnings=None):
             if warnings is not None:
                 warnings += [f"shot {i} ({st}): {w}" for w in wl]
     return probs
+
+
+def scenario_of(sb):
+    """The storyboard's scenario dict (the weather block the intervention forcing refs resolve against), or None."""
+    p = sb.get("scenario")
+    return yaml.safe_load((ROOT / p).read_text()) if p and (ROOT / p).exists() else None
 
 
 def size(fmt):
@@ -389,6 +407,11 @@ def build(storyboard, dry_run=False):
                                   tuple(size(fmt)), 0, strict_map=False, spinup_steps=40, log=lambda *_: None)
                 print(f"  section {i}: 1 frame OK ({res['frames'][0]}), map {'on' if res['map'] else 'absent'}, "
                       f"indicative deck: {' '.join(res['deck'])}")
+            if shot_type(shot) == "intervention":     # one quick frame (short spin-up): the dry-run proof that forcing resolves and the frame builds
+                from offsim.motion import intervention
+                res = intervention.run_intervention(shot, sb, report, work / f"{i:02d}_intervention", quick=True, log=lambda *_: None)
+                print(f"  intervention {i}: 1 frame OK ({res['frames'][0]}), forcing {[round(c.u10, 2) for c in res['cases']]} m/s from report refs, "
+                      f"{'DRAFT' if res['draft'] else 'not draft'}, headline (indicative): {' '.join(t for seg in res['text']['headline'] for t, _ in seg)}")
             if shot_type(shot) == "findings":
                 from offsim.motion.findings import run_findings
                 traj, agents = load_traj(sb)
