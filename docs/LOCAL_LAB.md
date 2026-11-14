@@ -77,3 +77,4 @@ become part of the pipeline.
   User env `AMPL_MCP_SOLVERS` set; Claude desktop config gets an `ampl` entry (backup `claude_desktop_config.json.bak-20261115`).
   Known Windows-only test failures, pre-existing: pyvrp missing under system Python 3.14 (3), two concordance docs
   drifts, test_architecture reads files as cp1252 (set PYTHONUTF8=1).
+- 2026-11-15 (late): L2 env offsim py3.12 built (866 pass, 20 fail, mostly Windows paths/encoding/POSIX; list in E:\OffsimLab\runs\L2_report.md). First real AMPL run of tests/test_ampl.py found an ampl_adapter bug (amplpy 0.18 to_pandas index shape); fixed, 34 pass 1 skip. Pushed to agent/desktop/D1-ampl-link. NEXT: D1 report (coordination/reports/D1.md): CVRP demo vs Pyomo 114643.0 m, whelp Floro vs 9980.4986, MCP config shape; smoke-test AMPL Studio.bat and Offsim Shell.bat.

@@ -217,9 +217,14 @@ def _records(obj) -> list:
 def _arcs_with_value(ampl) -> list[tuple[int, int]]:
     df = _records(ampl.get_variable("x").get_values())
     arcs = []
-    for _, row in df.iterrows():
-        if float(row.iloc[-1]) > 0.5:
-            arcs.append((int(round(float(row.iloc[0]))), int(round(float(row.iloc[1])))))
+    # amplpy >= 0.18 to_pandas() puts the (i, j) pair in the index and leaves only the value column;
+    # older shapes carry i, j, value as columns. Found on the first real AMPL run (laptop, 2026-11-15).
+    for idx, row in df.iterrows():
+        if float(row.iloc[-1]) <= 0.5:
+            continue
+        i, j = (idx if isinstance(idx, tuple) else (row.iloc[0], row.iloc[1])) if len(row) < 3 else \
+            (row.iloc[0], row.iloc[1])
+        arcs.append((int(round(float(i))), int(round(float(j)))))
     return arcs
 
 
