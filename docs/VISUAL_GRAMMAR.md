@@ -125,11 +125,12 @@ A script is derived, not written freely. Given a validated `report.json`:
 The second column is the test of whether a result is filmable in this form: if nothing can be switched, there is
 no counterfactual, and the result needs a different form (a map film or a findings card).
 
-## 8. What a second and third reference would add
+## 8. Further references
 
 This file holds one grammar. The first reference (section plus map, one clock) is a *where and how much* film;
-this one is a *what did it do* film. Each further reference should be measured the same way (section 2's table)
-and added as a named form with its own budget, not blended into these rules.
+this one is a *what did it do* film. Each further reference is studied by the method in
+`docs/REFERENCE_STUDY.md` (measured with `tools/reference_study.py`) and added as a named form with its own
+budget, or as an amendment when it is a form already held. Forms are never blended.
 
 ## 9. Build order
 

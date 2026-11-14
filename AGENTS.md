@@ -13,6 +13,8 @@ Read `CLAUDE.md` first: its rules apply to every agent, not only Claude. Then:
    - On-screen sentences are chosen from measured values (two-pass: measure, then render). Never hand-write a claim.
    - New solver/engine = implement `offsim/engines/base.py` (`Solver` / `Engine`), raise `Unsupported` instead of
      approximating, add tests, add a catalog entry with `evidence:` paths, add its section to `docs/ENGINES.md`.
+   - A film argues by a form in `docs/VISUAL_GRAMMAR.md`. A reference video is studied by `docs/REFERENCE_STUDY.md`
+     (measure, name, budget, gate, build), never by drawing toward it; nothing from a reference is committed.
    - Visual work follows `docs/STYLE_REFERENCE.md` (detail density, three line weights, 2x supersampling, tonal fills,
      real layers only on maps, cinema rate caps in `offsim/cinema/rules.py`).
    - Run `python -m pytest -q tests` before every commit; update `docs/RESUME.md` and `docs/TESTLOG.md`.
