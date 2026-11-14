@@ -1,7 +1,7 @@
 # Coordination channel (git is the channel)
 
-Writers: Arshad, Claude (laptop/cloud session, integrator), Nordlys (Muse agent on a VM, env `venv-studio`) and
-their subagents. No MCP or shared chat is needed: agents talk through files in this folder, on git.
+Writers: Arshad, Claude (cloud session, integrator), Claude desktop on Arshad's laptop (inbox `desktop`, branches
+`agent/desktop/*`, the only place AMPL runs locally), Nordlys (Muse agent on a VM, env `venv-studio`) and their subagents. No MCP or shared chat is needed: agents talk through files in this folder, on git.
 
 Protocol
 1. Before any work: `git fetch`, read `docs/RESUME.md`, `docs/SYSTEM_PLAN.md`, then your inbox `coordination/inbox/<you>/`.
