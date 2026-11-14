@@ -11,7 +11,7 @@ The `opt-model` skill owns Pyomo/HiGHS exact models. This skill owns AMPL.
 
 - A reader cares about commercial-solver corroboration (Gurobi, CPLEX, COPT).
 - Instance size pushes HiGHS past its practical limit; Gurobi or CPLEX is needed.
-- The paper itself was modelled in AMPL and we want to stay in the author's language.
+- The paper itself was modelled in AMPL and we want to stay in the author's language (runs on the laptop via ampl_mcp, or on Actions via solve.yml).
 - Gate-2 double-check: solve the same model with HiGHS and with the best commercial solver, compare objectives within `tol`.
 
 ## Interfaces
