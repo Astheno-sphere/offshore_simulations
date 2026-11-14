@@ -1,6 +1,6 @@
 # Local lab: AMPL + offsim on the owner's Windows machine
 
-Status: **PLAN, nothing built yet.** Waiting on one decision: the lab drive (L0).
+Status: **BUILDING.** `<LAB>` = `E:\OffsimLab` (owner, 2026-11-15). L0, L1, L3 done; L4 wired; L2, L5, L6 open.
 Resume: read this file, then continue at the first unchecked step in "Build order".
 
 ## Facts verified 2026-11-15 (on the machine, not assumed)
@@ -69,3 +69,11 @@ become part of the pipeline.
 
 - 2026-11-15: facts verified, plan written. Local main = origin/main fb565aa + 4 AMPL commits, not pushed.
   Branch `local/ampl-backend` holds the older local MCP server rewrite (not merged on purpose).
+- 2026-11-15: lab at E:\OffsimLab. Repo cloned to `E:\OffsimLab\repo\offshore_simulations` (the Downloads clone is now
+  the old copy; delete only after the owner agrees). L1: launchers + `AMPL IDE.lnk` + desktop `Offsim Lab.lnk`;
+  `Solve This.bat` on models\teaching\toy.run -> 11 on highs, gurobi, knitro, baron. L3: `tools/ampl_studio/`
+  (Streamlit) + tests, no new failures. MCP server: solver list widened by env `AMPL_MCP_SOLVERS` (default stays
+  highs,cbc), per-solver time-limit keys from a probe, Windows split of the POSIX root list; 2 tests added.
+  User env `AMPL_MCP_SOLVERS` set; Claude desktop config gets an `ampl` entry (backup `claude_desktop_config.json.bak-20261115`).
+  Known Windows-only test failures, pre-existing: pyvrp missing under system Python 3.14 (3), two concordance docs
+  drifts, test_architecture reads files as cp1252 (set PYTHONUTF8=1).
