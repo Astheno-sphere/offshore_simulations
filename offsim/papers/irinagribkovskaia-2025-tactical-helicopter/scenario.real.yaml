@@ -1,0 +1,176 @@
+paper:
+  id: irinagribkovskaia-2025-tactical-helicopter
+  title: Tactical Helicopter Transportation Planning for Offshore Personnel on the
+    Norwegian Continental Shelf
+  authors:
+  - Irina Gribkovskaia
+  - Gaute Oiestad Slettemark
+  year: 2025
+  doi: 10.3390/logistics9020073
+  licence: CC BY 3.0
+param:
+  instance: floro
+  choices:
+  - floro
+  - stavanger
+  - bergen
+  how: python -m offsim.solve.whelp --write-scenario <name> (instances.yaml is the
+    single source)
+problem:
+  class:
+  - WFPPP
+  objective:
+    value: min fixed window costs + flight-hour costs of the weekly program
+    src: p.15 eq (1)
+solver: whelp
+engine: air
+world: none
+fleet:
+- cls: helicopter
+  count:
+    value: 1
+    src: p.26 Table 2 (helicopters available)
+  speed_mps:
+    value: 64.306
+    src: p.25 Sec 6.2.1 (125 kn)
+  domain: air
+instance:
+  source: paper Appendix A + assumed positions
+  base:
+    name: Florø
+    lon: 5.0247
+    lat: 61.5836
+    assumption: true
+    note: approximate airport reference point, unverified
+  stops:
+  - name: F1
+    lon: 2.0611
+    lat: 62.4611
+    assumption: true
+  - name: F2
+    lon: 2.46188
+    lat: 62.39873
+    assumption: true
+  - name: F3
+    lon: 2.69092
+    lat: 61.6604
+    assumption: true
+  - name: F4
+    lon: 2.94308
+    lat: 61.01768
+    assumption: true
+sim:
+  wfppp:
+    slot_min:
+      value: 15
+      src: p.25 Sec 6.2.1
+    speed_kn:
+      value: 125
+      src: p.25 Sec 6.2.1 (S-92 average speed)
+    deck_min:
+      value: 10
+      src: p.25 Sec 6.2.1 (about ten minutes per deck stop)
+    turnaround_min:
+      value: 60
+      src: p.25 Sec 6.2.1 (one hour added to each flight)
+    split_threshold_min:
+      value: 15
+      src: p.25 Sec 6.2.1
+    flight_hour_cost:
+      value: 140
+      src: p.25 Sec 6.2.1 (masked units)
+    days:
+      value: 5
+      src: p.12 Sec 3 (Monday to Friday)
+    day_start:
+      value: 07:00
+      src: p.26 (windows start at 07:00)
+    heliport_name: Florø
+    max_helicopters:
+      value: 1
+      src: p.26 Table 2
+    windows:
+    - hours:
+        value: 10
+        src: p.26 (options (10, 12, 16))
+      cost:
+        value: 5968
+        src: p.26 Table 3
+    - hours:
+        value: 12
+        src: p.26 (options (10, 12, 16))
+      cost:
+        value: 6625
+        src: p.26 Table 3
+    - hours:
+        value: 16
+        src: p.26 (options (10, 12, 16))
+      cost:
+        value: 7000
+        src: p.26 Table 3
+    installations:
+    - name: F1
+      demand_flights:
+        value: 6.5
+        src: p.38 Table A1
+      open:
+        value: 07:00-18:00
+        src: p.38 Table A1
+      mobile: false
+    - name: F2
+      demand_flights:
+        value: 4.5
+        src: p.38 Table A1
+      open:
+        value: 07:00-18:00
+        src: p.38 Table A1
+      mobile: false
+    - name: F3
+      demand_flights:
+        value: 4
+        src: p.38 Table A1
+      open:
+        value: 07:00-18:00
+        src: p.38 Table A1
+      mobile: false
+    - name: F4
+      demand_flights:
+        value: 4
+        src: p.38 Table A1
+      open:
+        value: 07:00-22:00
+        src: p.38 Table A1
+      mobile: true
+  limits:
+    wind_mps:
+      value: 25.0
+      assumption: true
+      note: placeholder; source from the helicopter flight manual / CAP 437 / operator
+        minima
+    hs_m:
+      value: 6.0
+      assumption: true
+      note: mobile installations only; placeholder, source from CAP 437 helideck motion
+        limits
+reported:
+  plan_cost:
+    value: 9980
+    src: p.29 Table 4
+    rel_tol: 0.05
+  helicopters:
+    value: 1
+    src: p.29 Table 4
+    rel_tol: 0.0
+  window_hours:
+    value: 10.0
+    src: p.29 Table 4
+    rel_tol: 0.0
+weather:
+  dir: data/worlds/bergen/metocean
+  point:
+  - 2.7194
+  - 60.276
+  years:
+  - 2001
+  - 2023
+  season: DJF

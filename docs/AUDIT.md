@@ -227,3 +227,27 @@ unexamined failure that the tooling was shaped around.
   feature in the backlog: it is the first place our implementation and a published result genuinely disagree.
 - None of this is reachable by thinking harder. It took one cross-validation run, 14 minutes, and a
   willingness to be embarrassed by the result.
+
+## Audit 9 (channel sync, 2026-11-14) — one open risk from the N3 merge
+
+**Provenance labels can be relabelled to clear a gate, and nothing stops it.** The CAD QA gate requires at
+least one required dim to carry a `src` before a film may use an asset. `tree` failed that for months: every
+principal dim was a flagged assumption. N3 cleared it by moving the Norway-spruce default height from 25 m to
+30 m — the low end of the cited 30-46 m mature range — and relabelling height and crown from `assumption` to
+`src`. The 30 m is defensible and inside its citation; the solid was not fitted to a number anyone wanted; and
+the change is documented in `land.py` and in `coordination/reports/N3.md`. It was merged on that basis.
+
+What is still true after the merge: the repo's standing convention, written in `land.py` itself before this
+change ("defaults are assumptions inside the cited ranges"), says a default chosen inside a published range is
+an assumption. Choosing the range's bound does not make the specimen measured — no one measured this tree.
+This is the first place where moving a value to a cited bound, and relabelling it, is what made a gate pass,
+and the gate has no way to tell that apart from a sourced measurement.
+
+Two things follow, and the second needs a human.
+- `pine` and `birch` keep the old convention (inside a cited maximum, no cited spread -> assumption), so the
+  codebase now holds both conventions in one dict, three lines apart. That is the visible symptom.
+- The decision: either a species default at a published bound counts as sourced — in which case say so in
+  AGENTS.md, apply it to pine and birch, and let the gate mean "cited", not "measured" — or it does not, in
+  which case the tree asset is not film-eligible until a real specimen is measured, and `tree` goes back to
+  `built`. Both are defensible. Leaving it undecided is not: the next agent will read the spruce lines as
+  precedent.

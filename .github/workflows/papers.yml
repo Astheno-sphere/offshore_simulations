@@ -59,9 +59,9 @@ jobs:
 
       - name: Commit when the feed grew, then push
         run: |
-          git add papers/feed.jsonl papers/tags.jsonl papers/gaps.yaml
-          if git diff --cached --quiet -- papers/feed.jsonl; then
-            echo "No new papers this week"
+          git add papers/feed.jsonl papers/feed.status.json papers/tags.jsonl papers/gaps.yaml
+          if git diff --cached --quiet -- papers/feed.jsonl papers/feed.status.json; then
+            echo "No new papers this week and no change in source health"
             exit 0
           fi
           git -c user.name="Arshad Akhtar Abbasia" \
@@ -70,7 +70,7 @@ jobs:
               -m "papers: weekly feed $(date -u +%F)" \
               -m "Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>" \
               -m "Claude-Session: https://claude.ai/code/session_01EHN9UJ5w8SDBDnkLYY6iDn" \
-              -- papers/feed.jsonl papers/tags.jsonl papers/gaps.yaml
+              -- papers/feed.jsonl papers/feed.status.json papers/tags.jsonl papers/gaps.yaml
           git push origin papers/auto
 
       - name: Report on the tracking issue (data branch + issue; Actions may not open pull requests here)

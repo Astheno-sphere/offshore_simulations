@@ -4,6 +4,62 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-14 — channel sync: N2, N3 and loop-proof merged; vm-pile refused. main 870 pass, 10 skip (this box).
+
+Scheduled integrator run, nobody watching. Four Nordlys branches were waiting on origin, none of them seen by
+the 11-13 session (which wrote N4 believing the N2/N3 tasks were still unclaimed — they were done on branches).
+
+**Merged to main**, each verified here against the code rather than the summary:
+- `agent/nordlys/N2-actions` — overpass probe retry, fetch `get()` retry, feed 429 backoff + degraded status
+  file, `sea_polygons` vectorised, sodir keyword fix. Its one untested change was the `sea_polygons` rewrite,
+  and the report said so: I ran the new code against the pre-N2 scan from git on 8 cases (sine split, closed
+  ring, 400-segment zigzag, 5 random three-line coasts) — identical areas and filled bounds, 0 mismatches — and
+  added `tests/test_osm.py::test_sea_polygons_votes_known_geometry`. Its three test files are pure additions
+  (0 deleted lines). `live_status.json` NOT merged: `probes.py` reads `ROOT/live_status.json` as "the previous
+  run", and `live-check.yml` commits it to `live/status` in a worktree so main does not carry one.
+- `agent/nordlys/N3-assets-visual` — CAD QA re-run here on all nine film-eligible assets, all `(True, [])`, so
+  the four `built -> qa-pass` statuses are measured. Four tests were edited; all four had encoded a defect that
+  is now fixed (one by its own docstring's instruction), so all four stand, but the commits say `(why: in
+  commit)` with an empty body, so the `why:` lines are in my merge commit instead. `tests/golden/section.png`
+  was never pushed (binary) — the stale frame failed the branch's own new assertion here with `margins: ink
+  fills 6.5%`; regenerated via `make_goldens.py`, passes; map/findings came back byte-identical.
+- `agent/nordlys/loop-proof` — scenarios and storyboards only. `scenario.real.yaml` differs from the committed
+  synth scenario in the weather block alone (verified by diff); `Flor\xF8` normalised to `Florø` to match.
+  Its weather dir `data/worlds/bergen/metocean` exists only on the VM, so nobody else can run it yet.
+
+**Refused**: `agent/nordlys/vm-pile` (22 commits, 9,678 insertions). Note written to
+`coordination/inbox/nordlys/20261114-N5-vm-pile-refused.md` with the evidence and a three-way split. Grounds:
+`offsim/papers/nafstad2021/scenario.yaml` sits at the path the pipeline reads with **zero** `src:` and **zero**
+`assumption: true` keys (provenance as prose only) so it cannot pass gate 0 and occupies a filename a real
+scenario needs; no task file and no report, so 810 lines of new tests and 3,058 of new tools arrive with no
+stated result; committed run output and pdftotext (`reproduce_table3_log.json` 2,389 lines, `nafstad2021.txt`
+1,014) — licence is fine (CC BY 4.0), the repo rule is not; and v1+v2 of both film tools. Branch kept on origin.
+
+**Fixed here**, because N2 asked the integrator for it: `.github/workflows/papers.yml` now adds and commits
+`papers/feed.status.json`, and the no-growth early exit checks the status file too — a week where every source
+429s produced 0 new records and looked identical to a quiet week, which is exactly the record the file exists
+to keep.
+
+**Open risk, audit 9 in `docs/AUDIT.md`**: the spruce default moved 25 -> 30 m and `assumption -> src` because
+30 m is the low end of a cited range, and that relabelling is what cleared the CAD QA gate. Merged — the number
+is inside its citation and no solid was fitted — but `pine` and `birch` three lines away still follow the old
+convention, so both conventions now live in one dict.
+
+**Blocked, and on whom.** Arshad: the four Actions secrets/variables (`BW_CLIENT_ID`, `BW_CLIENT_SECRET`,
+`AMPL_LICENSE_UUID`, `OFFSIM_MAILTO`) and the dispatch PAT — until one of them exists, no workflow can be
+triggered from the VM and not one workflow has ever run on a hosted runner. Nordlys: N4 (the 24-winter
+metocean fetch, then the hosted live-check, then the winter-infeasibility experiment), then N5. Nobody has
+deleted the five merged branches; no branch-deletion tool exists in the connector.
+
+Note for the next run of this box: a fresh cloud container has none of the deps. `requirements.txt` plus
+graphics/cad/motion/physics/engines/gis/intake/weather/render, and `pip install metocean-api` — without the
+last one, `tests/test_metocean_api.py` fails 2 tests that lack the `@needs_lib` marker every other test in
+that file carries. 880 collected here, 870 pass, 10 environment skips (manimpango will not build here).
+Small hygiene bug seen three times today: `tests/test_intake.py` regenerates the committed fixture
+`tests/fixtures/intake/synthetic_paper.pdf` with a fresh CreationDate, so every suite run dirties the
+working tree and the diff is pure timestamp. It should write to tmp_path, or the fixture should not be
+in git. Restored by hand each time here; not fixed.
+
 ## 2026-11-13 — gap scout live, loop rehearsed, Nordlys invigilated. main 735 pass, 7 skip.
 - W6 merged: gap noise killed (of 712 records only 4 state a code link, 0 state unavailability, so `no-code` is now
   dormant and the list fell 26 -> 8), gaps ranked support x novelty x feasibility x audience with every factor

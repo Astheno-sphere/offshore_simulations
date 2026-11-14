@@ -1,0 +1,18 @@
+# Loop proof, Part B (synthetic weather, machine test) — one still, no video.
+# Every number on the frame is a report: ref (narration) or a trajectory total (gantt).
+# Status is not reportable: the methods block on the frame says so.
+id: irinagribkovskaia-2025-tactical-helicopter
+run: out/irinagribkovskaia-2025-tactical-helicopter-synth
+scenario: offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.synth.yaml
+format: square
+shots:
+  - type: findings
+    kind: state_gantt
+    seconds: 5
+    kicker: "Gribkovskaia & Slettemark 2025 — Florø, Table 4"
+    headline: {top: "DOES THE PAPER'S", accent: "FLORØ PLAN", rest: "REPRODUCE?"}
+    narration:
+      - when: "measured.plan_cost < 10500"
+        text: "Plan cost {measured.plan_cost:.0f} — Table 4 reproduced: {measured.helicopters:.0f} helicopter, {measured.window_hours:.0f}-hour window.\n{measured.flights_flown:.0f} of {measured.flights_planned:.0f} flights flown, {measured.distance_km:.0f} km, {measured.flown_hours:.1f} flying hours."
+      - text: "{measured.flights_flown:.0f} of {measured.flights_planned:.0f} flights flown, {measured.distance_km:.0f} km, {measured.flown_hours:.1f} flying hours."
+    visual: {strict: true}
