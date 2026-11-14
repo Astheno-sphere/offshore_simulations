@@ -143,6 +143,7 @@ def _int(v) -> Optional[int]:
 
 # --- overpass --------------------------------------------------------------------------------------------------
 OVERPASS = "https://overpass-api.de/api/interpreter"
+OVERPASS_RETRY_S = 5.0                                 # one retry on a 502/503 waits this long (tests set it to 0)
 MOLDE_COAST = (62.72, 7.10, 62.76, 7.20)          # south, west, north, east (Overpass order): a few km of coast
 
 
@@ -152,8 +153,19 @@ def probe_overpass(fetch=None, timeout=60, env=None) -> dict:
 
     def body():
         get = _getter(fetch, timeout)
-        r = get(OVERPASS, method="POST", data=urllib.parse.urlencode({"data": q}).encode(),
-                headers={"Content-Type": "application/x-www-form-urlencoded"})
+        # Overpass answers a good query with 502/503 when its queue is full and
+        # the same query succeeds minutes later (verified 2026-11-13: two full
+        # live runs 502'd in <1 s, two standalone runs returned 57 ways in
+        # ~30-40 s). One retry on a gateway error only, so a momentary overload
+        # does not open a false live-check issue; the shape check below is
+        # unchanged, and a persistent 502/503 still fails.
+        r = None
+        for attempt in (1, 2):
+            r = get(OVERPASS, method="POST", data=urllib.parse.urlencode({"data": q}).encode(),
+                    headers={"Content-Type": "application/x-www-form-urlencoded"})
+            if r.status not in (502, 503) or attempt == 2:
+                break
+            time.sleep(OVERPASS_RETRY_S)
         if (bad := _http_problem(r)):
             return False, bad, []
         js = _json(r)

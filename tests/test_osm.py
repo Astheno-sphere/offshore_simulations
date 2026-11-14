@@ -80,3 +80,74 @@ def test_fetch_world_flags_exist():
     for flag in ("--world", "--out", "--pull", "--metocean", "--depth", "--depth-only", "--osm", "--ais"):
         assert f'"{flag}"' in src, flag
     assert "osm" in inspect.signature(fetch_world.fetch).parameters and "ais_path" in inspect.signature(fetch_world.fetch).parameters
+
+
+def test_fetch_world_get_retries_once_on_gateway_error(monkeypatch):
+    # why: the bergen-ncs coast stage failed in 2 s on a transient Overpass 502;
+    # get() must retry once on 502/503, and the test must prove the retry without waiting.
+    import urllib.error
+
+    from offsim.worlds import fetch_world
+    monkeypatch.setattr(fetch_world, "GET_RETRY_S", 0)
+
+    class Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b"ok"
+
+    calls = {"n": 0}
+
+    def flaky(req, timeout=300):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise urllib.error.HTTPError(req.full_url, 502, "Bad Gateway", {}, None)
+        return Resp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", flaky)
+    assert fetch_world.get("https://example.invalid/x") == b"ok" and calls["n"] == 2
+
+
+def test_fetch_world_get_raises_other_http_errors_at_once(monkeypatch):
+    import urllib.error
+
+    from offsim.worlds import fetch_world
+    calls = {"n": 0}
+
+    def flaky(req, timeout=300):
+        calls["n"] += 1
+        raise urllib.error.HTTPError(req.full_url, 404, "Not Found", {}, None)
+
+    monkeypatch.setattr(urllib.request, "urlopen", flaky)
+    with pytest.raises(urllib.error.HTTPError):
+        fetch_world.get("https://example.invalid/x")
+    assert calls["n"] == 1
+
+
+def test_sea_polygons_votes_known_geometry():
+    """Locks the vote outcome of `sea_polygons` on geometry whose answer is known by hand — the vectorised
+    STRtree/prepared-contains vote (N2) has no other direct coverage. Verified identical to the pre-N2 scan on
+    these cases plus five random three-line coasts (integrator, 2026-11-14)."""
+    import geopandas as gpd
+    import numpy as np
+    from shapely.geometry import LineString
+
+    from offsim.worlds.coast import sea_polygons
+
+    def run(lines):
+        return sea_polygons(gpd.GeoDataFrame(geometry=lines, crs="EPSG:4326"), (0, 0, 10, 10), probe=0.05)
+
+    xs = np.linspace(-1, 11, 400)                                   # a flat-ish coast across the frame at y = 5
+    zig = LineString(np.column_stack([xs, 5 + 0.5 * ((np.arange(400) % 2) * 2 - 1)]))
+    sea, bounds = run([zig])
+    assert bounds == (0, 0, 10, 10)
+    assert sea.area == pytest.approx(50.0, abs=1e-6)                # exactly one side of the frame is sea
+
+    x = np.linspace(-1, 11, 60)                                     # a sine coast: sea is the area above it
+    sea2, _ = run([LineString(np.column_stack([x, 5 + 2 * np.sin(x)]))])
+    assert sea2.is_valid                                            # the window is not whole periods, so not 50
+    assert sea2.area == pytest.approx(53.665411, abs=1e-4)          # measured; identical under the pre-N2 scan

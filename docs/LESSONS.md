@@ -3,7 +3,7 @@
 Generated from `offsim/doctor/lessons.jsonl` by `python -m offsim learn` (offsim.doctor.lessons). Do not edit by hand.
 A lesson is closed only when its guard (a test or a playbook check) exists. Open lessons come first.
 
-12 lessons, 2 open.
+13 lessons, 2 open.
 
 ## Open (no guard yet)
 
@@ -52,6 +52,13 @@ A lesson is closed only when its guard (a test or a playbook check) exists. Open
 - Cause: Python buffered stdout and no per-stage wall budget; NorKyst currents over a 4.4 x 2.1 degree box is the likely heavy part
 - Fix: fetch_world.stage: flushed per-stage log, wall budget, timed-out stage recorded in manifest.errors, fetch continues
 - Guard: `tests/test_place.py::test_fetch_stage_records_timeout_and_continues`
+
+### L13 (2026-11-12) DATA-HOST-TIMEOUT
+
+- Symptom: Overpass answers a good query with HTTP 502 and the same query succeeds minutes later; the live-check probe and the bergen-ncs coast stage both failed on it (probe: 2 full runs 502 in <1 s, 2 standalone runs 57 ways in ~30-40 s; coast stage: 2 s 502 in fetch2.log)
+- Cause: Overpass returns 502/503 when its queue is full; neither the probe nor fetch_world.get() retried a gateway error
+- Fix: One retry on 502/503 only, then fail: offsim/live/probes.py probe_overpass (OVERPASS_RETRY_S 5 s) and offsim/worlds/fetch_world.py get() (GET_RETRY_S 10 s); other HTTP errors still raise at once
+- Guard: `tests/test_osm.py::test_fetch_world_get_retries_once_on_gateway_error`
 
 ## DATA-SCHEMA
 
