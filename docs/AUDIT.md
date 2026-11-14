@@ -177,3 +177,53 @@ registered solver and engine can actually run end to end.
 without W6, which is why their reported test counts did not match the baseline. `git fetch origin main` updates
 FETCH_HEAD, not the tracking ref. Every agent brief must use
 `git fetch origin +refs/heads/main:refs/remotes/origin/main` before `git worktree add`.
+
+---
+
+## Audit 8 — gate 4's headline match is fitted, and Bergen disagrees structurally, 2026-11-14
+
+**What was tested.** The paper masks the installation positions (p.25: 50-120 nm from the heliport), so
+`offsim.solve.whelp.calibrate` reconstructs them: a designed layout whose cluster radii are multiplied by a
+single scale s, with s chosen by 25 evaluations to make the reproduced optimal cost approach Table 4. That is
+one free parameter tuned on the very quantity gate 4 then validates. Florø's stored result is
+`scale 1.03438, cost 9980.5 vs 9980, rel_gap 5e-05`, and that 5e-05 has been quoted repeatedly as evidence the
+engine reproduces the paper. It is not evidence; it is a curve fit with one knob.
+
+The honest test is cross-validation: fit on one instance, apply to the others untouched. Fitting s on Florø
+only and applying s = 1.03438 to all three:
+
+| instance | installations | paper cost | ours | rel gap | our fleet | paper fleet | wall |
+|---|---|---|---|---|---|---|---|
+| floro | 4 | 9980 | 9980.5 | +0.01 % | [10] | [10] | 2 s |
+| stavanger | 12 | 26642 | 25641.5 | -3.76 % | [16, 12] | [16, 12] | 95 s |
+| bergen | 20 | 47582 | 49286.5 | +3.58 % | [16, 16, 12, 10] | [16, 14, 10, 10] | 733 s |
+
+**1. The reconstruction carries real signal.** One scale, never refitted, lands every instance within
+±4 % of a published cost across 4, 12 and 20 installations. For geometry recovered from nothing but a radius
+range, that is not luck. Gate 4 is not decorative.
+
+**2. But the 5e-05 is an artefact and must stop being quoted.** Florø's own dedicated fit bought three orders
+of magnitude of apparent precision over the cross-validated figure. Stavanger's dedicated fit reached only
+-2.37 % against -3.76 % cross-validated, so refitting bought 1.4 points there — which is the true size of the
+effect. The defensible claim is "within about 4 % of Table 4 on three instances with one shared scale", and it
+is a better claim than the fitted one because it is a prediction rather than a fit. Any calibrated instance
+must be flagged as fitted so that no article, scene or report can cite its gap as a reproduction.
+
+**3. Bergen disagrees on fleet composition, and scale cannot fix it.** Ours picks [16, 16, 12, 10], the paper
+[16, 14, 10, 10]: same cost to within 4 %, different structural answer. Window choice is not geometry, so no
+radial scale resolves it — this is a model discrepancy, in the window/turnaround semantics (eq 8 and the
+l = 4 turnaround slots) or in the spread constraint (eq 10/17), or the decomposition's upgrade rule (Sec 5.1)
+climbing to a different local optimum than the paper's. `calibrate`'s score adds +1.0 when the fleet differs,
+so a scale that fixes the cost while breaking the fleet is penalised — which may be exactly why Bergen was
+never calibrated at all: its stored calibration block is empty. The machinery quietly skipped the instance it
+could not satisfy, and nobody noticed. That is the shallowness worth naming: not a childish model, but an
+unexamined failure that the tooling was shaped around.
+
+**Consequences, in order.**
+- Gate 4 must compare fleet composition as a first-class KPI, not only cost, and must fail on Bergen today.
+  A gate that passes on a wrong structural answer because the scalar matched is not a gate.
+- Report Florø's cross-validated gap, not its fitted one, anywhere a number reaches a reader.
+- Bergen's discrepancy is a real open question about the paper's model, and it is more interesting than any
+  feature in the backlog: it is the first place our implementation and a published result genuinely disagree.
+- None of this is reachable by thinking harder. It took one cross-validation run, 14 minutes, and a
+  willingness to be embarrassed by the result.
