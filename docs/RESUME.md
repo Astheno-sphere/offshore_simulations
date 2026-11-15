@@ -4,6 +4,54 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-15 — channel sync: D1 (the AMPL link) merged; its cross-check still owed. main 922 pass, 13 skip (this box).
+
+Scheduled integrator run, nobody watching. One branch was new on origin: `agent/desktop/D1-ampl-link`
+(10 commits, 965 insertions), the first work ever pushed by the laptop actor.
+
+**Merged to main** (c2948a5), each claim checked against the code rather than the summary:
+- `agent/desktop/D1-ampl-link` — `docs/LOCAL_LAB.md` (the Windows lab at `E:\OffsimLab`, build order L0-L6),
+  `tools/ampl_studio/` (local Streamlit GUI over AMPL, model text screened the way the MCP server screens it),
+  `offsim/solve/ampl_backend.py`, the `ampl-model` skill, and the MCP server widened by `AMPL_MCP_SOLVERS`
+  (default stays `highs,cbc`; a test holds that). The one change worth the merge is in `ampl_adapter.py`:
+  amplpy 0.18 puts the (i, j) pair in the `to_pandas()` index, so `_arcs_with_value` read arcs from the wrong
+  place — a defect only a licensed box could find, and it is confined to the AMPL path.
+  Secret scan of the whole diff: clean (no UUID-shaped or long hex/base64 string; `AMPL_LICENSE_UUID` as an
+  env-var name and placeholder licence paths only). No test edited to pass (`tests/test_ampl.py` is +23/-0,
+  the other two test files are new); no tolerance, sourced value, `cinema/rules.py` number or golden frame
+  touched; nothing under `out/`, no data, no solver binary.
+
+**Merged with a debt, recorded in `coordination/inbox/desktop/20261115-D1-still-owed.md`**: there is no
+`coordination/reports/D1.md`, so the task's item 3 — the cross-check that matters — is unreported: AMPL
+objective vs the Pyomo twin on the CVRP demo (114643.0 m, seeds 1 and 2) and whelp Florø vs 9980.4986.
+`LOCAL_LAB.md` admits it ("NEXT: D1 report"). Merged anyway because nothing on main reads an AMPL objective
+yet and refusing would have stranded the adapter fix on a branch; **until those two numbers exist,
+`offsim/solve/ampl/{cvrp,vrptw,whelp}.mod` are still only text-checked as models.** Also owed: the 20
+Windows test failures live only in `E:\OffsimLab\runs\L2_report.md`, a path nobody else can read, and
+`tools/ampl_studio/` is a new tool absent from `catalog/tools.yaml` (concordance does not catch it today).
+
+**Not merged, nothing refused new.** `agent/nordlys/vm-pile` still carries 22 unmerged commits under the
+2026-11-14 refusal; grounds unchanged, note already in Nordlys's inbox, branch kept on origin.
+`wip/cad-assets-heli` shows one commit off main (the Dockerfile core-deps line) but it is content-identical
+to what main already has — the merge stages nothing, so the branch is spent and can be deleted.
+No `agent/claude/*` branch has anything off main; V1 (the intervention shot) was already merged by the
+later 11-14 session and its report reads straight, including the test it rewrote with the reason stated.
+
+**Blocked, and on whom.** Arshad, unchanged and now in the way of D1 as well: the four Actions
+secrets/variables (`BW_CLIENT_ID`, `BW_CLIENT_SECRET`, `AMPL_LICENSE_UUID`, `OFFSIM_MAILTO`) and the
+dispatch PAT. Not one workflow has ever run on a hosted runner, so the `solve` workflow cannot confirm the
+AMPL numbers either — which leaves the laptop as the only place they can come from, and makes the missing
+D1 report the single thing holding up the AMPL link. Nordlys: silent on origin since 11-13 with five open
+inbox items (N4, both N5s, N6, and desktop's new N7); a pointer went into his inbox saying N7's Linux check
+is already spent here. Nobody has deleted the six merged branches; no branch-deletion tool in the connector.
+
+Note for the next run of this box: a fresh container again had no deps. `requirements.txt` plus
+motion/render/weather/engines/gis/physics/graphics/intake/cad `-c constraints.txt pytest-timeout mcp
+metocean-api` installs clean **only with `manim` stripped out of `requirements-motion.txt`** — manimpango
+needs pangocairo and aborts the whole pip run, taking every other package with it. 935 collected, 922 pass,
+13 skip. The `tests/test_intake.py` fixture-timestamp bug from 11-14 is still live: every suite run dirties
+`tests/fixtures/intake/synthetic_paper.pdf`. Restored by hand again here; still not fixed.
+
 ## 2026-11-14 — channel sync: N2, N3 and loop-proof merged; vm-pile refused. main 870 pass, 10 skip (this box).
 
 Scheduled integrator run, nobody watching. Four Nordlys branches were waiting on origin, none of them seen by
