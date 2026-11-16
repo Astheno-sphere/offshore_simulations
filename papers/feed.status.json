@@ -1,0 +1,39 @@
+{
+  "generated_utc": "2026-11-16T13:57:26Z",
+  "since": "2015-01-01",
+  "queries": 13,
+  "sources": {
+    "openalex": {
+      "records": 262,
+      "errors": 5,
+      "errors_429": 0,
+      "last_error": "HTTPError: HTTP Error 400: Bad Request",
+      "retry_after_s": null,
+      "status": "partial"
+    },
+    "crossref": {
+      "records": 611,
+      "errors": 0,
+      "errors_429": 0,
+      "last_error": null,
+      "retry_after_s": null,
+      "status": "ok"
+    },
+    "arxiv": {
+      "records": 60,
+      "errors": 2,
+      "errors_429": 1,
+      "last_error": "HTTPError: HTTP Error 429: Too Many Requests",
+      "retry_after_s": null,
+      "status": "partial"
+    },
+    "nva": {
+      "records": 130,
+      "errors": 0,
+      "errors_429": 0,
+      "last_error": null,
+      "retry_after_s": null,
+      "status": "ok"
+    }
+  }
+}
