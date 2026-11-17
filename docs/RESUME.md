@@ -4,6 +4,57 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-17 — channel sync: the hosted runners woke up. papers feed merged, gap ranking corrected. main 922 pass, 13 skip (this box).
+
+Scheduled integrator run, nobody watching. **No actor pushed anything.** Nothing in
+`coordination/inbox/claude/`, no new report in `coordination/reports/`, nothing new from Nordlys (silent on
+origin since 11-13) or the laptop (since 11-15), and no `agent/claude/*` branch has a commit off main. The
+only new material on origin came from GitHub Actions: two scheduled workflows ran on **hosted runners on
+Monday 2026-11-16, the first time any workflow has ever run there**. The 11-15 line "not one workflow has
+ever run on a hosted runner" is now out of date; the dispatch PAT and the four secrets are still missing,
+but the schedules themselves clearly work.
+
+**Merged to main**: `papers/auto` (75bc4a7, the weekly feed) — the branch-side diff is confined to
+`papers/{feed.jsonl,feed.status.json,tags.jsonl,gaps.yaml}`. `feed.jsonl` 712 -> 965 records, append-only
+(the first 712 lines are byte-identical) and all 965 lines valid JSON. `tags.jsonl` regenerated here
+**byte-identically**, so the tagger is sound. No code, test, tolerance, sourced value, `cinema/rules.py`
+number or golden frame touched; nothing under `out/`; no secret-shaped credential (the UUID-shaped strings
+in the diff are public `oa_url` record ids).
+
+**Merged with one conflict resolved against the branch, and that is the finding of this run.**
+`papers/gaps.yaml` conflicted, and the runner's copy is *wrong*: `papers.yml` installs only
+`pyyaml pandas`, and `offsim/research/gaps.py` probes feasibility against what is importable, so the runner
+recorded `engine replay does not cover VRPTW` and `solver none covers PDP` where a full-dependency box
+records both as covered. `no-norway-vrptw-psv` scored 0.618 there against 0.927 here, and the gap ordering
+changes with it. I committed the **locally regenerated** `gaps.yaml` (same code, same merged feed, same
+`review.yaml`, full environment: 16 gaps, 16 open, 30 no-code cells withheld for want of availability
+evidence) and kept the runner's feed, status and tags. Every `gaps.yaml` ever produced by that workflow
+carries the same defect. Note in Nordlys's inbox (`20261117-N8-runners-live.md`); the fix belongs in the
+workflow's install step, or in `gaps.py` refusing to score feasibility it could not probe — **not** in the
+ranking numbers.
+
+**Not merged.** `live/status` (1ca411d) is an orphan branch by design, history kept there — never merged,
+but read: 15 of 17 probes answer. `ampl` and `barentswatch` are `skipped` for want of their secrets, and
+the **`runner` probe fails: `libegl1 missing; skia not importable; OCP not importable`** — so on stock
+`ubuntu-latest` the line-art renderer and the CAD solids are both absent and `film`/`render`/asset QA
+cannot work there. Source health: `crossref` and `nva` ok, `openalex` partial (5 errors, one HTTP 400),
+`arxiv` partial (2 errors, one 429), `overpass` HTTP 502 at probe time. `agent/nordlys/vm-pile` still
+carries 22 commits under the 2026-11-14 refusal, grounds unchanged. `wip/cad-assets-heli` is still the one
+content-identical Dockerfile commit — spent, deletable.
+
+**Blocked, and on whom.** Arshad, unchanged and now in the way of three things: the four Actions
+secrets/variables (`BW_CLIENT_ID`, `BW_CLIENT_SECRET`, `AMPL_LICENSE_UUID`, `OFFSIM_MAILTO`) and the
+dispatch PAT. Without them `solve` still cannot produce an AMPL objective, so the laptop remains the only
+possible source of the two D1 numbers (pointer left in `coordination/inbox/desktop/`), `barentswatch` stays
+unprobed, and the OpenAlex feed keeps running on the anonymous pool — which is the likeliest reading of its
+5 errors. Nordlys: six open inbox items, nothing pushed in four days.
+
+Note for the next run of this box: the install recipe from 11-15 still holds (`manim` must be stripped out
+of `requirements-motion.txt` or manimpango takes the whole pip run down). 935 collected, 922 pass, 13 skip.
+The `tests/test_intake.py` fixture-timestamp bug is **still live** — every suite run dirties
+`tests/fixtures/intake/synthetic_paper.pdf`; restored by hand again here, still not fixed. Three sessions
+have now paid for it.
+
 ## 2026-11-15 — channel sync: D1 (the AMPL link) merged; its cross-check still owed. main 922 pass, 13 skip (this box).
 
 Scheduled integrator run, nobody watching. One branch was new on origin: `agent/desktop/D1-ampl-link`
