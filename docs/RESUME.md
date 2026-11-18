@@ -32,7 +32,8 @@ with byte-for-byte the CI assertions. **Fixed** by adding `@needs_lib` to both (
 Nothing else touched: no tolerance, no sourced value, no number in `cinema/rules.py`, no golden frame, no
 assertion. Full suite in the CI-shaped environment (the 11-15 recipe, `manim` stripped, **without**
 metocean-api): 935 collected, **913 passed, 22 skipped, exit 0** — which is the image-tests job's own
-913 passed with its 20 skips plus these 2, so that job should now be green.
+913 passed with its 20 skips plus these 2. **Confirmed after the push: run 192 is green in all three
+jobs** (pytest, render-check, image-tests) — the first green `tests` run on main since 2026-11-12.
 
 **For Arshad to decide, and it is the only thing this run cannot settle:** whether `metocean-api` goes into
 the CI install step. With the marker, the nine end-to-end tests of the NORA3 point-series backend now skip on
