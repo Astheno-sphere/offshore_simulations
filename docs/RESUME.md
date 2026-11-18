@@ -4,6 +4,49 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-18 — channel sync: nobody pushed; main's CI has been red since 11-12 and is now fixed. 913 pass, 22 skip (CI-shaped env).
+
+Scheduled integrator run, nobody watching. **No actor pushed anything, again.** `coordination/inbox/claude/`
+empty, no new report in `coordination/reports/`, no new branch or commit on origin since the 11-17 sync
+commit itself: `live/status` still 1ca411d, `agent/nordlys/vm-pile` still 8a08fa6 under the 11-14 refusal,
+`wip/cad-assets-heli` still 41389a1 (spent). Nordlys silent five days with six open inbox items; the laptop
+silent three days. Both scheduled workflows are Monday-only (`live-check` 41 3 * * 1, `papers` 23 5 * * 1),
+so nothing was due since 11-16 and nothing is missing. **Nothing merged, nothing refused.**
+
+**The finding: the `tests` workflow has failed on main on every push since 2026-11-12 and no sync entry
+noticed.** Runs 183-191 are all red, including run 191 on the 11-17 sync commit. Both jobs fail on exactly
+the same two tests and nothing else — `tests/test_metocean_api.py::test_fetch_one_winter_reaches_load_years_in_the_expected_shape`
+and `::test_fetch_world_dir_layout_is_what_a_scenario_points_at` — with all six units `failed` instead of `ok`.
+Cause: those two end-to-end tests lack the `@needs_lib` marker that the other nine tests in the file carry.
+`metocean-api` is deliberately optional (`requirements-weather.txt`: "optional, for fetch.point_series"),
+`xarray`/`netCDF4` are not, so wherever xarray is installed and metocean-api is not — both CI jobs, and the
+machine image — the two tests run without the library and every fetch fails. On this box the whole file was
+skipping for want of xarray, which is why three sessions of "922 pass, 13 skip" never saw it.
+**The 11-14 entry already names this exact defect** (line: "without the last one, `tests/test_metocean_api.py`
+fails 2 tests that lack the `@needs_lib` marker every other test in that file carries") — but it was filed as
+a note about this box's install recipe, the recipe then installed `metocean-api` to make local runs green,
+and the marker was never added. Six days of red CI were paid for a one-line-each omission.
+
+Reproduced here before fixing: with `xarray`+`netCDF4` installed and `metocean-api` absent, the two tests fail
+with byte-for-byte the CI assertions. **Fixed** by adding `@needs_lib` to both (`why:` line in the commit).
+Nothing else touched: no tolerance, no sourced value, no number in `cinema/rules.py`, no golden frame, no
+assertion. Full suite in the CI-shaped environment (the 11-15 recipe, `manim` stripped, **without**
+metocean-api): 935 collected, **913 passed, 22 skipped, exit 0** — which is the image-tests job's own
+913 passed with its 20 skips plus these 2, so that job should now be green.
+
+**For Arshad to decide, and it is the only thing this run cannot settle:** whether `metocean-api` goes into
+the CI install step. With the marker, the nine end-to-end tests of the NORA3 point-series backend now skip on
+every runner and in the machine image, so that backend is proven only on a box where someone installed the
+optional library by hand. Either add `pip install metocean-api` to `tests.yml` and the Dockerfile (the tests
+are offline, fixture-served, and take ~3 s), or accept in writing that the backend is CI-untested. The
+marker is correct either way — without the library the test cannot pass — but skipping is not proving.
+
+**Blocked, and on whom.** Arshad, unchanged for four runs: `BW_CLIENT_ID`, `BW_CLIENT_SECRET`,
+`AMPL_LICENSE_UUID`, `OFFSIM_MAILTO` and the dispatch PAT. The laptop is still the only possible source of
+the two D1 numbers. The `runner` probe's `libegl1 / skia / OCP` failure from 11-17 stands unexamined.
+`tests/test_intake.py` still dirties `tests/fixtures/intake/synthetic_paper.pdf` on every suite run; restored
+by hand again here. Four sessions have now paid for that one.
+
 ## 2026-11-17 — channel sync: the hosted runners woke up. papers feed merged, gap ranking corrected. main 922 pass, 13 skip (this box).
 
 Scheduled integrator run, nobody watching. **No actor pushed anything.** Nothing in
