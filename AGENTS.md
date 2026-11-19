@@ -20,6 +20,8 @@ Read `CLAUDE.md` first: its rules apply to every agent, not only Claude. Then:
    - Run `python -m pytest -q tests` before every commit; update `docs/RESUME.md` and `docs/TESTLOG.md`.
 4. **Environment limits**: data hosts (Kartverket, Kystverket, MET Norway, Overpass, AMPL downloads) are reached only by
    the GitHub Actions workflows (`fetch-world`, `solve`, `papers`); results come back as releases/artifacts.
+5. **Harness hooks**: `.claude/settings.json` runs `tools/hooks/gate.py` on every tool call (hand-written run files, gate and golden
+   edits off an `agent/<who>/<id>` branch, `git add` of `out/` or `data/`, secret-shaped strings); what each blocks and how to disable one: `docs/HOOKS.md`.
 
 ## Writers and coordination
 

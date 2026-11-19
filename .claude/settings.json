@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          { "type": "command", "command": "python3 -S \"${CLAUDE_PROJECT_DIR:-.}/tools/hooks/gate.py\" pre", "timeout": 5 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 -S \"${CLAUDE_PROJECT_DIR:-.}/tools/hooks/gate.py\" stop", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}
