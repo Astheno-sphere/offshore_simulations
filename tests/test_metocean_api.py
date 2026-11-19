@@ -201,6 +201,7 @@ def test_validate_frame_refuses_gaps_nan_range_and_duplicates():
 
 
 # ------------------------------------------------------- end to end on fixtures, and the shape weather/ receives
+@needs_lib
 def test_fetch_one_winter_reaches_load_years_in_the_expected_shape(tmp_path, mirror):
     out = tmp_path / "pt"
     man, logs = run(out, mirror, [2000])
@@ -228,6 +229,7 @@ def test_fetch_one_winter_reaches_load_years_in_the_expected_shape(tmp_path, mir
         assert float(ds["lon"][0]) == 3.0 and float(ds["lat"][0]) == 60.6
 
 
+@needs_lib
 def test_fetch_world_dir_layout_is_what_a_scenario_points_at(tmp_path, mirror):
     out = tmp_path / "metocean_point"
     run(out, mirror, [2000], products=("nora3_wave", "nora3_wind"))

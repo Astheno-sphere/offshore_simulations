@@ -4,6 +4,149 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-18 — channel sync: nobody pushed; main's CI has been red since 11-12 and is now fixed. 913 pass, 22 skip (CI-shaped env).
+
+Scheduled integrator run, nobody watching. **No actor pushed anything, again.** `coordination/inbox/claude/`
+empty, no new report in `coordination/reports/`, no new branch or commit on origin since the 11-17 sync
+commit itself: `live/status` still 1ca411d, `agent/nordlys/vm-pile` still 8a08fa6 under the 11-14 refusal,
+`wip/cad-assets-heli` still 41389a1 (spent). Nordlys silent five days with six open inbox items; the laptop
+silent three days. Both scheduled workflows are Monday-only (`live-check` 41 3 * * 1, `papers` 23 5 * * 1),
+so nothing was due since 11-16 and nothing is missing. **Nothing merged, nothing refused.**
+
+**The finding: the `tests` workflow has failed on main on every push since 2026-11-12 and no sync entry
+noticed.** Runs 183-191 are all red, including run 191 on the 11-17 sync commit. Both jobs fail on exactly
+the same two tests and nothing else — `tests/test_metocean_api.py::test_fetch_one_winter_reaches_load_years_in_the_expected_shape`
+and `::test_fetch_world_dir_layout_is_what_a_scenario_points_at` — with all six units `failed` instead of `ok`.
+Cause: those two end-to-end tests lack the `@needs_lib` marker that the other nine tests in the file carry.
+`metocean-api` is deliberately optional (`requirements-weather.txt`: "optional, for fetch.point_series"),
+`xarray`/`netCDF4` are not, so wherever xarray is installed and metocean-api is not — both CI jobs, and the
+machine image — the two tests run without the library and every fetch fails. On this box the whole file was
+skipping for want of xarray, which is why three sessions of "922 pass, 13 skip" never saw it.
+**The 11-14 entry already names this exact defect** (line: "without the last one, `tests/test_metocean_api.py`
+fails 2 tests that lack the `@needs_lib` marker every other test in that file carries") — but it was filed as
+a note about this box's install recipe, the recipe then installed `metocean-api` to make local runs green,
+and the marker was never added. Six days of red CI were paid for a one-line-each omission.
+
+Reproduced here before fixing: with `xarray`+`netCDF4` installed and `metocean-api` absent, the two tests fail
+with byte-for-byte the CI assertions. **Fixed** by adding `@needs_lib` to both (`why:` line in the commit).
+Nothing else touched: no tolerance, no sourced value, no number in `cinema/rules.py`, no golden frame, no
+assertion. Full suite in the CI-shaped environment (the 11-15 recipe, `manim` stripped, **without**
+metocean-api): 935 collected, **913 passed, 22 skipped, exit 0** — which is the image-tests job's own
+913 passed with its 20 skips plus these 2. **Confirmed after the push: run 192 is green in all three
+jobs** (pytest, render-check, image-tests) — the first green `tests` run on main since 2026-11-12.
+
+**For Arshad to decide, and it is the only thing this run cannot settle:** whether `metocean-api` goes into
+the CI install step. With the marker, the nine end-to-end tests of the NORA3 point-series backend now skip on
+every runner and in the machine image, so that backend is proven only on a box where someone installed the
+optional library by hand. Either add `pip install metocean-api` to `tests.yml` and the Dockerfile (the tests
+are offline, fixture-served, and take ~3 s), or accept in writing that the backend is CI-untested. The
+marker is correct either way — without the library the test cannot pass — but skipping is not proving.
+
+**Blocked, and on whom.** Arshad, unchanged for four runs: `BW_CLIENT_ID`, `BW_CLIENT_SECRET`,
+`AMPL_LICENSE_UUID`, `OFFSIM_MAILTO` and the dispatch PAT. The laptop is still the only possible source of
+the two D1 numbers. The `runner` probe's `libegl1 / skia / OCP` failure from 11-17 stands unexamined.
+`tests/test_intake.py` still dirties `tests/fixtures/intake/synthetic_paper.pdf` on every suite run; restored
+by hand again here. Four sessions have now paid for that one.
+
+## 2026-11-17 — channel sync: the hosted runners woke up. papers feed merged, gap ranking corrected. main 922 pass, 13 skip (this box).
+
+Scheduled integrator run, nobody watching. **No actor pushed anything.** Nothing in
+`coordination/inbox/claude/`, no new report in `coordination/reports/`, nothing new from Nordlys (silent on
+origin since 11-13) or the laptop (since 11-15), and no `agent/claude/*` branch has a commit off main. The
+only new material on origin came from GitHub Actions: two scheduled workflows ran on **hosted runners on
+Monday 2026-11-16, the first time any workflow has ever run there**. The 11-15 line "not one workflow has
+ever run on a hosted runner" is now out of date; the dispatch PAT and the four secrets are still missing,
+but the schedules themselves clearly work.
+
+**Merged to main**: `papers/auto` (75bc4a7, the weekly feed) — the branch-side diff is confined to
+`papers/{feed.jsonl,feed.status.json,tags.jsonl,gaps.yaml}`. `feed.jsonl` 712 -> 965 records, append-only
+(the first 712 lines are byte-identical) and all 965 lines valid JSON. `tags.jsonl` regenerated here
+**byte-identically**, so the tagger is sound. No code, test, tolerance, sourced value, `cinema/rules.py`
+number or golden frame touched; nothing under `out/`; no secret-shaped credential (the UUID-shaped strings
+in the diff are public `oa_url` record ids).
+
+**Merged with one conflict resolved against the branch, and that is the finding of this run.**
+`papers/gaps.yaml` conflicted, and the runner's copy is *wrong*: `papers.yml` installs only
+`pyyaml pandas`, and `offsim/research/gaps.py` probes feasibility against what is importable, so the runner
+recorded `engine replay does not cover VRPTW` and `solver none covers PDP` where a full-dependency box
+records both as covered. `no-norway-vrptw-psv` scored 0.618 there against 0.927 here, and the gap ordering
+changes with it. I committed the **locally regenerated** `gaps.yaml` (same code, same merged feed, same
+`review.yaml`, full environment: 16 gaps, 16 open, 30 no-code cells withheld for want of availability
+evidence) and kept the runner's feed, status and tags. Every `gaps.yaml` ever produced by that workflow
+carries the same defect. Note in Nordlys's inbox (`20261117-N8-runners-live.md`); the fix belongs in the
+workflow's install step, or in `gaps.py` refusing to score feasibility it could not probe — **not** in the
+ranking numbers.
+
+**Not merged.** `live/status` (1ca411d) is an orphan branch by design, history kept there — never merged,
+but read: 15 of 17 probes answer. `ampl` and `barentswatch` are `skipped` for want of their secrets, and
+the **`runner` probe fails: `libegl1 missing; skia not importable; OCP not importable`** — so on stock
+`ubuntu-latest` the line-art renderer and the CAD solids are both absent and `film`/`render`/asset QA
+cannot work there. Source health: `crossref` and `nva` ok, `openalex` partial (5 errors, one HTTP 400),
+`arxiv` partial (2 errors, one 429), `overpass` HTTP 502 at probe time. `agent/nordlys/vm-pile` still
+carries 22 commits under the 2026-11-14 refusal, grounds unchanged. `wip/cad-assets-heli` is still the one
+content-identical Dockerfile commit — spent, deletable.
+
+**Blocked, and on whom.** Arshad, unchanged and now in the way of three things: the four Actions
+secrets/variables (`BW_CLIENT_ID`, `BW_CLIENT_SECRET`, `AMPL_LICENSE_UUID`, `OFFSIM_MAILTO`) and the
+dispatch PAT. Without them `solve` still cannot produce an AMPL objective, so the laptop remains the only
+possible source of the two D1 numbers (pointer left in `coordination/inbox/desktop/`), `barentswatch` stays
+unprobed, and the OpenAlex feed keeps running on the anonymous pool — which is the likeliest reading of its
+5 errors. Nordlys: six open inbox items, nothing pushed in four days.
+
+Note for the next run of this box: the install recipe from 11-15 still holds (`manim` must be stripped out
+of `requirements-motion.txt` or manimpango takes the whole pip run down). 935 collected, 922 pass, 13 skip.
+The `tests/test_intake.py` fixture-timestamp bug is **still live** — every suite run dirties
+`tests/fixtures/intake/synthetic_paper.pdf`; restored by hand again here, still not fixed. Three sessions
+have now paid for it.
+
+## 2026-11-15 — channel sync: D1 (the AMPL link) merged; its cross-check still owed. main 922 pass, 13 skip (this box).
+
+Scheduled integrator run, nobody watching. One branch was new on origin: `agent/desktop/D1-ampl-link`
+(10 commits, 965 insertions), the first work ever pushed by the laptop actor.
+
+**Merged to main** (c2948a5), each claim checked against the code rather than the summary:
+- `agent/desktop/D1-ampl-link` — `docs/LOCAL_LAB.md` (the Windows lab at `E:\OffsimLab`, build order L0-L6),
+  `tools/ampl_studio/` (local Streamlit GUI over AMPL, model text screened the way the MCP server screens it),
+  `offsim/solve/ampl_backend.py`, the `ampl-model` skill, and the MCP server widened by `AMPL_MCP_SOLVERS`
+  (default stays `highs,cbc`; a test holds that). The one change worth the merge is in `ampl_adapter.py`:
+  amplpy 0.18 puts the (i, j) pair in the `to_pandas()` index, so `_arcs_with_value` read arcs from the wrong
+  place — a defect only a licensed box could find, and it is confined to the AMPL path.
+  Secret scan of the whole diff: clean (no UUID-shaped or long hex/base64 string; `AMPL_LICENSE_UUID` as an
+  env-var name and placeholder licence paths only). No test edited to pass (`tests/test_ampl.py` is +23/-0,
+  the other two test files are new); no tolerance, sourced value, `cinema/rules.py` number or golden frame
+  touched; nothing under `out/`, no data, no solver binary.
+
+**Merged with a debt, recorded in `coordination/inbox/desktop/20261115-D1-still-owed.md`**: there is no
+`coordination/reports/D1.md`, so the task's item 3 — the cross-check that matters — is unreported: AMPL
+objective vs the Pyomo twin on the CVRP demo (114643.0 m, seeds 1 and 2) and whelp Florø vs 9980.4986.
+`LOCAL_LAB.md` admits it ("NEXT: D1 report"). Merged anyway because nothing on main reads an AMPL objective
+yet and refusing would have stranded the adapter fix on a branch; **until those two numbers exist,
+`offsim/solve/ampl/{cvrp,vrptw,whelp}.mod` are still only text-checked as models.** Also owed: the 20
+Windows test failures live only in `E:\OffsimLab\runs\L2_report.md`, a path nobody else can read, and
+`tools/ampl_studio/` is a new tool absent from `catalog/tools.yaml` (concordance does not catch it today).
+
+**Not merged, nothing refused new.** `agent/nordlys/vm-pile` still carries 22 unmerged commits under the
+2026-11-14 refusal; grounds unchanged, note already in Nordlys's inbox, branch kept on origin.
+`wip/cad-assets-heli` shows one commit off main (the Dockerfile core-deps line) but it is content-identical
+to what main already has — the merge stages nothing, so the branch is spent and can be deleted.
+No `agent/claude/*` branch has anything off main; V1 (the intervention shot) was already merged by the
+later 11-14 session and its report reads straight, including the test it rewrote with the reason stated.
+
+**Blocked, and on whom.** Arshad, unchanged and now in the way of D1 as well: the four Actions
+secrets/variables (`BW_CLIENT_ID`, `BW_CLIENT_SECRET`, `AMPL_LICENSE_UUID`, `OFFSIM_MAILTO`) and the
+dispatch PAT. Not one workflow has ever run on a hosted runner, so the `solve` workflow cannot confirm the
+AMPL numbers either — which leaves the laptop as the only place they can come from, and makes the missing
+D1 report the single thing holding up the AMPL link. Nordlys: silent on origin since 11-13 with five open
+inbox items (N4, both N5s, N6, and desktop's new N7); a pointer went into his inbox saying N7's Linux check
+is already spent here. Nobody has deleted the six merged branches; no branch-deletion tool in the connector.
+
+Note for the next run of this box: a fresh container again had no deps. `requirements.txt` plus
+motion/render/weather/engines/gis/physics/graphics/intake/cad `-c constraints.txt pytest-timeout mcp
+metocean-api` installs clean **only with `manim` stripped out of `requirements-motion.txt`** — manimpango
+needs pangocairo and aborts the whole pip run, taking every other package with it. 935 collected, 922 pass,
+13 skip. The `tests/test_intake.py` fixture-timestamp bug from 11-14 is still live: every suite run dirties
+`tests/fixtures/intake/synthetic_paper.pdf`. Restored by hand again here; still not fixed.
+
 ## 2026-11-14 — channel sync: N2, N3 and loop-proof merged; vm-pile refused. main 870 pass, 10 skip (this box).
 
 Scheduled integrator run, nobody watching. Four Nordlys branches were waiting on origin, none of them seen by

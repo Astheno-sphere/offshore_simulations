@@ -218,6 +218,29 @@ def test_mcp_paths_must_sit_under_roots(tmp_path, monkeypatch):
         s._inside_roots(str(tmp_path / "elsewhere.mod"), must_exist=False)
 
 
+def test_mcp_roots_split_posix_list_on_windows(tmp_path, monkeypatch):
+    import os
+    s = _server()
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.mkdir()
+    b.mkdir()
+    monkeypatch.setenv("AMPL_MCP_ROOTS", f"{a}{os.pathsep}{b}")
+    assert s._roots() == [a.resolve(), b.resolve()]
+    if os.name == "nt":  # the repo's .mcp.json form "x:y" must not collapse into one path on Windows
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("AMPL_MCP_ROOTS", "a:b")
+        assert s._roots() == [a.resolve(), b.resolve()]
+
+
+def test_mcp_solver_list_widens_only_by_env(monkeypatch):
+    assert _server().SOLVERS == ("highs", "cbc")  # default: open solvers only
+    monkeypatch.setenv("AMPL_MCP_SOLVERS", "highs, Gurobi,knitro,bad name!")
+    s = _server()
+    assert s.SOLVERS == ("highs", "gurobi", "knitro")
+    assert s._solver_options("gurobi", None, 30) == "timelim=30.0"
+    assert s._solver_options("knitro", None, 30) == ""  # no probed time-limit key for knitro
+
+
 # --- solve() flow with a fake AMPL (no binary needed): arc parsing, status mapping, guards -------------------
 class _FakeVar:
     def __init__(self, rows):

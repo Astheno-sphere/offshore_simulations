@@ -1,18 +1,22 @@
-generated_utc: '2026-11-12T23:46:58Z'
+generated_utc: '2026-11-17T07:55:01Z'
 gaps:
 - gap_id: no-norway-vrptw-psv
   kind: no-norway
   class: VRPTW
   mode: psv
-  support: 3
+  support: 7
   papers:
+  - 10.1016/j.trb.2022.05.015
+  - 10.1016/j.tre.2019.05.014
   - 10.2139/ssrn.6194980
+  - 10.22094/joie.2018.544109.1517
   - 10.3390/jmse13040686
   - nva:0198cc97a675-bb6102bb-3705-48cb-99e5-b8ed9047bb3e
-  why: 3 papers on VRPTW/psv; none tags a Norwegian region.
+  - openalex:W2496065052
+  why: 7 papers on VRPTW/psv; none tags a Norwegian region.
   engine: replay
   status: open
-  base_paper: 10.3390/jmse13040686
+  base_paper: openalex:W2496065052
   kpis:
   - availability
   - co2_t
@@ -20,14 +24,14 @@ gaps:
   - fuel_t
   - service_level
   factors:
-    support: 0.6
-    novelty: 0.958
+    support: 1.0
+    novelty: 0.927
     feasibility: 1.0
     audience: 1.0
-    score: 0.5748
+    score: 0.927
   factor_notes:
-    support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 68 papers, this cell 3: 68/(3+68)'
+    support: 7 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 7: 89/(7+89)'
     feasibility: solver covers VRPTW; engine replay covers VRPTW; data target Norway
       reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
@@ -57,14 +61,99 @@ gaps:
   - weather_wait_s
   factors:
     support: 0.6
-    novelty: 0.912
+    novelty: 0.932
     feasibility: 1.0
     audience: 1.0
-    score: 0.5472
+    score: 0.5592
   factor_notes:
     support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
+    novelty: 'largest neighbour 41 papers, this cell 3: 41/(3+41)'
     feasibility: solver covers PDP; engine replay covers PDP; data target Norway reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
+- gap_id: no-norway-wind-om-heli
+  kind: no-norway
+  class: WIND-OM
+  mode: heli
+  support: 4
+  papers:
+  - 10.1088/1742-6596/3025/1/012016
+  - openalex:W2765206361
+  - openalex:W2963544291
+  - openalex:W2982025211
+  why: 4 papers on WIND-OM/heli; none tags a Norwegian region.
+  engine: wombat
+  status: open
+  base_paper: openalex:W2982025211
+  kpis:
+  - availability
+  - co2_t
+  - cost
+  factors:
+    support: 0.8
+    novelty: 0.911
+    feasibility: 0.667
+    audience: 1.0
+    score: 0.4861
+  factor_notes:
+    support: 4 papers, saturates at 5
+    novelty: 'largest neighbour 41 papers, this cell 4: 41/(4+41)'
+    feasibility: solver none covers WIND-OM; engine wombat covers WIND-OM; data target
+      Norway reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
+- gap_id: no-norway-hrp-psv
+  kind: no-norway
+  class: HRP
+  mode: psv
+  support: 2
+  papers: &id003
+  - 10.2118/229814-ms
+  - 10.4043/26779-ms
+  why: 2 papers on HRP/psv; none tags a Norwegian region.
+  engine: air
+  status: open
+  base_paper: 10.2118/229814-ms
+  kpis: &id004
+  - cost
+  factors:
+    support: 0.4
+    novelty: 0.978
+    feasibility: 1.0
+    audience: 1.0
+    score: 0.3912
+  factor_notes:
+    support: 2 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    feasibility: solver covers WFPPP; engine air covers WFPPP; data target Norway
+      reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
+- gap_id: no-norway-crew-route-psv
+  kind: no-norway
+  class: CREW-ROUTE
+  mode: psv
+  support: 5
+  papers:
+  - 10.1115/omae2018-78014
+  - 10.2118/229814-ms
+  - 10.2139/ssrn.7551640
+  - openalex:W2781054833
+  - openalex:W7219991917
+  why: 5 papers on CREW-ROUTE/psv; none tags a Norwegian region.
+  engine: openclsim
+  status: open
+  base_paper: 10.1115/omae2018-78014
+  kpis:
+  - cost
+  factors:
+    support: 1.0
+    novelty: 0.947
+    feasibility: 0.333
+    audience: 1.0
+    score: 0.3154
+  factor_notes:
+    support: 5 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 5: 89/(5+89)'
+    feasibility: solver none covers CREW-ROUTE; engine openclsim does not cover CREW-ROUTE;
+      data target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
 - gap_id: no-uncertainty-pdp-heli
   kind: no-uncertainty
@@ -79,68 +168,26 @@ gaps:
   kpis: *id002
   factors:
     support: 0.6
-    novelty: 0.912
+    novelty: 0.932
     feasibility: 0.667
     audience: 0.6
-    score: 0.219
+    score: 0.2238
   factor_notes:
     support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
+    novelty: 'largest neighbour 41 papers, this cell 3: 41/(3+41)'
     feasibility: solver covers PDP; engine replay covers PDP; data target none not
       reachable (no world definition or pulled data)
     audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'
-- gap_id: no-norway-ferry-sched-ferry
-  kind: no-norway
-  class: FERRY-SCHED
-  mode: ferry
-  support: 10
-  papers: &id003
-  - 10.1016/j.jairtraman.2024.102711
-  - 10.1016/j.omega.2019.102178
-  - 10.1061/9780784482292.015
-  - 10.1109/ests62818.2025.11152468
-  - 10.1109/iscid.2017.153
-  - 10.20944/preprints202610.2662.v1
-  - 10.2139/ssrn.4764723
-  - 10.2139/ssrn.4827060
-  - 10.2139/ssrn.5292577
-  - 10.3390/batteries7010013
-  why: 10 papers on FERRY-SCHED/ferry; none tags a Norwegian region.
-  engine: openclsim
-  status: open
-  base_paper: 10.1061/9780784482292.015
-  kpis: &id004
-  - availability
-  - co2_t
-  - cost
-  - distance_km
-  - fuel_t
-  - install_days
-  - makespan_s
-  - service_level
-  - wait_s
-  - weather_wait_s
-  factors:
-    support: 1.0
-    novelty: 0.5
-    feasibility: 0.333
-    audience: 1.0
-    score: 0.1665
-  factor_notes:
-    support: 10 papers, saturates at 5
-    novelty: 'no neighbouring cell (same class or mode) to compare with: 0.5'
-    feasibility: solver none covers FERRY-SCHED; engine openclsim does not cover FERRY-SCHED;
-      data target Norway reachable
-    audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
 - gap_id: no-norway-wind-om-wtiv
   kind: no-norway
   class: WIND-OM
   mode: wtiv
-  support: 2
+  support: 3
   papers:
   - 10.36956/sms.v7i2.1877
+  - 10.58286/29670
   - nva:019913c8904a-add7edc5-295b-40e6-95de-2b9e983b2bba
-  why: 2 papers on WIND-OM/wtiv; none tags a Norwegian region.
+  why: 3 papers on WIND-OM/wtiv; none tags a Norwegian region.
   engine: wombat
   status: open
   base_paper: 10.36956/sms.v7i2.1877
@@ -150,99 +197,255 @@ gaps:
   - cost
   - fuel_t
   factors:
-    support: 0.4
-    novelty: 0.92
+    support: 0.6
+    novelty: 0.929
     feasibility: 0.667
     audience: 0.6
-    score: 0.1473
+    score: 0.2231
   factor_notes:
-    support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 23 papers, this cell 2: 23/(2+23)'
+    support: 3 papers, saturates at 5
+    novelty: 'largest neighbour 39 papers, this cell 3: 39/(3+39)'
     feasibility: solver none covers WIND-OM; engine wombat covers WIND-OM; data target
       Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
-- gap_id: no-uncertainty-fsmp-psv
-  kind: no-uncertainty
-  class: FSMP
-  mode: psv
-  support: 2
+- gap_id: no-norway-wind-inst-worker
+  kind: no-norway
+  class: WIND-INST
+  mode: worker
+  support: 3
   papers:
-  - 10.1002/9781119246596.ch5
-  - 10.1007/s13676-017-0111-x
-  why: 2 papers on FSMP/psv; all deterministic (uncertainty none).
-  engine: openclsim
+  - 10.2172/1922189
+  - 10.36956/sms.v7i2.1877
+  - 10.58286/29670
+  why: 3 papers on WIND-INST/worker; none tags a Norwegian region.
+  engine: orbit
   status: open
-  base_paper: 10.1007/s13676-017-0111-x
+  base_paper: 10.2172/1922189
   kpis:
   - availability
   - co2_t
   - cost
-  - distance_km
-  - fuel_t
-  - install_days
-  - makespan_s
-  - service_level
-  - wait_s
-  - weather_wait_s
+  factors:
+    support: 0.6
+    novelty: 0.912
+    feasibility: 0.667
+    audience: 0.6
+    score: 0.219
+  factor_notes:
+    support: 3 papers, saturates at 5
+    novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
+    feasibility: solver none covers WIND-INST; engine orbit covers WIND-INST; data
+      target Norway reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
+- gap_id: no-norway-vrptw-truck
+  kind: no-norway
+  class: VRPTW
+  mode: truck
+  support: 2
+  papers:
+  - 10.1007/978-3-031-96917-1_5
+  - 10.1016/j.trb.2022.05.015
+  why: 2 papers on VRPTW/truck; none tags a Norwegian region.
+  engine: replay
+  status: open
+  base_paper: 10.1016/j.trb.2022.05.015
+  kpis:
+  - cost
   factors:
     support: 0.4
-    novelty: 0.971
-    feasibility: 0.333
-    audience: 1.0
-    score: 0.1293
+    novelty: 0.778
+    feasibility: 1.0
+    audience: 0.6
+    score: 0.1867
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 68 papers, this cell 2: 68/(2+68)'
-    feasibility: solver none covers FSMP; engine openclsim does not cover FSMP; data
+    novelty: 'largest neighbour 7 papers, this cell 2: 7/(2+7)'
+    feasibility: solver covers VRPTW; engine replay covers VRPTW; data target Norway
+      reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
+- gap_id: no-uncertainty-hrp-psv
+  kind: no-uncertainty
+  class: HRP
+  mode: psv
+  support: 2
+  papers: *id003
+  why: 2 papers on HRP/psv; all deterministic (uncertainty none).
+  engine: air
+  status: open
+  base_paper: 10.2118/229814-ms
+  kpis: *id004
+  factors:
+    support: 0.4
+    novelty: 0.978
+    feasibility: 0.667
+    audience: 0.6
+    score: 0.1566
+  factor_notes:
+    support: 2 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    feasibility: solver covers WFPPP; engine air covers WFPPP; data target Brazil
+      not reachable (no world definition or pulled data)
+    audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'
+- gap_id: no-norway-wind-inst-ctv
+  kind: no-norway
+  class: WIND-INST
+  mode: ctv
+  support: 2
+  papers:
+  - 10.58286/29670
+  - nva:019913c8904a-add7edc5-295b-40e6-95de-2b9e983b2bba
+  why: 2 papers on WIND-INST/ctv; none tags a Norwegian region.
+  engine: orbit
+  status: open
+  base_paper: 10.58286/29670
+  kpis:
+  - availability
+  - co2_t
+  - cost
+  - fuel_t
+  factors:
+    support: 0.4
+    novelty: 0.97
+    feasibility: 0.667
+    audience: 0.6
+    score: 0.1553
+  factor_notes:
+    support: 2 papers, saturates at 5
+    novelty: 'largest neighbour 64 papers, this cell 2: 64/(2+64)'
+    feasibility: solver none covers WIND-INST; engine orbit covers WIND-INST; data
+      target Norway reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
+- gap_id: no-norway-psv-pdp-ctv
+  kind: no-norway
+  class: PSV-PDP
+  mode: ctv
+  support: 4
+  papers:
+  - 10.1115/omae2018-78014
+  - 10.2118/229814-ms
+  - 10.2139/ssrn.7551640
+  - openalex:W2781054833
+  why: 4 papers on PSV-PDP/ctv; none tags a Norwegian region.
+  engine: openclsim
+  status: open
+  base_paper: 10.1115/omae2018-78014
+  kpis:
+  - cost
+  factors:
+    support: 0.8
+    novelty: 0.957
+    feasibility: 0.333
+    audience: 0.6
+    score: 0.153
+  factor_notes:
+    support: 4 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 4: 89/(4+89)'
+    feasibility: solver none covers PSV-PDP; engine openclsim does not cover PSV-PDP;
+      data target Norway reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
+- gap_id: no-norway-psv-pdp-heli
+  kind: no-norway
+  class: PSV-PDP
+  mode: heli
+  support: 2
+  papers: &id005
+  - 10.2118/229814-ms
+  - 10.4043/26779-ms
+  why: 2 papers on PSV-PDP/heli; none tags a Norwegian region.
+  engine: air
+  status: open
+  base_paper: 10.2118/229814-ms
+  kpis: &id006
+  - cost
+  factors:
+    support: 0.4
+    novelty: 0.978
+    feasibility: 0.333
+    audience: 1.0
+    score: 0.1303
+  factor_notes:
+    support: 2 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    feasibility: solver none covers PSV-PDP; engine air does not cover PSV-PDP; data
       target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
 - gap_id: no-norway-fsmp-ctv
   kind: no-norway
   class: FSMP
   mode: ctv
-  support: 2
+  support: 3
   papers:
+  - 10.1016/j.oceaneng.2024.117202
   - 10.1260/0309-524x.39.1.31
   - nva:0198e7cbdd80-dd433048-ab48-46cd-adfe-44695b7aafb4
-  why: 2 papers on FSMP/ctv; none tags a Norwegian region.
+  why: 3 papers on FSMP/ctv; none tags a Norwegian region.
   engine: openclsim
   status: open
-  base_paper: nva:0198e7cbdd80-dd433048-ab48-46cd-adfe-44695b7aafb4
+  base_paper: 10.1016/j.oceaneng.2024.117202
   kpis:
   - availability
   - cost
   factors:
-    support: 0.4
-    novelty: 0.939
+    support: 0.6
+    novelty: 0.955
     feasibility: 0.333
     audience: 0.6
-    score: 0.075
+    score: 0.1145
   factor_notes:
-    support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 31 papers, this cell 2: 31/(2+31)'
+    support: 3 papers, saturates at 5
+    novelty: 'largest neighbour 64 papers, this cell 3: 64/(3+64)'
     feasibility: solver none covers FSMP; engine openclsim does not cover FSMP; data
       target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
-- gap_id: no-uncertainty-ferry-sched-ferry
-  kind: no-uncertainty
-  class: FERRY-SCHED
-  mode: ferry
-  support: 10
-  papers: *id003
-  why: 10 papers on FERRY-SCHED/ferry; all deterministic (uncertainty none).
-  engine: openclsim
+- gap_id: no-norway-crew-route-wtiv
+  kind: no-norway
+  class: CREW-ROUTE
+  mode: wtiv
+  support: 2
+  papers:
+  - 10.58286/29670
+  - nva:019913c8904a-add7edc5-295b-40e6-95de-2b9e983b2bba
+  why: 2 papers on CREW-ROUTE/wtiv; none tags a Norwegian region.
+  engine: orbit
   status: open
-  base_paper: 10.1061/9780784482292.015
-  kpis: *id004
+  base_paper: 10.58286/29670
+  kpis:
+  - availability
+  - co2_t
+  - cost
+  - fuel_t
   factors:
-    support: 1.0
-    novelty: 0.5
+    support: 0.4
+    novelty: 0.97
+    feasibility: 0.333
+    audience: 0.6
+    score: 0.0775
+  factor_notes:
+    support: 2 papers, saturates at 5
+    novelty: 'largest neighbour 64 papers, this cell 2: 64/(2+64)'
+    feasibility: solver none covers CREW-ROUTE; engine orbit does not cover CREW-ROUTE;
+      data target Norway reachable
+    audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
+- gap_id: no-uncertainty-psv-pdp-heli
+  kind: no-uncertainty
+  class: PSV-PDP
+  mode: heli
+  support: 2
+  papers: *id005
+  why: 2 papers on PSV-PDP/heli; all deterministic (uncertainty none).
+  engine: air
+  status: open
+  base_paper: 10.2118/229814-ms
+  kpis: *id006
+  factors:
+    support: 0.4
+    novelty: 0.978
     feasibility: 0.0
     audience: 0.6
     score: 0.0
   factor_notes:
-    support: 10 papers, saturates at 5
-    novelty: 'no neighbouring cell (same class or mode) to compare with: 0.5'
-    feasibility: solver none covers FERRY-SCHED; engine openclsim does not cover FERRY-SCHED;
-      data target none not reachable (no world definition or pulled data)
+    support: 2 papers, saturates at 5
+    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    feasibility: solver none covers PSV-PDP; engine air does not cover PSV-PDP; data
+      target Brazil not reachable (no world definition or pulled data)
     audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'

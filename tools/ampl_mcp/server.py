@@ -27,7 +27,15 @@ except ImportError:  # mcp 2.x renamed FastMCP to MCPServer
 
 mcp = _Server("ampl")
 
-SOLVERS = ("highs", "cbc")
+_DEFAULT_SOLVERS = ("highs", "cbc")  # open solvers: CI, Codespace, Actions
+# A licensed laptop widens the list with AMPL_MCP_SOLVERS (comma-separated, e.g. "highs,cbc,gurobi,knitro,baron").
+SOLVERS = tuple(s.strip().lower() for s in (os.environ.get("AMPL_MCP_SOLVERS") or ",".join(_DEFAULT_SOLVERS))
+                .split(",") if re.fullmatch(r"[a-z][a-z0-9]{0,31}", s.strip().lower()))
+# Time-limit keyword each AMPL driver accepted in a probe on 2026-11-15 (docs/TESTLOG.md). Solvers not listed
+# take no time limit through this server (knitro, conopt, ipopt, bonmin, couenne, octeract, lgo, loqo).
+_TIME_KEY = {"highs": "time_limit", "cbc": "seconds", "gurobi": "timelim", "cplex": "timelim", "copt": "timelim",
+             "xpress": "timelim", "mosek": "timelim", "scip": "timelim", "gcg": "timelim", "minos": "timelim",
+             "baron": "maxtime", "lindoglobal": "maxtime", "snopt": "time_limit"}
 MAX_SECONDS = 1800.0
 MAX_FILE_BYTES = 5_000_000
 MAX_OUTPUT_CHARS = 20_000
@@ -66,7 +74,9 @@ def screen(text: str, *, model_file: bool = False) -> None:
 
 def _roots() -> list[Path]:
     raw = os.environ.get("AMPL_MCP_ROOTS") or str(Path.home() / "ampl-models")
-    return [Path(p).expanduser().resolve() for p in raw.split(os.pathsep) if p.strip()]
+    # .mcp.json writes roots POSIX-style ("a:b"). On Windows also split on ':' unless it is a drive colon ("E:\").
+    parts = re.split(r";|:(?![\\/])", raw) if os.name == "nt" else raw.split(os.pathsep)
+    return [Path(p).expanduser().resolve() for p in parts if p.strip()]
 
 
 def _inside_roots(path: str, must_exist: bool = True) -> Path:
@@ -92,7 +102,8 @@ def _screen_file(path: Path) -> None:
 
 def _solver_options(solver: str, options: dict | None, seconds: float) -> str:
     seconds = min(max(float(seconds), 1.0), MAX_SECONDS)
-    parts = {"time_limit": seconds} if solver == "highs" else {"seconds": seconds}
+    key = _TIME_KEY.get(solver)
+    parts = {key: seconds} if key else {}
     for k, v in (options or {}).items():
         if not _OPT_KEY.fullmatch(str(k)) or not _OPT_VAL.fullmatch(str(v)):
             raise ValueError(f"solver option {k}={v!r} is not a plain name=value pair")
@@ -147,7 +158,7 @@ def solve_model(model_path: str, data_path: str | None = None, solver: str = "hi
                 options: dict[str, str] | None = None, seconds: float = 60.0) -> dict:
     """Load an AMPL model (and optional data file) from AMPL_MCP_ROOTS, solve it, return status, objective and time.
 
-    solver: highs or cbc. options: extra solver options as name=value (e.g. {"random_seed": "1"}) for the
+    solver: one of SOLVERS (highs, cbc; more when AMPL_MCP_SOLVERS is set on a licensed machine). options: extra solver options as name=value (e.g. {"random_seed": "1"}) for the
     solver's own options string. seconds: time limit, clamped to 1..1800.
     """
     if solver not in SOLVERS:
