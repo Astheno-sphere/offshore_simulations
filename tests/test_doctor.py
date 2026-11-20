@@ -61,6 +61,9 @@ GATE_ENTRIES = {   # code -> (gate, detail) that the pipeline writes
     "G2-REPLAY-DRIFT": ("2_replay_equals_plan", [{"kpi": "distance_km", "paper": 100.0, "ours": 130.0, "rel_gap": 0.3, "rel_tol": 0.01, "pass": False}]),
     "G3E-ENSEMBLE": ("3e_ensemble", {"n_runs": 4, "n_valid": 3, "seeds": [0, 1], "years": [2000], "weather_sources": ["synthetic"],
                                      "failures": ["seed 1 year 2000: [speed] A: 1 leg(s) above vmax"]}),
+    # why: T3 adds the stable code ENS-SHAPE (gate 3e shape mismatch); test_every_code_has_a_case needs a failing case for it
+    "ENS-SHAPE": ("3e_ensemble", {"n_runs": 4, "n_valid": 4, "seeds": [0, 1], "years": [2000], "weather_sources": ["synthetic"],
+                                  "shape": {"ok": False, "n_missing": 1, "missing": ["{base; 2000; 1}"]}}),
     "G4B-AIS": ("4b_ais", {"src": "calib", "failed": [{"metric": "sailing_speed_kn", "pass": False}], "table": []}),
     "G4C-ENTUR": ("4c_entur", {"reason": "median delay 420 s above limit", "t0_utc": "2025-01-01T00:00:00Z", "journeys": []}),
     "G0-DATA-MISSING": ("0_provenance", {"missing_roads": "/nonexistent/osm/roads.geojson", "fix": "python -m offsim.worlds.fetch_world --place x --modes road"}),
