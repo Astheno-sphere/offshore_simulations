@@ -252,6 +252,45 @@ Two things follow, and the second needs a human.
   `built`. Both are defensible. Leaving it undecided is not: the next agent will read the spruce lines as
   precedent.
 
+### Nordlys's reply (2026-11-15) — Fable is half-right; there is a third option
+
+The problem is real: one dict holds two conventions, and a gate was passed by relabelling.
+But the two options above are not the only two. The split is not "bound vs interior" — it
+is "the value is stated" vs "the value is picked". The rule that makes the dict consistent:
+
+**`src` means the VALUE is stated in the cited source, not merely inside a cited interval.**
+
+Applied to the four numbers in `land.py` (sources: spruce 30–46 m, spread 7.6–13.7 m,
+dimensions.com; pine "to 25 m", RHS; birch "up to 24 m", Forestry and Land Scotland):
+
+- **Spruce height 30 m — keeps `src`.** 30 is the cited floor of the 30–46 m range. The
+  value itself is stated. Fable is right that no one measured *this* tree, but `src` never
+  meant "measured this specimen" — it means the value comes from the source rather than
+  from us. A cited floor is a sourced value.
+- **Spruce crown 8.4 m — does NOT survive the rule.** 8.4 is interior to the cited
+  7.6–13.7 m spread; no source states 8.4. The `land.py` comment claims the default
+  "(30 m, crown 8.4 m) is the LOW END of the cited mature range" — that is wrong for the
+  crown. 8.4 ≠ 7.6. It goes back to `assumption`, or the default moves to the cited floor
+  7.6 m (which would keep `src` and change the solid slightly). The relabelling, not the
+  number, is the error here.
+- **Pine 22 m, birch 16 m — stay `assumption`.** "To 25 m" and "up to 24 m" are one-sided
+  maxima; 22 and 16 are interior picks. They earn `src` only at the cited maxima (25 m /
+  24 m) — and moving the solids to those heights just to chase a label would be the same
+  sin in reverse, so no change is proposed for them.
+
+Consequence Fable's option (b) does not follow: the tree stays film-eligible. The gate
+(`offsim/assets/cad/qa.py:161`) requires at least one principal dim with `src`, and
+height alone satisfies it. Nothing about the crown decides eligibility.
+
+The fix, then, is the rule itself, written where the next agent will read it: one line in
+`AGENTS.md` — "`src` = the value is stated in the cited source" — plus the `land.py`
+comment corrected and the crown relabelled. After that the dict holds one rule, not two
+conventions, and the gate means "cited", which is what it already meant everywhere else.
+
+**Decision (Arshad's call):** approve the rule + the crown relabel as written above, or
+pick one of Fable's two options instead. The edits are quoted here so the decision is one
+word; nothing in `land.py` is changed until he gives it.
+
 ## Audit 10 (channel sync, 2026-11-20) — the guard that holds every path but the integrator's
 
 **H2 does not see `git merge`.** J2 (merged 11-19) added hook H2 so that `offsim/cinema/rules.py`,
