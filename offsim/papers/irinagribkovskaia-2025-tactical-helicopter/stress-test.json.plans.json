@@ -1,0 +1,2005 @@
+{
+  "plans": {
+    "solver": {
+      "routes": {
+        "H1-16h": [
+          11,
+          2,
+          18,
+          6,
+          7,
+          9,
+          15,
+          19,
+          4,
+          3,
+          8,
+          15,
+          11,
+          2,
+          18,
+          19,
+          2,
+          10,
+          6,
+          18,
+          3,
+          1,
+          14,
+          9,
+          5,
+          6
+        ],
+        "H2-16h": [
+          16,
+          15,
+          14,
+          9,
+          4,
+          6,
+          20,
+          1,
+          11,
+          2,
+          6,
+          5,
+          9,
+          4,
+          10,
+          13,
+          3,
+          1,
+          17,
+          11,
+          5,
+          4,
+          8,
+          20,
+          15,
+          17,
+          2,
+          7
+        ],
+        "H3-12h": [
+          8,
+          20,
+          16,
+          5,
+          13,
+          8,
+          16,
+          7,
+          5,
+          10,
+          14,
+          4,
+          6,
+          6,
+          15,
+          16,
+          12,
+          4,
+          19,
+          11,
+          13,
+          18,
+          4
+        ],
+        "H4-10h": [
+          1,
+          11,
+          15,
+          10,
+          16,
+          14,
+          11,
+          13,
+          16,
+          17,
+          11,
+          12,
+          14,
+          15,
+          14,
+          11,
+          16,
+          11,
+          14,
+          10
+        ]
+      },
+      "objective": 49286.45991129719,
+      "objective_unit": "masked cost units",
+      "solver": "whelp",
+      "bound": 48442.45991129719,
+      "status": "optimal",
+      "meta": {
+        "method": "decomposition",
+        "iterations": [
+          {
+            "iteration": 1,
+            "stage1_cost": 48442.45991129719,
+            "stage1_status": "optimal",
+            "windows_h": {
+              "0": 16.0,
+              "1": 14.0,
+              "2": 10.0,
+              "3": 10.0
+            },
+            "infeasible_day": 0,
+            "wall_s": 1720.818
+          },
+          {
+            "iteration": 2,
+            "stage1_cost": 48629.4599112972,
+            "stage1_status": "optimal",
+            "windows_h": {
+              "0": 16.0,
+              "1": 16.0,
+              "2": 10.0,
+              "3": 10.0
+            },
+            "infeasible_day": 0,
+            "wall_s": 2213.033
+          },
+          {
+            "iteration": 3,
+            "stage1_cost": 49286.4599112972,
+            "stage1_status": "optimal",
+            "windows_h": {
+              "0": 16.0,
+              "1": 16.0,
+              "2": 12.0,
+              "3": 10.0
+            },
+            "infeasible_day": null,
+            "wall_s": 2353.421
+          }
+        ],
+        "seed": 1,
+        "program": [
+          {
+            "heli": "H1-16h",
+            "day": 0,
+            "start_slot": 0,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 0,
+            "start_slot": 11,
+            "fid": 1,
+            "kind": "direct",
+            "installations": [
+              "B2"
+            ],
+            "node_idx": [
+              2
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 105.28774760320033,
+            "fly_min": 95.28774760320033,
+            "cost": 245.6714110741341,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 0,
+            "start_slot": 23,
+            "fid": 17,
+            "kind": "direct",
+            "installations": [
+              "B18"
+            ],
+            "node_idx": [
+              18
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.92856620799986,
+            "fly_min": 110.92856620799986,
+            "cost": 282.166654485333,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 0,
+            "start_slot": 36,
+            "fid": 5,
+            "kind": "direct",
+            "installations": [
+              "B6"
+            ],
+            "node_idx": [
+              6
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 127.34450290427966,
+            "fly_min": 117.34450290427966,
+            "cost": 297.1371734433192,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 0,
+            "start_slot": 49,
+            "fid": 6,
+            "kind": "direct",
+            "installations": [
+              "B7"
+            ],
+            "node_idx": [
+              7
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 86.15651712640005,
+            "fly_min": 76.15651712640005,
+            "cost": 201.03187329493346,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 0,
+            "start_slot": 0,
+            "fid": 15,
+            "kind": "direct",
+            "installations": [
+              "B16"
+            ],
+            "node_idx": [
+              16
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 89.68579829960146,
+            "fly_min": 79.68579829960146,
+            "cost": 209.26686269907006,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 0,
+            "start_slot": 10,
+            "fid": 14,
+            "kind": "direct",
+            "installations": [
+              "B15"
+            ],
+            "node_idx": [
+              15
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 102.87971096320014,
+            "fly_min": 92.87971096320014,
+            "cost": 240.05265891413364,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 0,
+            "start_slot": 21,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 0,
+            "start_slot": 32,
+            "fid": 8,
+            "kind": "direct",
+            "installations": [
+              "B9"
+            ],
+            "node_idx": [
+              9
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 90.35792043520001,
+            "fly_min": 80.35792043520001,
+            "cost": 210.83514768213337,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 0,
+            "start_slot": 43,
+            "fid": 31,
+            "kind": "split",
+            "installations": [
+              "B4",
+              "B6"
+            ],
+            "node_idx": [
+              4,
+              6
+            ],
+            "duration_slots": 14,
+            "fly_slots": 10,
+            "duration_min": 138.63457887561333,
+            "fly_min": 118.63457887561333,
+            "cost": 323.48068404309777,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 0,
+            "start_slot": 0,
+            "fid": 7,
+            "kind": "direct",
+            "installations": [
+              "B8"
+            ],
+            "node_idx": [
+              8
+            ],
+            "duration_slots": 9,
+            "fly_slots": 5,
+            "duration_min": 72.9569450841212,
+            "fly_min": 62.956945084121195,
+            "cost": 170.23287186294948,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 0,
+            "start_slot": 9,
+            "fid": 19,
+            "kind": "direct",
+            "installations": [
+              "B20"
+            ],
+            "node_idx": [
+              20
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 83.54392149760096,
+            "fly_min": 73.54392149760096,
+            "cost": 194.93581682773558,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 0,
+            "start_slot": 19,
+            "fid": 15,
+            "kind": "direct",
+            "installations": [
+              "B16"
+            ],
+            "node_idx": [
+              16
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 89.68579829960146,
+            "fly_min": 79.68579829960146,
+            "cost": 209.26686269907006,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 0,
+            "start_slot": 29,
+            "fid": 4,
+            "kind": "direct",
+            "installations": [
+              "B5"
+            ],
+            "node_idx": [
+              5
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 95.66848930906437,
+            "fly_min": 85.66848930906437,
+            "cost": 223.22647505448353,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 0,
+            "start_slot": 40,
+            "fid": 12,
+            "kind": "direct",
+            "installations": [
+              "B13"
+            ],
+            "node_idx": [
+              13
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 117.26916103574207,
+            "fly_min": 107.26916103574207,
+            "cost": 273.6280424167315,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 0,
+            "start_slot": 0,
+            "fid": 0,
+            "kind": "direct",
+            "installations": [
+              "B1"
+            ],
+            "node_idx": [
+              1
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 82.6929163840002,
+            "fly_min": 72.6929163840002,
+            "cost": 192.9501382293338,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 0,
+            "start_slot": 10,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 0,
+            "start_slot": 21,
+            "fid": 14,
+            "kind": "direct",
+            "installations": [
+              "B15"
+            ],
+            "node_idx": [
+              15
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 102.87971096320014,
+            "fly_min": 92.87971096320014,
+            "cost": 240.05265891413364,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 0,
+            "start_slot": 32,
+            "fid": 9,
+            "kind": "direct",
+            "installations": [
+              "B10"
+            ],
+            "node_idx": [
+              10
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 110.7760851328,
+            "fly_min": 100.7760851328,
+            "cost": 258.4775319765333,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 1,
+            "start_slot": 0,
+            "fid": 8,
+            "kind": "direct",
+            "installations": [
+              "B9"
+            ],
+            "node_idx": [
+              9
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 90.35792043520001,
+            "fly_min": 80.35792043520001,
+            "cost": 210.83514768213337,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 1,
+            "start_slot": 11,
+            "fid": 14,
+            "kind": "direct",
+            "installations": [
+              "B15"
+            ],
+            "node_idx": [
+              15
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 102.87971096320014,
+            "fly_min": 92.87971096320014,
+            "cost": 240.05265891413364,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 1,
+            "start_slot": 22,
+            "fid": 18,
+            "kind": "direct",
+            "installations": [
+              "B19"
+            ],
+            "node_idx": [
+              19
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 129.76464687047599,
+            "fly_min": 119.76464687047597,
+            "cost": 302.78417603111063,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 1,
+            "start_slot": 35,
+            "fid": 3,
+            "kind": "direct",
+            "installations": [
+              "B4"
+            ],
+            "node_idx": [
+              4
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.39135061120007,
+            "fly_min": 110.39135061120007,
+            "cost": 280.9131514261335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 1,
+            "start_slot": 48,
+            "fid": 2,
+            "kind": "direct",
+            "installations": [
+              "B3"
+            ],
+            "node_idx": [
+              3
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 119.91768732159998,
+            "fly_min": 109.91768732159998,
+            "cost": 279.8079370837333,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 1,
+            "start_slot": 0,
+            "fid": 19,
+            "kind": "direct",
+            "installations": [
+              "B20"
+            ],
+            "node_idx": [
+              20
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 83.54392149760096,
+            "fly_min": 73.54392149760096,
+            "cost": 194.93581682773558,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 1,
+            "start_slot": 10,
+            "fid": 0,
+            "kind": "direct",
+            "installations": [
+              "B1"
+            ],
+            "node_idx": [
+              1
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 82.6929163840002,
+            "fly_min": 72.6929163840002,
+            "cost": 192.9501382293338,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 1,
+            "start_slot": 20,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 1,
+            "start_slot": 31,
+            "fid": 1,
+            "kind": "direct",
+            "installations": [
+              "B2"
+            ],
+            "node_idx": [
+              2
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 105.28774760320033,
+            "fly_min": 95.28774760320033,
+            "cost": 245.6714110741341,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 1,
+            "start_slot": 43,
+            "fid": 5,
+            "kind": "direct",
+            "installations": [
+              "B6"
+            ],
+            "node_idx": [
+              6
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 127.34450290427966,
+            "fly_min": 117.34450290427966,
+            "cost": 297.1371734433192,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 1,
+            "start_slot": 0,
+            "fid": 7,
+            "kind": "direct",
+            "installations": [
+              "B8"
+            ],
+            "node_idx": [
+              8
+            ],
+            "duration_slots": 9,
+            "fly_slots": 5,
+            "duration_min": 72.9569450841212,
+            "fly_min": 62.956945084121195,
+            "cost": 170.23287186294948,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 1,
+            "start_slot": 9,
+            "fid": 15,
+            "kind": "direct",
+            "installations": [
+              "B16"
+            ],
+            "node_idx": [
+              16
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 89.68579829960146,
+            "fly_min": 79.68579829960146,
+            "cost": 209.26686269907006,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 1,
+            "start_slot": 19,
+            "fid": 6,
+            "kind": "direct",
+            "installations": [
+              "B7"
+            ],
+            "node_idx": [
+              7
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 86.15651712640005,
+            "fly_min": 76.15651712640005,
+            "cost": 201.03187329493346,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 1,
+            "start_slot": 29,
+            "fid": 4,
+            "kind": "direct",
+            "installations": [
+              "B5"
+            ],
+            "node_idx": [
+              5
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 95.66848930906437,
+            "fly_min": 85.66848930906437,
+            "cost": 223.22647505448353,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 1,
+            "start_slot": 40,
+            "fid": 9,
+            "kind": "direct",
+            "installations": [
+              "B10"
+            ],
+            "node_idx": [
+              10
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 110.7760851328,
+            "fly_min": 100.7760851328,
+            "cost": 258.4775319765333,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 1,
+            "start_slot": 0,
+            "fid": 15,
+            "kind": "direct",
+            "installations": [
+              "B16"
+            ],
+            "node_idx": [
+              16
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 89.68579829960146,
+            "fly_min": 79.68579829960146,
+            "cost": 209.26686269907006,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 1,
+            "start_slot": 10,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 1,
+            "start_slot": 21,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 1,
+            "start_slot": 32,
+            "fid": 12,
+            "kind": "direct",
+            "installations": [
+              "B13"
+            ],
+            "node_idx": [
+              13
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 117.26916103574207,
+            "fly_min": 107.26916103574207,
+            "cost": 273.6280424167315,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 2,
+            "start_slot": 0,
+            "fid": 7,
+            "kind": "direct",
+            "installations": [
+              "B8"
+            ],
+            "node_idx": [
+              8
+            ],
+            "duration_slots": 9,
+            "fly_slots": 5,
+            "duration_min": 72.9569450841212,
+            "fly_min": 62.956945084121195,
+            "cost": 170.23287186294948,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 2,
+            "start_slot": 9,
+            "fid": 14,
+            "kind": "direct",
+            "installations": [
+              "B15"
+            ],
+            "node_idx": [
+              15
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 102.87971096320014,
+            "fly_min": 92.87971096320014,
+            "cost": 240.05265891413364,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 2,
+            "start_slot": 20,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 2,
+            "start_slot": 31,
+            "fid": 1,
+            "kind": "direct",
+            "installations": [
+              "B2"
+            ],
+            "node_idx": [
+              2
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 105.28774760320033,
+            "fly_min": 95.28774760320033,
+            "cost": 245.6714110741341,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 2,
+            "start_slot": 43,
+            "fid": 52,
+            "kind": "split",
+            "installations": [
+              "B18",
+              "B19"
+            ],
+            "node_idx": [
+              18,
+              19
+            ],
+            "duration_slots": 14,
+            "fly_slots": 10,
+            "duration_min": 140.5666776706681,
+            "fly_min": 120.5666776706681,
+            "cost": 327.98891456489224,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 2,
+            "start_slot": 0,
+            "fid": 4,
+            "kind": "direct",
+            "installations": [
+              "B5"
+            ],
+            "node_idx": [
+              5
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 95.66848930906437,
+            "fly_min": 85.66848930906437,
+            "cost": 223.22647505448353,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 2,
+            "start_slot": 11,
+            "fid": 8,
+            "kind": "direct",
+            "installations": [
+              "B9"
+            ],
+            "node_idx": [
+              9
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 90.35792043520001,
+            "fly_min": 80.35792043520001,
+            "cost": 210.83514768213337,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 2,
+            "start_slot": 22,
+            "fid": 3,
+            "kind": "direct",
+            "installations": [
+              "B4"
+            ],
+            "node_idx": [
+              4
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.39135061120007,
+            "fly_min": 110.39135061120007,
+            "cost": 280.9131514261335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 2,
+            "start_slot": 35,
+            "fid": 45,
+            "kind": "split",
+            "installations": [
+              "B10",
+              "B13"
+            ],
+            "node_idx": [
+              10,
+              13
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 129.18239434940367,
+            "fly_min": 109.18239434940367,
+            "cost": 301.4255868152752,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 2,
+            "start_slot": 48,
+            "fid": 2,
+            "kind": "direct",
+            "installations": [
+              "B3"
+            ],
+            "node_idx": [
+              3
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 119.91768732159998,
+            "fly_min": 109.91768732159998,
+            "cost": 279.8079370837333,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 2,
+            "start_slot": 0,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 2,
+            "start_slot": 11,
+            "fid": 3,
+            "kind": "direct",
+            "installations": [
+              "B4"
+            ],
+            "node_idx": [
+              4
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.39135061120007,
+            "fly_min": 110.39135061120007,
+            "cost": 280.9131514261335,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 2,
+            "start_slot": 24,
+            "fid": 5,
+            "kind": "direct",
+            "installations": [
+              "B6"
+            ],
+            "node_idx": [
+              6
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 127.34450290427966,
+            "fly_min": 117.34450290427966,
+            "cost": 297.1371734433192,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 2,
+            "start_slot": 37,
+            "fid": 5,
+            "kind": "direct",
+            "installations": [
+              "B6"
+            ],
+            "node_idx": [
+              6
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 127.34450290427966,
+            "fly_min": 117.34450290427966,
+            "cost": 297.1371734433192,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 2,
+            "start_slot": 0,
+            "fid": 15,
+            "kind": "direct",
+            "installations": [
+              "B16"
+            ],
+            "node_idx": [
+              16
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 89.68579829960146,
+            "fly_min": 79.68579829960146,
+            "cost": 209.26686269907006,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 2,
+            "start_slot": 10,
+            "fid": 16,
+            "kind": "direct",
+            "installations": [
+              "B17"
+            ],
+            "node_idx": [
+              17
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.25109475840034,
+            "fly_min": 93.25109475840034,
+            "cost": 240.91922110293413,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 2,
+            "start_slot": 21,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 2,
+            "start_slot": 32,
+            "fid": 11,
+            "kind": "direct",
+            "installations": [
+              "B12"
+            ],
+            "node_idx": [
+              12
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 110.18723328639982,
+            "fly_min": 100.18723328639982,
+            "cost": 257.1035443349329,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 3,
+            "start_slot": 0,
+            "fid": 1,
+            "kind": "direct",
+            "installations": [
+              "B2"
+            ],
+            "node_idx": [
+              2
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 105.28774760320033,
+            "fly_min": 95.28774760320033,
+            "cost": 245.6714110741341,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 3,
+            "start_slot": 12,
+            "fid": 9,
+            "kind": "direct",
+            "installations": [
+              "B10"
+            ],
+            "node_idx": [
+              10
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 110.7760851328,
+            "fly_min": 100.7760851328,
+            "cost": 258.4775319765333,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 3,
+            "start_slot": 24,
+            "fid": 5,
+            "kind": "direct",
+            "installations": [
+              "B6"
+            ],
+            "node_idx": [
+              6
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 127.34450290427966,
+            "fly_min": 117.34450290427966,
+            "cost": 297.1371734433192,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 3,
+            "start_slot": 37,
+            "fid": 17,
+            "kind": "direct",
+            "installations": [
+              "B18"
+            ],
+            "node_idx": [
+              18
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.92856620799986,
+            "fly_min": 110.92856620799986,
+            "cost": 282.166654485333,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 3,
+            "start_slot": 50,
+            "fid": 2,
+            "kind": "direct",
+            "installations": [
+              "B3"
+            ],
+            "node_idx": [
+              3
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 119.91768732159998,
+            "fly_min": 109.91768732159998,
+            "cost": 279.8079370837333,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 3,
+            "start_slot": 0,
+            "fid": 0,
+            "kind": "direct",
+            "installations": [
+              "B1"
+            ],
+            "node_idx": [
+              1
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 82.6929163840002,
+            "fly_min": 72.6929163840002,
+            "cost": 192.9501382293338,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 3,
+            "start_slot": 10,
+            "fid": 16,
+            "kind": "direct",
+            "installations": [
+              "B17"
+            ],
+            "node_idx": [
+              17
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.25109475840034,
+            "fly_min": 93.25109475840034,
+            "cost": 240.91922110293413,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 3,
+            "start_slot": 21,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 3,
+            "start_slot": 32,
+            "fid": 4,
+            "kind": "direct",
+            "installations": [
+              "B5"
+            ],
+            "node_idx": [
+              5
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 95.66848930906437,
+            "fly_min": 85.66848930906437,
+            "cost": 223.22647505448353,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 3,
+            "start_slot": 43,
+            "fid": 3,
+            "kind": "direct",
+            "installations": [
+              "B4"
+            ],
+            "node_idx": [
+              4
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.39135061120007,
+            "fly_min": 110.39135061120007,
+            "cost": 280.9131514261335,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 3,
+            "start_slot": 0,
+            "fid": 51,
+            "kind": "split",
+            "installations": [
+              "B15",
+              "B16"
+            ],
+            "node_idx": [
+              15,
+              16
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 112.87979445691718,
+            "fly_min": 92.87979445691718,
+            "cost": 263.3861870661401,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 3,
+            "start_slot": 12,
+            "fid": 11,
+            "kind": "direct",
+            "installations": [
+              "B12"
+            ],
+            "node_idx": [
+              12
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 110.18723328639982,
+            "fly_min": 100.18723328639982,
+            "cost": 257.1035443349329,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 3,
+            "start_slot": 24,
+            "fid": 3,
+            "kind": "direct",
+            "installations": [
+              "B4"
+            ],
+            "node_idx": [
+              4
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.39135061120007,
+            "fly_min": 110.39135061120007,
+            "cost": 280.9131514261335,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 3,
+            "start_slot": 37,
+            "fid": 18,
+            "kind": "direct",
+            "installations": [
+              "B19"
+            ],
+            "node_idx": [
+              19
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 129.76464687047599,
+            "fly_min": 119.76464687047597,
+            "cost": 302.78417603111063,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 3,
+            "start_slot": 0,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 3,
+            "start_slot": 11,
+            "fid": 14,
+            "kind": "direct",
+            "installations": [
+              "B15"
+            ],
+            "node_idx": [
+              15
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 102.87971096320014,
+            "fly_min": 92.87971096320014,
+            "cost": 240.05265891413364,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 3,
+            "start_slot": 22,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 3,
+            "start_slot": 33,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 4,
+            "start_slot": 0,
+            "fid": 0,
+            "kind": "direct",
+            "installations": [
+              "B1"
+            ],
+            "node_idx": [
+              1
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 82.6929163840002,
+            "fly_min": 72.6929163840002,
+            "cost": 192.9501382293338,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 4,
+            "start_slot": 10,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 4,
+            "start_slot": 21,
+            "fid": 8,
+            "kind": "direct",
+            "installations": [
+              "B9"
+            ],
+            "node_idx": [
+              9
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 90.35792043520001,
+            "fly_min": 80.35792043520001,
+            "cost": 210.83514768213337,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 4,
+            "start_slot": 32,
+            "fid": 4,
+            "kind": "direct",
+            "installations": [
+              "B5"
+            ],
+            "node_idx": [
+              5
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 95.66848930906437,
+            "fly_min": 85.66848930906437,
+            "cost": 223.22647505448353,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H1-16h",
+            "day": 4,
+            "start_slot": 43,
+            "fid": 5,
+            "kind": "direct",
+            "installations": [
+              "B6"
+            ],
+            "node_idx": [
+              6
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 127.34450290427966,
+            "fly_min": 117.34450290427966,
+            "cost": 297.1371734433192,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 4,
+            "start_slot": 0,
+            "fid": 7,
+            "kind": "direct",
+            "installations": [
+              "B8"
+            ],
+            "node_idx": [
+              8
+            ],
+            "duration_slots": 9,
+            "fly_slots": 5,
+            "duration_min": 72.9569450841212,
+            "fly_min": 62.956945084121195,
+            "cost": 170.23287186294948,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 4,
+            "start_slot": 9,
+            "fid": 19,
+            "kind": "direct",
+            "installations": [
+              "B20"
+            ],
+            "node_idx": [
+              20
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 83.54392149760096,
+            "fly_min": 73.54392149760096,
+            "cost": 194.93581682773558,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 4,
+            "start_slot": 19,
+            "fid": 14,
+            "kind": "direct",
+            "installations": [
+              "B15"
+            ],
+            "node_idx": [
+              15
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 102.87971096320014,
+            "fly_min": 92.87971096320014,
+            "cost": 240.05265891413364,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 4,
+            "start_slot": 30,
+            "fid": 16,
+            "kind": "direct",
+            "installations": [
+              "B17"
+            ],
+            "node_idx": [
+              17
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.25109475840034,
+            "fly_min": 93.25109475840034,
+            "cost": 240.91922110293413,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 4,
+            "start_slot": 41,
+            "fid": 1,
+            "kind": "direct",
+            "installations": [
+              "B2"
+            ],
+            "node_idx": [
+              2
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 105.28774760320033,
+            "fly_min": 95.28774760320033,
+            "cost": 245.6714110741341,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H2-16h",
+            "day": 4,
+            "start_slot": 53,
+            "fid": 6,
+            "kind": "direct",
+            "installations": [
+              "B7"
+            ],
+            "node_idx": [
+              7
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 86.15651712640005,
+            "fly_min": 76.15651712640005,
+            "cost": 201.03187329493346,
+            "window_h": 16.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 4,
+            "start_slot": 0,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 4,
+            "start_slot": 11,
+            "fid": 12,
+            "kind": "direct",
+            "installations": [
+              "B13"
+            ],
+            "node_idx": [
+              13
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 117.26916103574207,
+            "fly_min": 107.26916103574207,
+            "cost": 273.6280424167315,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 4,
+            "start_slot": 23,
+            "fid": 17,
+            "kind": "direct",
+            "installations": [
+              "B18"
+            ],
+            "node_idx": [
+              18
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.92856620799986,
+            "fly_min": 110.92856620799986,
+            "cost": 282.166654485333,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H3-12h",
+            "day": 4,
+            "start_slot": 36,
+            "fid": 3,
+            "kind": "direct",
+            "installations": [
+              "B4"
+            ],
+            "node_idx": [
+              4
+            ],
+            "duration_slots": 13,
+            "fly_slots": 9,
+            "duration_min": 120.39135061120007,
+            "fly_min": 110.39135061120007,
+            "cost": 280.9131514261335,
+            "window_h": 12.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 4,
+            "start_slot": 0,
+            "fid": 15,
+            "kind": "direct",
+            "installations": [
+              "B16"
+            ],
+            "node_idx": [
+              16
+            ],
+            "duration_slots": 10,
+            "fly_slots": 6,
+            "duration_min": 89.68579829960146,
+            "fly_min": 79.68579829960146,
+            "cost": 209.26686269907006,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 4,
+            "start_slot": 10,
+            "fid": 10,
+            "kind": "direct",
+            "installations": [
+              "B11"
+            ],
+            "node_idx": [
+              11
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.35138824320006,
+            "fly_min": 93.35138824320006,
+            "cost": 241.1532392341335,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 4,
+            "start_slot": 21,
+            "fid": 13,
+            "kind": "direct",
+            "installations": [
+              "B14"
+            ],
+            "node_idx": [
+              14
+            ],
+            "duration_slots": 11,
+            "fly_slots": 7,
+            "duration_min": 103.45168172800041,
+            "fly_min": 93.45168172800041,
+            "cost": 241.38725736533428,
+            "window_h": 10.0
+          },
+          {
+            "heli": "H4-10h",
+            "day": 4,
+            "start_slot": 32,
+            "fid": 9,
+            "kind": "direct",
+            "installations": [
+              "B10"
+            ],
+            "node_idx": [
+              10
+            ],
+            "duration_slots": 12,
+            "fly_slots": 8,
+            "duration_min": 110.7760851328,
+            "fly_min": 100.7760851328,
+            "cost": 258.4775319765333,
+            "window_h": 10.0
+          }
+        ],
+        "fixed_cost": 26593.0,
+        "variable_cost": 22693.459911297196,
+        "helicopters": [
+          {
+            "label": "H1-16h",
+            "hours": 16.0,
+            "fixed_cost": 7000.0
+          },
+          {
+            "label": "H2-16h",
+            "hours": 16.0,
+            "fixed_cost": 7000.0
+          },
+          {
+            "label": "H3-12h",
+            "hours": 12.0,
+            "fixed_cost": 6625.0
+          },
+          {
+            "label": "H4-10h",
+            "hours": 10.0,
+            "fixed_cost": 5968.0
+          }
+        ],
+        "utilisation": 0.9129310344827586,
+        "shift_gap_days": 0,
+        "flights_total": 93,
+        "slots_total": 1059,
+        "direct_only_slots": 1103,
+        "n_flight_options": 53,
+        "wall_s": 2353.426,
+        "time_limit_s": 120.0
+      }
+    }
+  },
+  "plan_info": {
+    "solver": {
+      "windows_h": [
+        16.0,
+        16.0,
+        12.0,
+        10.0
+      ],
+      "objective": 49286.45991129719,
+      "flights_per_week": 93,
+      "wall_s": 2353.4
+    },
+    "paper": {
+      "windows_h": [
+        16,
+        14,
+        10,
+        10
+      ],
+      "feasible": false,
+      "detail": {
+        "stage1": "optimal",
+        "windows": {
+          "0": 3,
+          "1": 2,
+          "2": 0,
+          "3": 0
+        },
+        "stage2_infeasible_day": 1
+      },
+      "wall_s": 822.3
+    }
+  }
+}
