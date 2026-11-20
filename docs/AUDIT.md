@@ -319,3 +319,9 @@ Two things follow, and the second needs a human.
   line in the merge message, which is already the convention) and the integrator gets a narrow allowance for
   those paths on an integration branch — or the `why:` discipline for merges is accepted as convention only,
   unenforced, and `docs/GUARDS.md` says so in the row rather than implying the hook covers it.
+
+## Audit 11 (J1, 2026-11-20) — seeded faults against every gate
+
+Caught on main before any change: gate 0 (unsourced leaf, named), gate 1 (served twice, not served, over capacity, too many routes, but its detail did not say which), gate 1b, gate 2, gate 3 (time column), gate 4 on a scalar KPI, 4b and 4c as gate functions; 17 of the 25 tests in `tests/test_seeded_faults.py` passed unchanged.
+Missed on main: a VRPTW plan that starts service at a stop after its window closes passed gate 1 and every gate after it (audit 7, risk 1), and a whelp result with the right cost and helicopter count but the wrong fleet composition passed gate 4 (audit 8; a composition listed in `reported:` crashed `compare_to_paper` with a TypeError). Both are fixed in `offsim/pipeline.py` (`plan_faults`, `composition_row`); gate 1 now also names each fault in `detail.faults`.
+After the gate 4 change the committed Florø `scenario.synth.yaml` still passes gates 0 to 4 (status "re-run under assumptions", fleet composition [10] = Table 4 [10]); Stavanger passes too (fleet [16, 12] = Table 4; run from a temporary copy with synthetic weather, because the committed file needs fetched metocean and stops at gate 0 here). Bergen (733 s, expected to fail on composition per audit 8) was not run.

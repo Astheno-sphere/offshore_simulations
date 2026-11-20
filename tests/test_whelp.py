@@ -450,7 +450,8 @@ def test_offsim_run_on_floro_reaches_the_gates_with_synthetic_weather(tmp_path):
     assert rep["status"] == "re-run under assumptions (synthetic weather, not reportable)"
     assert rep["reportable"] is False
     assert rep["tools"]["solver"] == "whelp" and rep["tools"]["engine"] == "air"
-    assert {r["kpi"] for r in g["4_paper"]["detail"]} == {"plan_cost", "helicopters", "window_hours"}
+    # why: J1 (audit 8): gate 4 now also compares the fleet composition against the paper's Table 4 (whelp.PAPER_RESULT), so the row is expected
+    assert {r["kpi"] for r in g["4_paper"]["detail"]} == {"plan_cost", "helicopters", "window_hours", "fleet_composition"}
 
 
 def test_offsim_run_stops_at_gate_0_without_weather(tmp_path):

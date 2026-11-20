@@ -1,0 +1,105 @@
+# Seeded-fault base scenario (tests/test_seeded_faults.py): VRPTW twin of cvrp_tiny.yaml. Speed 5 m/s, service 600 s, so a
+# stop 2 km out is reached at t = 400 s. Windows [earliest, latest] are on service START (the standard rule). A feasible plan
+# is [[1, 2], [3, 4]]; the route [2, 1] reaches S1 at 1800 s, after its window closes at 1000 s.
+paper:
+  id: seeded-fixture-vrptw
+  title: seeded-fault fixture
+  authors: []
+  year: 2026
+  doi: ''
+  licence: MIT (synthetic)
+problem:
+  class:
+  - VRPTW
+  objective: total distance sailed
+  constraints:
+  - name: capacity
+    formula_or_text: sum of demand on a route <= vessel capacity
+    assumption: true
+  - name: time_window
+    formula_or_text: service at stop i starts within [early_i, late_i]
+    assumption: true
+  solver: pyvrp
+world: none
+fleet:
+- cls: psv
+  count:
+    value: 2
+    assumption: true
+    why: fixture
+  capacity:
+    value: 3
+    unit: deck slots
+    assumption: true
+    why: fixture
+  speed_mps:
+    value: 5.0
+    assumption: true
+    why: fixture
+  domain: sea
+instance:
+  source: synthetic (fixture)
+  service_s:
+    value: 600
+    assumption: true
+    why: fixture
+  base:
+    name: Base
+    lon: 10.0
+    lat: 59.9
+    assumption: true
+    why: fixture
+  stops:
+  - name: S1
+    lon: 10.036
+    lat: 59.9
+    demand:
+      value: 1
+      assumption: true
+    assumption: true
+    tw:
+      value:
+      - 0
+      - 1000
+      assumption: true
+      why: fixture
+  - name: S2
+    lon: 10.072
+    lat: 59.9
+    demand:
+      value: 1
+      assumption: true
+    assumption: true
+    tw:
+      value:
+      - 0
+      - 1500
+      assumption: true
+      why: fixture
+  - name: S3
+    lon: 10.108
+    lat: 59.9
+    demand:
+      value: 1
+      assumption: true
+    assumption: true
+    tw:
+      value:
+      - 0
+      - 3000
+      assumption: true
+      why: fixture
+  - name: S4
+    lon: 10.144
+    lat: 59.9
+    demand:
+      value: 1
+      assumption: true
+    assumption: true
+    tw:
+      value:
+      - 0
+      - 3000
+      assumption: true
+      why: fixture
+reported: {}

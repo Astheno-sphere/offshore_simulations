@@ -1,10 +1,11 @@
 code: G4-KPI-MISMATCH
 gate: 4_paper
-meaning: measured KPIs are outside the paper's tolerance (status 'did not reproduce')
+meaning: measured KPIs, or the fleet composition, are outside the paper's tolerance (status 'did not reproduce')
 symptoms:
 - status 'did not reproduce'
 - 'gate 4 rows: rel_gap > rel_tol for a reported KPI'
 - 'ours is None: KPI name not measured by the engine'
+- 'row kpi fleet_composition: the cost may match while the helicopters and their windows differ from the paper (audit 8)'
 checks:
 - kpi_gaps
 - kpi_names_measurable

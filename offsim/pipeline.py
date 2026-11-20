@@ -4,10 +4,12 @@
 
 Gates, in order; a failure stops everything after it and is written to report.json:
   0 provenance   every fleet/instance/reported value has `src` or `assumption: true`
-  1 plan         solver plan re-checked outside the solver (served once, capacity)
+  1 plan         solver plan re-checked outside the solver (served once, capacity, vehicles, time windows: service start <= latest);
+                 a failure lists its faults by name in detail.faults (not_served, served_twice, over_capacity, time_window, ...)
   2 replay=plan  simulated distance equals the solver objective (1%)
   3 contract     offsim.contract.validate (time, speed, teleport, state, capacity, land)
-  4 paper        measured KPIs vs `reported:` -> status word for the narrator
+  4 paper        measured KPIs vs `reported:` -> status word for the narrator; for a WFPPP plan also the fleet composition
+                 (window hours per helicopter) against `reported.fleet_composition` or whelp.PAPER_RESULT (audit 8)
   4b ais         opt-in (`validate: {ais: true}`): simulated speeds / port-call dwell vs data/worlds/<w>/ais/calibration.json
                  (offsim.traffic.ais.compare_to_sim); a failure stops the run ("stopped at gate 4b_ais"). Recorded as
                  {"pass": true, "detail": "not requested"} for road runs and for any scenario that has a `validate:` block;
@@ -50,7 +52,7 @@ from offsim.contract import compare_to_paper, kpis, validate
 from offsim.doctor.codes import code_for_gate
 from offsim.engines.base import (ENGINE_MODULES, SOLVER_MODULES, Plan, Problem, Unsupported, WeatherSeries, World,
                                  get_engine, get_solver)
-from offsim.solve.pyvrp_adapter import matrix
+from offsim.solve.pyvrp_adapter import matrix, windows_violations
 
 ROOT = Path(__file__).resolve().parents[1]
 ROUTING = {"CVRP", "VRPTW", "PDP"}   # classes that need a distance matrix / sea lanes / roads
@@ -386,6 +388,69 @@ def build_variant(experiment, variant, data_root=None, seconds=None, seed=1):
 
 
 # ------------------------------------------------------------------------------------------------- gates
+def plan_faults(problem, routes, speed_mps=None, time_dist=None):
+    """Gate 1 re-check of a routing plan, outside the solver. Returns {} when feasible, else only the failing categories:
+    not_served [clients], served_twice [clients], unknown_client [nodes], over_capacity [{route, load, capacity}],
+    too_many_routes {routes, vehicles}, time_window [{client, start_s, latest_s}].
+    Time windows (audit 7): the standard rule, service START in [earliest, latest]. A vehicle that arrives early waits, so a
+    start can never precede `earliest`; the check is start <= latest, with the schedule walked as the replay does (leave the
+    depot at t = 0, drive, wait for the window to open, serve). `time_dist` is the matrix the schedule is driven on (metres at
+    `speed_mps`; the road graph's time matrix times the speed in road mode), default `problem.dist_m`."""
+    demand = problem.demand
+    fleet = problem.fleet[0] if problem.fleet else {}
+    n_veh, cap = int(fleet.get("count", 0)), fleet.get("capacity")
+    faults = {}
+    flat = [c for r in routes for c in r]
+    twice = sorted({c for c in flat if flat.count(c) > 1})
+    unknown = sorted({c for c in flat if c not in demand})
+    missing = sorted(set(demand) - set(flat))
+    if missing:
+        faults["not_served"] = missing
+    if twice:
+        faults["served_twice"] = twice
+    if unknown:
+        faults["unknown_client"] = unknown
+    loads = [sum(demand[c] for c in r if c in demand) for r in routes]
+    over = [{"route": i, "load": ld, "capacity": cap} for i, ld in enumerate(loads) if ld > cap]
+    if over:
+        faults["over_capacity"] = over
+    if len(routes) > n_veh:
+        faults["too_many_routes"] = {"routes": len(routes), "vehicles": n_veh}
+    if problem.tw and speed_mps and not (twice or unknown):          # a schedule is only meaningful for a well-formed route set
+        D = problem.dist_m if time_dist is None else time_dist
+        late = windows_violations(D, float(speed_mps), routes, problem.service_s, problem.tw)
+        if late:
+            faults["time_window"] = [{"client": int(b), "start_s": float(st), "latest_s": float(lt)} for b, st, lt in late]
+    return faults
+
+
+def fleet_composition(plan):
+    """Operating-window hours of the helicopters in a whelp plan, largest first ([16, 14, 10, 10]); None for other plans."""
+    helis = (plan.meta or {}).get("helicopters")
+    return sorted((float(h["hours"]) for h in helis), reverse=True) if helis else None
+
+
+def expected_composition(sc, reported):
+    """(hours list, src) the paper lists for the fleet, or (None, None). `reported.fleet_composition: {value: [h, ..], src}` wins;
+    a WFPPP scenario that names its instance (`param.instance`) falls back to the paper's Table 4 in `whelp.PAPER_RESULT`."""
+    spec = reported.get("fleet_composition")
+    if spec is not None:
+        return sorted((float(x) for x in v(spec)), reverse=True), (spec.get("src") if isinstance(spec, dict) else None)
+    if "WFPPP" in set(sc["problem"]["class"]):
+        from offsim.solve.whelp import PAPER_RESULT
+        inst = (sc.get("param") or {}).get("instance")
+        if inst in PAPER_RESULT:
+            return sorted((float(x) for x in PAPER_RESULT[inst]["windows"]), reverse=True), "p.29 Table 4 (offsim.solve.whelp.PAPER_RESULT)"
+    return None, None
+
+
+def composition_row(paper, ours, src, rel_tol=0.0):
+    """One gate 4 row for the fleet composition, in the shape of `compare_to_paper`'s rows. A different number of
+    helicopters, or any window outside `rel_tol`, fails; the cost matching says nothing about which fleet produced it (audit 8)."""
+    ok = ours is not None and len(ours) == len(paper) and all(abs(a - b) <= rel_tol * abs(b) for a, b in zip(ours, paper))
+    return {"kpi": "fleet_composition", "paper": paper, "ours": ours, "rel_gap": None, "rel_tol": rel_tol, "pass": bool(ok), "src": src}
+
+
 def certify_gate(problem, plan, cert, seed=1):
     """Gate 1b: heuristic objective vs an exact solve. Returns (ok, detail). gap = (heuristic - L) / L where L is the exact
     objective when proven optimal, else the exact solver's proven bound. Fails when gap > gap_tol, when the exact solver
@@ -601,10 +666,14 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
             if not stop("1_plan", ok1, {**d1, "objective": cost}):
                 return report
         else:
-            served = sorted(c for r in routes for c in r)
             loads = [sum(demand[c] for c in r) for r in routes]
-            if not stop("1_plan", served == sorted(demand) and max(loads, default=0) <= cap and len(routes) <= n_veh,
-                        {"routes": routes, "loads": loads, "capacity": cap, "objective_m": cost}):
+            speed = fleet.get("speed_mps")
+            tdist = np.asarray(road["time_s"], dtype=float) * float(speed) if road is not None and speed else None
+            faults = plan_faults(problem, routes, speed, tdist)
+            d1 = {"routes": routes, "loads": loads, "capacity": cap, "objective_m": cost}
+            if faults:                                                  # named only when there is something to name: a clean report keeps its keys
+                d1["faults"] = faults
+            if not stop("1_plan", not faults, d1):
                 return report
 
         # gate 1b: exact certificate (opt-in)
@@ -674,15 +743,23 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
         measured["vehicles_used"] = sum(1 for r in routes if r)
     if engine_name not in ("replay", "road"):
         measured.update({a: b for a, b in res.kpis.items() if a not in measured})
-    cmp = compare_to_paper(measured, reported) if reported else pd.DataFrame()
+    cmp = compare_to_paper(measured, {k: x for k, x in reported.items() if k != "fleet_composition"}) if reported else pd.DataFrame()
+    comp_rows = []
+    if reported:                                                    # fleet composition beside the scalars (audit 8)
+        want, src = expected_composition(sc, reported)
+        if want is not None:
+            spec = reported.get("fleet_composition")
+            tol = float(v(spec.get("rel_tol", 0.0))) if isinstance(spec, dict) else 0.0
+            comp_rows = [composition_row(want, fleet_composition(plan), src, tol)]
     assumed = assumptions_used(sc)
     if not reported:
         status = "not comparable (no reported KPIs)"
-    elif cmp["pass"].all():
+    elif cmp["pass"].all() and all(r["pass"] for r in comp_rows):
         status = "re-run under assumptions" if assumed else "reproduced"
     else:
         status = "did not reproduce"
-    report["gates"]["4_paper"] = {"pass": status in ("reproduced", "re-run under assumptions"), "detail": cmp.to_dict("records")}
+    report["gates"]["4_paper"] = {"pass": status in ("reproduced", "re-run under assumptions"),
+                                  "detail": cmp.to_dict("records") + comp_rows}
     if status == "did not reproduce":                       # "not comparable" has pass False too but is not a failure
         report["gates"]["4_paper"]["code"] = code_for_gate("4_paper", None)
     final_status = status + (" (synthetic weather, not reportable)" if synthetic_wx else "")

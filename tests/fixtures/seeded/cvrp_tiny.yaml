@@ -1,0 +1,27 @@
+# Seeded-fault base scenario (tests/test_seeded_faults.py): CVRP, four stops 2 / 4 / 6 / 8 km east of the base, no world.
+# Every value is a flagged assumption (this is a fixture, not a paper). Capacity 3 with demand 1 each, so one route can
+# serve at most three stops and two vessels are needed.
+paper: {id: seeded-fixture-cvrp, title: "seeded-fault fixture", authors: [], year: 2026, doi: "", licence: MIT (synthetic)}
+problem:
+  class: [CVRP]
+  objective: total distance sailed
+  constraints:
+    - {name: capacity, formula_or_text: "sum of demand on a route <= vessel capacity", assumption: true}
+  solver: pyvrp
+world: none
+fleet:
+  - cls: psv
+    count: {value: 2, assumption: true, why: "fixture"}
+    capacity: {value: 3, unit: deck slots, assumption: true, why: "fixture"}
+    speed_mps: {value: 5.0, assumption: true, why: "fixture"}
+    domain: sea
+instance:
+  source: synthetic (fixture)
+  service_s: {value: 600, assumption: true, why: "fixture"}
+  base: {name: Base, lon: 10.0, lat: 59.9, assumption: true, why: "fixture"}
+  stops:
+    - {name: S1, lon: 10.036, lat: 59.9, demand: {value: 1, assumption: true}, assumption: true}
+    - {name: S2, lon: 10.072, lat: 59.9, demand: {value: 1, assumption: true}, assumption: true}
+    - {name: S3, lon: 10.108, lat: 59.9, demand: {value: 1, assumption: true}, assumption: true}
+    - {name: S4, lon: 10.144, lat: 59.9, demand: {value: 1, assumption: true}, assumption: true}
+reported: {}

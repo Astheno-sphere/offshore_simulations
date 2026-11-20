@@ -1,8 +1,9 @@
 code: G1-PLAN-INFEASIBLE
 gate: 1_plan
-meaning: the solver failed, or its plan fails the outside re-check (served once, capacity, vehicles)
+meaning: the solver failed, or its plan fails the outside re-check (served once, capacity, vehicles, time windows)
 symptoms:
-- 'gate 1 detail: routes/loads/capacity with a client unserved, load above capacity or more routes than vehicles'
+- 'gate 1 detail: routes/loads/capacity with a client unserved, load above capacity or more routes than vehicles; detail.faults names each one (not_served, served_twice, over_capacity, too_many_routes, time_window)'
+- 'detail.faults.time_window: a stop whose service starts after its window closes (start_s > latest_s)'
 - detail.error from the solver ('PyVRP returned an infeasible plan')
 - client index off by the number of depots
 checks:
