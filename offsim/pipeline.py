@@ -654,13 +654,15 @@ def run(scenario_path, out=None, seconds=2.0, seed=1, data_root=None):
             return report
         rep_e = ens.to_report()
         report["ensemble"] = rep_e
-        report["reportable"] = bool(ens.ok and not rep_e["synthetic_weather"] and rep_e["validated"])
+        shape_e = rep_e["shape"]
+        report["reportable"] = bool(ens.ok and shape_e["ok"] and not rep_e["synthetic_weather"] and rep_e["validated"])
         synthetic_wx = synthetic_wx or rep_e["synthetic_weather"]
         d3e = {"n_runs": rep_e["n_runs"], "n_valid": rep_e["n_valid"], "seeds": rep_e["seeds"], "years": rep_e["years"],
                "weather_sources": rep_e["weather_sources"]}
+        d3e["shape"] = shape_e                  # expected vs observed tree: sizes, counts, up to 5 missing paths
         if not ens.ok:
             d3e["failures"] = rep_e["failures"][:5]
-        if not stop("3e_ensemble", ens.ok, d3e):
+        if not stop("3e_ensemble", ens.ok and shape_e["ok"], d3e):
             return report
     elif synthetic_wx:
         report["reportable"] = False

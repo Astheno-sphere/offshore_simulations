@@ -29,6 +29,7 @@ CODES = {
     "G3-CAPACITY": ("3_contract", "load outside [0, capacity]"),
     "G3-STATE": ("3_contract", "bookkeeping: moves while stationary, time runs backwards"),
     "G3E-ENSEMBLE": ("3e_ensemble", "an ensemble run failed the contract or an ensemble member could not run"),
+    "ENS-SHAPE": ("3e_ensemble", "the ensemble tree {variant; year; seed} is not the declared |variants| x |years| x |seeds|: a missing, extra or duplicate path (an empty weather year, a variant on other seeds)"),
     "G4-KPI-MISMATCH": ("4_paper", "measured KPIs are outside the paper's tolerance (status 'did not reproduce')"),
     "G4B-AIS": ("4b_ais", "simulated speeds/port-call dwell disagree with the AIS calibration, or nothing was comparable"),
     "G4C-ENTUR": ("4c_entur", "timetable replay disagrees with observed Entur vehicle positions"),
@@ -173,6 +174,9 @@ def code_for_gate(gate, detail, passed=False):
     if p == "3e":
         if isinstance(detail, dict) and detail.get("unsupported"):
             return "G0-CLASS-UNSUPPORTED"
+        shape = detail.get("shape") if isinstance(detail, dict) else None
+        if isinstance(shape, dict) and shape.get("ok") is False and not detail.get("failures"):
+            return "ENS-SHAPE"                           # the quiet case; a run failure (loud) keeps G3E-ENSEMBLE
         return "G3E-ENSEMBLE"
     if p in GATE_CODE:
         return GATE_CODE[p]

@@ -164,6 +164,10 @@ and the item count per branch. For an ensemble that is `|variants| x |years| x |
 `|years| x |seeds|` pairs per comparison; a comparison with fewer pairs than that is refused, not quietly
 averaged over what is left.
 
-Status: the gate 3e check is not built yet. `Ensemble.ok` already refuses any run failure, which catches the
-loud case; what is missing is the declared shape, which catches the quiet one (an empty weather year, a seed
-list that differs between variants, a pivot with holes).
+Status: built (T3). `offsim/montecarlo/shape.py` holds `TreeShape` (expected keys per level, `observed`, `diff`), and
+`Ensemble.expected_shape()`, `shape()`, `shape_ok` and `shape_report()` expose it. `Ensemble.compare` raises `TreeShapeError`,
+naming the missing `(year, seed)` keys, when it would pair fewer than `|years| x |seeds|`; a complete ensemble gives
+byte-identical output to before. Gate 3e adds `detail.shape` (expected vs observed sizes, counts, up to 5 missing paths) and
+fails with the doctor code `ENS-SHAPE` on any mismatch, unless a run failure is also present, which keeps `G3E-ENSEMBLE`.
+`Ensemble.ok` is still the run-failure verdict only. Not yet covered: the `{instance}`, `{agent}` and `{gap}` trees in the
+table above declare no shape, and the pooled-versus-per-winter confidence-interval choice is still the caller's to state.

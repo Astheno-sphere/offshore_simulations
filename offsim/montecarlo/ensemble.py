@@ -13,6 +13,10 @@ Spec: offsim/montecarlo/__init__.py. Design notes
   worlds or engines are run with separate calls and joined with `Ensemble.merge`.
 - `workers > 1` uses a ProcessPoolExecutor; problem/plan/world/engine/weather must then be picklable under the
   platform's start method. Output order is deterministic (variant, year, seed) for any worker count.
+- Declared shape (offsim/montecarlo/shape.py): the expected tree is |variants| x |years| x |seeds| valid runs, the same
+  years and seeds for every variant. `shape()` / `shape_report()` compare it with the valid runs and name missing, extra
+  or duplicate paths; `compare` refuses (TreeShapeError) to pair fewer than |years| x |seeds| keys, naming them, rather
+  than average what is left. `ok` stays the run-failure verdict; `shape_ok` is the quiet-case verdict (gate 3e uses both).
 - Relative effects are taken against the mean of b (the baseline) of the pairs: (mean(a-b)) / mean(b).
 """
 from __future__ import annotations
@@ -27,6 +31,7 @@ import pandas as pd
 
 from offsim.contract import validate as validate_contract
 from offsim.engines.base import Engine, Plan, Problem, Unsupported, WeatherSeries, World
+from offsim.montecarlo.shape import TreeShape, TreeShapeError, _key as _k, fmt_path
 
 META_COLS = ("variant", "year", "wx", "seed", "valid", "engine", "weather")
 N_BOOT = 2000
@@ -144,6 +149,34 @@ class Ensemble:
     def variants(self) -> list[str]:
         return list(dict.fromkeys(self.runs["variant"])) if len(self.runs) else []
 
+    # -- declared shape (the quiet failure: nothing raised, branches missing)
+    def expected_shape(self) -> TreeShape:
+        """|variants| x |years| x |seeds| from the declared meta (years, seeds); a hand-built ensemble without meta
+        declares the cross product of what its rows mention, which still catches an asymmetric variant."""
+        r = self.runs
+        years = self.meta.get("years")
+        seeds = self.meta.get("seeds")
+        if years is None:
+            years = r["year"].tolist() if len(r) else []
+        if seeds is None:
+            seeds = r["seed"].tolist() if len(r) else []
+        return TreeShape.expected(self.variants, years, seeds)
+
+    def shape(self):
+        """ShapeDiff of the valid runs against the declared tree."""
+        ts = self.expected_shape()
+        return ts.diff(ts.observed(self.runs))
+
+    @property
+    def shape_ok(self) -> bool:
+        return self.shape().ok
+
+    def shape_report(self, limit: int = 5) -> dict:
+        """Compact expected-vs-observed shape: sizes, counts and up to `limit` missing paths. JSON-safe."""
+        ts = self.expected_shape()
+        d = ts.diff(ts.observed(self.runs))
+        return _clean({"expected": ts.describe(), **d.summary(limit)})
+
     def _need(self, kpi: str):
         if kpi not in self.runs.columns or kpi in META_COLS:
             raise KeyError(f"unknown KPI {kpi!r}; have {self.kpi_names}")
@@ -173,6 +206,16 @@ class Ensemble:
         pb = vr.loc[vr["variant"] == b, cols].rename(columns={kpi: "b"})
         d = pa.merge(pb, on=["year", "wx", "seed"], how="inner").dropna(subset=["a", "b"])
         d = d.sort_values(["wx", "seed"]).reset_index(drop=True)
+        ts = self.expected_shape()
+        want = {(y, s_) for y in ts.keys[1] for s_ in ts.keys[2]}
+        got = set(zip(*(d[c].map(_k).tolist() for c in ("year", "seed")))) if len(d) else set()
+        lost = sorted((x for x in want if x not in got), key=lambda t: (t[0] is None, str(t[0]), str(t[1])))
+        if lost:
+            raise TreeShapeError(
+                f"refusing paired comparison {a!r} vs {b!r} on {kpi!r}: {len(got & want)} of {len(want)} (year, seed) pairs "
+                f"({len(ts.keys[1])} years x {len(ts.keys[2])} seeds); missing {len(lost)}: "
+                + ", ".join(fmt_path(x) for x in lost[:10]) + (" ..." if len(lost) > 10 else "")
+                + ("; no valid (year, seed) pairs" if d.empty else ""))
         if d.empty:
             raise ValueError(f"no valid (year, seed) pairs for {a!r} vs {b!r} on {kpi!r}")
         d["diff"] = d["a"] - d["b"]
@@ -209,6 +252,7 @@ class Ensemble:
             "engines": sorted(set(self.runs["engine"])) if len(self.runs) else [],
             "weather_sources": sources,
             "synthetic_weather": any(str(s).startswith("SYNTHETIC") for s in sources),
+            "shape": self.shape_report(),
             "kpis": self.kpi_names,
             "quantiles": q,
             "comparisons": [c.to_dict() for c in self._comparisons],

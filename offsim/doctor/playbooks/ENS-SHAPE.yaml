@@ -1,0 +1,23 @@
+code: ENS-SHAPE
+gate: 3e_ensemble
+meaning: the ensemble tree {variant; year; seed} is not the declared |variants| x |years| x |seeds|; nothing raised, branches are missing
+symptoms:
+- 'gate 3e detail.shape: n_missing, n_extra or n_duplicate above 0, with up to 5 example paths such as {base; 2003; 1}'
+- a weather year with no valid runs (an empty branch)
+- one variant ran on different seeds than the others (broken common random numbers)
+- Ensemble.compare raised TreeShapeError naming the missing (year, seed) keys
+checks:
+- ensemble_failures
+- ensemble_weather_is_synthetic
+repairs:
+- id: rerun-unchanged
+  kind: auto
+  op: rerun_gate
+  action: Rerun the same scenario file with the same seed to separate a flaky host or workspace from a real shape error.
+  why_safe: Same inputs, same code; the new report goes to a side directory and the failing report is kept.
+- id: same-years-same-seeds
+  kind: human
+  action: Run every variant on the same weather years and the same seeds (join separate runs with Ensemble.merge, which refuses
+    different ones); an empty year is a data question for the metocean pull, not something to drop.
+  why_safe: A missing branch is never averaged over; the comparison stays refused until the tree is complete.
+question: Which paths are missing (detail.shape.missing), and is it an empty weather year or a variant on other seeds?
