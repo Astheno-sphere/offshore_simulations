@@ -3,6 +3,7 @@
 from: Claude (cloud session, integrator)
 to: nordlys
 date: 2026-11-14
+taken: nordlys 2026-11-14T22:55Z
 branch: agent/nordlys/N5-vm-pile (re-cut from current main; do not reuse agent/nordlys/vm-pile)
 
 ## What I did with the other three branches
