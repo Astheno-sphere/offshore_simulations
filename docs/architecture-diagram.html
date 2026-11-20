@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Offshore Simulations — System Architecture</title>
+<style>
+  body { margin: 0; background: #E9E8E3; font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1720px; margin: 0 auto; padding: 12px; }
+  svg { width: 100%; height: auto; display: block; background: #F2F1EC; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg viewBox="0 0 1680 1340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="System architecture diagram for the offshore_simulations studio">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#17181A"/>
+    </marker>
+    <marker id="arrTeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1E6B66"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="40" y="54" font-size="30" font-weight="700" fill="#17181A" letter-spacing="1">OFFSHORE SIMULATIONS</text>
+  <text x="40" y="82" font-size="15" fill="#6E6C66">System architecture — one loop: paper → gap → experiment → validate → visualise</text>
+  <text x="1640" y="52" font-size="13" fill="#6E6C66" text-anchor="end">docs/ARCHITECTURE.md · main @ 21db4f7</text>
+  <text x="1640" y="74" font-size="13" fill="#6E6C66" text-anchor="end">drawn 11 Nov 2026, from the code on disk</text>
+
+  <!-- Column headers -->
+  <text x="40" y="120" font-size="12" font-weight="700" fill="#6E6C66" letter-spacing="2">WHAT FEEDS IT</text>
+  <text x="360" y="120" font-size="12" font-weight="700" fill="#6E6C66" letter-spacing="2">THE LOOP</text>
+  <text x="1180" y="120" font-size="12" font-weight="700" fill="#6E6C66" letter-spacing="2">WHAT EACH LAYER PRODUCES</text>
+
+  <!-- ============ L6 RESEARCH ============ -->
+  <rect x="360" y="136" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <line x1="470" y1="136" x2="470" y2="240" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="176" font-size="26" font-weight="700" fill="#17181A">L6</text>
+  <text x="378" y="198" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">RESEARCH</text>
+  <text x="378" y="222" font-size="11" fill="#6E6C66">research-scout</text>
+  <text x="490" y="176" font-size="14" fill="#17181A">offsim.research — feed → tags → gaps.yaml → experiment.yaml</text>
+  <text x="490" y="200" font-size="14" fill="#17181A">offsim.intake — paper → scenario.yaml (page / table sources)</text>
+  <text x="490" y="224" font-size="12" fill="#6E6C66">feed: OpenAlex · Crossref · arXiv · NVA · Brage — weekly, papers.yml</text>
+  <rect x="1180" y="136" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="1200" y="176" font-size="15" font-weight="700" fill="#17181A">gaps.yaml · experiment.yaml</text>
+  <text x="1200" y="200" font-size="13" fill="#17181A">scenario.yaml</text>
+  <text x="1200" y="224" font-size="12.5" fill="#6E6C66">feed works (Crossref, 49 records) · <tspan fill="#A86A12">OpenAlex 429s from this VM</tspan></text>
+
+  <!-- arrow L6 -> L0 -->
+  <line x1="720" y1="244" x2="720" y2="250" stroke="#17181A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ L0 DATA ============ -->
+  <rect x="360" y="256" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <line x1="470" y1="256" x2="470" y2="360" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="296" font-size="26" font-weight="700" fill="#17181A">L0</text>
+  <text x="378" y="318" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">DATA</text>
+  <text x="378" y="342" font-size="11" fill="#6E6C66">worlds v2</text>
+  <text x="490" y="292" font-size="14" fill="#17181A">offsim.worlds — OSM · coast · sealanes · depth · roads · place</text>
+  <text x="490" y="316" font-size="14" fill="#17181A">offsim.weather — NORA3 · NorKyst</text>
+  <text x="490" y="340" font-size="14" fill="#17181A">offsim.traffic — AIS (HAIS, BarentsWatch) · offsim.transit — Entur GTFS</text>
+  <rect x="1180" y="256" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="1200" y="296" font-size="15" font-weight="700" fill="#17181A">World · WeatherSeries</text>
+  <text x="1200" y="320" font-size="13" fill="#17181A">land · sea lanes · ports · hourly wind / waves</text>
+  <text x="1200" y="344" font-size="12.5" fill="#6E6C66">Bergen: 1 of 24 winters · <tspan fill="#A83226">THREDDS down till 12 Nov 10:00 CET</tspan></text>
+
+  <!-- arrow L0 -> L1 -->
+  <line x1="720" y1="364" x2="720" y2="370" stroke="#17181A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ L1 SOLVE ============ -->
+  <rect x="360" y="376" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <line x1="470" y1="376" x2="470" y2="480" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="416" font-size="26" font-weight="700" fill="#17181A">L1</text>
+  <text x="378" y="438" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">SOLVE</text>
+  <text x="378" y="462" font-size="11" fill="#6E6C66">opt-model</text>
+  <text x="490" y="416" font-size="14" fill="#17181A">offsim.solve — pyvrp · pyomo + HiGHS · ampl (Actions / laptop)</text>
+  <text x="490" y="440" font-size="14" fill="#17181A">ortools — later · whelp (WFPPP) lives on the wip branch, not merged</text>
+  <text x="490" y="464" font-size="12" fill="#6E6C66">registry: solvers register by name, imported lazily</text>
+  <rect x="1180" y="376" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="1200" y="416" font-size="15" font-weight="700" fill="#17181A">Problem → Plan</text>
+  <text x="1200" y="440" font-size="13" fill="#17181A">routes per agent · objective + bound · status</text>
+  <text x="1200" y="464" font-size="12.5" fill="#6E6C66">pyvrp + pyomo verified · <tspan fill="#A86A12">AMPL never called live</tspan></text>
+
+  <!-- arrow L1 -> L2 -->
+  <line x1="720" y1="484" x2="720" y2="490" stroke="#17181A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ L2 SIMULATE ============ -->
+  <rect x="360" y="496" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <line x1="470" y1="496" x2="470" y2="600" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="536" font-size="26" font-weight="700" fill="#17181A">L2</text>
+  <text x="378" y="558" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">SIMULATE</text>
+  <text x="378" y="582" font-size="11" fill="#6E6C66">sim-engineer</text>
+  <text x="490" y="536" font-size="14" fill="#17181A">offsim.engines — replay (SimPy) · road · gtfs · openclsim · wombat · orbit</text>
+  <text x="490" y="560" font-size="14" fill="#17181A">air engine (helicopter, weather-gated) — on the wip branch, not merged</text>
+  <text x="490" y="584" font-size="12" fill="#6E6C66">engines register by name · a missing optional tool breaks only itself</text>
+  <rect x="1180" y="496" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="1200" y="536" font-size="15" font-weight="700" fill="#17181A">SimResult</text>
+  <text x="1200" y="560" font-size="13" fill="#17181A">trajectory contract · agents · events · KPIs · seed</text>
+  <text x="1200" y="584" font-size="12.5" fill="#6E6C66">replay · road · gtfs run on real data</text>
+
+  <!-- arrow L2 -> L3 -->
+  <line x1="720" y1="604" x2="720" y2="610" stroke="#17181A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ L3 ENSEMBLE ============ -->
+  <rect x="360" y="616" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <line x1="470" y1="616" x2="470" y2="720" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="656" font-size="26" font-weight="700" fill="#17181A">L3</text>
+  <text x="378" y="678" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">ENSEMBLE</text>
+  <text x="378" y="702" font-size="11" fill="#6E6C66">sim-engineer</text>
+  <text x="490" y="656" font-size="14" fill="#17181A">offsim.montecarlo — N weather years × seeds × variants</text>
+  <text x="490" y="680" font-size="14" fill="#17181A">common random numbers · paired comparisons</text>
+  <text x="490" y="704" font-size="12" fill="#6E6C66">decision rule pre-registered: supported · not supported · inconclusive</text>
+  <rect x="1180" y="616" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="1200" y="656" font-size="15" font-weight="700" fill="#17181A">Ensemble → report[“ensemble”]</text>
+  <text x="1200" y="680" font-size="13" fill="#17181A">runs table · quantiles · P10–P90 bands</text>
+  <text x="1200" y="704" font-size="12.5" fill="#6E6C66">wired — <tspan fill="#A86A12">real run not started, waits on winters</tspan></text>
+
+  <!-- arrow L3 -> L4 -->
+  <line x1="720" y1="724" x2="720" y2="730" stroke="#17181A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ L4 VALIDATE ============ -->
+  <rect x="360" y="736" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="2.5"/>
+  <line x1="470" y1="736" x2="470" y2="840" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="776" font-size="26" font-weight="700" fill="#17181A">L4</text>
+  <text x="378" y="798" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">VALIDATE</text>
+  <text x="378" y="822" font-size="11" fill="#6E6C66">sim-corrector</text>
+  <text x="490" y="776" font-size="14" fill="#17181A">offsim.pipeline + offsim.contract — gates 0–4 · 4b AIS · 4c Entur</text>
+  <text x="490" y="800" font-size="14" fill="#17181A">scene.py refuses anything that failed a gate</text>
+  <text x="490" y="824" font-size="12" fill="#6E6C66">corrector compares the run against the paper’s table, can stop anything</text>
+  <rect x="1180" y="736" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="2.5"/>
+  <text x="1200" y="776" font-size="15" font-weight="700" fill="#17181A">report.json</text>
+  <text x="1200" y="800" font-size="13" fill="#17181A">the single source of truth for every number on screen</text>
+  <text x="1200" y="824" font-size="12.5" fill="#6E6C66">gates pass on demo + Molde · <tspan fill="#A83226">Ghia fails → section DRAFT</tspan></text>
+
+  <!-- arrow L4 -> L5 -->
+  <line x1="720" y1="844" x2="720" y2="850" stroke="#17181A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ L5 PRESENT ============ -->
+  <rect x="360" y="856" width="720" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <line x1="470" y1="856" x2="470" y2="960" stroke="#17181A" stroke-width="1"/>
+  <text x="378" y="896" font-size="26" font-weight="700" fill="#17181A">L5</text>
+  <text x="378" y="918" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">PRESENT</text>
+  <text x="378" y="942" font-size="11" fill="#6E6C66">visual-director</text>
+  <text x="490" y="892" font-size="14" fill="#17181A">offsim.scene → render_deck (deck.gl) · motion — mappanel · section · diptych</text>
+  <text x="490" y="916" font-size="14" fill="#17181A">cinema — camera · vessel · draw · narrate · physics — fluid2d · ocean · streaks</text>
+  <text x="490" y="940" font-size="14" fill="#17181A">assets/cad — psv · s92 · aw189 · bus · publish (muse.ai)</text>
+  <rect x="1180" y="856" width="380" height="104" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="1200" y="896" font-size="15" font-weight="700" fill="#17181A">film + post</text>
+  <text x="1200" y="920" font-size="13" fill="#17181A">map shot · distribution shot · headline card</text>
+  <text x="1200" y="944" font-size="12.5" fill="#6E6C66">v10 shipped · <tspan fill="#A86A12">s92 / aw189 CAD dims fail QA</tspan></text>
+
+  <!-- Return arrow: L5 -> L6, channel between spine and produces column -->
+  <path d="M 1080 908 L 1130 908 L 1130 188 L 1080 188" fill="none" stroke="#1E6B66" stroke-width="2" marker-end="url(#arrTeal)"/>
+  <text x="1150" y="560" font-size="12" font-weight="700" fill="#1E6B66" letter-spacing="1" transform="rotate(-90 1150 560)" text-anchor="middle">THE FILM + THE PUBLIC QUESTION → THE NEXT PAPER</text>
+
+  <!-- ============ LEFT RAIL ============ -->
+  <!-- What feeds it -->
+  <rect x="40" y="136" width="290" height="316" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="58" y="166" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">SOURCES</text>
+  <text x="58" y="192" font-size="13.5" fill="#17181A">Papers — your uploads (Gribkovskaia · Nafstad · Ji)</text>
+  <text x="58" y="214" font-size="13.5" fill="#17181A">OSM coastline — Overpass POST <tspan fill="#1E6B66">✓</tspan></text>
+  <text x="58" y="236" font-size="13.5" fill="#17181A">Geofabrik Norway PBF <tspan fill="#1E6B66">✓</tspan></text>
+  <text x="58" y="258" font-size="13.5" fill="#17181A">EMODnet depth <tspan fill="#1E6B66">✓</tspan></text>
+  <text x="58" y="280" font-size="13.5" fill="#17181A">Kartverket DTM10 — <tspan fill="#A86A12">not landed</tspan></text>
+  <text x="58" y="302" font-size="13.5" fill="#17181A">MET NORA3 wind / waves — <tspan fill="#A83226">down</tspan></text>
+  <text x="58" y="324" font-size="13.5" fill="#17181A">NorKyst v3 currents <tspan fill="#1E6B66">✓</tspan></text>
+  <text x="58" y="346" font-size="13.5" fill="#17181A">Entur GTFS (NLOD) <tspan fill="#1E6B66">✓</tspan></text>
+  <text x="58" y="368" font-size="13.5" fill="#17181A">Sodir FactMaps, layer 304 <tspan fill="#1E6B66">✓</tspan></text>
+  <text x="58" y="390" font-size="13.5" fill="#17181A">AIS — HAIS · BarentsWatch <tspan fill="#A86A12">gate 4b, not run yet</tspan></text>
+  <text x="58" y="424" font-size="12" fill="#6E6C66">Your GeoJSON beats OSM when you have it.</text>
+  <text x="58" y="442" font-size="12" fill="#6E6C66">Every layer carries src + licence.</text>
+
+  <!-- How you run it -->
+  <rect x="40" y="468" width="290" height="200" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="58" y="498" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">HOW YOU RUN IT</text>
+  <text x="58" y="524" font-size="13.5" font-family="ui-monospace, monospace" fill="#17181A">offsim run</text>
+  <text x="58" y="546" font-size="12.5" fill="#6E6C66">gates 0–4 → report.json</text>
+  <text x="58" y="570" font-size="13.5" font-family="ui-monospace, monospace" fill="#17181A">offsim story</text>
+  <text x="58" y="592" font-size="12.5" fill="#6E6C66">storyboard → film</text>
+  <text x="58" y="616" font-size="13.5" font-family="ui-monospace, monospace" fill="#17181A">tools/section_film.py</text>
+  <text x="58" y="638" font-size="13.5" font-family="ui-monospace, monospace" fill="#17181A">tools/molde_film.py · tools/cad_sprites.py</text>
+
+  <!-- Skills -->
+  <rect x="40" y="684" width="290" height="276" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="58" y="714" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">SKILLS → LAYERS</text>
+  <text x="58" y="740" font-size="13.5" fill="#17181A">research-scout → L6</text>
+  <text x="58" y="762" font-size="13.5" fill="#17181A">paper-extract → L6 → L1</text>
+  <text x="58" y="784" font-size="13.5" fill="#17181A">opt-model → L1</text>
+  <text x="58" y="806" font-size="13.5" fill="#17181A">sim-engineer → L2 – L3</text>
+  <text x="58" y="828" font-size="13.5" fill="#17181A">sim-corrector → L4</text>
+  <text x="58" y="850" font-size="13.5" fill="#17181A">visual-director → L5</text>
+  <text x="58" y="872" font-size="13.5" fill="#17181A">sim-narrator → L5</text>
+  <text x="58" y="894" font-size="13.5" fill="#17181A">tool-scout → all layers</text>
+  <text x="58" y="928" font-size="12" fill="#6E6C66">catalog/tools.yaml — 159 tools,</text>
+  <text x="58" y="946" font-size="12" fill="#6E6C66">54 pulled (wip branch count)</text>
+
+  <!-- ============ BOTTOM STRIP ============ -->
+  <!-- Where it runs -->
+  <rect x="40" y="990" width="780" height="240" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="58" y="1022" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">WHERE IT RUNS</text>
+  <text x="58" y="1052" font-size="13" font-weight="700" fill="#17181A">THIS VM</text>
+  <text x="58" y="1076" font-size="12.5" fill="#17181A">suite + renders + local fetch</text>
+  <text x="58" y="1098" font-size="12.5" fill="#17181A">Blender 4.2 · OpenFOAM 13 · cadquery</text>
+  <text x="58" y="1120" font-size="12.5" fill="#17181A">skia films · venv-studio</text>
+  <text x="330" y="1052" font-size="13" font-weight="700" fill="#17181A">GITHUB ACTIONS</text>
+  <text x="330" y="1076" font-size="12.5" fill="#17181A">fetch-world → world releases</text>
+  <text x="330" y="1098" font-size="12.5" fill="#17181A">solve.yml (AMPL) · papers feed weekly</text>
+  <text x="330" y="1120" font-size="12.5" fill="#17181A">render / film workflows</text>
+  <text x="600" y="1052" font-size="13" font-weight="700" fill="#17181A">YOUR LAPTOP</text>
+  <text x="600" y="1076" font-size="12.5" fill="#17181A">AMPL via ampl_mcp</text>
+  <text x="600" y="1098" font-size="12.5" fill="#17181A">your pushes · the thesis machine</text>
+  <text x="58" y="1168" font-size="12.5" fill="#6E6C66">The doc says data comes only via Actions. In practice you said “use your</text>
+  <text x="58" y="1188" font-size="12.5" fill="#6E6C66">compute” — so this VM fetches too. You outrank the doc.</text>
+  <text x="58" y="1214" font-size="12.5" fill="#17181A">Rule: a layer calls only layers below it — enforced by tests/test_architecture.py.</text>
+
+  <!-- State right now -->
+  <rect x="850" y="990" width="790" height="240" fill="#FCFBF8" stroke="#17181A" stroke-width="1.5"/>
+  <text x="868" y="1022" font-size="12" font-weight="700" fill="#17181A" letter-spacing="1">STATE RIGHT NOW — 11 NOV 2026</text>
+  <text x="868" y="1052" font-size="13.5" fill="#17181A">• THREDDS maintenance — winters 1 of 24 · recheck 12 Nov 10:30 CET</text>
+  <text x="868" y="1078" font-size="13.5" fill="#17181A">• CI red on the wip branch — the apt step, not the tests</text>
+  <text x="868" y="1104" font-size="13.5" fill="#17181A">• tests.yml unsynced — the App lacks the workflows permission</text>
+  <text x="868" y="1130" font-size="13.5" fill="#17181A">• Ghia 1982 fails — every section number stays DRAFT</text>
+  <text x="868" y="1156" font-size="13.5" fill="#17181A">• AMPL — licence ready, never called live from here</text>
+  <text x="868" y="1182" font-size="13.5" fill="#17181A">• Suite: 399 passed, 3 skipped (main) · CAD: s92 / aw189 dims fail QA</text>
+  <text x="868" y="1214" font-size="12.5" fill="#6E6C66">What is not on this diagram: the wip branch (whelp · air engine · WFPPP) — not merged.</text>
+
+  <!-- Footer -->
+  <text x="40" y="1268" font-size="12.5" fill="#6E6C66">One loop, seven layers, one rule: nothing renders until the gates pass, and no number reaches the screen except through report.json.</text>
+  <text x="40" y="1290" font-size="12.5" fill="#6E6C66">L5 reads report.json and trajectory files — never a solver or an engine. That is the whole architecture.</text>
+</svg>
+</div>
+</body>
+</html>
