@@ -4,6 +4,7 @@ intervention stills PASS it. The physical margins asserted here are the ones coo
 import copy
 import json
 import math
+import shutil
 import sys
 from pathlib import Path
 
@@ -416,3 +417,16 @@ def test_dry_run_frame_builds_from_report_refs_and_passes_the_gate():
     assert res["draft"] and "DRAFT" in res["text"]["kicker"]
     assert [round(c.u10, 3) for c in res["cases"]][0] < [round(c.u10, 3) for c in res["cases"]][1]
     assert ok, why
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="needs ffmpeg")
+def test_render_intervention_shot_writes_mp4(tmp_path):
+    """The film assembly V1 did not ship: story.build() had no shot_intervention, so `offsim film`
+    refused an intervention storyboard. Quick mode renders one frame and encodes it (why: this test
+    exists to pin the render path, not the physics — the stills tests already cover the solve)."""
+    import yaml
+    sb = yaml.safe_load(SB.read_text())
+    rep = {"gates": {"0_provenance": {"pass": True}}, "measured": {"flights_planned": 19.0}, "status": "x"}
+    out = tmp_path / "i.mp4"
+    iv.render_intervention_shot(sb["shots"][0], sb, out, 30, rep, quick=True, log=lambda *_: None)
+    assert out.exists() and out.stat().st_size > 0 and not (tmp_path / "i_frames").exists()

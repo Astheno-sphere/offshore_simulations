@@ -798,6 +798,35 @@ def run_intervention(shot, sb=None, report=None, out_dir=".", times=None, quick=
             "cases": cases, "view": view}
 
 
+def render_intervention_shot(shot, sb, out_mp4, fps=30, report=None, frames_dir=None, keep_frames=False,
+                             quick=False, log=print):
+    """Render an intervention shot to out_mp4. quick = one frame (the dry-run proof path); otherwise every
+    frame of shot['seconds'] at fps. This is the film assembly V1 did not ship: story.build() had no
+    shot_intervention, so `offsim film` refused an intervention storyboard with a KeyError.
+
+    Frames are named intervention_<act>_<fidx>.png, so they cannot be fed to ffmpeg as a numbered
+    sequence; they are symlinked into f%04d.png order (run_intervention's frame list is already in
+    film order) and encoded with the same flags as section.encode.
+    """
+    import shutil
+
+    from offsim.motion.section import encode
+
+    out = Path(out_mp4)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fd = Path(frames_dir) if frames_dir else out.with_suffix("").with_name(out.stem + "_frames")
+    sec = float(shot["seconds"])
+    times = None if quick else [i / fps for i in range(int(round(sec * fps)))]
+    res = run_intervention(shot, sb, report, fd, times=times, quick=quick, log=log)
+    for i, p in enumerate(res["frames"]):
+        (fd / f"f{i:04d}.png").symlink_to(Path(p).resolve())
+    encode(fd, out, fps)
+    if not keep_frames:
+        shutil.rmtree(fd, ignore_errors=True)
+    log(f"{out} {len(res['frames'])} frames, spin-up {res['timing']['spin_up_s']:.1f} s")
+    return res
+
+
 def gate_frame(img, texts, meta, strict=False):
     """Run the visual gate on a delivered 1080 x 1350 frame as kind `intervention`. Returns (ok, reasons, report)."""
     from offsim.cinema import visual_gate as vg
