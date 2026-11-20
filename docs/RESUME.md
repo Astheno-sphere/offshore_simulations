@@ -454,3 +454,12 @@ Interrupted and recovered: the depth builder hit the sub-agent rate limit; its u
 3. Add `weather: {wind: nora3_wind, wave: nora3_wave, particles: 2500}` to the demo map shot; dry-run; review a still.
 4. Actions → **film** on the demo storyboard (add secret `MUSE_AI_KEY` to upload) → review the MP4.
 5. First paper (PSV supply routing) via `paper-extract` → `offsim run`.
+
+## 2026-11-21 — AMPL on Actions; four solvers agree (integrator)
+
+- Cloud session can dispatch workflows and read logs (not download artifacts).
+- `solve` on a hosted runner, AMPL + HiGHS with the academic licence: demo-oslofjord-supply optimal, 114.64 km,
+  2 routes, equal to PyVRP, Pyomo and OR-Tools. `test_ampl.py` 20 passed, 14 skipped (no `mcp` in the job; fixed).
+- `live-check` on a hosted runner: 15 ok / 1 fail / 1 skip. AMPL ok. BarentsWatch skipped (BW_CLIENT_ID not seen
+  by the job), OFFSIM_MAILTO not set as a variable, runner probe needed libEGL (fixed).
+- Broadcast written to the nordlys, desktop and claude inboxes.

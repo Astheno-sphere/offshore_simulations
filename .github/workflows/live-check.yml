@@ -44,7 +44,10 @@ jobs:
           cache: pip
 
       - name: Install
-        run: pip install pyyaml amplpy
+        run: |
+          # the runner probe checks that skia and OCP import, which needs the GL/EGL and fontconfig libraries
+          sudo apt-get -o Acquire::Retries=3 update -q && sudo apt-get install -y -q --fix-missing libegl1 libgl1 libfontconfig1
+          pip install pyyaml amplpy skia-python==144.1 cadquery-ocp==7.9.3.1.1
 
       - name: AMPL solver module (only when the secret exists; the ampl probe is skipped otherwise)
         env:

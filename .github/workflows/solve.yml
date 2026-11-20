@@ -38,7 +38,7 @@ jobs:
         with: {python-version: "3.12", cache: pip}
       - name: Install Python packages
         run: |
-          pip install -r requirements.txt amplpy
+          pip install -r requirements.txt amplpy mcp
       - name: Check licence secret
         env:
           AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
