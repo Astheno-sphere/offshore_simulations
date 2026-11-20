@@ -52,7 +52,13 @@ jobs:
       - name: Activate AMPL licence
         env:
           AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
-        run: python -m amplpy.modules activate "$AMPL_LICENSE_UUID"
+          AMPL_LICENSE_FILE: ${{ secrets.AMPL_LICENSE_FILE }}
+        run: |
+          python -m amplpy.modules activate "$AMPL_LICENSE_UUID"
+          if [ -n "$AMPL_LICENSE_FILE" ]; then
+            printf '%s' "$AMPL_LICENSE_FILE" > "$(python -c 'import ampl_module_base, os; print(os.path.join(os.path.dirname(ampl_module_base.__file__), "bin", "ampl.lic"))')"
+            echo "licence file written as backup"
+          fi
       - name: AMPL tests (real solve runs here)
         run: python -m pytest -q -rs tests/test_ampl.py
       - name: Solve
