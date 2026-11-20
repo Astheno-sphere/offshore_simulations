@@ -2,10 +2,10 @@
   "mcpServers": {
     "ampl": {
       "type": "stdio",
-      "command": "python",
+      "command": ".venv-ampl/Scripts/python.exe",
       "args": ["tools/ampl_mcp/server.py"],
       "env": {
-        "AMPL_MCP_ROOTS": "offsim/solve/ampl:offsim/papers"
+        "AMPL_MCP_ROOTS": "offsim/solve/ampl;offsim/papers"
       }
     },
     "entur-journey-planner": {

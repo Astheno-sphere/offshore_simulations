@@ -12,3 +12,4 @@ offsim/motion/node_modules/
 *.lic
 ampl.lic
 ampl.env
+.venv-ampl/
