@@ -4,6 +4,62 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-20 — channel sync: no actor pushed; J2 (harness hooks) arrived on main and is verified. 974 pass, 22 skip (this box, CI-shaped).
+
+Scheduled integrator run, nobody watching. **No actor pushed anything, a third sync in a row.**
+`coordination/inbox/claude/` empty; no new branch or commit from any of the three actors since the 11-18
+sync: `agent/nordlys/vm-pile` still 8a08fa6 under the 11-14 refusal, `live/status` still 1ca411d (11-16, and
+by design never carried on main), `wip/cad-assets-heli` still 41389a1 (spent). Nordlys silent seven days with
+nine open inbox items; the laptop silent five days. Both scheduled workflows are Monday-only, so nothing was
+due since 11-16. **Nothing merged here, nothing refused.**
+
+**What is new on main came from Arshad, not an agent**: `cbac150` + merge `05f9251` on 11-19, J2 — five
+harness hooks (`tools/hooks/gate.py`, `.claude/settings.json`, `docs/HOOKS.md`, `tests/test_hooks_gate.py`,
+6 rows in `docs/GUARDS.md`, AGENTS.md item 5, THIRD_PARTY_NOTICES.md). It was pushed straight to main without
+a sync, so this run reviewed it after the fact instead of before.
+
+Verified here against the code, not the report: the range is **931 insertions, 0 deleted lines** across 8
+files — no existing test edited, nothing under `out/` or `data/`, no `offsim/cinema/rules.py`, no golden
+frame, no tolerance, no sourced value, no catalog status. Grepped every added line for a UUID literal: none,
+so the hook's own patterns carry no secret. Probed `gate.py` on stdin: H1 blocks `Write` to
+`out/demo/report.json`, H3 blocks `git add out/...`, H4 blocks a licence-shaped UUID and prints only "a
+secret-shaped string is present" (no echo), and the legitimate twin `cat out/demo/report.json` passes
+(exit 0). The report's claim of 984 pass / 12 skip is consistent with this box's 974 pass / 22 skip — the
+10-test difference is manimpango (will not build here) and `metocean-api` (deliberately absent, per the
+11-18 decision still being open). Full suite: **974 passed, 22 skipped, exit 0**.
+
+**This run's finding, and it is a hole in the guard itself: H2 does not see `git merge`.** H2 keeps
+`rules.py`, `visual_gate.py`, `tests/golden/*` and scenario `reported:`/tolerance lines on an
+`agent/<who>/<id>` branch and makes a `git commit` that modifies one of them carry a `why:` line. Probed on
+main: an *Edit* of `rules.py` is blocked (correctly), but `git merge --no-ff agent/... -m "Merge N3"` passes
+with exit 0 and no `why:` required. That is exactly the integrator's path, and exactly where the `why:` lines
+have in practice been written — the 11-14 N3 merge put four of them in the merge commit precisely because the
+branch commits had empty bodies. So the one route by which a golden frame or a tolerance actually reaches
+main is the one route H2 does not check. Not a refusal; recorded as audit 10 material. The matching nuisance:
+the integrator on `main` or `wip/*` cannot touch those files at all without `OFFSIM_HOOKS_OFF=H2`, which the
+J2 report already states.
+
+**Notes written** (no reply was owed, so these are pointers, not tasks):
+`coordination/inbox/nordlys/20261120-N10-hooks-live-on-main.md` — H2 and H5 are what will bite the
+intervention-render work; `agent/nordlys/*` already satisfies H2's branch rule.
+`coordination/inbox/desktop/20261120-D4-hooks-live-and-python3.md` — J2 states the hook fails **open** where
+`python3` is not on PATH ("some Windows laptops"), i.e. H4 silently stops guarding on the one box that holds
+the licence. One line asked back: `python3 --version` in the shell that session uses.
+
+**For Arshad to decide.** Unchanged and still unanswered from 11-18, and it is the one thing this run cannot
+settle: whether `metocean-api` goes into `tests.yml` and the Dockerfile, or whether the NORA3 point-series
+backend is accepted in writing as CI-untested. With the marker added on 11-18 those nine end-to-end tests now
+skip on every runner and in the image; skipping is not proving. Audit 9's tree-provenance decision (a species
+default at a published bound: sourced, or assumption?) is also still open, and `pine`/`birch` still hold the
+other convention three lines from `spruce`.
+
+**Blocked, and on whom.** Arshad, unchanged for five runs: `BW_CLIENT_ID`, `BW_CLIENT_SECRET`,
+`AMPL_LICENSE_UUID`, `OFFSIM_MAILTO` and the dispatch PAT. Nordlys: N4 then N5-N7, seven days silent. The
+laptop: the two D1 objectives, five days silent, and now the `python3` check. The `runner` probe's
+`libegl1 / skia / OCP` failure from 11-17 still stands unexamined. `tests/test_intake.py` still dirties
+`tests/fixtures/intake/synthetic_paper.pdf` on every suite run; restored by hand again here — five sessions
+have now paid for that one, and it is a two-line fix (write to `tmp_path`).
+
 ## 2026-11-18 — channel sync: nobody pushed; main's CI has been red since 11-12 and is now fixed. 913 pass, 22 skip (CI-shaped env).
 
 Scheduled integrator run, nobody watching. **No actor pushed anything, again.** `coordination/inbox/claude/`

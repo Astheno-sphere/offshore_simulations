@@ -251,3 +251,32 @@ Two things follow, and the second needs a human.
   which case the tree asset is not film-eligible until a real specimen is measured, and `tree` goes back to
   `built`. Both are defensible. Leaving it undecided is not: the next agent will read the spruce lines as
   precedent.
+
+## Audit 10 (channel sync, 2026-11-20) — the guard that holds every path but the integrator's
+
+**H2 does not see `git merge`.** J2 (merged 11-19) added hook H2 so that `offsim/cinema/rules.py`,
+`offsim/cinema/visual_gate.py`, `tests/golden/*` and scenario `reported:` / tolerance lines can be written
+only on an `agent/<who>/<id>` branch, and so that a `git commit` modifying one of them must carry a `why:`
+line. Probed on main this run: an `Edit` of `rules.py` is blocked as designed, but
+`git merge --no-ff agent/<who>/<id> -m "Merge <id>"` passes with exit 0, no branch check and no `why:`
+required, and so does a plain `git commit` whose protected paths arrive through a merge rather than an edit.
+
+Why that is the wrong gap to have. A golden frame, a tolerance or a number in `rules.py` does not reach main
+by being edited on main — it reaches main by being merged from the branch where it was legitimately edited.
+The `why:` line is the record of *why* the accepted value moved, and in practice it has been written in the
+merge commit, not the branch commit: the 11-14 N3 merge carried four such lines for exactly that reason,
+because the branch commits said `(why: in commit)` with empty bodies. So the only route by which these files
+actually change on main is the only route H2 does not inspect.
+
+Not a reason to revert J2: H1, H3, H4 and H5 were probed working, H2 is correct on the direct-edit path, and
+nothing here is a secret or a fitted number. It is a reason not to read a green hook run as proof that a
+tolerance change was justified.
+
+Two things follow, and the second needs a human.
+- The visible symptom: the integrator cannot touch those files on `main` or `wip/*` at all (blocked by H2),
+  yet can bring any change to them onto main through a merge with no `why:` at all. The strict half and the
+  open half are the wrong way round.
+- The decision: either H2 grows a merge case (inspect the paths the merge would change, require a `why:`
+  line in the merge message, which is already the convention) and the integrator gets a narrow allowance for
+  those paths on an integration branch — or the `why:` discipline for merges is accepted as convention only,
+  unenforced, and `docs/GUARDS.md` says so in the row rather than implying the hook covers it.
