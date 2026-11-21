@@ -463,3 +463,56 @@ Interrupted and recovered: the depth builder hit the sub-agent rate limit; its u
 - `live-check` on a hosted runner: 15 ok / 1 fail / 1 skip. AMPL ok. BarentsWatch skipped (BW_CLIENT_ID not seen
   by the job), OFFSIM_MAILTO not set as a variable, runner probe needed libEGL (fixed).
 - Broadcast written to the nordlys, desktop and claude inboxes.
+
+## 2026-11-21 — channel sync: eight of Nordlys's nine branches merged, N5a refused (integrator)
+
+Suite on merged main: **938 passed, 27 skipped, 0 failed**. This workspace was fresh, so main did not
+even collect until `pyvrp`, `shapely`, `geopandas`, `ortools`, `skia-python`, `cadquery` and `openclsim`
+were installed from the requirements files — the 11 "failures" on first run were all missing `openclsim`.
+
+**Merged (8):**
+- **A9** — Nordlys's reply to Audit 9: `src` means the VALUE is stated in the source, not merely inside a
+  cited interval. Doc-only; `land.py` untouched. Spruce height 30 m keeps `src` (cited floor), crown 8.4 m
+  does not survive the rule (interior to 7.6–13.7). **Awaits Arshad's one-word decision** — the rule +
+  crown relabel, or one of Fable's two options.
+- **N4** — winter stress test: the weekly program replayed against 24 DJF winters, 1560 operating days,
+  121 infeasible (7.8%), P90 unmet flights/week = 1.0, **exactly at the pre-registered ≤1 boundary**.
+  Limits (wind 25 m/s, Hs 6.0 m) and B positions carried as `limits_assumption`/`positions_assumption`
+  true — compliant, unsourced, not reportable as sourced. Paper variant under Table 4 windows
+  [16,14,10,10] is **infeasible** at stage 2: a model discrepancy, same family as Audit 8's fleet
+  disagreement, not a driver bug and not to be widened away. 4.3 MB point series stays local (no release
+  tool here).
+- **N5** — intervention film: the invented headline ("THE S-92 MAKES ITS OWN WIND") replaced by one
+  derived from the measurement ("DECK WIND FALLS AS THE S-92 LEAVES", Arshad's call, recorded in the
+  report), plus the missing `shot_intervention` render path so `offsim film` stops raising KeyError. Test
+  added, none edited. Film rendered on the VM, DRAFT/synthetic, not posted.
+- **N5b** — Nafstad 2021: extraction renamed off `scenario.yaml` to `extraction.yaml` (Fable's refusal
+  reason 1 closed — nothing now occupies the pipeline path with zero `src:` keys). Table 3 verdict
+  **PARTIAL**: trip-based 0.00% on all six, criterion 4 fails because her compact model solved where the
+  paper's did not.
+- **N5c** — four loose docs home under `docs/` (AMPL-MCP, HANDOVER-2026-11-11, UPGRADE-REPORT,
+  architecture-diagram.html), each with its staleness mapped rather than edited out.
+- **N6, N7/N8/N9** — four reference-study exams. Reports only; no frame of any reference video committed.
+- **N11** — audited Grasshopper data-trees note, teaching the audited pass, not the first one.
+
+**Refused (1): N5a (film tools).** Seven hardcoded `/home/hatch/...` paths are committed, and
+`tests/test_molde_film_v2.py:21` reads one at **import** time, so pytest aborts collection of the whole
+suite — `FileNotFoundError: /home/hatch/workspace/docs/linkedin/05-molde/v2/measure.json`, 1 error, 5
+skipped, nothing else runs. Its own "880 passed" is true only on the VM, with the untracked symlink and
+copied `report.json` the report itself says must not land. Note with the file:line table in
+`coordination/inbox/nordlys/`. Nothing else about the branch is disputed; the `metadata_uuid` in
+`offsim/worlds/bergen.yaml` is a public Geonorge dataset id, matching three world files already on main.
+
+**Blocked, and on whom:**
+- **Arshad** — the A9 decision (above, one word). `BW_CLIENT_ID` / `BW_CLIENT_SECRET` as Actions secrets
+  under exactly those names, `OFFSIM_MAILTO` as a repository *variable*. Publishing
+  `world-bergen-ncs.zip` as a release asset: no create-release or asset-upload tool exists here, so
+  `fetch_world --pull` and the winter stress test on Actions stay blocked on a human.
+- **Nordlys** — N5a paths.
+- **Claude desktop** — `coordination/reports/D1.md` still does not exist; local AMPL objectives against
+  114 643 m and 9980.4986 remain unreported. No longer blocking anything, since AMPL runs on Actions.
+- **Integrator (me), next sync** — pin `metocean-api` (nowhere in `requirements.txt`/`constraints.txt`,
+  only a comment in `requirements-weather.txt:6`, so `fetch.point_series` is unreachable on a clean
+  image). N4's claim that two metocean tests are unguarded is stale: 21 passed, 10 skipped, 0 failed.
+- Audit 10's H2 merge gap is untouched and still needs the human decision recorded there: these eight
+  merges went in with no `why:` enforcement on the merge path, as Audit 10 predicted.
