@@ -351,6 +351,11 @@ def shot_section(shot, sb, report, fmt, out, fps=30):
     return render_section_shot(normalize(shot), sb, out, fps, report, size=tuple(size(fmt)), strict_map=True)
 
 
+def shot_intervention(shot, sb, report, fmt, out, fps=30, quick=False):
+    from offsim.motion import intervention
+    return intervention.render_intervention_shot(shot, sb, out, fps, report, quick=quick)
+
+
 def shot_findings(shot, sb, report, fmt, out, fps=30):
     from offsim.motion.findings import render_findings_shot
     traj, agents = load_traj(sb)
@@ -434,6 +439,7 @@ def build(storyboard, dry_run=False):
         p = out_dir / f"{i:02d}_{shot_type(shot)}.mp4"
         {"equation": lambda: shot_equation(shot, fmt, p), "map": lambda: shot_map(shot, sb, report, fmt, p),
          "card": lambda: shot_card(shot, sb, report, fmt, p), "section": lambda: shot_section(shot, sb, report, fmt, p),
+         "intervention": lambda: shot_intervention(shot, sb, report, fmt, p),
          "findings": lambda: shot_findings(shot, sb, report, fmt, p)}[shot_type(shot)]()
         parts.append(p)
     final = ROOT / sb["run"] / f"{sb['id']}_{fmt}.mp4"

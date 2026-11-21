@@ -21,11 +21,11 @@ shots:
     kicker_values:
       flights: "report:measured.flights_planned"
     headline:
-      - when: "deck_change_min >= 0.10"
-        text: "THE S-92 MAKES\n|ITS OWN WIND|"
-      - text: "THE S-92 BARELY\n|MOVES THE AIR|"
+      - when: "case0.deck_speed_after < case0.deck_speed_before and case1.deck_speed_after < case1.deck_speed_before"
+        text: "DECK WIND |FALLS|\nAS THE S-92 LEAVES"
+      - text: "DECK WIND |SHIFTS|\nAS THE S-92 LEAVES"
     body:
-      - text: "Held fixed: the platform, the wind and the {measured.flights_planned:.0f}-flight Florø plan.\nVaried: one S-92 on the helideck, rotors turning, then gone."
+      - text: "Held fixed: the platform, the wind and the {measured.flights_planned:.0f}-flight Florø plan.\nVaried: one S-92 on the helideck, rotors turning, then gone.\nDeck wind fell {deck_change_min:.0%}-{case0.deck_change:.0%} of the wind speed when it left."
     chips:
       states: ["S-92 ON DECK", "S-92 LEAVES", "DECK CLEAR"]
     handle: "offshore_simulations"
