@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -51,10 +52,30 @@ SECONDS = 24.0
 NFRAMES = int(SECONDS * FPS)          # 720
 WINDOW_S = 14400.0                    # 06:00-10:00
 
-FILM_DIR = Path("/home/hatch/workspace/docs/linkedin/05-molde/v2")
-MEASURE = json.loads((FILM_DIR / "measure.json").read_text())
-REPORT = json.loads((ROOT / "out/molde-gtfs-replay/report.json").read_text())
-BBOX = REPORT["provenance"]["world_manifest"]["bbox"]  # lon_min, lat_min, lon_max, lat_max
+FILM_DIR = Path(os.environ.get("OFFSIM_FILM_DIR", ROOT / "docs/linkedin")) / "05-molde" / "v2"
+# Nothing is read at import: the measured inputs load on first use, and the
+# tests skip when they are absent (OFFSIM_FILM_DIR unset and no repo-internal
+# docs/linkedin/05-molde/v2). FILM_DIR itself is just a resolved path.
+_measure = None
+_report = None
+
+
+def _load_measure():
+    global _measure
+    if _measure is None:
+        _measure = json.loads((FILM_DIR / "measure.json").read_text())
+    return _measure
+
+
+def _load_report():
+    global _report
+    if _report is None:
+        _report = json.loads((ROOT / "out/molde-gtfs-replay/report.json").read_text())
+    return _report
+
+
+def _bbox():
+    return _load_report()["provenance"]["world_manifest"]["bbox"]  # lon_min, lat_min, lon_max, lat_max
 
 # two modes, two colours, no legend: ferry = gold accent, FRAM bus = palette teal-blue
 FRAM = "#4f8f9c"   # PALETTES["section-plan"]["field_diverging"][0]
@@ -88,7 +109,7 @@ DECK2_RULES = [
 
 
 def narration_values():
-    m, t = MEASURE["totals"], MEASURE
+    m, t = _load_measure()["totals"], _load_measure()
     return {
         "trips": m["trips"],
         "vehicle_km": m["vehicle_km"],
@@ -134,26 +155,30 @@ def _skia_image_rgba(arr):
 
 
 # --- geometry --------------------------------------------------------------------------------
-LAT0 = (BBOX[1] + BBOX[3]) / 2
-KX = 111.32 * np.cos(np.radians(LAT0))   # km per degree lon
 KY = 110.99                               # km per degree lat
 MAP = {"x": 56, "y": 250, "w": 968, "h": 800}   # map panel, 1x coords
-BW_KM = (BBOX[2] - BBOX[0]) * KX
-BH_KM = (BBOX[3] - BBOX[1]) * KY
+_FIT = None  # (scale, ox, oy, kx), computed from the report bbox on first use
 
 
 def _fit():
-    s = min(MAP["w"] / BW_KM, MAP["h"] / BH_KM)   # px per km
-    ox = MAP["x"] + (MAP["w"] - BW_KM * s) / 2
-    oy = MAP["y"] + (MAP["h"] - BH_KM * s) / 2
-    return s, ox, oy
-
-
-SCALE, OX, OY = _fit()
+    global _FIT
+    if _FIT is None:
+        bbox = _bbox()
+        lat0 = (bbox[1] + bbox[3]) / 2
+        kx = 111.32 * np.cos(np.radians(lat0))   # km per degree lon
+        bw_km = (bbox[2] - bbox[0]) * kx
+        bh_km = (bbox[3] - bbox[1]) * KY
+        s = min(MAP["w"] / bw_km, MAP["h"] / bh_km)   # px per km
+        ox = MAP["x"] + (MAP["w"] - bw_km * s) / 2
+        oy = MAP["y"] + (MAP["h"] - bh_km * s) / 2
+        _FIT = (s, ox, oy, kx)
+    return _FIT
 
 
 def to_px(lon, lat):
-    return (OX + (lon - BBOX[0]) * KX * SCALE, OY + (BBOX[3] - lat) * KY * SCALE)
+    s, ox, oy, kx = _fit()
+    bbox = _bbox()
+    return (ox + (lon - bbox[0]) * kx * s, oy + (bbox[3] - lat) * KY * s)
 
 
 def to_local(lon, lat):
@@ -476,7 +501,7 @@ def ferry_label_boxes(probe, labels):
     static base so no street or place label ever sits under them."""
     boxes = []
     for route, (name, (lx, ly)) in labels.items():
-        n = next(r["trips"] for r in MEASURE["ferry_routes"] if r["route"] == route)
+        n = next(r["trips"] for r in _load_measure()["ferry_routes"] if r["route"] == route)
         s = f"FERRY · {name} ×{n}"
         w = probe.measure(s, ("Inter", "Bold"), 14) + 12
         cx, cy = lx - MAP["x"], ly - MAP["y"]
@@ -507,9 +532,10 @@ class Morning:
             t = g.t.values
             self.lon[:, j] = np.interp(self.ft, t, g.lon.values, left=np.nan, right=np.nan)
             self.lat[:, j] = np.interp(self.ft, t, g.lat.values, left=np.nan, right=np.nan)
+        bbox = _bbox()
         self.in_bbox = (
-            (self.lon >= BBOX[0]) & (self.lon <= BBOX[2])
-            & (self.lat >= BBOX[1]) & (self.lat <= BBOX[3])
+            (self.lon >= bbox[0]) & (self.lon <= bbox[2])
+            & (self.lat >= bbox[1]) & (self.lat <= bbox[3])
         )
         self.active = ~np.isnan(self.lon)
         # ferry sailing now (state == 'sail' at the last sample <= frame t)
@@ -585,7 +611,7 @@ def render_frame(m, base_img, labels, deck, f):
     # The labels name the mode themselves — "FERRY · …" — so no legend is needed.
     if f >= 420:
         for route, (name, (lx, ly)) in labels.items():
-            n = next(r["trips"] for r in MEASURE["ferry_routes"] if r["route"] == route)
+            n = next(r["trips"] for r in _load_measure()["ferry_routes"] if r["route"] == route)
             s = f"FERRY · {name} ×{n}"
             w = cv.measure(s, ("Inter", "Bold"), 14)
             cv.polygon([(lx - w / 2 - 6, ly - 4), (lx + w / 2 + 6, ly - 4),
@@ -594,7 +620,7 @@ def render_frame(m, base_img, labels, deck, f):
             _text(cv, lx, ly, s, 14, "Bold", FERRY, anchor="m")
     # scale bar + north arrow on the map (bar on a small ground chip so it never sits on the coast)
     bx, by = MAP["x"] + 16, MAP["y"] + MAP["h"] - 34
-    bar_px = 5 * SCALE
+    bar_px = 5 * _fit()[0]
     cv.polygon([(bx - 8, by - 10), (bx + bar_px + 8, by - 10), (bx + bar_px + 8, by + 16),
                 (bx - 8, by + 16)], fill=P["ground"], alpha=0.85)
     cv.line([(bx, by), (bx + bar_px, by)], P["ink"], 2.0)
@@ -613,7 +639,7 @@ def render_frame(m, base_img, labels, deck, f):
         cv.line([(cx, yy), (cx + cw, yy)], "#4a3236", 1.0)
         _text(cv, cx + cw - 24, yy - 16, f"{v}", 13, "Regular", P["muted"])
     for mode, color in (("ferry", FERRY), ("bus", FRAM)):
-        series = MEASURE["active_series_30s"][mode]
+        series = _load_measure()["active_series_30s"][mode]
         pts = [(cx + cw * i / (len(series) - 1), gy1 - (gy1 - gy0) * v / CHART["ymax"])
                for i, v in enumerate(series)]
         cv.line(pts, color, 2.5)
@@ -621,9 +647,9 @@ def render_frame(m, base_img, labels, deck, f):
         px = cx + cw * peak_i / (len(series) - 1)
         py = gy1 - (gy1 - gy0) * series[peak_i] / CHART["ymax"]
         cv.circle(px, py, 4.5, fill=color)
-        tag = f"{'FERRY' if mode == 'ferry' else 'FRAM'} · PEAK {series[peak_i]} · {MEASURE['peak_by_mode'][mode]['at_clock']}"
+        tag = f"{'FERRY' if mode == 'ferry' else 'FRAM'} · PEAK {series[peak_i]} · {_load_measure()['peak_by_mode'][mode]['at_clock']}"
         _text(cv, px, py - 26, tag, 13, "Bold", color, anchor="m")
-    series = MEASURE["active_series_30s"]["all"]
+    series = _load_measure()["active_series_30s"]["all"]
     now_x = cx + cw * f / (NFRAMES - 1)
     now_v = series[min(int(m.ft[f] / 30), len(series) - 1)]
     now_y = gy1 - (gy1 - gy0) * now_v / CHART["ymax"]

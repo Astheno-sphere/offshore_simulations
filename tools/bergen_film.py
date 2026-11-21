@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -51,9 +52,14 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-RUN = Path("/home/hatch/workspace/docs/linkedin/07-gribkovskaia/run")
-OUTDIR = Path("/home/hatch/workspace/docs/linkedin/07-gribkovskaia")
-SCEN = Path("/home/hatch/workspace/tmp-wip-heli/offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.bergen.yaml")
+# Film inputs are discoverable, not absolute: OFFSIM_FILM_DIR points at the
+# docs/linkedin checkout holding the measured film inputs (07-gribkovskaia,
+# 05-molde, ...); the default is the repo-internal docs/linkedin. Nothing is
+# read at import, and the tests skip when the run dir is absent.
+FILM_ROOT = Path(os.environ.get("OFFSIM_FILM_DIR", ROOT / "docs/linkedin"))
+OUTDIR = FILM_ROOT / "07-gribkovskaia"
+RUN = OUTDIR / "run"
+SCEN = ROOT / "offsim/papers/irinagribkovskaia-2025-tactical-helicopter/scenario.bergen.yaml"
 
 from offsim.cinema.draw import Canvas  # noqa: E402
 from offsim.cinema.look import PALETTES, font_path  # noqa: E402

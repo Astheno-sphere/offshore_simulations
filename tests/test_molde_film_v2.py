@@ -9,19 +9,34 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools.molde_film_v2 import (  # noqa: E402
-    CREDIT, DECK1_RULES, DECK2_RULES, DRAFT, FERRY, FRAM, HEADLINE, LIT_PLACES,
-    METHODS, STREET_LABELS, deck_lines, narration_values,
+    CREDIT, DECK1_RULES, DECK2_RULES, DRAFT, FERRY, FILM_DIR, FRAM, HEADLINE,
+    LIT_PLACES, METHODS, STREET_LABELS, deck_lines, narration_values,
 )
 from offsim.cinema.draw import Canvas  # noqa: E402
 from offsim.motion import narrate  # noqa: E402
 
-FILM_DIR = Path("/home/hatch/workspace/docs/linkedin/05-molde/v2")
 REPO = Path(__file__).resolve().parents[1]
+# Missing measured inputs skip, never error: the film dirs live outside the
+# repo (OFFSIM_FILM_DIR) and the replay report is a local run output.
+_needs_measure = pytest.mark.skipif(
+    not (FILM_DIR / "measure.json").exists()
+    or not (FILM_DIR.parent / "measure.json").exists(),
+    reason="Molde film measure.json not present (set OFFSIM_FILM_DIR)")
+_needs_report = pytest.mark.skipif(
+    not (REPO / "out/molde-gtfs-replay/report.json").exists(),
+    reason="Molde replay report.json not present (out/molde-gtfs-replay/report.json)")
+_needs_placed = pytest.mark.skipif(
+    not (FILM_DIR / "placed.json").exists(),
+    reason="Molde film placed.json not present (set OFFSIM_FILM_DIR)")
 
 
+@_needs_measure
+@_needs_report
 def test_narration_values_match_report():
     v = narration_values()
     rep = json.loads((REPO / "out/molde-gtfs-replay/report.json").read_text())
@@ -33,6 +48,7 @@ def test_narration_values_match_report():
     assert v["ferry_1070_trips"] == 23
 
 
+@_needs_measure
 def test_deck_lines_unchanged_from_v1():
     d1, d2 = deck_lines()
     assert d1 == "289 trips, 5,963 km in 4 hours — peak 67 vehicles at 07:35."
@@ -41,6 +57,7 @@ def test_deck_lines_unchanged_from_v1():
     assert narrate.choose(DECK2_RULES, {**v, "ferry_trips": 10}) != d2
 
 
+@_needs_measure
 def test_per_mode_series_sum_to_all_and_peaks_match():
     m = json.loads((FILM_DIR / "measure.json").read_text())
     s = m["active_series_30s"]
@@ -58,6 +75,7 @@ def test_two_mode_colours_are_distinct_and_from_the_palette():
     assert FERRY == "#e5a028"  # palette accent (gold)
 
 
+@_needs_measure
 def test_every_on_screen_line_fits():
     probe = Canvas(1080, 1350, bg="#331c22", ss=1)
     for line in HEADLINE:
@@ -70,6 +88,8 @@ def test_every_on_screen_line_fits():
     assert "Arshad Abbasia" in CREDIT
 
 
+@_needs_report
+@_needs_placed
 def test_map_labels_come_from_real_tags_inside_the_bbox():
     rep = json.loads((REPO / "out/molde-gtfs-replay/report.json").read_text())
     lon0, lat0, lon1, lat1 = rep["provenance"]["world_manifest"]["bbox"]

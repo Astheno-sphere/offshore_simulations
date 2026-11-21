@@ -21,9 +21,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import bergen_film as B
 
 ROOT = Path(__file__).resolve().parents[1]
-RUN = Path("/home/hatch/workspace/docs/linkedin/07-gribkovskaia/run")
 LAND_WIDE = ROOT / "data/worlds/bergen/land.geojson"  # contract land covers the envelope; see film docstring
 PLACES = ROOT / "data/worlds/bergen/osm/places_bergen.json"
+# Missing measured inputs skip, never error: the run dir lives outside the
+# repo (OFFSIM_FILM_DIR, resolved by bergen_film) and the land polygon is a
+# local world fetch.
+_needs_run = pytest.mark.skipif(
+    not (B.RUN / "run-report.json").exists()
+    or not (B.RUN / "actual-traj.csv").exists()
+    or not (B.RUN / "lean-traj.csv").exists(),
+    reason="Bergen film run not present (set OFFSIM_FILM_DIR)")
+_needs_land = pytest.mark.skipif(
+    not LAND_WIDE.exists(),
+    reason="Bergen land polygon not fetched (data/worlds/bergen/land.geojson)")
 
 
 def _ctx():
@@ -51,10 +61,13 @@ def _run_glide(bbox, w11r, w11t, start=0):
     return g, centres, views
 
 
+@_needs_run
+@_needs_land
 def test_bergen_gates_contract_ok():
     B.gates()  # raises unless contract.validate passes on BOTH trajectories
 
 
+@_needs_run
 def test_bergen_narration_from_measured_report():
     rep = B.load_report()
     deck = B.narration(rep)
@@ -100,6 +113,7 @@ def test_bergen_off_frame_callout_collapses():
     assert len(co2) == 1 and co2[0][3] == "2 HELIS"
 
 
+@_needs_run
 def test_bergen_static_wide_rejected():
     _, _, _, routes, _, _, _, bbox = _ctx()
     import math
@@ -109,6 +123,7 @@ def test_bergen_static_wide_rejected():
     assert fit_px < 0.30 * B.PANEL_W, f"static wide would fit {fit_px:.0f}px, not rejected"
 
 
+@_needs_run
 def test_bergen_camera_envelope_marker_pan():
     if not (LAND_WIDE.exists() and PLACES.exists()):
         pytest.skip("Bergen places not fetched yet (world-fetch/fetch_bergen_places.py)")
@@ -144,6 +159,7 @@ def test_bergen_camera_envelope_marker_pan():
         assert abs(c1[0] - c2[0]) < 1e-9 and abs(c1[1] - c2[1]) < 1e-9
 
 
+@_needs_run
 def test_bergen_strip_covers_envelope():
     if not (LAND_WIDE.exists() and PLACES.exists()):
         pytest.skip("Bergen places not fetched yet (world-fetch/fetch_bergen_places.py)")

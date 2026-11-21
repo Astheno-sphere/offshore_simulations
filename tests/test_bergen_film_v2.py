@@ -24,9 +24,19 @@ import bergen_film as B
 import bergen_film_v2 as B2
 
 ROOT = Path(__file__).resolve().parents[1]
-RUN = Path("/home/hatch/workspace/docs/linkedin/07-gribkovskaia/run")
 LAND_WIDE = ROOT / "data/worlds/bergen/land.geojson"
 PLACES = ROOT / "data/worlds/bergen/osm/places_bergen.json"
+# Missing measured inputs skip, never error: the run dir lives outside the
+# repo (OFFSIM_FILM_DIR, resolved by bergen_film) and the land polygon is a
+# local world fetch.
+_needs_run = pytest.mark.skipif(
+    not (B.RUN / "run-report.json").exists()
+    or not (B.RUN / "actual-traj.csv").exists()
+    or not (B.RUN / "lean-traj.csv").exists(),
+    reason="Bergen film run not present (set OFFSIM_FILM_DIR)")
+_needs_land = pytest.mark.skipif(
+    not LAND_WIDE.exists(),
+    reason="Bergen land polygon not fetched (data/worlds/bergen/land.geojson)")
 
 
 @pytest.fixture(autouse=True)
@@ -134,6 +144,7 @@ def test_v2_map_only_story_routes():
         assert all(a in ("H3-10h", "H2-14h") for a in B2.map_route_agents(beat, "H3-10h"))
 
 
+@_needs_run
 def test_v2_story_route_starts_at_0945():
     # the map beat's headline is 09:45-12:30, but the first version drew from midnight --
     # and H3 flew a southern round trip 07:00-08:40 that made the map read as two routes
@@ -149,6 +160,7 @@ def test_v2_story_route_starts_at_0945():
     assert abs(lon0 - heli[0]) < 0.3 and abs(lat0 - heli[1]) < 0.3
 
 
+@_needs_run
 def test_v2_rebook_is_real_trajectory():
     # the findings rebook leg must be H2's flown trajectory, not the straight chord
     # Flesland->B3 (the chord crossed the landmass and the marker flew off it --
@@ -212,6 +224,7 @@ def test_v2_first_exit():
     assert all("FROZEN" not in v for v in B2.WHERE2.values())
 
 
+@_needs_run
 def test_v2_narration_honesty():
     rep = B.load_report()
     deck = B.narration(rep)
@@ -224,10 +237,13 @@ def test_v2_narration_honesty():
     assert "[draft" not in joined and "Equinor's own optimiser" not in joined
 
 
+@_needs_run
+@_needs_land
 def test_v2_gates_contract_ok():
     B.gates()  # raises unless contract.validate passes on BOTH trajectories
 
 
+@_needs_run
 def test_v2_camera_envelope_marker_pan():
     if not (LAND_WIDE.exists() and PLACES.exists()):
         pytest.skip("Bergen places not fetched yet (world-fetch/fetch_bergen_places.py)")
@@ -274,6 +290,7 @@ def test_v2_camera_envelope_marker_pan():
         assert abs(c1[0] - c2[0]) < 1e-9 and abs(c1[1] - c2[1]) < 1e-9
 
 
+@_needs_run
 def test_v2_renders_section_frame_sea_moves():
     """End-to-end pixel proof: two consecutive section frames differ in the sea region
     (the living sea), while the frame is the right size and non-blank."""
