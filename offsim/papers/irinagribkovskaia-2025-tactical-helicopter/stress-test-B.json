@@ -1,0 +1,3853 @@
+{
+  "method": "replay the same weekly program against every DJF winter; a day is infeasible when >=1 planned flight that day is cancelled",
+  "instance": "bergen",
+  "scale": 1.03438,
+  "point": [
+    3.0,
+    60.6
+  ],
+  "point_dir": "/home/hatch/workspace/tmp-metocean-api/data/worlds/bergen-ncs/metocean_point",
+  "season": "DJF",
+  "years": [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "limits": {
+    "wind_mps": 30.87,
+    "hs_m": 7.0
+  },
+  "limits_assumption": false,
+  "limits_src": "SPA.HOFO.135 wind 60kt incl gusts (Reg (EU) 2016/1199); IOGP AMG App.6 Chart 2 p.142 precautionary Hs 7.0m",
+  "positions_assumption": true,
+  "variants": {
+    "solver": {
+      "windows_h": [
+        16.0,
+        16.0,
+        12.0,
+        10.0
+      ],
+      "objective": 49286.45991129719,
+      "flights_per_week": 93,
+      "wall_s": 2353.4
+    }
+  },
+  "results": {
+    "solver": {
+      "per_winter": [
+        {
+          "year": 2000,
+          "source": "NORA3 DJF 2000/01",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 0,
+          "infeasible_day_list": [],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 0,
+          "flights_rebooked": 0,
+          "flights_unmet": 0,
+          "cancel_causes": {},
+          "delay_h_mean": 0.0,
+          "delay_h_max": 0.0,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2001,
+          "source": "NORA3 DJF 2001/02",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 1,
+          "infeasible_day_list": [
+            "w3d3"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 1,
+          "flights_rebooked": 1,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 1
+          },
+          "delay_h_mean": 25.5,
+          "delay_h_max": 25.5,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.4
+        },
+        {
+          "year": 2002,
+          "source": "NORA3 DJF 2002/03",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 4,
+          "infeasible_day_list": [
+            "w3d1",
+            "w3d2",
+            "w6d3",
+            "w8d4"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 4,
+          "flights_rebooked": 3,
+          "flights_unmet": 1,
+          "cancel_causes": {
+            "hs": 4
+          },
+          "delay_h_mean": 41.833333333333336,
+          "delay_h_max": 50.0,
+          "utilisation": 0.9122679045092839,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 2,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 50.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.4
+        },
+        {
+          "year": 2003,
+          "source": "NORA3 DJF 2003/04",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w4d3",
+            "w12d1"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 3,
+          "flights_rebooked": 3,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 3
+          },
+          "delay_h_mean": 52.25,
+          "delay_h_max": 74.0,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 2,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 65.625
+            }
+          ],
+          "wall_s": 0.5
+        },
+        {
+          "year": 2004,
+          "source": "NORA3 DJF 2004/05",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w4d4",
+            "w6d0"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 2,
+          "flights_rebooked": 1,
+          "flights_unmet": 1,
+          "cancel_causes": {
+            "hs": 2
+          },
+          "delay_h_mean": 25.75,
+          "delay_h_max": 25.75,
+          "utilisation": 0.9122679045092839,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2005,
+          "source": "NORA3 DJF 2005/06",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w5d4",
+            "w7d1"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 2,
+          "flights_rebooked": 1,
+          "flights_unmet": 1,
+          "cancel_causes": {
+            "hs": 2
+          },
+          "delay_h_mean": 9.25,
+          "delay_h_max": 9.25,
+          "utilisation": 0.9122679045092839,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 9.25
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.4
+        },
+        {
+          "year": 2006,
+          "source": "NORA3 DJF 2006/07",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 1,
+          "infeasible_day_list": [
+            "w6d0"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 1,
+          "flights_rebooked": 1,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 1
+          },
+          "delay_h_mean": 25.75,
+          "delay_h_max": 25.75,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2007,
+          "source": "NORA3 DJF 2007/08",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 1,
+          "infeasible_day_list": [
+            "w6d4"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 1,
+          "flights_rebooked": 0,
+          "flights_unmet": 1,
+          "cancel_causes": {
+            "hs": 1
+          },
+          "delay_h_mean": 0.0,
+          "delay_h_max": 0.0,
+          "utilisation": 0.9122679045092839,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2008,
+          "source": "NORA3 DJF 2008/09",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 3,
+          "infeasible_day_list": [
+            "w6d3",
+            "w6d4",
+            "w7d3"
+          ],
+          "days_with_unmet": 2,
+          "flights_planned": 1209,
+          "flights_cancelled": 3,
+          "flights_rebooked": 1,
+          "flights_unmet": 2,
+          "cancel_causes": {
+            "hs": 3
+          },
+          "delay_h_mean": 25.5,
+          "delay_h_max": 25.5,
+          "utilisation": 0.911472148541114,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 0,
+              "unmet_flights": 2,
+              "unmet_half_flights": 4,
+              "unmet_half_flights_net": 4,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2009,
+          "source": "NORA3 DJF 2009/10",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 1,
+          "infeasible_day_list": [
+            "w6d4"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 1,
+          "flights_rebooked": 0,
+          "flights_unmet": 1,
+          "cancel_causes": {
+            "hs": 1
+          },
+          "delay_h_mean": 0.0,
+          "delay_h_max": 0.0,
+          "utilisation": 0.9122679045092839,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2010,
+          "source": "NORA3 DJF 2010/11",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w4d2",
+            "w12d0"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 2,
+          "flights_rebooked": 2,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 2
+          },
+          "delay_h_mean": 25.875,
+          "delay_h_max": 26.0,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 26.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2011,
+          "source": "NORA3 DJF 2011/12",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 6,
+          "infeasible_day_list": [
+            "w0d0",
+            "w1d1",
+            "w3d3",
+            "w3d4",
+            "w8d0",
+            "w12d1"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 6,
+          "flights_rebooked": 6,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 6
+          },
+          "delay_h_mean": 25.625,
+          "delay_h_max": 50.0,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 1.75
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 50.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 2,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 13.125
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 50.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2012,
+          "source": "NORA3 DJF 2012/13",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 1,
+          "infeasible_day_list": [
+            "w8d1"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 1,
+          "flights_rebooked": 1,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 1
+          },
+          "delay_h_mean": 9.25,
+          "delay_h_max": 9.25,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 9.25
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2013,
+          "source": "NORA3 DJF 2013/14",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 4,
+          "infeasible_day_list": [
+            "w0d4",
+            "w3d2",
+            "w7d4",
+            "w8d0"
+          ],
+          "days_with_unmet": 2,
+          "flights_planned": 1209,
+          "flights_cancelled": 4,
+          "flights_rebooked": 2,
+          "flights_unmet": 2,
+          "cancel_causes": {
+            "hs": 4
+          },
+          "delay_h_mean": 25.875,
+          "delay_h_max": 26.0,
+          "utilisation": 0.911604774535809,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 26.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2014,
+          "source": "NORA3 DJF 2014/15",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w1d1",
+            "w6d0"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 2,
+          "flights_rebooked": 2,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 2
+          },
+          "delay_h_mean": 13.375,
+          "delay_h_max": 25.75,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 1.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2015,
+          "source": "NORA3 DJF 2015/16",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 5,
+          "infeasible_day_list": [
+            "w4d0",
+            "w4d1",
+            "w7d3",
+            "w8d3",
+            "w11d0"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 11,
+          "flights_rebooked": 6,
+          "flights_unmet": 5,
+          "cancel_causes": {
+            "hs": 6,
+            "wind": 5
+          },
+          "delay_h_mean": 39.0,
+          "delay_h_max": 74.0,
+          "utilisation": 0.9088859416445624,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 3,
+              "rebooked": 3,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 60.416666666666664
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 1.5
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 6,
+              "rebooked": 1,
+              "unmet_flights": 5,
+              "unmet_half_flights": 10,
+              "unmet_half_flights_net": 10,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2016,
+          "source": "NORA3 DJF 2016/17",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 5,
+          "infeasible_day_list": [
+            "w3d2",
+            "w3d3",
+            "w3d4",
+            "w6d0",
+            "w6d1"
+          ],
+          "days_with_unmet": 3,
+          "flights_planned": 1209,
+          "flights_cancelled": 5,
+          "flights_rebooked": 2,
+          "flights_unmet": 3,
+          "cancel_causes": {
+            "hs": 5
+          },
+          "delay_h_mean": 29.625,
+          "delay_h_max": 33.5,
+          "utilisation": 0.9106763925729443,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 3,
+              "rebooked": 0,
+              "unmet_flights": 3,
+              "unmet_half_flights": 6,
+              "unmet_half_flights_net": 6,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 2,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 29.625
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2017,
+          "source": "NORA3 DJF 2017/18",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w1d0",
+            "w6d2"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 2,
+          "flights_rebooked": 2,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 2
+          },
+          "delay_h_mean": 25.875,
+          "delay_h_max": 26.0,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.75
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 26.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2018,
+          "source": "NORA3 DJF 2018/19",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w2d1",
+            "w4d3"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 3,
+          "flights_rebooked": 3,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 3
+          },
+          "delay_h_mean": 4.25,
+          "delay_h_max": 9.25,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 2,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 5.625
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 1.5
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2019,
+          "source": "NORA3 DJF 2019/20",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 4,
+          "infeasible_day_list": [
+            "w1d2",
+            "w1d3",
+            "w5d3",
+            "w11d1"
+          ],
+          "days_with_unmet": 1,
+          "flights_planned": 1209,
+          "flights_cancelled": 4,
+          "flights_rebooked": 3,
+          "flights_unmet": 1,
+          "cancel_causes": {
+            "hs": 4
+          },
+          "delay_h_mean": 28.25,
+          "delay_h_max": 50.0,
+          "utilisation": 0.9121352785145889,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 1,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 50.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 9.25
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2020,
+          "source": "NORA3 DJF 2020/21",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 0,
+          "infeasible_day_list": [],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 0,
+          "flights_rebooked": 0,
+          "flights_unmet": 0,
+          "cancel_causes": {},
+          "delay_h_mean": 0.0,
+          "delay_h_max": 0.0,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.4
+        },
+        {
+          "year": 2021,
+          "source": "NORA3 DJF 2021/22",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 1,
+          "infeasible_day_list": [
+            "w8d3"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 1,
+          "flights_rebooked": 1,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 1
+          },
+          "delay_h_mean": 25.5,
+          "delay_h_max": 25.5,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2022,
+          "source": "NORA3 DJF 2022/23",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 3,
+          "infeasible_day_list": [
+            "w3d4",
+            "w8d3",
+            "w11d4"
+          ],
+          "days_with_unmet": 2,
+          "flights_planned": 1209,
+          "flights_cancelled": 3,
+          "flights_rebooked": 1,
+          "flights_unmet": 2,
+          "cancel_causes": {
+            "hs": 3
+          },
+          "delay_h_mean": 25.5,
+          "delay_h_max": 25.5,
+          "utilisation": 0.911604774535809,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 25.5
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 0,
+              "unmet_flights": 1,
+              "unmet_half_flights": 2,
+              "unmet_half_flights_net": 2,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        },
+        {
+          "year": 2023,
+          "source": "NORA3 DJF 2023/24",
+          "weeks": 13,
+          "operating_days": 65,
+          "infeasible_days": 2,
+          "infeasible_day_list": [
+            "w7d3",
+            "w9d1"
+          ],
+          "days_with_unmet": 0,
+          "flights_planned": 1209,
+          "flights_cancelled": 3,
+          "flights_rebooked": 3,
+          "flights_unmet": 0,
+          "cancel_causes": {
+            "hs": 3
+          },
+          "delay_h_mean": 3.5833333333333335,
+          "delay_h_max": 9.25,
+          "utilisation": 0.9129310344827586,
+          "per_week": [
+            {
+              "week": 0,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 1,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 2,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 3,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 4,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 5,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 6,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 7,
+              "planned": 93,
+              "cancelled": 1,
+              "rebooked": 1,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.5
+            },
+            {
+              "week": 8,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 9,
+              "planned": 93,
+              "cancelled": 2,
+              "rebooked": 2,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 5.125
+            },
+            {
+              "week": 10,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 11,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            },
+            {
+              "week": 12,
+              "planned": 93,
+              "cancelled": 0,
+              "rebooked": 0,
+              "unmet_flights": 0,
+              "unmet_half_flights": 0,
+              "unmet_half_flights_net": 0,
+              "delay_h_mean": 0.0
+            }
+          ],
+          "wall_s": 0.3
+        }
+      ],
+      "summary": {
+        "winters": 24,
+        "operating_days_total": 1560,
+        "infeasible_days_total": 56,
+        "infeasible_share": 0.035897435897435895,
+        "infeasible_days_per_winter": [
+          0,
+          1,
+          4,
+          2,
+          2,
+          2,
+          1,
+          1,
+          3,
+          1,
+          2,
+          6,
+          1,
+          4,
+          2,
+          5,
+          5,
+          2,
+          2,
+          4,
+          0,
+          1,
+          3,
+          2
+        ],
+        "infeasible_days_min": 0,
+        "infeasible_days_p10": 1.0,
+        "infeasible_days_median": 2.0,
+        "infeasible_days_p90": 4.699999999999999,
+        "infeasible_days_max": 6,
+        "winters_with_zero_infeasible": 2,
+        "unmet_flights_total": 20,
+        "unmet_flights_per_winter": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          5,
+          3,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0
+        ],
+        "winters_with_zero_unmet": 13
+      }
+    }
+  },
+  "wall_s_total": 16.8
+}

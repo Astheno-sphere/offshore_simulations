@@ -45,6 +45,15 @@ def test_run_winter_counts_are_consistent():
     assert set(row["cancel_causes"]) <= {"wind", "hs", "both", "unknown"}
 
 
+def test_limit_overrides_replace_scenario_defaults():
+    prob, _, _ = _floro()
+    assert prob.extra["limits"] == {"wind_mps": 25.0, "hs_m": 6.0}
+    winter_stress.apply_limit_overrides(prob, wind_mps=30.87, hs_m=7.0)
+    assert prob.extra["limits"] == {"wind_mps": 30.87, "hs_m": 7.0}
+    winter_stress.apply_limit_overrides(prob)
+    assert prob.extra["limits"] == {"wind_mps": 30.87, "hs_m": 7.0}
+
+
 def test_summarise_reports_distribution_not_mean():
     rows = [{"infeasible_days": d, "flights_unmet": u, "operating_days": 65}
             for d, u in [(0, 0), (3, 1), (5, 0), (9, 2), (12, 4)]]
