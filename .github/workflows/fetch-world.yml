@@ -104,8 +104,8 @@ jobs:
           fi
       - name: BarentsWatch latest positions (only when the secrets exist)
         env:
-          BW_CLIENT_ID: ${{ secrets.BW_CLIENT_ID }}
-          BW_CLIENT_SECRET: ${{ secrets.BW_CLIENT_SECRET }}
+          BW_CLIENT_ID: ${{ secrets.BARENTSWATCH_AIS_CLIENT_ID || secrets.BARENTSWATCH_CLIENT_ID || secrets.BW_CLIENT_ID }}
+          BW_CLIENT_SECRET: ${{ secrets.BARENTSWATCH_AIS_CLIENT_SECRET || secrets.BARENTSWATCH_CLIENT_SECRET || secrets.BW_CLIENT_SECRET }}
         continue-on-error: true      # endpoints are unverified live
         run: |
           mkdir -p world/ais

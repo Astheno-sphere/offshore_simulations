@@ -226,7 +226,7 @@ no network. Nothing here has seen a real AIS stream or a real HAIS file.
   Pass when `|sim - ais| <= max(tol_rel * ais, tol_abs)`; a metric with no AIS observation is NaN (not judged); a run that judges nothing fails.
 - **Tolerances are an assumption:** `GATE_4B_TOLERANCE` = 25 % relative, 600 s (dwell), 1.0 kn (speed), min 1 observation, `assumption: true`. They are judgement
   defaults, not derived from data; fix them after the first real calibration shows the vessel-to-vessel spread. Do not quote a "passed gate 4b" without them.
-- **Missing for a live run:** (1) a raw NMEA log or HAIS file for the area and window (Kystverket / BarentsWatch, credentials `BW_CLIENT_ID`/`BW_CLIENT_SECRET` in env or
+- **Missing for a live run:** (1) a raw NMEA log or HAIS file for the area and window (Kystverket / BarentsWatch, credentials `BW_CLIENT_ID`/`BW_CLIENT_SECRET` in env (on Actions filled from the repository secrets `BARENTSWATCH_AIS_CLIENT_ID`/`_SECRET`, falling back to `BARENTSWATCH_CLIENT_ID`/`_SECRET`) or
   GitHub secrets only); (2) `ais_places` in the world YAML (quay positions + radius); (3) `data/worlds/<w>/ais/calibration.json`. Raw NMEA is not yet accepted by
   `fetch_world --ais` (that takes HAIS GeoParquet/CSV), so convert on Actions or the VM:
   `python -c "from offsim.traffic import ais; import yaml,sys; c=yaml.safe_load(open('worlds/<w>.yaml')); ais.process_nmea('<log.nmea>','data/worlds/<w>/ais',bbox=c['bbox'],places=c.get('ais_places'),area='<area>')"`

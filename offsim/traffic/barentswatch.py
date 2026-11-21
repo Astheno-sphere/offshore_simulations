@@ -1,7 +1,9 @@
 """BarentsWatch AIS API client (spec + thin stdlib implementation). Runs on Actions or a laptop only: the Claude
 workspace cannot reach BarentsWatch.
 
-Auth: OAuth2 client credentials. Env BW_CLIENT_ID, BW_CLIENT_SECRET (register a client at
+Auth: OAuth2 client credentials. Env BW_CLIENT_ID, BW_CLIENT_SECRET (on Actions these are filled from the
+repository secrets BARENTSWATCH_AIS_CLIENT_ID/_SECRET, else BARENTSWATCH_CLIENT_ID/_SECRET, else BW_CLIENT_ID/_SECRET,
+because the token asks for scope `ais`) (register a client at
 https://www.barentswatch.no/minside/ ; GitHub secrets of the same names for the workflow).
     POST https://id.barentswatch.no/connect/token
          grant_type=client_credentials & client_id & client_secret & scope=ais
