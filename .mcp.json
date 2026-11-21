@@ -8,6 +8,10 @@
         "AMPL_MCP_ROOTS": "offsim/solve/ampl;offsim/papers"
       }
     },
+    "ampl_kb": {
+      "type": "http",
+      "url": "https://mcp-kb.ampl.com/mcp"
+    },
     "entur-journey-planner": {
       "type": "http",
       "url": "https://api.entur.io/journey-planner-mcp/v1/mcp"
