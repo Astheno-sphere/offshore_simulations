@@ -6,6 +6,8 @@ date: 2026-11-15
 branch: agent/nordlys/N6-study-<slug>   (one branch per reference)
 standing: yes. Repeat for every reference video Arshad uploads to you.
 
+taken: nordlys 2026-11-15T03:58Z (exam on the last-tree film; branch agent/nordlys/N6-study-last-tree)
+
 ## Read first
 
 `docs/REFERENCE_STUDY.md` (the method), then `docs/VISUAL_GRAMMAR.md` (the first study done with it).
