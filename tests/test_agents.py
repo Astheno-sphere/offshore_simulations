@@ -61,11 +61,14 @@ def test_each_role_names_read_first_owns_exit_test_and_report_rule():
 def test_mcp_json_parses_and_has_the_three_servers():
     cfg = json.loads((ROOT / ".mcp.json").read_text())
     servers = cfg["mcpServers"]
-    assert set(servers) == {"ampl", "entur-journey-planner", "entur-transit-data"}
+    # why: ampl_kb (AMPL's own documentation server) was added from the laptop on 2026-11-22
+    assert set(servers) == {"ampl", "ampl_kb", "entur-journey-planner", "entur-transit-data"}
+    assert servers["ampl_kb"] == {"type": "http", "url": "https://mcp-kb.ampl.com/mcp"}
     ampl = servers["ampl"]
     assert ampl["type"] == "stdio" and ampl["command"] == "python"
     assert ampl["args"] == ["tools/ampl_mcp/server.py"]
-    for root in ampl["env"]["AMPL_MCP_ROOTS"].split(":"):
+    # why: .mcp.json now separates roots with ';', which tools/ampl_mcp/server.py splits on every OS
+    for root in re.split(r"[;:]", ampl["env"]["AMPL_MCP_ROOTS"]):
         assert (ROOT / root).is_dir(), f"AMPL_MCP_ROOTS entry missing: {root}"
     for name in ("entur-journey-planner", "entur-transit-data"):
         assert servers[name]["type"] == "http" and servers[name]["url"].startswith(ENTUR), name

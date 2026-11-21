@@ -65,6 +65,7 @@ Project config: `.mcp.json` (no secrets in it). Claude Code asks for approval th
 | `ampl` | stdio: `python tools/ampl_mcp/server.py` | `solve_model`, `get_variable`, `get_duals`, `run_ampl`, `list_models` over a local AMPL session | laptop only. Needs `amplpy`, `mcp`, a local AMPL install, and the academic licence entered in the terminal (never in a file). Roots: `offsim/solve/ampl` and `offsim/papers`, colon-separated. Not in the Claude workspace. |
 | `entur-journey-planner` | http `https://api.entur.io/journey-planner-mcp/v1/mcp` | trip planning, departures, stop lookup (no auth) | any session with internet access. The Claude workspace cannot reach `api.entur.io`. Credit "Source: Entur AS". |
 | `entur-transit-data` | http `https://api.entur.io/transit-data/v1beta/mcp` | transit data and NeTEx lookups (beta) | same as above |
+| `ampl_kb` | http `https://mcp-kb.ampl.com/mcp` | AMPL's own documentation and syntax lookup (read-only) | any session whose network allows mcp-kb.ampl.com; the cloud workspace's proxy refuses it |
 
 If Entur rejects a call for a missing `ET-Client-Name` header, add the header in your own local Claude settings with a
 generic `<company>-<application>` value. Do not add it to `.mcp.json`.

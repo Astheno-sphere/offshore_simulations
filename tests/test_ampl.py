@@ -230,6 +230,9 @@ def test_mcp_roots_split_posix_list_on_windows(tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
         monkeypatch.setenv("AMPL_MCP_ROOTS", "a:b")
         assert s._roots() == [a.resolve(), b.resolve()]
+    monkeypatch.chdir(tmp_path)  # ';' is the shared .mcp.json separator and must split on every OS
+    monkeypatch.setenv("AMPL_MCP_ROOTS", "a;b")
+    assert s._roots() == [a.resolve(), b.resolve()]
 
 
 def test_mcp_solver_list_widens_only_by_env(monkeypatch):

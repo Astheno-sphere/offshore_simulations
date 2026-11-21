@@ -2,7 +2,7 @@
   "mcpServers": {
     "ampl": {
       "type": "stdio",
-      "command": ".venv-ampl/Scripts/python.exe",
+      "command": "python",
       "args": ["tools/ampl_mcp/server.py"],
       "env": {
         "AMPL_MCP_ROOTS": "offsim/solve/ampl;offsim/papers"

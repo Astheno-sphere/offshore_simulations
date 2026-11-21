@@ -77,3 +77,15 @@ If unset, the root is `~/ampl-models`. Put only the models you trust under these
   `get_current_objective`, `set_option`, `solve_result`).
 - The CBC time-limit option is not verified. `highs` uses `time_limit`.
 - The screen is a list of patterns, not a parser. A determined model could still reach a file the solver can open.
+
+## Shared config and a local interpreter
+
+`.mcp.json` is shared by every agent (Windows laptop, Linux VM, Codespaces, the cloud session), so it stays
+portable: `command: python` and roots separated by `;`, which the server splits on every OS.
+
+On a machine where the default `python` is wrong for amplpy (on the Windows laptop, Python 3.14 made the server
+time out after 30 s), override it in your own local scope instead of editing `.mcp.json`:
+
+    claude mcp add ampl --scope local -e AMPL_MCP_ROOTS="offsim/solve/ampl;offsim/papers" -- .venv-ampl\Scripts\python.exe tools/ampl_mcp/server.py
+
+A local-scope server of the same name takes precedence over the project one, and is never committed.

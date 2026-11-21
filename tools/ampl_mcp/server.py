@@ -74,8 +74,9 @@ def screen(text: str, *, model_file: bool = False) -> None:
 
 def _roots() -> list[Path]:
     raw = os.environ.get("AMPL_MCP_ROOTS") or str(Path.home() / "ampl-models")
-    # .mcp.json writes roots POSIX-style ("a:b"). On Windows also split on ':' unless it is a drive colon ("E:\").
-    parts = re.split(r";|:(?![\\/])", raw) if os.name == "nt" else raw.split(os.pathsep)
+    # ';' separates roots on every OS, so one shared .mcp.json works on Windows and POSIX. On Windows ':' also
+    # separates unless it is a drive colon ("E:\"); on POSIX os.pathsep (':') does.
+    parts = re.split(r";|:(?![\\/])", raw) if os.name == "nt" else re.split(r"[;:]", raw)
     return [Path(p).expanduser().resolve() for p in parts if p.strip()]
 
 
