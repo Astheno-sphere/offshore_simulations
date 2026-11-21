@@ -3,6 +3,8 @@
 One loop: **papers in → gap found → experiment run under real weather → validated against real traffic → visualised.**
 Everything is a module behind an interface; tools are swappable, numbers are not.
 
+Visual version: [architecture-diagram.html](architecture-diagram.html) — a snapshot drawn 11 Nov 2026 from main @ 21db4f7; its "state right now" panel is dated, not current.
+
 ```
  L6 RESEARCH   offsim.research  feed ─► tags ─► gaps.yaml ─► experiment.yaml
                     │                                             │
