@@ -97,6 +97,34 @@ def main(scene_json, out_png):
     # ---- toon material: emission whose colour steps with N.key (3 bands) and lifts on N.rim
     cache = {}
 
+    def height_banded(token, hr):
+        """Sea look for a displaced patch: flat bands by surface height (trough darker, crest lighter), emission only.
+        Slopes of real waves are too gentle for the normal-banded toon shader to show them."""
+        c = col(token)
+        m = bpy.data.materials.new("sea_h")
+        m.use_nodes = True
+        n = m.node_tree
+        n.nodes.clear()
+        geo, sep = n.nodes.new("ShaderNodeNewGeometry"), n.nodes.new("ShaderNodeSeparateXYZ")
+        mr, ramp = n.nodes.new("ShaderNodeMapRange"), n.nodes.new("ShaderNodeValToRGB")
+        em, out = n.nodes.new("ShaderNodeEmission"), n.nodes.new("ShaderNodeOutputMaterial")
+        mr.inputs["From Min"].default_value, mr.inputs["From Max"].default_value = -hr, hr
+        ramp.color_ramp.interpolation = "CONSTANT"
+        steps = [(0.0, 0.55), (0.30, 0.78), (0.52, 1.0), (0.72, 1.28), (0.9, 1.6)]
+        e = ramp.color_ramp.elements
+        while len(e) < len(steps):
+            e.new(0.5)
+        for el, (pos, k) in zip(sorted(e, key=lambda x: x.position), steps):
+            el.position = pos
+        for el, (pos, k) in zip(sorted(e, key=lambda x: x.position), steps):
+            el.color = (min(c[0] * k, 1), min(c[1] * k, 1), min(c[2] * k, 1), 1)
+        n.links.new(geo.outputs["Position"], sep.inputs[0])
+        n.links.new(sep.outputs["Z"], mr.inputs["Value"])
+        n.links.new(mr.outputs["Result"], ramp.inputs["Fac"])
+        n.links.new(ramp.outputs["Color"], em.inputs["Color"])
+        n.links.new(em.outputs["Emission"], out.inputs["Surface"])
+        return m
+
     def toon(token):
         if token in cache:
             return cache[token]
@@ -183,26 +211,30 @@ def main(scene_json, out_png):
     if sea is not None:
         size = float(sea.get("size_m", 4000.0))
         z = float(sea.get("level_m", 0.0))
+        # far plane always; a displaced patch (jonswap grid) sits on top near the platform when a grid is given
+        me = bpy.data.meshes.new("sea")
+        h2 = size / 2
+        me.from_pydata([(-h2, -h2, z), (h2, -h2, z), (h2, h2, z), (-h2, h2, z)], [], [(0, 1, 2, 3)])
+        ob = bpy.data.objects.new("sea", me)
+        sea_col.objects.link(ob)
+        ob.data.materials.append(toon(sea.get("colour", "sea")))
         npy = sea.get("displacement_npy")
         if npy and Path(npy).exists():
             import numpy as np
             h = np.load(npy)
             n = h.shape[0]
-            xs = np.linspace(-size / 2, size / 2, n)
+            psize = float(sea.get("patch_m", 500.0))
+            xs = np.linspace(-psize / 2, psize / 2, n)
             verts = [(xs[i], xs[j], z + float(h[j, i])) for j in range(n) for i in range(n)]
             faces = [(j * n + i, j * n + i + 1, (j + 1) * n + i + 1, (j + 1) * n + i) for j in range(n - 1) for i in range(n - 1)]
-            me = bpy.data.meshes.new("sea")
-            me.from_pydata(verts, [], faces)
-            me.update()
-            ob = bpy.data.objects.new("sea", me)
-            sea_col.objects.link(ob)
-        else:
-            me = bpy.data.meshes.new("sea")
-            h2 = size / 2
-            me.from_pydata([(-h2, -h2, z), (h2, -h2, z), (h2, h2, z), (-h2, h2, z)], [], [(0, 1, 2, 3)])
-            ob = bpy.data.objects.new("sea", me)
-            sea_col.objects.link(ob)
-        ob.data.materials.append(toon(sea.get("colour", "sea")))
+            pm = bpy.data.meshes.new("sea_patch")
+            pm.from_pydata(verts, [], faces)
+            pm.update()
+            po = bpy.data.objects.new("sea_patch", pm)
+            sea_col.objects.link(po)
+            po.data.materials.append(height_banded(sea.get("colour", "sea"), float(sea.get("height_range_m", 2.0))))
+            for poly in pm.polygons:
+                poly.use_smooth = True
 
     # ---- camera (static)
     cam = spec["camera"]

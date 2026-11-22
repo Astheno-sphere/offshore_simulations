@@ -110,3 +110,10 @@ when the 24 winters land; that run is the real loop proof and the article will b
 `python3 third_party/pocket-city/scripts/build.py` on the bundled Portofino scene/city/landmarks: built 318741 bytes,
 identical in size to the shipped page (deterministic). `render.mjs --view iso` with `/usr/bin/google-chrome` wrote a PNG,
 no page errors printed. Not run: `fetch_osm.py` (Overpass blocked here), any Norwegian place, image inspection.
+## 2026-11-22 — Blender bridge + JONSWAP sea, branch agent/claude/visual-engine (draft, not on main)
+`offsim.blender.shot.helideck_spec` + `tools/blender_shot.py` (bpy 5.2.3, Cycles CPU 16 spp, 960x540): S-92 on the platform
+helideck renders in about 7 s per still. Bounding boxes after the GLB round trip match the sourced dimensions (S-92 0 %,
+platform 0.009 % max error). Sea: `offsim.physics.jonswap.Sea.grid` patch (500 m, 251 points, outer 25 % faded to the flat
+far plane) shown by a height-banded emission material (real wave slopes are too gentle for the normal-banded toon shader).
+Demo still used Hs 3.5 m, Tp 9 s, a capability check, not a result. Not run: 1080p, motion, full suite on this branch.
+Baseline of the existing intervention shot (synthetic weather, gate PASS) is at out/baseline_intervention (not committed).
