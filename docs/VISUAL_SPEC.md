@@ -59,6 +59,13 @@ Particles: `seed_particles` (Poisson-disc in water) → `integrate_streamlines` 
 PSV weather bands (Gribkovskaia 2022, approximate): Hs < 2.5 m normal · 2.5–3.5 m service +20% ·
 3.5–4.5 m −2 kn, service +30% · ≥ 4.5 m wait on weather.
 
+### 3b. Display sea (`offsim/physics/jonswap.py`)
+
+The sea surface on screen comes from a seeded JONSWAP spectrum (gamma 3.3, alpha set so 4*sqrt(m0) = Hs) driven by the
+`report:weather` Hs and Tp, passed as arguments. It is display only and never edits truth: operability and
+wait-on-weather still come from the sourced bands above. Simplified: linear waves, one direction (no spreading), deep-water
+dispersion unless a depth is given, no wave-structure interaction. Checks: `tests/test_jonswap.py`.
+
 ## 4. Camera — *built* (`offsim/cinema/camera.py`: per-frame track + `shot_plan` in `story --dry-run`)
 
 Shot grammar: **establish** (zoom 7–9, pitch 0–30) → **descend** (pitch → 50–60) → **follow** (track a vessel,
