@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-161 tools · 36 tested · 15 wired · 10 installed · 50 candidate · 4 manual · 46 watch.
+162 tools · 37 tested · 15 wired · 10 installed · 50 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -19,7 +19,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 9 | 0 | 1 | 6 | 0 | 7 | 23 |
+| render | 10 | 0 | 1 | 6 | 0 | 7 | 24 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
@@ -239,6 +239,7 @@ _Maps and 3D scenes from validated trajectories_
 | [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
 | [build123d](https://github.com/gumyr/build123d) | Apache-2.0 | installed | here | next | Declared, not yet called: builder API on the same OpenCASCADE kernel. offsim/assets/cad accepts its shapes (drawing.py) but the asset modules use CadQuery only. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. Evidence: `requirements-cad.txt` |
 | [matplotlib streamplot/quiver textures](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.streamplot.html) | PSF-style | candidate | here | next | Deterministic fallback: bake Hs fields and static streamlines to PNG for BitmapLayer. |
+| [Pocket City skill (April Zhu)](https://april-zhu.com/pocketcity) | MIT | tested | here | next | Isometric hand-drawn diorama of a real 150-250 m plot from OSM (buildings, quays, boats, people, seasons, night occasions) as one offline HTML page. Vendored under third_party/pocket-city, wrapped by skills/pocket-diorama. Tested here on its bundled example only (offline build + headless render); a Norwegian place needs osm.json from Actions (Overpass blocked here). Establishing-shot visual, second visual language beside CAD linework. Evidence: `third_party/pocket-city/LICENSE` `skills/pocket-diorama/SKILL.md` `docs/TESTLOG.md` |
 | [skia-python](https://github.com/kyamagu/skia-python) | BSD-3-Clause | tested | here | next | Print-grade anti-aliased vector strokes for section and map panels (replaces PIL drawing). Wrapped by offsim.cinema.draw.Canvas / draw_prims. Evidence: `requirements-graphics.txt` `offsim/cinema/draw.py` `tests/test_draw.py` |
 | [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |
 | [Blender as Python module (bpy 5.2)](https://pypi.org/project/bpy/) | GPL | tested | actions | later | Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process. Evidence: `offsim/assets/models/make_models.py` `docs/TESTLOG.md` |

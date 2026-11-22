@@ -31,3 +31,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Pocket City skill (April Zhu)
+
+Vendored unmodified under `third_party/pocket-city/` (built example pages, preview SVGs and scene data removed to save
+space). MIT. Its drawing kit builds on Colorfigures and iso-glow, which build on Tolga Cohce's iso-figure (MIT). Map data
+fetched by it stays under the ODbL, credit "(c) OpenStreetMap contributors". Full licence text: `third_party/pocket-city/LICENSE`.

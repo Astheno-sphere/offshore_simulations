@@ -106,3 +106,7 @@ Without a weather block the same scenario stops at gate 0 with the fix message, 
 read as "weather has no home" and has since withdrawn.
 Next: swap the synthetic block for `weather: {dir: data/worlds/bergen-ncs/metocean, point: [...], years: [...], season: DJF}`
 when the 24 winters land; that run is the real loop proof and the article will build from it.
+## 2026-11-22 — Pocket City skill, offline proof
+`python3 third_party/pocket-city/scripts/build.py` on the bundled Portofino scene/city/landmarks: built 318741 bytes,
+identical in size to the shipped page (deterministic). `render.mjs --view iso` with `/usr/bin/google-chrome` wrote a PNG,
+no page errors printed. Not run: `fetch_osm.py` (Overpass blocked here), any Norwegian place, image inspection.

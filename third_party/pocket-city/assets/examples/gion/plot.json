@@ -1,0 +1,19 @@
+{
+ "lat": 35.00572,
+ "lon": 135.7744,
+ "rotation": -5,
+ "size": 200.0,
+ "asked": {
+  "lat": 35.00572,
+  "lon": 135.7744
+ },
+ "moved_m": 0.0,
+ "famous_inside": [
+  "Gion Yoshi-ima",
+  "辰巳大明神"
+ ],
+ "famous_cut": [],
+ "keep_missing": [],
+ "place": "",
+ "osm_base": "2026-11-20T09:36:28Z"
+}

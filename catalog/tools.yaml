@@ -394,3 +394,5 @@ tools:
    role: "Preprints for the feed; not yet run live."}
 - {id: nva-api, name: NVA (Norwegian research archive) API, url: "https://api.nva.unit.no", layer: benchmarks, licence: check, status: wired, runs: actions, priority: next, evidence: "offsim/feed/sources.py tests/test_feed.py",
    role: "Norwegian publications incl. HiMolde; field names unverified live."}
+- {id: pocket-city, name: Pocket City skill (April Zhu), url: "https://april-zhu.com/pocketcity", layer: render, licence: MIT, status: tested, runs: here, priority: next, evidence: "third_party/pocket-city/LICENSE skills/pocket-diorama/SKILL.md docs/TESTLOG.md",
+   role: "Isometric hand-drawn diorama of a real 150-250 m plot from OSM (buildings, quays, boats, people, seasons, night occasions) as one offline HTML page. Vendored under third_party/pocket-city, wrapped by skills/pocket-diorama. Tested here on its bundled example only (offline build + headless render); a Norwegian place needs osm.json from Actions (Overpass blocked here). Establishing-shot visual, second visual language beside CAD linework."}

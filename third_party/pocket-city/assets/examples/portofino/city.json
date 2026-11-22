@@ -1,0 +1,573 @@
+{
+ "name": "Portofino",
+ "title": "Portofino, Liguria",
+ "region": "Liguria",
+ "place": "Piazzetta and harbour",
+ "timezone": "Europe/Rome",
+ "level": 3.1,
+ "flag": "<svg aria-hidden='true' viewBox='0 0 30 20'><rect width='10' height='20' fill='#3f8a5a'/><rect x='10' width='10' height='20' fill='#fbf7ee'/><rect x='20' width='10' height='20' fill='#c9584c'/></svg>",
+ "styles": {
+  "default": {
+   "facade": "painted",
+   "wall": [
+    "#f5c460",
+    "#f1a672",
+    "#e27351",
+    "#f7d785",
+    "#edb19b",
+    "#f4e4c1",
+    "#e69a52",
+    "#d25a41"
+   ],
+   "shutters": [
+    "#337446",
+    "#3e844d",
+    "#2b6a48"
+   ],
+   "roof": "hipped",
+   "ridge": "long",
+   "pitch": 20,
+   "roofColour": [
+    "#a9a39a",
+    "#9e9a94",
+    "#b4ada3",
+    "#a49d94",
+    "#cb7753",
+    "#aba59c"
+   ],
+   "roofTex": "slate",
+   "eaves": 0.35,
+   "levels": 4,
+   "floor": 3.1,
+   "shop": "poi",
+   "awning": "some",
+   "awnings": [
+    "#295f90",
+    "#295f90",
+    "#f3ead6",
+    "#337446"
+   ],
+   "maxSpan": 18,
+   "rectFill": 0.6,
+   "flatRoof": "#d1c7b3"
+  },
+  "rules": [
+   {
+    "if": {
+     "maxArea": 25
+    },
+    "set": {
+     "levels": 1,
+     "shop": "none",
+     "roof": "flat"
+    }
+   },
+   {
+    "if": {
+     "type": [
+      "church",
+      "chapel"
+     ]
+    },
+    "set": {
+     "facade": "civic",
+     "levels": 3,
+     "floor": 4.4,
+     "wall": [
+      "#f1e5ca"
+     ],
+     "shop": "none",
+     "roof": "gabled",
+     "pitch": 22,
+     "roofColour": [
+      "#8d8a86"
+     ]
+    }
+   },
+   {
+    "if": {
+     "nearStreet": true,
+     "maxArea": 200
+    },
+    "set": {
+     "levels": 5
+    }
+   }
+  ]
+ },
+ "buildings": {},
+ "palette": {
+  "ground": "#ebdfc4",
+  "road": "#beb3ac",
+  "pavement": "#e9d9bc",
+  "walk": "#e5d3b3",
+  "grass": "#b3d57d",
+  "water": "#7ac4ce",
+  "slab": "#dac49c",
+  "marking": "#f5efe3",
+  "kerb": "#e0d1b5",
+  "paving": "#ccba9d"
+ },
+ "paving": {
+  "style": "slabs",
+  "size": 0.7
+ },
+ "lamp": {
+  "colour": "#3f4644",
+  "height": 4.2,
+  "head": "#f6ebd0"
+ },
+ "shops": {
+  "signs": [
+   "BAR",
+   "GELATERIA",
+   "FOCACCIA",
+   "TRATTORIA"
+  ],
+  "font": "Georgia,serif",
+  "fascias": [
+   "#2c4b5e",
+   "#6f3a32",
+   "#375f48"
+  ]
+ },
+ "boats": {
+  "hulls": [
+   "#f4efe3",
+   "#f4efe3",
+   "#f4efe3",
+   "#295f90",
+   "#c14132",
+   "#30875a"
+  ],
+  "stripes": [
+   "#295f90",
+   "#c14132",
+   "#30875a",
+   "#eab440"
+  ]
+ },
+ "trees": {
+  "default": {
+   "style": 3,
+   "colours": [
+    "#7ba958",
+    "#91b968"
+   ],
+   "height": 8
+  },
+  "rules": [
+   {
+    "match": "Woodland",
+    "evergreen": true,
+    "vary": 0.4,
+    "mix": [
+     {
+      "style": 3,
+      "colours": [
+       "#6a994e",
+       "#7ba657",
+       "#86b15b"
+      ],
+      "height": 9,
+      "share": 5
+     },
+     {
+      "style": 2,
+      "colours": [
+       "#7aab5a",
+       "#91b966"
+      ],
+      "height": 13,
+      "share": 2
+     },
+     {
+      "style": 7,
+      "colours": [
+       "#588749",
+       "#65934f"
+      ],
+      "height": 12,
+      "share": 1
+     },
+     {
+      "style": 3,
+      "colours": [
+       "#86bd55",
+       "#9bc763"
+      ],
+      "height": 9,
+      "share": 1.4,
+      "evergreen": false,
+      "autumn": "#d8b04a",
+      "spring": "#b9dc6e"
+     }
+    ]
+   },
+   {
+    "match": "Garden tree",
+    "evergreen": true,
+    "vary": 0.35,
+    "mix": [
+     {
+      "style": 6,
+      "colours": [
+       "#99b377",
+       "#a8bd81"
+      ],
+      "height": 6,
+      "share": 3
+     },
+     {
+      "style": 3,
+      "colours": [
+       "#7ba657",
+       "#8eb462"
+      ],
+      "height": 7,
+      "share": 3
+     },
+     {
+      "style": 7,
+      "colours": [
+       "#588749",
+       "#65934f"
+      ],
+      "height": 11,
+      "share": 1
+     },
+     {
+      "style": 3,
+      "colours": [
+       "#86bd55",
+       "#9bc763"
+      ],
+      "height": 7,
+      "share": 1.1,
+      "evergreen": false,
+      "autumn": "#d8b04a",
+      "spring": "#b9dc6e"
+     }
+    ]
+   }
+  ]
+ },
+ "people": {
+  "clothes": [
+   "#f2ecdf",
+   "#2b4a6f",
+   "#e27351",
+   "#7aa3c5",
+   "#f1c761",
+   "#337446",
+   "#edb19b"
+  ]
+ },
+ "vehicles": {
+  "kinds": [
+   "small",
+   "small",
+   "hatch"
+  ],
+  "colours": [
+   "#f2f2ee",
+   "#2e3139",
+   "#99a3ae",
+   "#c14132"
+  ],
+  "plate": "#f5f3e5"
+ },
+ "seasons": [
+  {
+   "id": "summer",
+   "label": "Summer",
+   "leaves": "summer",
+   "crowd": 1.6,
+   "note": {
+    "text": "July is the driest month on this coast: 26 mm of rain at Genoa.",
+    "source": "Wikipedia, Genoa climate 1991–2020",
+    "url": "https://en.wikipedia.org/wiki/Genoa"
+   }
+  },
+  {
+   "id": "autumn",
+   "label": "Autumn",
+   "leaves": "autumn",
+   "wet": true,
+   "umbrellas": true,
+   "wx": "rain",
+   "crowd": 0.8,
+   "cafes": "closed",
+   "note": {
+    "text": "November is the wettest month, with about 200 mm of rain at Genoa.",
+    "source": "Wikipedia, Genoa climate 1991–2020",
+    "url": "https://en.wikipedia.org/wiki/Genoa"
+   }
+  },
+  {
+   "id": "winter",
+   "label": "Winter",
+   "leaves": "bare",
+   "coats": true,
+   "crowd": 0.5,
+   "cafes": false,
+   "boats": 0.5,
+   "grass": "#b3d57d",
+   "note": {
+    "text": "January averages 12.1 °C by day and 6.0 °C at night at Genoa.",
+    "source": "Wikipedia, Genoa climate 1991–2020",
+    "url": "https://en.wikipedia.org/wiki/Genoa"
+   }
+  }
+ ],
+ "occasions": [
+  {
+   "id": "sangiorgio",
+   "label": "San Giorgio",
+   "leaves": "spring",
+   "crowd": 2.0,
+   "icon": "spring",
+   "dress": {
+    "colours": [
+     "#f2ecdf",
+     "#2b4a6f",
+     "#c14132"
+    ],
+    "share": 0.3
+   },
+   "note": {
+    "text": "At 21:00 on 23 April a bonfire burns in the Piazzetta; if its pole falls toward the sea, it is a good omen.",
+    "source": "Comune di Portofino · MenteLocale",
+    "url": "https://portofino.it/?p=2893"
+   },
+   "night": 0.85,
+   "litShare": 0.6
+  },
+  {
+   "id": "natale",
+   "label": "Christmas",
+   "leaves": "bare",
+   "coats": true,
+   "crowd": 1.6,
+   "icon": "winter",
+   "decor": {
+    "fairy": [
+     "#fcf1c7",
+     "#fbe5ac",
+     "#fbe8b2"
+    ]
+   },
+   "note": {
+    "text": "The Christmas tree in the Piazzetta was lit on 6 December in the 2026 programme; in 2021 the Piazzetta fronts were outlined in warm white lights.",
+    "source": "SiViaggia · macitynet",
+    "url": "https://siviaggia.it/notizie/natale-tigullio-liguria-2026/609883/"
+   },
+   "night": true,
+   "litShare": 0.72,
+   "grass": "#b3d57d"
+  }
+ ],
+ "months": [
+  "winter",
+  "winter",
+  "winter",
+  "summer",
+  "summer",
+  "summer",
+  "summer",
+  "summer",
+  "summer",
+  "autumn",
+  "autumn",
+  "winter"
+ ],
+ "views": [
+  {
+   "id": "harbour",
+   "label": "Harbour",
+   "camera": {
+    "yaw": -35,
+    "pitch": 30,
+    "zoom": 2.4,
+    "x": 40,
+    "y": 0,
+    "z": 2
+   }
+  },
+  {
+   "id": "piazzetta",
+   "label": "Piazzetta",
+   "camera": {
+    "yaw": -60,
+    "pitch": 26,
+    "zoom": 3.4,
+    "x": 8,
+    "y": 15,
+    "z": 3
+   }
+  },
+  {
+   "id": "sanmartino",
+   "label": "San Martino",
+   "camera": {
+    "yaw": 20,
+    "pitch": 24,
+    "zoom": 3.6,
+    "x": -58,
+    "y": 60,
+    "z": 10
+   }
+  },
+  {
+   "id": "woods",
+   "label": "The wooded hill",
+   "camera": {
+    "yaw": -20,
+    "pitch": 34,
+    "zoom": 2.2,
+    "x": -50,
+    "y": -55,
+    "z": 4
+   }
+  }
+ ],
+ "legend": [
+  {
+   "name": "Painted houses",
+   "source": "OpenStreetMap",
+   "count": "100",
+   "icon": "buildings",
+   "camera": {
+    "yaw": -45,
+    "pitch": 24,
+    "zoom": 3.2,
+    "x": 40,
+    "y": 30,
+    "z": 6
+   }
+  },
+  {
+   "name": "Chiesa di San Martino",
+   "source": "Wikipedia · photos",
+   "count": "986",
+   "icon": "landmark",
+   "camera": {
+    "yaw": 20,
+    "pitch": 24,
+    "zoom": 3.6,
+    "x": -58,
+    "y": 60,
+    "z": 10
+   }
+  },
+  {
+   "name": "Boats in the harbour",
+   "source": "Illustrative",
+   "count": "56",
+   "icon": "water",
+   "camera": {
+    "yaw": -35,
+    "pitch": 30,
+    "zoom": 2.6,
+    "x": 45,
+    "y": -10,
+    "z": 1
+   }
+  },
+  {
+   "name": "Holm oak and pine wood",
+   "source": "Portofino Marine Park",
+   "count": "520",
+   "icon": "trees",
+   "camera": {
+    "yaw": -20,
+    "pitch": 34,
+    "zoom": 2.2,
+    "x": -50,
+    "y": -55,
+    "z": 4
+   }
+  }
+ ],
+ "notes": [
+  {
+   "title": "Piazzetta and harbour",
+   "text": "The houses around the Piazzetta, especially on Calata Marconi, have arched fronts painted in the many-coloured “alla genovese” way. Boats moor at Molo Umberto I beside the square.",
+   "links": [
+    {
+     "label": "Wikipedia (it)",
+     "url": "https://it.wikipedia.org/wiki/Portofino"
+    }
+   ]
+  },
+  {
+   "title": "Painted fronts",
+   "text": "Windows, frames, cornerstones and string courses are often painted on, not built. The town’s colour plan describes terraced houses with one or two openings a floor and a single-colour ground floor that held shops or porticoes.",
+   "links": [
+    {
+     "label": "Italy Segreta",
+     "url": "https://italysegreta.com/portofinos-painted-houses/"
+    },
+    {
+     "label": "Piano del colore (Infobuild)",
+     "url": "https://www.infobuild.it/info_dalle_aziende/piano-del-colore-di-portofino-prima-parte/"
+    }
+   ]
+  },
+  {
+   "title": "Chiesa di San Martino",
+   "text": "Founded in 986, given its present look by late-19th-century works, with three naves and a rose window in the striped front. The bell tower, belfry and dome here are drawn from photographs, not from a measured plan.",
+   "links": [
+    {
+     "label": "Wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Divo_Martino,_Portofino"
+    }
+   ]
+  },
+  {
+   "title": "Oratorio di Nostra Signora Assunta",
+   "text": "Founded in the 14th century by a confraternity, with a slate portal dated 1555. Its walls and roof here are interpreted.",
+   "links": [
+    {
+     "label": "Wikipedia (it)",
+     "url": "https://it.wikipedia.org/wiki/Oratorio_di_Nostra_Signora_Assunta_(Portofino)"
+    }
+   ]
+  },
+  {
+   "title": "The wooded hill",
+   "text": "Holm oak and Aleppo pine are the main trees on the sunny slopes and keep their leaves all year; dwarf fan palms are grown widely in Portofino’s gardens. The park’s cooler northern woods hold hop hornbeam, ash and chestnut, which drop theirs. The few leaf-dropping trees drawn here, and where they stand, are illustrative.",
+   "links": [
+    {
+     "label": "Portofino Marine Park (PDF)",
+     "url": "https://www.portofinoamp.it/come/didattica/3ambientecostierodispensedefinitiveecorrette2012.pdf"
+    },
+    {
+     "label": "Portofino Park, habitats",
+     "url": "https://www.parks.it/parco.portofino/Epar.php"
+    }
+   ]
+  },
+  {
+   "title": "What is illustrative",
+   "text": "Measured from OpenStreetMap: footprints, streets, the coastline, woods. Drawn by eye: most heights (79 of 100 buildings have none mapped), wall and shutter colours, each tree in the woods and gardens, the boats, café tables, people and traffic. Also drawn by eye: how many boats are in the harbour and whether the café tables are out in each season.",
+   "links": [
+    {
+     "label": "OpenStreetMap",
+     "url": "https://www.openstreetmap.org/#map=18/44.3031/9.2095"
+    }
+   ]
+  }
+ ],
+ "cafes": {
+  "umbrellas": [
+   "#f4efe3",
+   "#f4efe3",
+   "#295f90",
+   "#ebdab5"
+  ]
+ },
+ "occasionLabel": "Special scenes",
+ "credits": [],
+ "vivid": true
+}

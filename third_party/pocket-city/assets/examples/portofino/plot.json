@@ -1,0 +1,19 @@
+{
+ "lat": 44.303126,
+ "lon": 9.2095375,
+ "rotation": -30,
+ "size": 230.0,
+ "asked": {
+  "lat": 44.3031,
+  "lon": 9.2096
+ },
+ "moved_m": 5.8,
+ "famous_inside": [
+  "Chiesa del Divo Martino",
+  "Oratorio di Nostra Signora Assunta"
+ ],
+ "famous_cut": [],
+ "keep_missing": [],
+ "place": "",
+ "osm_base": "2026-11-20T08:02:29Z"
+}
