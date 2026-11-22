@@ -4,6 +4,61 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-22 — channel sync: N5a's refusal closed and the helideck rerun merged. 1022 pass, 38 skip (this box, CI-shaped).
+
+Four branches new since the 2026-11-21 sync, all from Nordlys, all merged. The stale-tracking-ref incident
+did not recur: the explicit refspec fetch brought in 20 branches the previous `git fetch origin main` form
+had never recorded locally. `live/status` has no merge base with main by design (orphan status branch, three
+status commits) and is not merged; `vm-pile` (22 commits) stays refused from 2026-11-14 and
+`wip/cad-assets-heli` stays superseded.
+
+**Merged (4):**
+- **N5a (film tools), refusal of 2026-11-21 closed.** `git grep /home/hatch` on the branch now returns
+  nothing, and `tools/molde_film_v2.py:55-66` resolves `FILM_DIR` from `OFFSIM_FILM_DIR` with a repo-relative
+  default and reads nothing at import time, so the `FileNotFoundError` that aborted collection of the whole
+  suite is gone. Three `skipif` guards skip the measured-input tests instead of erroring. No test on main was
+  edited; the edited tests are the branch's own, added in 6ea5716 and fixed in 4fafe53.
+- **helideck-rerun — N4.3 under sourced limits.** The headline survives sourcing: P90 unmet flights/week
+  **1.0** at the routine end (IOGP App.6 Chart 2 p.142, 26.75 m/s / 5.5 m) and **0.0** at the regulatory end
+  (SPA.HOFO.135 60 kt incl. gusts = 30.87 m/s, Hs 7.0 m), against 1.0 under the old assumed pair. Recomputed
+  from the committed JSON rather than read off the report: A mean 0.237, max 10, 12/312 weeks over 1;
+  B mean 0.064, max 5, 3/312. Infeasible-day share moves a lot — 11.0% (A) to 3.6% (B), 7.8% assumed in
+  between — so **the share is not reportable as a point figure; only the P90 claim is unblocked**, and it must
+  be reported as a range. `apply_limit_overrides()` defaults both overrides to `None`, so no sourced
+  parameter, tolerance, `rules.py` number or golden frame changed; one test added, none edited.
+  Nordlys's own question answered: the two JSON files (112 KB and 109 KB, per-winter and per-week summary
+  rows, no point series) are report evidence, not data — `stress-test.json` and its `.plans.json` are already
+  tracked in that directory, so this follows the precedent. The 4.3 MB point series correctly stayed local.
+- **ampl-help** and **n8-note** — coordination files only (an AMPL hands-on task for desktop, a pointer to the
+  N8 push-route note).
+
+**Refused (0).** Nothing failed verification this sync.
+
+**Decisions recorded (mine):**
+- The sourced **pair A (26.75 m/s, 5.5 m) becomes the scenario default** in `build_scenario`, with the stale
+  CAP 437 note at `offsim/solve/whelp.py:823` deleted. Pair A, not B: the conservative reading is the one
+  that must hold, and it is the end where the lean fleet has no slack. Not done in this sync — it moves a
+  scenario parameter and every gate reading it must be rerun. Task filed:
+  `coordination/inbox/nordlys/20261122-helideck-default-limits.md`, branch `agent/nordlys/helideck-default`.
+- **metocean-api stays unpinned for now**, against my own 2026-11-21 note to pin it. PyPI has up to 1.1.14,
+  but nothing here ties a version to the committed 3.0E/60.6N series, and a guessed pin is a silent
+  reproducibility gap. Asked Nordlys for `metocean_api.library_version()` from `venv-studio`; I pin that
+  exact version next sync. `fetch.point_series` stays unreachable on a clean image until then.
+
+**Environment note:** this box came up bare (no project packages). Rebuilt from the Dockerfile's requirement
+set; `manimpango` needs `libpango1.0-dev` from apt before pip will build it. Worth adding to docs/MACHINE.md
+if another fresh cloud session hits it.
+
+**Blocked, and on whom:**
+- **Arshad** — unchanged and now four syncs old: the A9 decision (one word); `BW_CLIENT_ID` /
+  `BW_CLIENT_SECRET` as Actions secrets under exactly those names and `OFFSIM_MAILTO` as a repository
+  *variable*; publishing `world-bergen-ncs.zip` as a release asset (no create-release or asset-upload tool
+  exists here, so `fetch_world --pull` and the winter stress test on Actions stay blocked on a human).
+  Audit 10's H2 merge gap still needs the human decision recorded there.
+- **Nordlys** — the metocean-api version, and N8's workflow patch via the push route.
+- **Claude desktop** — `coordination/reports/D1.md` still does not exist; local AMPL objectives against
+  114 643 m and 9980.4986 remain unreported. Not blocking: AMPL runs on Actions.
+
 ## 2026-11-20 — channel sync: no actor pushed; J2 (harness hooks) arrived on main and is verified. 974 pass, 22 skip (this box, CI-shaped).
 
 Scheduled integrator run, nobody watching. **No actor pushed anything, a third sync in a row.**
