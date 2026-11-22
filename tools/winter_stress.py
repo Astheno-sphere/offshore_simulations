@@ -213,6 +213,19 @@ def summarise(rows: list[dict]) -> dict:
     }
 
 
+def apply_limit_overrides(problem, wind_mps=None, hs_m=None):
+    """Override problem.extra['limits'] (sourced limits for a sensitivity rerun).
+
+    The scenario defaults (wind 25 m/s, Hs 6.0 m) are assumed placeholders;
+    a rerun passes sourced values here instead of editing the shared
+    scenario. None leaves that limit untouched.
+    """
+    if wind_mps is not None:
+        problem.extra["limits"]["wind_mps"] = wind_mps
+    if hs_m is not None:
+        problem.extra["limits"]["hs_m"] = hs_m
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--instance", default="bergen")
@@ -230,6 +243,12 @@ def main() -> int:
     ap.add_argument("--plans", default=None,
                     help="load solved plans from a checkpoint JSON instead of "
                          "re-solving (written to <out>.plans.json when solving)")
+    ap.add_argument("--wind-mps", type=float, default=None,
+                    help="override limits.wind_mps (sourced go/no-go wind limit)")
+    ap.add_argument("--hs-m", type=float, default=None,
+                    help="override limits.hs_m (mobile installations only)")
+    ap.add_argument("--limits-src", default=None,
+                    help="citation for overridden limits, recorded in the output")
     args = ap.parse_args()
 
     lon, lat = (float(x) for x in args.point.split(","))
@@ -241,6 +260,7 @@ def main() -> int:
     data = yaml.safe_load(open(
         "offsim/papers/irinagribkovskaia-2025-tactical-helicopter/instances.yaml"))
     problem = whelp.problem_for(args.instance, scale=args.scale, data=data)
+    apply_limit_overrides(problem, args.wind_mps, args.hs_m)
     spec = whelp.parse_spec(problem)
     flights = whelp.generate_flights(spec)
     problem.extra["wfppp"]["replay"] = {"weeks": "all"}
@@ -321,7 +341,8 @@ def main() -> int:
         "season": args.season,
         "years": years,
         "limits": {k: float(v) for k, v in problem.extra["limits"].items()},
-        "limits_assumption": True,
+        "limits_assumption": args.wind_mps is None and args.hs_m is None,
+        "limits_src": args.limits_src,
         "positions_assumption": True,
         "variants": plan_info,
         "results": {},
