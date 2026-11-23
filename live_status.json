@@ -1,12 +1,12 @@
 {
- "generated_utc": "2026-11-21T11:11:17Z",
+ "generated_utc": "2026-11-23T13:39:15Z",
  "results": [
   {
    "name": "overpass",
-   "ok": true,
-   "status": "ok",
-   "latency_s": 33.566,
-   "detail": "57 coastline ways in the Molde box",
+   "ok": false,
+   "status": "fail",
+   "latency_s": 6.059,
+   "detail": "HTTP 502",
    "schema": [
     "elements",
     "elements[].id",
@@ -15,7 +15,7 @@
     "osm3s",
     "version"
    ],
-   "checked_utc": "2026-11-21T11:11:05Z",
+   "checked_utc": "2026-11-23T13:38:50Z",
    "schema_hash": "8ded2876fa2d0ef3",
    "last_ok": "2026-11-21"
   },
@@ -23,7 +23,7 @@
    "name": "sodir",
    "ok": true,
    "status": "ok",
-   "latency_s": 1.096,
+   "latency_s": 1.024,
    "detail": "68 layers listed",
    "schema": [
     "advancedEditingCapabilities",
@@ -75,15 +75,15 @@
     "tables",
     "units"
    ],
-   "checked_utc": "2026-11-21T11:11:07Z",
+   "checked_utc": "2026-11-23T13:38:51Z",
    "schema_hash": "6de58734dcef3b97",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "nora3_wind",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.831,
+   "latency_s": 0.643,
    "detail": "10 variables, all 2 expected present",
    "schema": [
     "forecast_reference_time",
@@ -97,15 +97,15 @@
     "x",
     "y"
    ],
-   "checked_utc": "2026-11-21T11:11:07Z",
+   "checked_utc": "2026-11-23T13:38:52Z",
    "schema_hash": "401c765f2e400e65",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "nora3_wave",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.734,
+   "latency_s": 0.607,
    "detail": "25 variables, all 3 expected present",
    "schema": [
     "DC",
@@ -134,15 +134,15 @@
     "tp_sea",
     "tp_swell"
    ],
-   "checked_utc": "2026-11-21T11:11:08Z",
+   "checked_utc": "2026-11-23T13:38:53Z",
    "schema_hash": "01782519b996f15c",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "norkyst",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.736,
+   "latency_s": 0.491,
    "detail": "17 variables, all 2 expected present",
    "schema": [
     "Uwind_eastward",
@@ -163,15 +163,15 @@
     "v_northward",
     "zeta"
    ],
-   "checked_utc": "2026-11-21T11:11:09Z",
+   "checked_utc": "2026-11-23T13:38:53Z",
    "schema_hash": "64fd84e4eba10ca2",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "kartverket_stedsnavn",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.81,
+   "latency_s": 0.466,
    "detail": "5 hits for Molde, 5 with a point",
    "schema": [
     "metadata",
@@ -187,15 +187,15 @@
     "navn[].stedsnummer",
     "navn[].stedstatus"
    ],
-   "checked_utc": "2026-11-21T11:11:10Z",
+   "checked_utc": "2026-11-23T13:38:54Z",
    "schema_hash": "9c147c26ae4f473a",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "geonorge_dtm",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.634,
+   "latency_s": 0.5,
    "detail": "capabilities answered; polygon selection False",
    "schema": [
     "_links",
@@ -208,46 +208,46 @@
     "supportsPolygonSelection",
     "supportsProjectionSelection"
    ],
-   "checked_utc": "2026-11-21T11:11:10Z",
+   "checked_utc": "2026-11-23T13:38:54Z",
    "schema_hash": "59c6f3fc687c4213",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "geofabrik",
    "ok": true,
    "status": "ok",
-   "latency_s": 1.759,
-   "detail": "norway-latest.osm.pbf 1379 MB, last-modified Sat, 21 Nov 2026 01:26:17 GMT",
+   "latency_s": 1.412,
+   "detail": "norway-latest.osm.pbf 1379 MB, last-modified Mon, 23 Nov 2026 00:41:55 GMT",
    "schema": [
     "content-length",
     "content-type",
     "last-modified"
    ],
-   "checked_utc": "2026-11-21T11:11:12Z",
+   "checked_utc": "2026-11-23T13:38:55Z",
    "schema_hash": "0387839065771504",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "entur_gtfs",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.197,
-   "detail": "aggregated GTFS zip 556 MB, last-modified Sat, 21 Nov 2026 10:42:15 GMT",
+   "latency_s": 0.64,
+   "detail": "aggregated GTFS zip 559 MB, last-modified Mon, 23 Nov 2026 12:53:11 GMT",
    "schema": [
     "content-length",
     "content-type",
     "last-modified"
    ],
-   "checked_utc": "2026-11-21T11:11:12Z",
+   "checked_utc": "2026-11-23T13:38:56Z",
    "schema_hash": "0387839065771504",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "entur_vehicles",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.656,
-   "detail": "28 vehicles in the Oslo box",
+   "latency_s": 0.258,
+   "detail": "26 vehicles in the Oslo box",
    "schema": [
     "data",
     "vehicles[].bearing",
@@ -259,15 +259,15 @@
     "vehicles[].speed",
     "vehicles[].vehicleId"
    ],
-   "checked_utc": "2026-11-21T11:11:13Z",
+   "checked_utc": "2026-11-23T13:38:56Z",
    "schema_hash": "edb57bcaa6a1d133",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "barentswatch",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.511,
+   "latency_s": 0.488,
    "detail": "token issued (expires_in 3600 s)",
    "schema": [
     "access_token",
@@ -275,15 +275,15 @@
     "scope",
     "token_type"
    ],
-   "checked_utc": "2026-11-21T11:11:13Z",
+   "checked_utc": "2026-11-23T13:38:57Z",
    "schema_hash": "07bce3055a086a8c",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "openalex",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.276,
+   "latency_s": 0.368,
    "detail": "1 record on the anonymous pool (OFFSIM_MAILTO not set)",
    "schema": [
     "group_by",
@@ -342,6 +342,7 @@
     "results[].referenced_works_count",
     "results[].related_works",
     "results[].relevance_score",
+    "results[].reviewed_by_count",
     "results[].study_designs",
     "results[].sustainable_development_goals",
     "results[].title",
@@ -349,65 +350,77 @@
     "results[].type",
     "results[].updated_date"
    ],
-   "checked_utc": "2026-11-21T11:11:14Z",
-   "schema_hash": "d3edf3370ba52da7",
-   "last_ok": "2026-11-21"
+   "checked_utc": "2026-11-23T13:38:57Z",
+   "schema_hash": "f888c5c108d3c8c6",
+   "last_ok": "2026-11-23"
   },
   {
    "name": "crossref",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.259,
+   "latency_s": 0.203,
    "detail": "1 item",
    "schema": [
     "items[].DOI",
+    "items[].ISSN",
     "items[].URL",
     "items[].abstract",
-    "items[].article-number",
+    "items[].alternative-id",
     "items[].author",
     "items[].container-title",
     "items[].content-domain",
     "items[].created",
     "items[].deposited",
-    "items[].event",
+    "items[].funder",
     "items[].indexed",
     "items[].is-referenced-by-count",
+    "items[].issn-type",
+    "items[].issue",
     "items[].issued",
+    "items[].journal-issue",
+    "items[].language",
+    "items[].license",
     "items[].link",
     "items[].member",
+    "items[].page",
     "items[].prefix",
     "items[].published",
     "items[].published-online",
-    "items[].published-print",
     "items[].publisher",
     "items[].reference",
     "items[].reference-count",
     "items[].references-count",
     "items[].resource",
     "items[].score",
+    "items[].short-container-title",
     "items[].source",
     "items[].title",
     "items[].type",
+    "items[].update-policy",
+    "items[].volume",
     "message",
     "message-type",
     "message-version",
     "status"
    ],
-   "checked_utc": "2026-11-21T11:11:14Z",
-   "schema_hash": "e5662638190cbffc",
-   "last_ok": "2026-11-21"
+   "checked_utc": "2026-11-23T13:38:57Z",
+   "schema_hash": "afbe6194f712a3eb",
+   "last_ok": "2026-11-23"
   },
   {
    "name": "arxiv",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.253,
+   "latency_s": 14.768,
    "detail": "1 entry with an abs id",
    "schema": [
     "entry",
     "entry.author",
     "entry.category",
+    "entry.comment",
+    "entry.doi",
     "entry.id",
+    "entry.journal_ref",
     "entry.link",
     "entry.primary_category",
     "entry.published",
@@ -422,15 +435,15 @@
     "totalResults",
     "updated"
    ],
-   "checked_utc": "2026-11-21T11:11:14Z",
-   "schema_hash": "ccbaacee567ce8d9",
-   "last_ok": "2026-11-21"
+   "checked_utc": "2026-11-23T13:39:12Z",
+   "schema_hash": "30e7d95698435e25",
+   "last_ok": "2026-11-23"
   },
   {
    "name": "nva",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.82,
+   "latency_s": 0.734,
    "detail": "1 hit",
    "schema": [
     "@context",
@@ -463,15 +476,15 @@
     "nextSearchAfterResults",
     "totalHits"
    ],
-   "checked_utc": "2026-11-21T11:11:15Z",
+   "checked_utc": "2026-11-23T13:39:13Z",
    "schema_hash": "7e2e43c8c1389da9",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "ampl",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.972,
+   "latency_s": 0.859,
    "detail": "HiGHS LP: solved, objective 10 (expected 10)",
    "schema": [
     "obj",
@@ -479,15 +492,15 @@
     "x",
     "y"
    ],
-   "checked_utc": "2026-11-21T11:11:16Z",
+   "checked_utc": "2026-11-23T13:39:14Z",
    "schema_hash": "66fd1335e88658ff",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   },
   {
    "name": "runner",
    "ok": true,
    "status": "ok",
-   "latency_s": 0.937,
+   "latency_s": 0.916,
    "detail": "python 3.12; libegl1 installed; skia importable; OCP importable",
    "schema": [
     "dpkg:libegl1",
@@ -495,9 +508,9 @@
     "import:skia",
     "python"
    ],
-   "checked_utc": "2026-11-21T11:11:17Z",
+   "checked_utc": "2026-11-23T13:39:15Z",
    "schema_hash": "2de9f510c6ad9cc1",
-   "last_ok": "2026-11-21"
+   "last_ok": "2026-11-23"
   }
  ]
 }
