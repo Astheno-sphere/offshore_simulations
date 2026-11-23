@@ -4,6 +4,75 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-23 — channel sync: the Blender bridge and the display sea merged; the showcase page refused. 1039 pass, 40 skip (this box, CI-shaped).
+
+Three branches new since the 2026-11-22 sync, all from background build agents, none with a report
+(`coordination/README.md` step 4 unmet on all three). `agent/claude/visual-blender` is a strict subset of
+`visual-engine` and is covered by merging it. `live/status` (orphan, by design), `vm-pile` (refused
+2026-11-14) and `wip/cad-assets-heli` (superseded) are unchanged. Nordlys and Claude desktop pushed
+nothing this sync.
+
+**Merged (1): `agent/claude/visual-engine`** — three commits, ten files, every line an addition.
+- `offsim/physics/jonswap.py` — seeded JONSWAP display sea (gamma 3.3, Hasselmann et al. 1973, alpha set
+  numerically so 4*sqrt(m0) = Hs). Display only: Hs and Tp are arguments the caller takes from
+  `report:weather`, and `docs/VISUAL_SPEC.md` 3b records that operability and wait-on-weather still come
+  from the sourced Gribkovskaia bands above it. 16 new tests.
+- `offsim/blender/{export,shot}.py` + `tools/blender_shot.py` — CadQuery to GLB, then bpy in a **separate
+  process**. The GPL rule is not just honoured but tested: `test_importing_offsim_blender_does_not_import_bpy`
+  spawns a child, imports the package and asserts `bpy not in sys.modules`. The two bpy-dependent tests
+  skip here (no bpy on this box) and are the whole of the +2 skips.
+- Verified rather than taken from the summary: no test on main edited (both test files are new); no
+  sourced parameter, tolerance, `offsim/cinema/rules.py` number or golden frame touched; nothing under
+  `out/` committed (`export.py` writes to `out/blender`, gitignored) and no frame of any reference video;
+  no `/home/...`-shaped path anywhere on the branch (the N5a lesson held); no secret-shaped string.
+  Claimed bbox errors after the GLB round trip (S-92 0 %, platform 0.009 %) are the branch's own and could
+  not be rechecked here — they rerun wherever bpy exists.
+- Catalog gap, not a refusal: `blender-bpy` (catalog/tools.yaml:182) is already `status: tested` with
+  evidence, but its `evidence:` paths were not extended with `offsim/blender/` and
+  `tests/test_blender_bridge.py`. Concordance passes; next agent to touch the catalog should add them.
+
+**Refused (1): `agent/claude/portfolio-showcase`.** The commit is titled "Add Molde morning film and
+showcase page" and contains no film. The page's one link, `[Watch it here](molde-morning-v2.mp4)`, points
+at a file that exists nowhere on the branch — the branch is a README and two stills — so the lead link on
+a page written for strangers 404s. Video lives under `out/`, excluded by `.gitignore:4`, so this is not
+mine to fix. Second, lesser: the page lists "no sea legs across land" as check 3 that every film passes,
+then discloses two paragraphs later that ferry legs are not land-checked here — which the committed still's
+own footer and `tools/molde_film_v2.py:90` confirm. Disclosed, so not a false page, but the caveat belongs
+beside the claim. Not disputed: the two stills (105 KB, 114 KB, our own render) follow the
+`stress-test.json` precedent for report evidence and are not "data"; the page's figures (289 trips,
+5,963 km, peak 67 at 07:35) match `tools/molde_film_v2.py:5` and `tests/test_molde_film_v2.py:54` already
+on main. Note with the file:line detail in `coordination/inbox/claude/`.
+
+**Decisions recorded (mine):**
+- The showcase stills stay as a merge-blocker's evidence, not deleted: the refusal is the dead link, not
+  the binaries, and re-litigating the binaries next sync would waste the branch.
+- `visual-blender` is not merged separately and not refused — it is `visual-engine` minus its last commit.
+  If anyone is counting branches, that is why the ledger says one merge and three branches.
+
+**Environment note:** this box came up bare again, exactly as on 2026-11-22. The Dockerfile requirement
+set plus `libpango1.0-dev` from apt plus the `cadquery-ocp==7.9.3.1.1` force-reinstall rebuilt it; main
+alone then ran 1022 pass / 38 skip, matching the last sync figure exactly, which is the baseline the
+post-merge 1039/40 is measured against. This is the second fresh-box rebuild in two syncs and still is not
+in `docs/MACHINE.md`. Also: `python -m pytest -q tests` leaves
+`tests/fixtures/intake/synthetic_paper.pdf` modified in the working tree (two lines). Harmless here —
+reverted before committing — but it means the suite is not clean-tree-preserving, and a sync that commits
+with `git commit -a` would quietly carry it. Worth a fixture-writes-to-tmp fix.
+
+**Blocked, and on whom:**
+- **Arshad** — new: where the Molde film is hosted. The showcase page cannot be published until its video
+  link resolves, and the two options differ in kind — commit the mp4 (binary video in git, against the
+  spirit of the no-data rule) or host it outside and link out. One line from you unblocks the branch.
+  Unchanged and now five syncs old: the A9 decision (one word); `BW_CLIENT_ID` / `BW_CLIENT_SECRET` as
+  Actions secrets under exactly those names and `OFFSIM_MAILTO` as a repository *variable*; publishing
+  `world-bergen-ncs.zip` as a release asset. Audit 10's H2 merge gap still needs the human decision
+  recorded there.
+- **Background build agents** — the showcase branch (note filed), and a report for any branch they expect
+  merged.
+- **Nordlys** — unchanged: `metocean_api.library_version()` from `venv-studio` so the pin can be exact,
+  and N8's workflow patch via the push route. Pointer to the new Blender bridge left in their inbox.
+- **Claude desktop** — unchanged and not blocking: `coordination/reports/D1.md` still does not exist;
+  local AMPL objectives against 114 643 m and 9980.4986 remain unreported. AMPL runs on Actions.
+
 ## 2026-11-22 — channel sync: N5a's refusal closed and the helideck rerun merged. 1022 pass, 38 skip (this box, CI-shaped).
 
 Four branches new since the 2026-11-21 sync, all from Nordlys, all merged. The stale-tracking-ref incident
