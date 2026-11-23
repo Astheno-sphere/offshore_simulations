@@ -1,4 +1,4 @@
-generated_utc: '2026-11-16T13:57:27Z'
+generated_utc: '2026-11-23T16:16:14Z'
 gaps:
 - gap_id: no-norway-vrptw-psv
   kind: no-norway
@@ -25,13 +25,13 @@ gaps:
   - service_level
   factors:
     support: 1.0
-    novelty: 0.927
+    novelty: 0.928
     feasibility: 0.667
     audience: 1.0
-    score: 0.6183
+    score: 0.619
   factor_notes:
     support: 7 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 7: 89/(7+89)'
+    novelty: 'largest neighbour 90 papers, this cell 7: 90/(7+90)'
     feasibility: solver covers VRPTW; engine replay does not cover VRPTW; data target
       Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
@@ -87,7 +87,7 @@ gaps:
     score: 0.3912
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    novelty: 'largest neighbour 90 papers, this cell 2: 90/(2+90)'
     feasibility: solver covers WFPPP; engine air covers WFPPP; data target Norway
       reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
@@ -116,7 +116,7 @@ gaps:
     score: 0.3154
   factor_notes:
     support: 5 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 5: 89/(5+89)'
+    novelty: 'largest neighbour 90 papers, this cell 5: 90/(5+90)'
     feasibility: solver none covers CREW-ROUTE; engine openclsim does not cover CREW-ROUTE;
       data target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
@@ -140,13 +140,13 @@ gaps:
   - fuel_t
   factors:
     support: 0.6
-    novelty: 0.929
+    novelty: 0.93
     feasibility: 0.667
     audience: 0.6
-    score: 0.2231
+    score: 0.2233
   factor_notes:
     support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 39 papers, this cell 3: 39/(3+39)'
+    novelty: 'largest neighbour 40 papers, this cell 3: 40/(3+40)'
     feasibility: solver none covers WIND-OM; engine wombat covers WIND-OM; data target
       Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
@@ -169,13 +169,13 @@ gaps:
   - cost
   factors:
     support: 0.6
-    novelty: 0.912
+    novelty: 0.914
     feasibility: 0.667
     audience: 0.6
-    score: 0.219
+    score: 0.2195
   factor_notes:
     support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 31 papers, this cell 3: 31/(3+31)'
+    novelty: 'largest neighbour 32 papers, this cell 3: 32/(3+32)'
     feasibility: solver none covers WIND-INST; engine orbit covers WIND-INST; data
       target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
@@ -234,7 +234,7 @@ gaps:
     score: 0.1566
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    novelty: 'largest neighbour 90 papers, this cell 2: 90/(2+90)'
     feasibility: solver covers WFPPP; engine air covers WFPPP; data target Brazil
       not reachable (no world definition or pulled data)
     audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'
@@ -263,7 +263,7 @@ gaps:
     score: 0.1553
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 64 papers, this cell 2: 64/(2+64)'
+    novelty: 'largest neighbour 65 papers, this cell 2: 65/(2+65)'
     feasibility: solver none covers WIND-INST; engine orbit covers WIND-INST; data
       target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
@@ -291,7 +291,7 @@ gaps:
     score: 0.153
   factor_notes:
     support: 4 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 4: 89/(4+89)'
+    novelty: 'largest neighbour 90 papers, this cell 4: 90/(4+90)'
     feasibility: solver none covers PSV-PDP; engine openclsim does not cover PSV-PDP;
       data target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
@@ -317,7 +317,7 @@ gaps:
     score: 0.1303
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    novelty: 'largest neighbour 90 papers, this cell 2: 90/(2+90)'
     feasibility: solver none covers PSV-PDP; engine air does not cover PSV-PDP; data
       target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode yes -> 1.0'
@@ -365,13 +365,13 @@ gaps:
   - cost
   factors:
     support: 0.6
-    novelty: 0.955
+    novelty: 0.956
     feasibility: 0.333
     audience: 0.6
-    score: 0.1145
+    score: 0.1146
   factor_notes:
     support: 3 papers, saturates at 5
-    novelty: 'largest neighbour 64 papers, this cell 3: 64/(3+64)'
+    novelty: 'largest neighbour 65 papers, this cell 3: 65/(3+65)'
     feasibility: solver none covers FSMP; engine openclsim does not cover FSMP; data
       target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
@@ -400,7 +400,7 @@ gaps:
     score: 0.0775
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 64 papers, this cell 2: 64/(2+64)'
+    novelty: 'largest neighbour 65 papers, this cell 2: 65/(2+65)'
     feasibility: solver none covers CREW-ROUTE; engine orbit does not cover CREW-ROUTE;
       data target Norway reachable
     audience: 'editorial weight: Norwegian target yes, filmable mode no -> 0.6'
@@ -446,7 +446,7 @@ gaps:
     score: 0.0
   factor_notes:
     support: 2 papers, saturates at 5
-    novelty: 'largest neighbour 89 papers, this cell 2: 89/(2+89)'
+    novelty: 'largest neighbour 90 papers, this cell 2: 90/(2+90)'
     feasibility: solver none covers PSV-PDP; engine air does not cover PSV-PDP; data
       target Brazil not reachable (no world definition or pulled data)
     audience: 'editorial weight: Norwegian target no, filmable mode yes -> 0.6'

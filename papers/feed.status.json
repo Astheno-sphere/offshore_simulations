@@ -1,10 +1,10 @@
 {
-  "generated_utc": "2026-11-16T13:57:26Z",
+  "generated_utc": "2026-11-23T16:16:12Z",
   "since": "2015-01-01",
   "queries": 13,
   "sources": {
     "openalex": {
-      "records": 262,
+      "records": 264,
       "errors": 5,
       "errors_429": 0,
       "last_error": "HTTPError: HTTP Error 400: Bad Request",
@@ -21,14 +21,14 @@
     },
     "arxiv": {
       "records": 60,
-      "errors": 2,
-      "errors_429": 1,
-      "last_error": "HTTPError: HTTP Error 429: Too Many Requests",
+      "errors": 0,
+      "errors_429": 0,
+      "last_error": null,
       "retry_after_s": null,
-      "status": "partial"
+      "status": "ok"
     },
     "nva": {
-      "records": 130,
+      "records": 132,
       "errors": 0,
       "errors_429": 0,
       "last_error": null,
