@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-162 tools · 37 tested · 15 wired · 10 installed · 50 candidate · 4 manual · 46 watch.
+165 tools · 37 tested · 15 wired · 10 installed · 53 candidate · 4 manual · 46 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -19,7 +19,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 10 | 0 | 1 | 6 | 0 | 7 | 24 |
+| render | 10 | 0 | 1 | 9 | 0 | 7 | 27 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
@@ -81,6 +81,9 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [pdfplumber](https://github.com/jsvine/pdfplumber) | benchmarks | tested | here | Paper PDF -> page text + ruled tables -> page-referenced evidence for paper-extract (offsim paper). |
 | [OpenAlex works API](https://api.openalex.org) | benchmarks | wired | actions | Paper feed (L6): search, author filters, abstracts; not yet run live. |
 | [Crossref REST API](https://api.crossref.org) | benchmarks | wired | actions | DOI metadata for the feed; not yet run live. |
+| [iart motion-design-skills](https://github.com/iart-ai/motion-design-skills) | render | candidate | here | Easing-curve library with exact cubic-beziers, shot composition (thirds, layers, safe areas per aspect), camera language. Read at b85e50c, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored. |
+| [iart data-animation-skills](https://github.com/iart-ai/data-animation-skills) | render | candidate | here | Chart and data animation rules (counters, bar-race, labelling, verify stills before encode). Read at 6570c0c, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored. |
+| [iart explainer-video-skills](https://github.com/iart-ai/explainer-video-skills) | render | candidate | here | Explainer structure, voice timing (about 2.3 words a second), whiteboard and isometric draw-on recipes (recipes unread). Read at 3c13a1b, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored. |
 
 ## world
 
@@ -235,6 +238,9 @@ _Maps and 3D scenes from validated trajectories_
 | [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | MIT | candidate | here | now | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | MIT | candidate | here | now | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
 | [deck.gl TerrainLayer / SimpleMeshLayer / BitmapLayer](https://deck.gl/docs/api-reference/geo-layers/terrain-layer) | MIT | candidate | here | now | Draw the mesh and baked hillshade; disable the default CDN worker (loadOptions) for offline renders. |
+| [iart data-animation-skills](https://github.com/iart-ai/data-animation-skills) | MIT | candidate | here | now | Chart and data animation rules (counters, bar-race, labelling, verify stills before encode). Read at 6570c0c, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored. |
+| [iart explainer-video-skills](https://github.com/iart-ai/explainer-video-skills) | MIT | candidate | here | now | Explainer structure, voice timing (about 2.3 words a second), whiteboard and isometric draw-on recipes (recipes unread). Read at 3c13a1b, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored. |
+| [iart motion-design-skills](https://github.com/iart-ai/motion-design-skills) | MIT | candidate | here | now | Easing-curve library with exact cubic-beziers, shot composition (thirds, layers, safe areas per aspect), camera language. Read at b85e50c, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored. |
 | [Seeded offline particle trails (ours, via deck.gl TripsLayer)](https://github.com/Astheno-sphere/offshore_simulations/blob/main/offsim/weather/visual.py) | MIT | tested | here | now | Chosen wind/current visual: RK4 streamlines pre-integrated in Python, fixed respawn schedule, drawn at currentTime=t; frame-exact by construction. Evidence: `offsim/weather/visual.py` `offsim/render_deck/src/layers/weather.js` `tests/test_weather.py` |
 | [trimesh](https://github.com/mikedh/trimesh) | MIT | tested | here | now | Feature-edge extraction from our glTF models -> CAD-style plan/side line art (offsim/assets/lineart.py). Evidence: `offsim/assets/lineart.py` `requirements-render.txt` `tests/test_pipeline_motion.py` |
 | [build123d](https://github.com/gumyr/build123d) | Apache-2.0 | installed | here | next | Declared, not yet called: builder API on the same OpenCASCADE kernel. offsim/assets/cad accepts its shapes (drawing.py) but the asset modules use CadQuery only. Install order matters: build123d pulls cadquery-ocp-novtk, which breaks CadQuery VTK; reinstall cadquery-ocp afterwards. Evidence: `requirements-cad.txt` |

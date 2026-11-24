@@ -37,3 +37,9 @@ SOFTWARE.
 Vendored unmodified under `third_party/pocket-city/` (built example pages, preview SVGs and scene data removed to save
 space). MIT. Its drawing kit builds on Colorfigures and iso-glow, which build on Tolga Cohce's iso-figure (MIT). Map data
 fetched by it stays under the ODbL, credit "(c) OpenStreetMap contributors". Full licence text: `third_party/pocket-city/LICENSE`.
+
+## Visual rule sources (read, paraphrased, not vendored)
+
+`docs/VISUAL_DEFINITIONS.md` paraphrases design rules from heygen-com/hyperframes (Apache-2.0, commit 2ffa5ae),
+iart-ai/motion-design-skills (MIT, b85e50c), iart-ai/data-animation-skills (MIT, 6570c0c) and
+iart-ai/explainer-video-skills (MIT, 3c13a1b). No source text or code is copied; each rule cites its file.
