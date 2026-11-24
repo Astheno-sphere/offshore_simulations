@@ -241,17 +241,39 @@ def main(scene_json, out_png):
     cd = bpy.data.cameras.new("cam")
     cd.lens = float(cam.get("lens_mm", 50))
     cd.sensor_width = float(cam.get("sensor_mm", 36))
-    cd.clip_start, cd.clip_end = float(cam.get("clip_start_m", 0.1)), float(cam.get("clip_end_m", 20000.0))  # map shots 50-220 km out need clip_end_m
     co = bpy.data.objects.new("cam", cd)
     sc.collection.objects.link(co)
     co.location = cam["position"]
     look = Vector(cam["look_at"])
+    # Far clip must clear the camera distance: the helideck default (20 km)
+    # clips a map-scale shot outright (camera ~38 km out), so the frame
+    # renders sky only. Default is 3x the camera distance when that is larger.
+    # why: the Molde peak still came back all sky, nothing in frame.
+    _dist = (look - co.location).length
+    cd.clip_start, cd.clip_end = 0.1, float(cam.get("clip_end_m", max(20000.0, 3.0 * _dist)))
     co.rotation_euler = (look - co.location).to_track_quat("-Z", "Y").to_euler()
     if cam.get("dof_fstop"):
         cd.dof.use_dof = True
         cd.dof.aperture_fstop = float(cam["dof_fstop"])
         cd.dof.focus_distance = (look - co.location).length
     sc.camera = co
+
+    # ---- texts (map labels, flat on the ground, Bfont)
+    # A text object lies in its local XY plane facing +Z, i.e. flat on the
+    # ground already; only the heading about Z is set. size_m is the cap
+    # height in metres. why: the Molde still needs its place and street names
+    # in the picture, and the bridge had no text type.
+    for i, t in enumerate(spec.get("texts", [])):
+        cu = bpy.data.curves.new(f"label_{i}", "FONT")
+        cu.body = t["text"]
+        cu.size = float(t.get("size_m", 600))
+        cu.align_x, cu.align_y = "CENTER", "CENTER"
+        cu.extrude = 0.0
+        ob = bpy.data.objects.new(f"label_{i}", cu)
+        sc.collection.objects.link(ob)
+        ob.location = t["position"]
+        ob.rotation_euler = (0, 0, math.radians(float(t.get("heading_deg", 0))))
+        ob.data.materials.append(toon(t.get("colour", "ink")))
 
     # ---- Freestyle ink
     shading = spec.get("shading", {})
@@ -283,6 +305,11 @@ def main(scene_json, out_png):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    # Blender passes its own flags in sys.argv, so take only the args after
+    # `--` when present; plain `python blender_shot.py <scene> <png>` keeps
+    # working (why: `blender -b --python` exits with the usage text because
+    # len(sys.argv) != 3, which blocks the bridge on a VM with no pip bpy).
+    args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+    if len(args) != 2:
         sys.exit(__doc__)
-    main(sys.argv[1], sys.argv[2])
+    main(args[0], args[1])
