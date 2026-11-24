@@ -4,6 +4,66 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-24 — channel sync: weekly feed merged, its gap table regenerated rather than taken. 1039 pass, 40 skip (this box, CI-shaped).
+
+One branch new since the 2026-11-23 sync: `papers/auto` (981a361, 2026-11-23 16:16Z, the weekly feed).
+`live/status` advanced to 87ec02e (2026-11-23 13:39Z) and stays unmerged, orphan by design. Unchanged and
+not re-litigated: `vm-pile` (22 commits, refused 2026-11-14), `agent/claude/portfolio-showcase` (refused
+2026-11-23), `wip/cad-assets-heli` (41389a1, spent). Nordlys and Claude desktop pushed nothing for the
+third sync running; `coordination/reports/D1.md` still does not exist. No new inbox item for me.
+
+**Merged (1): `papers/auto`** — data only, `papers/{feed.jsonl,tags.jsonl,feed.status.json,gaps.yaml}`.
+`feed.jsonl` and `tags.jsonl` append-only (+66/-0 each, 965 -> 1031 records); `feed.status.json` is the
+probe log (openalex 262 -> 264, nva 130 -> 132, arxiv partial -> ok, its 429 gone). No code, test,
+tolerance, sourced value, `offsim/cinema/rules.py` number or golden frame touched; nothing under `out/`,
+no frame of any reference video, no `/home/...`-shaped path. Four uuid-shaped strings scanned and cleared:
+they are public `nva:` publication ids in the two new NVA records, the same form as the 70 already on main.
+
+**The one thing verified rather than taken: `papers/gaps.yaml` is NOT the branch's.** It conflicted, and
+the branch side is wrong about this repo's own code. Its coverage claims are byte-identical to the
+2026-11-16 merge base — zero changed coverage lines in a week — with 10 `does not cover` against main's 6,
+so taking it would have reverted the 2026-11-17 correction made inside merge 3dcc6bb and demoted the top
+gap `no-norway-vrptw-psv` from 0.927 to 0.619 on the claim "engine replay does not cover VRPTW".
+`offsim.research.gaps.capabilities()` run on this commit reports `replay ['CVRP', 'PDP', 'VRPTW']`. The
+cause is the workflow's environment, not the data: `.github/workflows/papers.yml:51` installs only
+`pyyaml pandas`, so `capabilities()` there cannot import the engines whose `classes` it reads, and
+`_factor_feasibility` scores every such cell 0.667 instead of 1.0. `gaps.yaml` on main is therefore a
+fresh local regeneration from the merged `tags.jsonl`, on a box where the engines import: identical to
+main except the timestamp and the four novelty counts the two new papers move (89 -> 90, 39 -> 40,
+31 -> 32, 64 -> 65). 16 gaps, 16 open, ranking order unchanged, scores monotonic.
+
+**Decisions recorded (mine):**
+- The integrator regenerating `gaps.yaml` on merge is a workaround, not the fix, and it is now the second
+  week it was needed (3dcc6bb did it silently; this entry says so out loud). The fix is Arshad's one-line
+  call below — until then every weekly run writes an understated gap table and the next integrator must
+  know not to take it.
+- `live/status` is read, not merged: the probe table is the live signal, and merging an orphan branch
+  would put a dated snapshot on main. Noted from 87ec02e: `barentswatch` now answers with a token issued
+  (expires_in 3600 s), so the `BW_CLIENT_ID` / `BW_CLIENT_SECRET` item on Arshad's list is closed.
+  `overpass` is still HTTP 502 (third sync). `openalex` still runs on the anonymous pool because
+  `OFFSIM_MAILTO` is unset — the same 5 errors show in the feed status this merge carries.
+
+**Blocked, and on whom:**
+- **Arshad** — (a) the decision below on `papers.yml`; (b) `OFFSIM_MAILTO` as a repository *variable*,
+  still unset, which is where openalex's 5 errors come from; (c) publishing `world-bergen-ncs.zip` as a
+  release asset (no create-release or asset-upload tool exists here), so `fetch_world --pull` and the
+  winter stress test on Actions stay blocked on a human; (d) the A9 decision, one word, unchanged.
+- **Nordlys** — N5a paths (`/home/hatch/...`, seven files), unchanged since 2026-11-21.
+- **Claude desktop** — `coordination/reports/D1.md`; local AMPL objectives against 114 643 m and
+  9980.4986 remain unreported. Not blocking: AMPL runs on Actions.
+- **Integrator (me)** — `metocean-api` is still unpinned, and it is not mine to settle: RESUME
+  2026-11-19 left it as a human choice between `tests.yml` + Dockerfile and dropping the NORA3 point
+  series. Carried, not done.
+- Audit 10's H2 merge gap is untouched: these merges still go in without any `why:` line enforced on the
+  merge path, as Audit 10 predicted.
+
+**For the human, one call:** fix `.github/workflows/papers.yml` so its gap table is trustworthy, or stop
+it writing one. Either install the engine requirements in that job (`requirements-engines.txt`, which is
+why the table is understated) or drop `python -m offsim.research.gaps` from the workflow and let the
+integrator regenerate `gaps.yaml` on merge, as happened here. The second is cheaper and already the de
+facto process; the first makes the branch's own artifact correct. Until one is chosen, the weekly feed
+cannot be fast-forwarded blind.
+
 ## 2026-11-23 — channel sync: the Blender bridge and the display sea merged; the showcase page refused. 1039 pass, 40 skip (this box, CI-shaped).
 
 Three branches new since the 2026-11-22 sync, all from background build agents, none with a report
