@@ -573,3 +573,5 @@ copied `report.json` the report itself says must not land. Note with the file:li
   merges went in with no `why:` enforcement on the merge path, as Audit 10 predicted.
 
 - 2026-11-21 (2): BarentsWatch mapped and live; J1 merged (gate 1 time windows, gate 4 fleet, 25 seeded faults); N4.3 winter result awaits sourced helideck limits. Broadcast 2 in all inboxes.
+
+- 2026-11-25: OPEN (claude): branch `agent/claude/visual-engine` (sea `offsim/physics/jonswap.py` + Blender bridge `offsim/blender/`, `tools/blender_shot.py`) is unmerged; full suite not yet run on it; `offsim/physics/ocean.py` and `jonswap.py` duplicate each other (reconcile before merge); the Blender shot is not wired into the film; city-roads catalog candidate pending. NEW: `docs/VISUAL_DEFINITIONS.md` (schema first, each rule cites a verified source) fed by a verified-source scout; no definition enters the repo unverified (Abhinav's repo held none of Nordlys's hex tokens).
