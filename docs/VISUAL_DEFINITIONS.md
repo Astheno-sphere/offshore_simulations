@@ -12,8 +12,16 @@ Sources, read from shallow clones at the pinned commits (read only, nothing exec
 | MD | iart-ai/motion-design-skills @ b85e50c | MIT | easing library, composition, safe areas |
 | DA | iart-ai/data-animation-skills @ 6570c0c | MIT | chart and data animation |
 | EV | iart-ai/explainer-video-skills @ 3c13a1b | MIT | explainer structure, voice timing |
+| SC | scenario-labs/skills (scenario-video-color-grade, scenario-blender-previs-storyboard) | MIT | grade, camera blocking; grade skill vendored in third_party/ |
+| VS | Vincentwei1021/video-shotcraft (references/aesthetic-rules.md, references/shots/) | Apache-2.0 | camera, pacing, text floors; paraphrase only |
+| LO | lemomo-ai/lemo-opuscar (DIRECTOR.md, TECHNIQUE.md) | docs CC BY-NC 4.0, code MIT | review loop, pacing; paraphrase only, never copy |
+| QC | tomotto1296/ai-animation-skills (skills/animation-qc-selfreview) | MIT | QC thresholds; paraphrase only |
+| B1 | AmitSubhash/3brown1blue (src/three_b1b/skill/rules/) | MIT | explainer gates and timings; paraphrase only |
+| HM | alchaincyf/huashu-motion (skills/huashu-motion/references/rhythm.md) | MIT (fonts, music separate) | rhythm; paraphrase only |
+| OM | nexu-io/openmotion (skills/openmotion-production/references/reference-video.md) | Apache-2.0 | reference-to-shot-list method; paraphrase only |
+| CA | artemnovitckii/claude-animation-skills (graph, map-route, breakdown) | MIT | HyperFrames templates; vendored in third_party/ |
 
-Not absorbed (checked, thin or off-register): iart-ai/manim-skills, charlie947/motion-graphics-skills (launch-marketing
+Batch 2 (2026-11-25, owner list verified by clone): see the table above and section 13. Not absorbed (checked, thin or off-register): iart-ai/manim-skills, charlie947/motion-graphics-skills (launch-marketing
 register), anthropics/skills (static design), gsap-skills and remotion skills (API recipes), kylezantos/design-motion-principles
 (UI micro-interaction). Dropped: motion-canvas and manim (libraries, no rules), iart-ai/motion-skills (index). Not verified:
 the owner's claim of a `skills/motion-graphics` file in HyperFrames (absent at HEAD) and the "13 skills" count (repo has 15).
@@ -70,6 +78,13 @@ Entry form: `rule | value | source`. Status is `adopt` (apply now), `check` (ren
 ## 8. Camera moves
 - One camera move per shot, named with property, from-to values, duration, easing: push/pull (dolly) 800-2000 ms ease-in-out, pan/tilt, follow, parallax | MD shot-composition SKILL §5 | adopt
 - Continuous motion that works: the subject working, a slow orbit of the background stage (3-5 degrees a second); breathing or floating loops standing in for motion are a tell | HF motion
+- Frame size from distance (blocking math): visible height = subject height x [4, 2, 1.15, 0.8, 0.6, 0.4, 0.25, 0.12] for extreme wide, wide, full, medium-wide, medium, medium close-up, close-up, extreme close-up; camera distance = visible height x lens (mm) / 20.25 (16:9 sensor height, 36 mm width) | SC previs-storyboard SKILL | adopt for the Blender camera
+- Neutral start: eye level, medium lens (35 mm theatre frame, about 60 mm for an isolating key shot), centred, static; A/B the lens before posing; same-size lens swap d2 = d1 x f2/f1 | SC previs-storyboard SKILL | adopt
+- Never constant speed; default slower; a main action arc at least 3 s; hold key information at least 1 s before cutting; pause 0.5 s after an entrance of many things | VS aesthetic-rules.md | adopt
+- Whole-frame beat hits (scale pump, shake, flash) at most 3 per film, at least 16 beats apart; otherwise animate only the hero | VS aesthetic-rules.md | adopt
+- Crash zoom 6 frames (4-8 allowed; over 10 reads as a push-in), at least 30 frames of hold before and 45 after; overshoot settles 3-6 %; tilt overshoot at most 3 degrees; handheld noise is 0.010-0.018 rad on an 18-26 frame scale, none on bright UI, product shot is the stillest | VS camera cards, SC previs | adopt as limits (engineering register: no handheld)
+- Slow settle creep 1.2-1.8 % over a hold; no dead hold over 1 s unless it is a read | VS | check
+- Audit gates for a cut sequence: one side of the action line, screen direction kept per journey, no lens jump on a cut, no two inserts in a row | SC previs | adopt
 - Static camera is allowed and is the measured default in four reference films (`coordination/reports/reference-measurements.md`); a move is chosen per shot, not banned | OURS, decision pending
 
 ## 9. Linework and asset style
@@ -81,6 +96,12 @@ Entry form: `rule | value | source`. Status is `adopt` (apply now), `check` (ren
 - Three contact sheets: each scene at start and middle, every beat, a strip across each cut, beat frames at 360 px phone width | HF review §1 | adopt
 - Describe each beat frame in one sentence naming every object; an object you would have to explain is a P0; P0 breaks the read, P1 weakens, P2 polish | HF review §2-3 | adopt for every film review
 - Trust measured numbers over the eye where they disagree | HF review §1
+- Automatic QC thresholds: flicker if mean luma jumps 10 or more in one frame; strobing if swings of 22 or more occur more than 3 times a second; freeze if static 0.5 s or more with max pixel difference 12 or less; flag black, white or solid-colour frames; never start on a blank frame | QC animation-qc-selfreview/SKILL.md | check (port as our own lint)
+- Declare intended statics, flashes and blackouts in an `expect` list before the first export, not after a failure | QC | adopt
+- Loudness about -14 LUFS (ebur128), blackdetect, no NaN frames, one full-speed viewing with sound; do one fix round, re-check once | LO TECHNIQUE.md | adopt
+- Minimum text height at 1080p: subtitles 56 px or more (about 5.2 % of frame height), secondary text 32 px or more; check by scaling frames to 480 px wide | VS | check (stricter than HF 2.6 %)
+- Subtitle hold at least the spoken line plus 0.6 s and at least 1.8 s; title cards at least 4 s | LO DIRECTOR.md | adopt
+- Visible height and safe areas were not found as measured lints in raea (FSL licence, source-available, cannot vendor); its list (clipped text, low contrast, unsafe areas, freezes, loudness) is a pointer only | raea README | open
 
 ## Applied to the Irina intervention shot (first test, to be rendered before and after)
 1. Event frame shows the S-92 leaving (HF: describe each beat frame naming every object; today the chip names an object that is absent).
@@ -88,3 +109,27 @@ Entry form: `rule | value | source`. Status is `adopt` (apply now), `check` (ren
 3. One framing held while the field acts (HF rhythm), one deliberate camera decision per shot (MD), exits shorter than entrances.
 4. Text floor and hold times measured with the lints above; headline length decision stays with the owner.
 5. Sea drawn from the Hs and Tp refs (`offsim/physics/jonswap.py`), display only.
+
+## 11. Grade (new slot)
+- Deterministic grade: per-pixel ops are baked into a 33^3 `.cube` by a pure-numpy script and applied with ffmpeg `lut3d`; vignette, grain and halation are separate finishing steps; a `.cube` carries colour only, spatial effects need a mask | SC scenario-video-color-grade/SKILL.md, references/ops.md | adopt, vendored (third_party/scenario-video-color-grade, MIT)
+- Order: relight, selective, ops (in the LUT), then vignette, grain, halation | SC | adopt
+- Op ranges: contrast 0.15-0.45 normal, 0.75-0.9 hard; saturation 0.4 bleach, 0.75 muted, 1.1-1.35 rich; black level 0.03-0.08 for faded; vignette angle PI/6 subtle, PI/3.5 strong; grain 4-10; relight only 0.3-1 stop | SC | adopt as limits
+- Always grade one still first and compare before rendering video; check frame counts match the source; sweep keyed or relit renders for flicker | SC | adopt
+- Proven here (2026-11-25): `grade.py` writes `.cube` files; `ffmpeg 6.1.1 -vf lut3d=file=...` applies them to the Irina baseline frame. Finding: bleach bypass and blue hour both darkened and muted the maroon frame and lost the amber accent, so a global look does not fix this frame; grade is a finishing step after the picture reads, not a repair | OURS, docs/TESTLOG.md
+- Film emulation tools (film-lab) not found, unverified | open
+
+## 12. Pacing and film review (additions)
+- Cue map first, then picture locked to it, a script checks every cue; vary pace with one acceleration or deceleration and one held breath; at least four distinct camera moves in a longer film; subject fills a third of the frame height at key moments | LO DIRECTOR.md | adopt (paraphrased)
+- Hook within 3 s; densest burst at 30-60 % of the length with 5-8 cuts on the beat (plus or minus a frame at 30 fps); hold the mark at least 1.5 s; soft 0.6-0.8 s eases everywhere make a film sleepy | HM rhythm.md | adopt
+- Explainer gates: no animation code before a narration script, a scene list and a style contract exist; run times: equation first shown 1 s plus a 2 s wait, formula transform 1.5-2 s, camera zoom 1.5 s, hold 2-3 s after a major reveal, a 1 s wait after every 3-4 animations, at most 2 things moving, animation leads narration by about 0.5 s | B1 paper-explainer.md | adopt
+
+## 13. Reference to shot list (our workflow, mechanised later)
+- Read the reference at native frames around every cut; one-per-second thumbnails are navigation only; keep the source's exact frame rate; measure cuts, events, frames and the nearest ease curve, then name each shot and rebuild | OM reference-video.md | adopt as method (our `tools/reference_study.py` implements the same steps; do not adopt its CLI or its 215 MB app)
+
+## 14. Production systems (verified on this machine)
+- ffmpeg 6.1.1 with GPL and libzimg: `lut3d` (`.cube`), `tonemap`, `zscale`, `tblend`/`tmix`/`framestep`/`minterpolate` (motion blur), `vignette`, `noise` (temporal grain), `unsharp`, `xfade` (50+ transitions), `loudnorm` (two-pass), QC `ebur128`, `blackdetect`, `freezedetect`, `silencedetect`. GPL runs as a separate process | OURS, checked with `ffmpeg -h filter=`
+- three.js is MIT. Headless render through system Chrome (WebGL2, frame by frame) is reported by another project but is untested here | open
+
+## 15. Connectors and their risk
+- `ahujasid/mcp-for-blender` (the former `blender-mcp`, MIT) exposes `execute_code`, which runs arbitrary Python in Blender, and its opt-in safe mode covers only the MCP path; the addon socket takes raw code from any local process. It has no camera tools (the "16 camera tools" claim did not verify). Not enabled by default; if ever used, on a throwaway render job only | audit of clone, 2026-11-25
+- Our own path is the headless `bpy` subprocess (`offsim/blender/`), which is the same risk class; its input is our scene JSON, never agent-authored code

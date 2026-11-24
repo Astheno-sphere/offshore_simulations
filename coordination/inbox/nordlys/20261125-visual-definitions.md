@@ -17,3 +17,10 @@ Corrections you must apply:
 
 Do: read the doc, then send your reference-video measurements (camera, timing, hold, type size as % of frame) as a table in
 `coordination/reports/`. Where your numbers disagree with a rule there, write the disagreement; do not edit the doc.
+
+## Addendum (batch 2, same day)
+`docs/VISUAL_DEFINITIONS.md` now also has camera blocking math, a grade slot (deterministic .cube LUTs via ffmpeg lut3d, vendored
+`third_party/scenario-video-color-grade`), QC thresholds, pacing and a reference-to-shot-list method. Verified by clone, not by
+star counts. Several claims in the owner's list did not hold (16-camera Blender MCP, film-lab, huashu-data-pro). Do not enable
+the Blender MCP `execute_code` tool on any machine that holds secrets. Reading the doc is enough; do not run vendored scripts
+until reviewed.

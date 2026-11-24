@@ -402,3 +402,13 @@ tools:
    role: "Chart and data animation rules (counters, bar-race, labelling, verify stills before encode). Read at 6570c0c, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored."}
 - {id: iart-explainer-video-skills, name: "iart explainer-video-skills", url: "https://github.com/iart-ai/explainer-video-skills", layer: render, licence: MIT, status: candidate, runs: here, priority: now,
    role: "Explainer structure, voice timing (about 2.3 words a second), whiteboard and isometric draw-on recipes (recipes unread). Read at 3c13a1b, rules absorbed into docs/VISUAL_DEFINITIONS.md; not vendored."}
+- {id: scenario-color-grade, name: "Scenario video colour grade", url: "https://github.com/scenario-labs/skills", layer: render, licence: "MIT", status: tested, runs: here, priority: now, evidence: "third_party/scenario-video-color-grade/LICENSE docs/TESTLOG.md",
+   role: "Deterministic grade: numpy writes 33^3 .cube LUTs (21 looks), ffmpeg lut3d applies them. Vendored untouched. Tested here on the Irina baseline frame; finding in docs/VISUAL_DEFINITIONS.md section 11."}
+- {id: claude-animation-skills, name: "claude-animation-skills (3 skills)", url: "https://github.com/artemnovitckii/claude-animation-skills", layer: render, licence: "MIT", status: candidate, runs: here, priority: now,
+   role: "HyperFrames templates for a line graph, a 3D map route and an exploded view; vendored untouched under third_party/claude-animation-skills, not yet run. Review build.py before running."}
+- {id: video-shotcraft, name: "video-shotcraft (rules only)", url: "https://github.com/Vincentwei1021/video-shotcraft", layer: render, licence: "Apache-2.0", status: candidate, runs: here, priority: now,
+   role: "Camera, pacing and text-floor rules (124 shot cards). Paraphrased in docs/VISUAL_DEFINITIONS.md; nothing vendored."}
+- {id: openmotion-method, name: "openmotion (method only)", url: "https://github.com/nexu-io/openmotion", layer: render, licence: "Apache-2.0", status: watch, runs: here, priority: now,
+   role: "Reference video to shot list method (measure, name, rebuild). 215 MB app, v0.1, needs API keys; we keep our own tools/reference_study.py and read its method only."}
+- {id: raea-lints, name: "raea (lint list only)", url: "https://github.com/shinyobjectz/raea", layer: render, licence: "FSL-1.1-ALv2", status: watch, runs: here, priority: now,
+   role: "Source-available, not open source: cannot be vendored. Only its check list (clipped text, contrast, unsafe areas, freezes, loudness) is a pointer."}
