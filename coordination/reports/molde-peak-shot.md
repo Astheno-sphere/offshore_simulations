@@ -75,6 +75,15 @@ map and a thinner frame. Grade stays out (Irina finding).
    "MOLDE " prefix (test `test_centre_place_labels_staggered`, 12 targeted
    tests pass). The fix landed after the full suite started; it is covered by
    its own test and the targeted run, not by the suite run on the commit.
+   LABEL FIX v3 (2026-11-25, after the push): FERJEKAI/LUFTHAVN still touched
+   at 600 m, so place labels are now 400 m and FERJEKAI moves to dy +3600
+   (LUFTHAVN stays at dy 0 — the two are on separate rows, no touch). A
+   second pass found the labels sitting ON their dots (SENTRUM, SEKKEN KAI,
+   FURNESET FERJEKAI, LUFTHAVN all centre-aligned on the dot), so every place
+   label now sits 900 m above its dot. Render `peak-v3.png` (full-res,
+   ~25 s): all six place labels readable, none touching, none on a dot.
+   Remaining nits: the centre street labels (E 39, Storgata) overlap the
+   centre dot cluster, and Malmefjordvegen is clipped at the right edge.
 2. Cards: headline / clock / count via HyperFrames over the still.
 3. Framing: the 16% sky band is dead space; the next framing should trade it
    for the town shore (steeper look-down or a tighter lens).

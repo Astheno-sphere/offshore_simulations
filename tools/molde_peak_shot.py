@@ -68,10 +68,12 @@ PLACES = {
 # at 600 m cap height, so they need a horizontal stagger as well as the
 # vertical ladder, and the "MOLDE " prefix is dropped (the map is Molde).
 PLACE_LABEL_LAYOUT = {
-    "MOLDE SENTRUM": ("SENTRUM", 0.0, 0.0),
+    "MOLDE SENTRUM": ("SENTRUM", 0.0, 900.0),
     "MOLDE TRAFIKKTERMINAL": ("TRAFIKKTERMINAL", -2200.0, 1400.0),
-    "MOLDE FERJEKAI": ("FERJEKAI", 2200.0, 2800.0),
+    "MOLDE FERJEKAI": ("FERJEKAI", 2200.0, 3600.0),
     "MOLDE LUFTHAVN, ÅRØ": ("LUFTHAVN, ÅRØ", 0.0, 900.0),
+    "FURNESET FERJEKAI": ("FURNESET FERJEKAI", 0.0, 900.0),
+    "SEKKEN KAI": ("SEKKEN KAI", 0.0, 900.0),
 }
 # Street labels: (label, match on name or ref). Anchor = middle vertex of
 # the longest matching way, heading along the way (v2's rule).
@@ -424,7 +426,7 @@ def build_scene(out_dir, traj_csv=None, agents_csv=None, geojson=None,
         label, dx, dy = PLACE_LABEL_LAYOUT.get(name, (name, 0.0, 0.0))
         texts.append({"text": label,
                       "position": [float(x[0]) + dx, float(y[0]) + dy, LABEL_Z],
-                      "size_m": 600, "heading_deg": 0, "colour": FERRY_HEX})
+                      "size_m": 400, "heading_deg": 0, "colour": FERRY_HEX})
     for s in street_anchors(osm_dir / "roads.geojson"):
         texts.append({"text": s["label"], "position": [s["x"], s["y"], LABEL_Z],
                       "size_m": 500, "heading_deg": s["heading_deg"],
