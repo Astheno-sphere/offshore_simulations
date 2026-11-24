@@ -241,7 +241,7 @@ def main(scene_json, out_png):
     cd = bpy.data.cameras.new("cam")
     cd.lens = float(cam.get("lens_mm", 50))
     cd.sensor_width = float(cam.get("sensor_mm", 36))
-    cd.clip_start, cd.clip_end = 0.1, 20000.0
+    cd.clip_start, cd.clip_end = float(cam.get("clip_start_m", 0.1)), float(cam.get("clip_end_m", 20000.0))  # map shots 50-220 km out need clip_end_m
     co = bpy.data.objects.new("cam", cd)
     sc.collection.objects.link(co)
     co.location = cam["position"]

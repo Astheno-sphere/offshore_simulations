@@ -1,0 +1,10 @@
+# Bergen Flesland heliport surroundings: buildings with heights for a massing shot (inset, about 5.5 km x 5.5 km).
+# Scale choice: the regional map is the bergen-ncs world; this small box exists only for OSM buildings, roads, helipads and
+# aerodrome. Building heights come from the height tag, else building:levels x 3 m, flagged as an assumption (offsim/worlds/osm.py).
+name: flesland-heliport
+place: {name: "Bergen Flesland heliport", lon: 5.218, lat: 60.294, source: "approx (Claude, unverified); refine via stedsnavn"}
+bbox: [5.17, 60.270, 5.27, 60.320]     # west, south, east, north
+modes: [air, road]
+osm_land: true
+osm: true                              # buildings, roads, helipads, aerodromes
+sodir_keywords: []
