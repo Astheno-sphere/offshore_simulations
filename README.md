@@ -11,6 +11,26 @@ paper into a running simulation on a real map (the Oslofjord, the fields west of
 simulation against physics and against the paper's own numbers, and only then renders it as a short 2.5D
 video. Reproduction comes first, pictures come last.
 
+## Quick start
+
+```bash
+pip install -r requirements.txt
+python -m offsim.examples.toy_fjord --out out/toy           # synthetic fjord: solve → simulate → validate → scene
+pip install playwright                                      # renderer needs Node 22, ffmpeg, Chrome
+python offsim/render_deck/render.py --scene out/toy/scene.json --out out/toy/draft.mp4
+```
+
+The full test suite needs the optional stacks too (the same set CI installs):
+
+```bash
+pip install -r requirements-render.txt -r requirements-weather.txt -r requirements-engines.txt -r requirements-gis.txt -r requirements-physics.txt -r requirements-graphics.txt -r requirements-intake.txt -r requirements-cad.txt
+pip install --force-reinstall --no-deps cadquery-ocp==7.9.3.1.1
+python -m pytest -q tests                                   # contract, replay, exact-vs-heuristic, catalog
+```
+
+Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and published as releases, then pulled:
+`python -m offsim.worlds.fetch_world --pull oslofjord`. Final videos: workflow **render**.
+
 ## How it works
 
 ```
@@ -87,19 +107,6 @@ python tools/catalog_build.py --find helicopter
 python tools/catalog_build.py --now
 ```
 
-## Quick start
-
-```bash
-pip install -r requirements.txt
-python -m pytest -q tests                                   # contract, replay, exact-vs-heuristic, catalog
-python -m offsim.examples.toy_fjord --out out/toy           # synthetic fjord: solve → simulate → validate → scene
-pip install playwright                                      # renderer needs Node 22, ffmpeg, Chrome
-python offsim/render_deck/render.py --scene out/toy/scene.json --out out/toy/draft.mp4
-```
-
-Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and published as releases, then pulled:
-`python -m offsim.worlds.fetch_world --pull oslofjord`. Final videos: workflow **render**.
-
 ## Status
 
 | Part | State |
@@ -112,7 +119,7 @@ Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and publish
 | Gated runner `offsim run` with provenance | runs, tested |
 | Motion: storyboard → Manim / deck.gl / HyperFrames → ffmpeg | built; dry-run checked in tests; renders on demand |
 | Line-art agents and sites | runs, tested (renderer `--check` in CI) |
-| First reproduced paper | next ([roadmap](docs/ROADMAP.md)) |
+| Paper reproductions | Nafstad 2021: partial reproduction, 3 of 4 pass criteria met ([report](offsim/papers/nafstad2021/reproduction_report.md)); Gribkovskaia and Slettemark 2025, helicopter crew transport: in progress ([roadmap](docs/ROADMAP.md)) |
 
 ## Repository map
 
@@ -130,6 +137,15 @@ Real worlds are fetched by GitHub Actions (workflow **fetch-world**) and publish
 
 © OpenStreetMap contributors (ODbL) · Source: Norwegian Offshore Directorate (NLOD) · Kartverket ·
 Kystverket (NLOD) · MET Norway. Data is fetched at use and never committed.
+
+## Cite, licence, how it is built
+
+Code is MIT ([`LICENSE`](LICENSE)); third-party terms are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+To cite, use GitHub's "Cite this repository" button, which reads [`CITATION.cff`](CITATION.cff)
+(author ORCID [0000-0001-9461-9442](https://orcid.org/0000-0001-9461-9442)).
+
+Built by Arshad Akhtar Abbasia with Claude Code as the build engine. The maintainer sets the gates, decides
+what counts as a reproduction and rejects results that fail them; the skills in `skills/` are how that work is done.
 
 Sister repository: [computational_Logistics](https://github.com/Astheno-sphere/computational_Logistics)
 (transport planning under deep uncertainty; source of the house style, `opt-model` and the coastline code).
