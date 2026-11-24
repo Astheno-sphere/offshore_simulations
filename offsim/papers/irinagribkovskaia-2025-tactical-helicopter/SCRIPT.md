@@ -1,6 +1,6 @@
 # Film script: does the lean Bergen fleet survive 24 winters?
 
-Status: DRAFT for owner review. Numbers below come from the three stress-test files in this folder; they are NOT yet a
+Status: APPROVED by owner 2026-11-25, conditional on the acceptance criteria in the next section. Numbers below come from the three stress-test files in this folder; they are NOT yet a
 validated report, so none may appear on screen until the experiment passes `offsim.contract.validate` and the corrector
 (see "Gates before any frame"). Format: 4:5, about 60 s, one through-line, one form (small multiples).
 
@@ -66,3 +66,39 @@ wind at the deck is the wrong subject. It can live in a separate post about roto
 | S-92 and platform solids | built, draft quality |
 | Grid shot (24 x 65) | MISSING: to build (2D, new shot kind) |
 | Script review by owner | this file |
+
+## Owner approval (2026-11-25) and acceptance criteria
+Approved on condition that the film is a simulated map with good massing, correct routes, academically accurate simulation, data
+from the paper and its model file, and the gaps turned into research direction. Each condition becomes a check:
+
+| Condition | Check before the frame ships | Source in repo |
+|---|---|---|
+| Simulated map, real geography | land, coast, relief, bathymetry from the pulled world; no hand-drawn coast | `offsim/worlds/bergen-ncs.yaml` (on disk); Flesland inset from `flesland-heliport` |
+| Good massing | Flesland buildings extruded to `height_m`; `levels x 3 m` cells flagged as assumption on the frame; count of buildings shown is the count drawn | OSM `height_src`/`height_assumption` |
+| Right routes | every drawn leg is a leg of `plan.routes` in the validated run report, great-circle at 125 kn, from the run's heliport to the installation; none drawn by eye | `report.json` `plan.routes`, `trajectory.csv` |
+| Academically accurate | paper's Table 4 reproduced (gate 4), Tables A1-A3 demand and windows, p.25 constants; deviations (fleet windows [16,16,12,10] vs [16,14,10,10], masked positions) on the closing card | gates 0-4, `scenario.yaml` |
+| Paper's data and model file | parameters come from `scenario.yaml` / `instances.yaml` with page refs; positions marked fitted | `instances.yaml` calibration block |
+| Gaps become direction | closing beat 9 below | GAP.md |
+
+Edits to the beat table above:
+- Beat 2 draws the 20 installation dots from `instances.yaml` (assumed, fitted to Table 4), labelled as such.
+- Beat 3 draws the plan's actual legs from `plan.routes`, not a schematic; a Flesland massing inset opens the beat.
+- Beat 4 quotes p.35 verbatim: "operational needs and weather conditions" (5 words); the sentence it ends is the gap.
+- Caveat 4 is closed by Nordlys's weekly-series check: P90 unmet flights per week is 1.0 (original), 1.0 (A), 0.0 (B), against the assumed rule P90 <= 1. State it as: survives under the regulatory limits (B), sits on the boundary under the IOGP limits (A). The rule itself stays flagged as an assumption.
+
+## Beat 9: research direction (new, 58-70 s; film becomes about 70 s)
+Words come from the gap, one line each, nothing numeric beyond the report refs:
+1. Plan for weather: size the fleet and slack against winter replays, not a deterministic week (the paper's own p.35 omission).
+2. Name the limit: the answer swings 3.6 % to 11 % on the helideck and sea-state limit; the limit is a decision variable, not a constant.
+3. Unmask the positions: the replay used one weather point and assumed positions; per-installation NORA3 points are the next test.
+4. Test the rule: P90 <= 1 unmet flights per week is ours; the operator's tolerance should set it.
+5. Test the other bases: Stavanger and Florø through the same winters (instances exist, replays not run).
+Each line maps to a pre-registered follow-up in GAP.md before it is shown.
+
+## Work split
+| Piece | Owner | State |
+|---|---|---|
+| Validated experiment report with `report:` refs from the three stress-test files and the P90 check | Claude (integrator) | next; needs Nordlys's weekly series pushed (waiting on owner's push go) |
+| Grid stills (beats 5-7) | Nordlys | built from files; re-render after the report exists so numbers come from `report:` refs |
+| Map, massing, route shots (beats 2-3) | Nordlys (Blender, bergen-ncs on his disk) | next, after the Molde re-render |
+| Closing beat 9, caveat card, credits | Claude | to write after the report |
