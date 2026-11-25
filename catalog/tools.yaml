@@ -412,3 +412,9 @@ tools:
    role: "Reference video to shot list method (measure, name, rebuild). 215 MB app, v0.1, needs API keys; we keep our own tools/reference_study.py and read its method only."}
 - {id: raea-lints, name: "raea (lint list only)", url: "https://github.com/shinyobjectz/raea", layer: render, licence: "FSL-1.1-ALv2", status: watch, runs: here, priority: now,
    role: "Source-available, not open source: cannot be vendored. Only its check list (clipped text, contrast, unsafe areas, freezes, loudness) is a pointer."}
+- {id: claude-eyes-video, name: "claude-eyes (moritzkremb): local video indexing and editing DNA", url: "https://github.com/moritzkremb/claude-eyes", layer: render, licence: "MIT", status: tested, runs: here, priority: now, evidence: "skills/reference-eyes/SKILL.md docs/TESTLOG.md",
+   role: "Index a clip, contact sheets, shot detection, OCR, palette, measured editing DNA, crops, ours-vs-reference compare. Installed from pinned commit a540961, not vendored. Tested here on our psv_section clip. Reference videos are studied, never committed."}
+- {id: claude-eyes-playwright, name: "claude-eyes (ridxm): Playwright MCP for UI checks", url: "https://github.com/ridxm/claude-eyes", layer: render, licence: "MIT", status: watch, runs: here, priority: later,
+   role: "Headless Chromium screenshots, console and network for frontend checks. Overlaps Claude in Chrome and the HyperFrames check/preview; Chrome exists here (/usr/bin/google-chrome). Not installed."}
+- {id: claude-eyes-mac, name: "claude-eyes (afrid1997): Mac screen and camera MCP", url: "https://github.com/afrid1997/claude-eyes", layer: render, licence: "MIT", status: watch, runs: laptop, priority: later,
+   role: "macOS only; the owner's laptop is Windows, so unusable. Desktop control comes from the Claude desktop app's computer use. Not installed."}
