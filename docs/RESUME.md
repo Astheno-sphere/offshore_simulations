@@ -4,6 +4,82 @@ Hand-written state for the next session (human or Claude). `python -m offsim res
 **Next** section together with git state, open roadmap rows and open risks. Update it at the end of every
 session and whenever work is interrupted. Newest first.
 
+## 2026-11-25 — channel sync: visual definitions merged; molde-peak-shot refused on one hardcoded path. 1039 pass, 40 skip (this box, CI-shaped).
+
+Four branches new since the 2026-11-24 sync: `agent/claude/visual-engine` (5b5a8cd, 6 commits, a background
+build agent), and three from Nordlys — `visual-scout` (5dc30c0), `reference-measurements-table` (39c7252) and
+`molde-peak-shot` (3f2da88, 8 commits, built on visual-engine's f93db25). `live/status` did not move (87ec02e,
+same as last sync). `agent/desktop/D1-ampl-link` is 0 ahead — merged, but still with no report. Unchanged and
+not re-litigated: `vm-pile` (refused 2026-11-14), `agent/claude/portfolio-showcase` (refused 2026-11-23),
+`wip/cad-assets-heli` (spent). This box came up bare for the fourth time; the CI install set from
+`tests.yml:22-27` was reinstalled by hand before the suite would collect.
+
+**Merged (3):**
+- **`agent/claude/visual-engine`** — `docs/VISUAL_DEFINITIONS.md` (each rule citing a verified source), the
+  Irina `SCRIPT.md` + `SHOTBOOK.md`, the `flesland-heliport` world, one camera line in `tools/blender_shot.py`
+  (`clip_start_m`/`clip_end_m` now configurable, default unchanged), and two vendored MIT skill sets under
+  `third_party/` (`scenario-video-color-grade`, `claude-animation-skills`), both with licence texts and
+  `THIRD_PARTY_NOTICES.md` updated. No test added or edited, no `offsim/cinema/rules.py` number, no tolerance,
+  no sourced value, no golden frame, nothing under `out/`, no reference-video frame. Both new `status: tested`
+  catalog rows carry `evidence:` paths that exist; the other six are `candidate`/`watch`. `docs/TOOLS.md`
+  rebuilt. Licence filter held: `raea` (FSL-1.1-ALv2) and `lemo-opuscar` (CC BY-NC) are pointers only, nothing
+  vendored from either.
+- **`agent/nordlys/visual-scout`** — inbox note only: eight further permissively-licensed visual skill repos,
+  three rejected on licence or register.
+- **`agent/nordlys/reference-measurements-table`** — report only: camera, timing, hold and type size for the
+  four tree films and the island reel, with "not measured" written where it was not measured. No frame of any
+  reference video committed, per `docs/REFERENCE_STUDY.md`.
+
+**Refused (1): `agent/nordlys/molde-peak-shot`.** `tools/flesland_massing.py:28` commits
+`DATA_ROOT = Path.home() / "workspace" / "offshore_simulations"`, and `build_scene` reads
+`DATA_ROOT/data/worlds/bergen/land.geojson` unconditionally at line 106. `tests/test_flesland_massing.py:37`
+calls `build_scene`, so the test reaches that line on every box: with the branch merged here,
+`1 failed, 1055 passed, 40 skipped`, `FileNotFoundError: /root/workspace/offshore_simulations/data/worlds/bergen/land.geojson`.
+`data/` is gitignored, so the path resolves on no CI runner and under no `$HOME` but Nordlys's. Its report's
+"full suite green before commit" is true on the VM only — the same shape as the N5a refusal of 2026-11-21,
+which Nordlys closed on 11-22 and has now reintroduced in a new file. `tools/bergen_service_map.py:27` carries
+the identical line, latent (its test does not reach it). **Nothing else on the branch is disputed:** all five
+test files are additions, no test edited, no rules number, tolerance, sourced value or golden frame touched,
+nothing under `out/`, no binary, no reference-video frame, no `/home/hatch/...`, and the catalog evidence
+checks out. Note with the file:line table and the fix (resolve under `ROOT`, skip when the world is absent,
+as the 10 metocean skips already do) in `coordination/inbox/nordlys/`.
+
+**Decisions recorded (mine):**
+- Nordlys's adaptive clip line (`max(20000, 3 x dist)`) is a genuine superset of visual-engine's explicit key
+  and they asked me to take it at merge. I did not: it arrives only on the branch I refused, and
+  cherry-picking one line out of a refused branch would make the refusal unverifiable. Main carries the
+  explicit key; map shots past ~20 km must pass `clip_end_m` until the re-push.
+- `tools/flesland_massing.py` was NOT fixed here by me. The fix is three lines and I could have made it, but
+  it is Nordlys's tool, the defect is the one they were already told about in November, and an integrator
+  quietly repairing it is how the lesson stops landing. Refused with the fix written out instead.
+- The build agent's RESUME line (above, dated today) was replaced, not deleted: its live half (the
+  `ocean.py`/`jonswap.py` duplication) is carried, its stale half (visual-engine unmerged) is corrected.
+  Protocol rule 6 — only the integrator edits this file — was broken by a background agent for the first
+  time; worth a guard if it recurs.
+
+**Blocked, and on whom:**
+- **Arshad** — (a) `.github/workflows/papers.yml`, unchanged from the 2026-11-24 call below: install the
+  engine requirements in that job or stop it writing a gap table; (b) `OFFSIM_MAILTO` as a repository
+  *variable*, still unset, source of openalex's 5 errors; (c) publishing `world-bergen-ncs.zip` as a release
+  asset (no create-release or asset-upload tool here), so `fetch_world --pull` and the winter stress test on
+  Actions stay blocked on a human; (d) the A9 decision, one word, unchanged.
+- **Nordlys** — `molde-peak-shot`'s two `Path.home()` roots; N5a-class defect, fourth sync that a
+  VM-only path has cost a merge.
+- **Claude desktop** — `coordination/reports/D1.md`, fourth sync. The local AMPL objectives against 114 643 m
+  and 9980.4986 are still unreported. Not blocking: AMPL runs on Actions.
+- **Integrator (me)** — `metocean-api` still unpinned, still a human choice per RESUME 2026-11-19. Carried.
+- Audit 10's H2 merge gap untouched: these three merges also went in with no `why:` enforcement on the merge
+  path.
+- **New, small, mine:** `tests/fixtures/intake/synthetic_paper.pdf` is regenerated by the suite on every run
+  (two `CreationDate` bytes change), so a clean checkout is dirty after `pytest` and the fixture nearly rode
+  into this commit. Either stop the test rewriting a tracked fixture or write it to `tmp_path`.
+
+**For the human, one call:** the bare-box reinstall. Four syncs running, the container has come up without
+the test dependencies and the suite cannot even collect until `tests.yml`'s eight requirement files plus the
+`cadquery-ocp` pin are installed by hand — about seven minutes of every sync, before any work. Either commit
+the Dockerfile that RESUME 2026-11-22 already identified, or accept that each sync pays it. This is the same
+`metocean-api` pin decision wearing a bigger hat: both are "what does a clean image for this repo contain".
+
 ## 2026-11-24 — channel sync: weekly feed merged, its gap table regenerated rather than taken. 1039 pass, 40 skip (this box, CI-shaped).
 
 One branch new since the 2026-11-23 sync: `papers/auto` (981a361, 2026-11-23 16:16Z, the weekly feed).
@@ -703,4 +779,4 @@ copied `report.json` the report itself says must not land. Note with the file:li
 
 - 2026-11-21 (2): BarentsWatch mapped and live; J1 merged (gate 1 time windows, gate 4 fleet, 25 seeded faults); N4.3 winter result awaits sourced helideck limits. Broadcast 2 in all inboxes.
 
-- 2026-11-25: OPEN (claude): branch `agent/claude/visual-engine` (sea `offsim/physics/jonswap.py` + Blender bridge `offsim/blender/`, `tools/blender_shot.py`) is unmerged; full suite not yet run on it; `offsim/physics/ocean.py` and `jonswap.py` duplicate each other (reconcile before merge); the Blender shot is not wired into the film; city-roads catalog candidate pending. NEW: `docs/VISUAL_DEFINITIONS.md` (schema first, each rule cites a verified source) fed by a verified-source scout; no definition enters the repo unverified (Abhinav's repo held none of Nordlys's hex tokens).
+- 2026-11-25: OPEN (integrator): `offsim/physics/ocean.py` and `offsim/physics/jonswap.py` still duplicate each other on main (both merged 2026-11-23; the reconcile never happened). The Blender shot is not wired into the film. City-roads catalog candidate pending. [Replaces a line appended by the build agent on `agent/claude/visual-engine`, which said that branch was unmerged and its sea/bridge files not on main: stale since the 2026-11-23 merge. RESUME is integrator-only, protocol rule 6.]
