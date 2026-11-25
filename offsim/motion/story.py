@@ -159,6 +159,11 @@ def check(sb, report, visual=True, warnings=None):
             probs.append(f"shot_plan: {v}")
     except Exception as e:                       # a follow shot needs its trajectory; reported, not fatal
         probs.append(f"shot_plan could not run: {e}")
+    try:
+        from offsim.cinema.evidence import evidence_plan
+        probs += [f"evidence: {v}" for v in evidence_plan(sb)]
+    except Exception as e:                       # the inspector must never take the gate down
+        probs.append(f"evidence_plan could not run: {e}")
     have = tools()
     for i, shot in enumerate(sb["shots"]):
         st = shot_type(shot)
