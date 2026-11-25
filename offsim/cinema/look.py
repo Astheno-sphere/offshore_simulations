@@ -21,6 +21,34 @@ PALETTES = {
                      "accent": "#e5a028", "ink": "#f2e9df", "muted": "#9c8a80",
                      "field_diverging": ["#4f8f9c", "#9cc3c4", "#efe3cf", "#e89a5b", "#c8442f"]},
 }
+# Palettes learned from the studies (coordination/reports/abhinav-*.md) and the owner's brand. Hex values are ESTIMATED BY EYE from screen
+# captures, not measured pixels: tune them against saved frames (`eyes dna` palette) before treating any as exact. Roles: ground, accent
+# (carries data), comparison (the other case), ink (text and line). Every palette has the same keys so a shot can switch palette by name.
+def _pal(ground, deep, sea, lo, hi, accent, ink, muted, comparison, field):
+    return {"ground": ground, "ground_deep": deep, "sea": sea, "streak_lo": lo, "streak_hi": hi, "accent": accent, "ink": ink,
+            "muted": muted, "comparison": comparison, "field_diverging": field}
+
+
+PALETTES.update({
+    # AB2 / AB3 carousels: near-black, one amber, cream line, one steel blue for the comparison
+    "amber-black": _pal("#0e0e10", "#08080a", "#101418", "#6b5a45", "#d8c8ab", "#e9a23b", "#efe6d2", "#8d8678", "#7fb2c9",
+                        ["#3b6f8f", "#8fb8cc", "#efe6d2", "#e9a23b", "#c7452b"]),
+    # AB1 Dubai reel: mid-grey ground, white massing, red network, yellow chip, steel comparison
+    "grey-red-chip": _pal("#8e949b", "#767c83", "#7d8a96", "#b9bec3", "#ffffff", "#c8332b", "#151515", "#4a4f55", "#5f84a8",
+                          ["#5f84a8", "#c5d3df", "#ffffff", "#f3e36b", "#c8332b"]),
+    # AB4 Hamburg / AB5 Pol reels: black, neon network in amber, cyan, magenta and green
+    "neon-black": _pal("#050507", "#020203", "#07090d", "#59606b", "#e8e4d8", "#ffb02e", "#f1efe8", "#7c8088", "#32c5d2",
+                       ["#32c5d2", "#7fe0e6", "#f1efe8", "#ffb02e", "#d8449a"]),
+    # owner brand, dark: oxblood ground, gold accent, orange comparison
+    "oxblood-gold": _pal("#2a1216", "#1d0b0e", "#1b2a2e", "#7a5a4e", "#d9bfa0", "#c79a3b", "#f2e9df", "#9c8a80", "#d8602c",
+                         ["#4f8f9c", "#9cc3c4", "#efe3cf", "#d8602c", "#9e2a2f"]),
+    # owner brand, light: paper ground, oxblood accent, teal comparison
+    "paper-oxblood": _pal("#efe9dc", "#e3dccb", "#c9d4d2", "#8c7a6c", "#2a1216", "#7a1f2b", "#2a1216", "#7d6f66", "#1f4e5f",
+                          ["#1f4e5f", "#7fa5ad", "#efe9dc", "#c79a3b", "#7a1f2b"]),
+    # owner brand, steel: charcoal ground, orange accent, cool grey comparison
+    "charcoal-orange": _pal("#1c1d20", "#121315", "#1a2228", "#6d6a64", "#d6cfc2", "#f07a2a", "#ece7de", "#8a867e", "#8fa4b5",
+                            ["#8fa4b5", "#c9d3db", "#ece7de", "#f07a2a", "#b4381e"]),
+})
 # bloom: split → threshold (lutyuv) → gblur → blend=screen. Kept as a recipe until a film needs it.
 BLOOM_RECIPE = "split[a][b];[b]lutyuv=y='if(gt(val,200),val,0)',gblur=sigma=12[g];[a][g]blend=all_mode=screen"
 

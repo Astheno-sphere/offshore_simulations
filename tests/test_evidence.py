@@ -59,3 +59,24 @@ def test_restyle_and_explode_bounds_and_palette_roles():
     bad = copy.deepcopy(GOOD); bad["restyle"] = ["a", "b"]; bad["explode"] = [{"label": "x"}]; bad["palette"] = {"ground": 1, "accent": 2}
     msgs = evidence_plan(sb(bad))
     assert any("restyle has" in m for m in msgs) and any("explode needs" in m for m in msgs) and any("palette roles" in m for m in msgs)
+
+
+def test_renderer_draws_good_shot_and_refuses_bad(tmp_path):
+    import pytest
+    from offsim.motion.evidence import render_evidence
+    shot = copy.deepcopy(GOOD); shot.update({"kicker": "Kick", "body": "Short body.", "source": "src", "handle": "@h"})
+    img = render_evidence(shot, {"report:measured.infeasible_days": "172"}, None, "amber-black", draft="Draft")
+    assert img.size == (1080, 1350)
+    with pytest.raises(KeyError):
+        render_evidence(shot, {}, None)                       # a counter with no resolved value never renders
+    bad = copy.deepcopy(shot); bad["limits"] = []
+    with pytest.raises(ValueError):
+        render_evidence(bad, {"report:measured.infeasible_days": "1"})
+
+
+def test_every_palette_has_the_same_keys():
+    from offsim.cinema.look import PALETTES
+    keys = set(PALETTES["amber-black"])
+    for name, pal in PALETTES.items():
+        if name != "section-plan":
+            assert set(pal) == keys, name
