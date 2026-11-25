@@ -12,6 +12,7 @@ Companion to SCRIPT.md (what is said and proven). This file says how each frame 
 - Frame 0 is the thumbnail: a working sea with the S-92 on the deck, never black, never a logo. First 0.4 s static. [rules: film_hold_in_s] 
 
 ## Studied rules now in force (docs/VISUAL_DEFINITIONS.md section 16; supersede the grammar below where they conflict)
+- **Owner decision 2026-11-25: black ground ("black one"). Palette `amber-black` is the film default; the oxblood/paper variants are alternates only.**
 - Ground near-black, one amber accent carries data, cream line, one steel blue for the comparison (limit set B or the paper). Tokens in `style.json`.
 - Every simulated frame has the real map of the same window above (Flesland inset, Bergen service area) and the result below, labelled `REPLAY / <one-line finding>`.
 - The frame says what it is not: "replay on assumed positions, one weather point". Method on the frame as refs: NORA3 DJF, 24 winters, limit and source, 125 kn.
@@ -23,7 +24,7 @@ Companion to SCRIPT.md (what is said and proven). This file says how each frame 
 - Aspect 4:5. Safe margin 6 % sides, 8 % top and bottom. Hero on a thirds point, one focal point per frame. [5]
 - Three depth layers: ground (map or sea) ambient, mid (routes, rings, grid) secondary, fore (the one number or line) primary. [5]
 - Type: Montserrat. Title 4-9 % of height; quiet line 2.5-4 %; floor 2.6 % of short side (lint). Tabular figures, one formatter, one accent word per line. [3]
-- Colour roles: ground dark (oxblood family) or paper (owner picks; both presets). Gold = the plan and the fleet. Orange = weather harm (cancelled flight, infeasible day). Charcoal = structure (coast, rings, grid lines). One accent per frame. Subject and ground separate in value. [4]
+- Colour roles (superseded for this film by the black-ground decision above): ground dark (oxblood family) or paper. Gold = the plan and the fleet. Orange = weather harm (cancelled flight, infeasible day). Charcoal = structure (coast, rings, grid lines). One accent per frame. Subject and ground separate in value. [4]
 - Linework: weights fixed per role (coast heavy, rings hairline, plan legs medium, grid cell borders hairline); no glow, no particles, no gradient washes. [9]
 - Banned tells: dark void with floating things, everything fading up, three cards in a row, docked logo, side-by-side panels instead of a scene. [9]
 

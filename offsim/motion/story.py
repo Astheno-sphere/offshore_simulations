@@ -63,9 +63,9 @@ def tools():
 
 
 NEEDS = {"equation": ("manim", "latex"), "map": ("node", "chrome"), "card": ("hyperframes", "chrome"),
-         "section": ("ffmpeg",), "findings": ("ffmpeg",), "intervention": ("ffmpeg",)}
+         "section": ("ffmpeg",), "findings": ("ffmpeg",), "intervention": ("ffmpeg",), "evidence": ("ffmpeg",)}
 ALIASES = {"diptych": "section"}
-SHOT_TYPES = ("equation", "map", "card", "section", "findings", "intervention")
+SHOT_TYPES = ("equation", "map", "card", "section", "findings", "intervention", "evidence")
 
 
 def shot_type(shot):
@@ -204,6 +204,9 @@ def check(sb, report, visual=True, warnings=None):
         elif st == "intervention":
             from offsim.motion import intervention
             probs += [f"shot {i} (intervention): {p}" for p in intervention.problems(shot, intervention.weather_view(report, scenario_of(sb)), sb)]
+        elif st == "evidence":
+            from offsim.motion import evidence
+            probs += [f"shot {i} (evidence): {p}" for p in evidence.problems(shot, report, resolve)]
         if visual and st in VISUAL_FRAME_SHOTS and len(probs) == n_before:
             tr, ag = load_traj(sb) if (st == "findings" and shot.get("kind") == "state_gantt") else (None, None)
             wx = load_weather(shot) if st == "findings" and shot.get("weather_csv") else None
@@ -361,6 +364,12 @@ def shot_intervention(shot, sb, report, fmt, out, fps=30, quick=False):
     return intervention.render_intervention_shot(shot, sb, out, fps, report, quick=quick)
 
 
+def shot_evidence(shot, sb, report, fmt, out, fps=30):
+    from offsim.motion import evidence
+    return evidence.render_evidence_shot(shot, sb, out, fps, report, resolve, ROOT, size=tuple(size(fmt)),
+                                         draft="Draft, not reportable" if report.get("reportable") is False else None)
+
+
 def shot_findings(shot, sb, report, fmt, out, fps=30):
     from offsim.motion.findings import render_findings_shot
     traj, agents = load_traj(sb)
@@ -422,6 +431,14 @@ def build(storyboard, dry_run=False):
                 res = intervention.run_intervention(shot, sb, report, work / f"{i:02d}_intervention", quick=True, log=lambda *_: None)
                 print(f"  intervention {i}: 1 frame OK ({res['frames'][0]}), forcing {[round(c.u10, 2) for c in res['cases']]} m/s from report refs, "
                       f"{'DRAFT' if res['draft'] else 'not draft'}, headline (indicative): {' '.join(t for seg in res['text']['headline'] for t, _ in seg)}")
+            if shot_type(shot) == "evidence":           # one frame of the final state: the dry-run proof that refs resolve and the frame builds
+                from offsim.motion import evidence
+                last = None
+                for last in evidence.frames(shot, report, resolve, ROOT, tuple(size(fmt)), 30, sb.get("palette"), draft=None, tick_s=0.1):
+                    pass
+                (work / f"{i:02d}_evidence").mkdir(parents=True, exist_ok=True)
+                last.save(work / f"{i:02d}_evidence" / "frame.png")
+                print(f"  evidence {i}: 1 frame OK, panels {'present' if (shot.get('reference') or {}).get('image') else 'placeholder'}")
             if shot_type(shot) == "findings":
                 from offsim.motion.findings import run_findings
                 traj, agents = load_traj(sb)
@@ -445,7 +462,8 @@ def build(storyboard, dry_run=False):
         {"equation": lambda: shot_equation(shot, fmt, p), "map": lambda: shot_map(shot, sb, report, fmt, p),
          "card": lambda: shot_card(shot, sb, report, fmt, p), "section": lambda: shot_section(shot, sb, report, fmt, p),
          "intervention": lambda: shot_intervention(shot, sb, report, fmt, p),
-         "findings": lambda: shot_findings(shot, sb, report, fmt, p)}[shot_type(shot)]()
+         "findings": lambda: shot_findings(shot, sb, report, fmt, p),
+         "evidence": lambda: shot_evidence(shot, sb, report, fmt, p)}[shot_type(shot)]()
         parts.append(p)
     final = ROOT / sb["run"] / f"{sb['id']}_{fmt}.mp4"
     assemble(parts, final, sb.get("transition_s", 0.5))

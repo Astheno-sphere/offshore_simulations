@@ -22,7 +22,7 @@ def evidence_plan(storyboard: dict) -> list[str]:
     msgs: list[str] = []
     templates: set[str] = set()
     for i, sh in enumerate(storyboard.get("shots", [])):
-        if sh.get("form") != "evidence":
+        if sh.get("form") != "evidence" and sh.get("type") != "evidence":
             continue
         tag = f"shot {i} (evidence)"
         for k in E["required"]:
@@ -79,6 +79,10 @@ def evidence_plan(storyboard: dict) -> list[str]:
         pal = sh.get("palette")
         if pal is not None and set(pal) != set(E["palette_roles"]):
             msgs.append(f"{tag}: palette roles must be exactly {list(E['palette_roles'])}, got {sorted(pal)}")
+        if sh.get("palette_name") is not None:
+            from offsim.cinema.look import PALETTES
+            if sh["palette_name"] not in PALETTES:
+                msgs.append(f"{tag}: palette_name {sh['palette_name']!r} not in {sorted(PALETTES)}")
         if sh.get("template"):
             templates.add(str(sh["template"]))
     if len(templates) > E["template_per_film"]:

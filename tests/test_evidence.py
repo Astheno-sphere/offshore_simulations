@@ -80,3 +80,17 @@ def test_every_palette_has_the_same_keys():
     for name, pal in PALETTES.items():
         if name != "section-plan":
             assert set(pal) == keys, name
+
+
+def test_story_check_and_render_evidence_shot(tmp_path):
+    from offsim.motion import evidence, story
+    report = {"gates": {}, "status": "x", "measured": {"infeasible_days": 172, "winters": 24}}
+    shot = copy.deepcopy(GOOD); shot.update({"type": "evidence", "kicker": "K", "body": "b", "source": "s", "handle": "@h",
+                                             "palette_name": "amber-black"})
+    shot.pop("form"); shot["palette"] = None; del shot["palette"]
+    shot["method"] = [{"label": "w", "ref": "report:measured.winters"}, {"label": "a", "assumption": True}]
+    assert evidence.problems(shot, report, story.resolve) == []
+    bad = copy.deepcopy(shot); bad["counters"] = [{"label": "x", "ref": "report:measured.nope"}]
+    assert any("does not resolve" in p for p in evidence.problems(bad, report, story.resolve))
+    out = evidence.render_evidence_shot({**shot, "seconds": 2.6}, {}, tmp_path / "e.mp4", 10, report, story.resolve, story.ROOT, size=(540, 675))
+    assert out.exists() and out.stat().st_size > 1000

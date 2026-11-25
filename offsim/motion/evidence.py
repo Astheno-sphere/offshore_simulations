@@ -59,9 +59,13 @@ def render_evidence(shot: dict, values: dict | None = None, panels: dict | None 
                     size=(W, H), draft: str | None = None) -> Image.Image:
     """Return the frame. `values` maps a counter ref (the `ref` string) to its display text; a counter whose ref is missing raises.
     `draft` (e.g. 'DRAFT, NOT REPORTABLE') is stamped top-right and is required for anything whose refs are not yet validated."""
-    probs = evidence_plan({"shots": [shot]})
+    probs = evidence_plan({"shots": [{**shot, "form": "evidence"}]})
     if probs:
         raise ValueError("evidence shot refused: " + "; ".join(probs))
+    if tuple(size) != (W, H):                        # the template is designed at 1080 x 1350 (4:5); other sizes are scaled from it
+        if abs(size[0] / size[1] - W / H) > 1e-3:
+            raise ValueError(f"evidence frames are 4:5, got {size}")
+        return render_evidence(shot, values, panels, palette, (W, H), draft).resize(tuple(size), Image.LANCZOS)
     pal = look.PALETTES[palette]
     w, h = size
     mx, my = round(0.06 * w), round(0.05 * h)
@@ -145,3 +149,68 @@ def render_evidence(shot: dict, values: dict | None = None, panels: dict | None 
     base = base.convert("RGBA")
     base.alpha_composite(top.convert("RGBA"))
     return base.convert("RGB")
+
+
+# ---- story integration ------------------------------------------------------------------------------------------------------------
+def _num(v):
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def problems(shot, report, resolve):
+    """Static checks used by story.check: counter and method refs resolve to numbers/values in the validated report."""
+    probs = list(evidence_plan({"shots": [{**shot, "form": "evidence"}]}))
+    for c in shot.get("counters", []):
+        try:
+            if _num(resolve(c["ref"], report)) is None:
+                probs.append(f"counter {c['ref']!r} is not a number")
+        except (KeyError, ValueError, TypeError):
+            probs.append(f"counter {c['ref']!r} does not resolve in the report")
+    for m in shot.get("method", []):
+        if m.get("ref"):
+            try:
+                resolve(m["ref"], report)
+            except (KeyError, ValueError, TypeError):
+                probs.append(f"method ref {m['ref']!r} does not resolve in the report")
+    return probs
+
+
+def _image(path_str, root):
+    from pathlib import Path
+    if not path_str:
+        return None
+    p = Path(path_str)
+    p = p if p.is_absolute() else root / p
+    return Image.open(p) if p.exists() else None
+
+
+def _ease_out_cubic(t):
+    return 1 - (1 - min(1.0, max(0.0, t))) ** 3
+
+
+def frames(shot, report, resolve, root, size=(W, H), fps=30, palette=None, draft=None, tick_s=1.2):
+    """Yield PIL frames: counters tick from 0 to their report value over `tick_s` (easeOutCubic), the last frame is yielded once;
+    the caller holds it. Panels come from `reference.image` and `result.image` (paths, ignored by git); absent = visible placeholder."""
+    pal = palette or shot.get("palette_name") or "amber-black"
+    panels = {"reference": _image((shot.get("reference") or {}).get("image"), root), "result": _image((shot.get("result") or {}).get("image"), root)}
+    base = {c["ref"]: (_num(resolve(c["ref"], report)), c.get("fmt", "{:.0f}")) for c in shot.get("counters", [])}
+    n = max(1, int(tick_s * fps))
+    for k in range(n + 1):
+        e = _ease_out_cubic(k / n)
+        vals = {r: f.format(v * e) for r, (v, f) in base.items()}
+        yield render_evidence({**shot, "form": "evidence"}, vals, panels, pal, size, draft)
+
+
+def render_evidence_shot(shot, sb, out, fps, report, resolve, root, size=(W, H), draft=None):
+    import subprocess
+    import tempfile
+    from pathlib import Path
+    out = Path(out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    hold = max(0.0, float(shot.get("seconds", 5)) - 1.2)
+    with tempfile.TemporaryDirectory() as tmp:
+        for i, im in enumerate(frames(shot, report, resolve, root, size, fps, sb.get("palette"), draft)):
+            im.save(Path(tmp) / f"f{i:04d}.png")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(fps), "-i", str(Path(tmp) / "f%04d.png"),
+                        "-vf", f"tpad=stop_mode=clone:stop_duration={hold:.3f},pad=ceil(iw/2)*2:ceil(ih/2)*2,format=yuv420p", "-c:v", "libx264", "-preset", "veryfast",
+                        "-crf", "18", str(out)], check=True)
+    return out
