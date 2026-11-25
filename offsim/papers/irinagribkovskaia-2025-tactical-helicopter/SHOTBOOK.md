@@ -11,6 +11,14 @@ Companion to SCRIPT.md (what is said and proven). This file says how each frame 
 - Silent-first: LinkedIn autoplays muted. Every line is burned-in text, one line at a time, at most 10 words, no trailing period. No audio is required; if added, a low sea bed only, no music hits. [3]
 - Frame 0 is the thumbnail: a working sea with the S-92 on the deck, never black, never a logo. First 0.4 s static. [rules: film_hold_in_s] 
 
+## Studied rules now in force (docs/VISUAL_DEFINITIONS.md section 16; supersede the grammar below where they conflict)
+- Ground near-black, one amber accent carries data, cream line, one steel blue for the comparison (limit set B or the paper). Tokens in `style.json`.
+- Every simulated frame has the real map of the same window above (Flesland inset, Bergen service area) and the result below, labelled `REPLAY / <one-line finding>`.
+- The frame says what it is not: "replay on assumed positions, one weather point". Method on the frame as refs: NORA3 DJF, 24 winters, limit and source, 125 kn.
+- One template for shots 4 to 8 (kicker, headline with accent, body, source line, handle); locked camera on every map shot.
+- Open with a human anchor: Flesland, a winter morning, passengers waiting (cabin section with lit windows and figures; see studies AB2).
+- Numbers: largest type, unit small, qualifier line below; before-to-after with an arrow for "3.6 % to 11 %".
+
 ## Frame grammar (all shots)
 - Aspect 4:5. Safe margin 6 % sides, 8 % top and bottom. Hero on a thirds point, one focal point per frame. [5]
 - Three depth layers: ground (map or sea) ambient, mid (routes, rings, grid) secondary, fore (the one number or line) primary. [5]
