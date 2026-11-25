@@ -1,0 +1,4727 @@
+{
+ "source": "per_winter[].per_week[].unmet_flights in the three stress-test files (tracked on agent/claude/visual-engine)",
+ "sets": {
+  "orig": {
+   "limits": {
+    "wind_mps": 25.0,
+    "hs_m": 6.0
+   },
+   "n_weeks": 312,
+   "p90_unmet_per_week": 1,
+   "mean": 0.3429,
+   "median": 0.0,
+   "max": 23,
+   "weeks_over_1": 13,
+   "weeks": [
+    {
+     "winter": 2000,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2002,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 8,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2002,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 12,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 6,
+     "unmet_flights": 4
+    },
+    {
+     "winter": 2004,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 8,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2005,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2005,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2006,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2007,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2007,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 6,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2008,
+     "week": 7,
+     "unmet_flights": 3
+    },
+    {
+     "winter": 2008,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 6,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2009,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 10,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2010,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 0,
+     "unmet_flights": 4
+    },
+    {
+     "winter": 2011,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 3,
+     "unmet_flights": 5
+    },
+    {
+     "winter": 2011,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 8,
+     "unmet_flights": 15
+    },
+    {
+     "winter": 2011,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 0,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2013,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 7,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2013,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2014,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 4,
+     "unmet_flights": 23
+    },
+    {
+     "winter": 2015,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 8,
+     "unmet_flights": 8
+    },
+    {
+     "winter": 2015,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 3,
+     "unmet_flights": 14
+    },
+    {
+     "winter": 2016,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2017,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2017,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 2,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2018,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2018,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 1,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2019,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2019,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2020,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2022,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 11,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2022,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 9,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2023,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 12,
+     "unmet_flights": 0
+    }
+   ]
+  },
+  "A": {
+   "limits": {
+    "wind_mps": 26.75,
+    "hs_m": 5.5
+   },
+   "n_weeks": 312,
+   "p90_unmet_per_week": 1,
+   "mean": 0.2372,
+   "median": 0.0,
+   "max": 10,
+   "weeks_over_1": 12,
+   "weeks": [
+    {
+     "winter": 2000,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2002,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 8,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2002,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 12,
+     "unmet_flights": 3
+    },
+    {
+     "winter": 2004,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 6,
+     "unmet_flights": 4
+    },
+    {
+     "winter": 2004,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 8,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 10,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2005,
+     "week": 6,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2005,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2006,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2007,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2007,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 1,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2008,
+     "week": 2,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2008,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 6,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2008,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 6,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2009,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 8,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2009,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2010,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 10,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2010,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 3,
+     "unmet_flights": 5
+    },
+    {
+     "winter": 2011,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 10,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2012,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 0,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2013,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2013,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 7,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2013,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 1,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2014,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2014,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 0,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2015,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 4,
+     "unmet_flights": 10
+    },
+    {
+     "winter": 2015,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 8,
+     "unmet_flights": 7
+    },
+    {
+     "winter": 2015,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 3,
+     "unmet_flights": 4
+    },
+    {
+     "winter": 2016,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2017,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 2,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2018,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2018,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 1,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2019,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2019,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2020,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2021,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 9,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2021,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2022,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 11,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2022,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 9,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2023,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 12,
+     "unmet_flights": 0
+    }
+   ]
+  },
+  "B": {
+   "limits": {
+    "wind_mps": 30.87,
+    "hs_m": 7.0
+   },
+   "n_weeks": 312,
+   "p90_unmet_per_week": 0,
+   "mean": 0.0641,
+   "median": 0.0,
+   "max": 5,
+   "weeks_over_1": 3,
+   "weeks": [
+    {
+     "winter": 2000,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2000,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2001,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 8,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2002,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2002,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2003,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 4,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2004,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2004,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 5,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2005,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2005,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2006,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2007,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2007,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 6,
+     "unmet_flights": 2
+    },
+    {
+     "winter": 2008,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2008,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 6,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2009,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2009,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2010,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2011,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2012,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 0,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2013,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 7,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2013,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2013,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2014,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 8,
+     "unmet_flights": 5
+    },
+    {
+     "winter": 2015,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2015,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 3,
+     "unmet_flights": 3
+    },
+    {
+     "winter": 2016,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2016,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2017,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2018,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 1,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2019,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2019,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2020,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2021,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 3,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2022,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2022,
+     "week": 11,
+     "unmet_flights": 1
+    },
+    {
+     "winter": 2022,
+     "week": 12,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 0,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 1,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 2,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 3,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 4,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 5,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 6,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 7,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 8,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 9,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 10,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 11,
+     "unmet_flights": 0
+    },
+    {
+     "winter": 2023,
+     "week": 12,
+     "unmet_flights": 0
+    }
+   ]
+  }
+ }
+}
