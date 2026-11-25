@@ -152,4 +152,12 @@ Sources: reel on Dubai walkability (AB1), carousel on informal cities (AB2), car
 - A human anchor: a named place and a year before the data. | AB2 | adopt in the hook
 - Hedge the conclusion: say where the result is mixed. | AB2 | adopt
 - Number style: the largest type on screen, bold, unit small beside it, a tiny qualifier line below; before-to-after with an arrow. | AB1 | adopt
+- Restyle one dataset instead of changing scene: satellite, full colour, oblique tilt, stripped to structure, back to satellite. The style change carries the beats. | AB5 (Pol reel) | test on the Bergen map
+- Layer build-up, then explode into labelled slabs, then fuse into one volume: land, sea, weather, plan, replay as layers. | AB4 (Hamburg reel) | test as the model-explainer shot
+- Corner counters that tick as the map fills, each with a one-line caption. | AB4 | adopt (numbers still `report:` refs)
+- Annotation by thin leader line with a dot to a small spaced-capital label, no boxes. | AB4 | adopt
+- Colour scale bar only where colour means a number (the data volume state). | AB4 | adopt
+- Title style may change by film (handwritten script in AB4, bold sans in AB2, AB5); pick one per film. | AB4, AB5 | open
+- Sound belongs to the film in his reels (minimal electronic tied to the data); ours is silent-first and unlicensed music is not allowed. | AB4, AB5 | open
+- Not seen in any of five posts: neural-network simulation. His fields are numerical solvers and network analyses. A learned surrogate would be our own research direction, not a studied one. | AB1-5 | note
 
