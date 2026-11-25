@@ -7,6 +7,7 @@ config here and a packaged GeoJSON set published as GitHub release `world-<name>
 |---|---|---|---|
 | `oslofjord` | 10.20-11.05 E, 58.95-59.95 N | OSM coastline | NGU 1 m bathymetry, Kartverket depth, Kystverket AIS, reference routes |
 | `north-sea-stavanger` | 1.5-6.2 E, 57.8-60.2 N | OSM coastline, Sodir FactMaps (facilities, fields, pipelines, discoveries, wellbores) | Kystverket AIS (offshore/supply), Kartverket depth |
+| `flesland-heliport` | 5.17-5.27 E, 60.270-60.320 N | OSM land, buildings (with heights), roads, helipads, aerodrome | none (inset for the Irina film massing shot) |
 
 **Fetch** (open internet): run the `fetch-world` workflow, or `python -m offsim.worlds.fetch_world --world <name>`.
 **Use** (this workspace, anywhere): `python -m offsim.worlds.fetch_world --pull <name>` → `data/worlds/<name>/`.

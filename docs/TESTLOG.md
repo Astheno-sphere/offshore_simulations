@@ -117,3 +117,8 @@ platform 0.009 % max error). Sea: `offsim.physics.jonswap.Sea.grid` patch (500 m
 far plane) shown by a height-banded emission material (real wave slopes are too gentle for the normal-banded toon shader).
 Demo still used Hs 3.5 m, Tp 9 s, a capability check, not a result. Not run: 1080p, motion, full suite on this branch.
 Baseline of the existing intervention shot (synthetic weather, gate PASS) is at out/baseline_intervention (not committed).
+## 2026-11-25 — grade pipeline (scenario-color-grade), vendored scenario-video-color-grade
+`python3 -I third_party/scenario-video-color-grade/scripts/grade.py looks_library.json /tmp/lut` wrote the .cube files (it stops with
+FileNotFoundError at look 15_match_reference, which needs a reference image; looks 00 to 14 were written). `ffmpeg 6.1.1 lut3d`
+applied 11_bleach_bypass and 10_blue_hour to out/baseline_intervention/intervention_event_0285.png. Both darkened and muted the frame and
+dropped the amber accent; a global look does not repair the frame. Not run: map-route, graph, breakdown templates.

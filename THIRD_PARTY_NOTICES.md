@@ -37,3 +37,18 @@ SOFTWARE.
 Vendored unmodified under `third_party/pocket-city/` (built example pages, preview SVGs and scene data removed to save
 space). MIT. Its drawing kit builds on Colorfigures and iso-glow, which build on Tolga Cohce's iso-figure (MIT). Map data
 fetched by it stays under the ODbL, credit "(c) OpenStreetMap contributors". Full licence text: `third_party/pocket-city/LICENSE`.
+
+## Visual rule sources (read, paraphrased, not vendored)
+
+`docs/VISUAL_DEFINITIONS.md` paraphrases design rules from heygen-com/hyperframes (Apache-2.0, commit 2ffa5ae),
+iart-ai/motion-design-skills (MIT, b85e50c), iart-ai/data-animation-skills (MIT, 6570c0c) and
+iart-ai/explainer-video-skills (MIT, 3c13a1b). No source text or code is copied; each rule cites its file.
+
+## Vendored visual skills (MIT, untouched)
+
+`third_party/scenario-video-color-grade/` from scenario-labs/skills, copyright (c) 2026 Scenario Inc.; and
+`third_party/claude-animation-skills/` (graph, map-route, breakdown) from artemnovitckii/claude-animation-skills, copyright (c) 2026
+Artem Novitckii. Licence texts are beside the files. Not run unreviewed: vendored code is read before it executes.
+Paraphrased only, no text copied: Vincentwei1021/video-shotcraft (Apache-2.0), tomotto1296/ai-animation-skills (MIT),
+AmitSubhash/3brown1blue (MIT), alchaincyf/huashu-motion (MIT), nexu-io/openmotion (Apache-2.0), lemomo-ai/lemo-opuscar (docs CC BY-NC 4.0,
+so only ideas, never text).
