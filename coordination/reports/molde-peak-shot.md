@@ -26,8 +26,8 @@ status: still rendered and measured; verdict: does NOT yet beat v2 (see below)
   the helideck spec (65 m camera distance) is unchanged.
 - Render: `blender -b --python tools/blender_shot.py -- scene.json peak.png`,
   Blender 4.2.23 LTS on this VM, 1080x1350, 16 samples, 25.6 s wall.
-  Deliverable: `~/workspace/docs/linkedin/05-molde/blender-peak/molde-peak-blender.png`
-  (scene.json beside it).
+  Deliverable (VM-local, not on the branch): molde-peak-blender.png
+  (scene.json beside it; rebuilt by tools/molde_peak_shot.py).
 
 ## Measured (not typed)
 
@@ -84,7 +84,50 @@ map and a thinner frame. Grade stays out (Irina finding).
    ~25 s): all six place labels readable, none touching, none on a dot.
    Remaining nits: the centre street labels (E 39, Storgata) overlap the
    centre dot cluster, and Malmefjordvegen is clipped at the right edge.
-2. Cards: headline / clock / count via HyperFrames over the still.
+2. Cards: headline / clock / count via HyperFrames over the still. DONE
+   2026-11-25 (project `out/molde-cards/molde-cards/`, 4 s, 1080×1350,
+   h264 429 KB (VM-local: molde-peak-cards.mp4 + frame molde-peak-cards.png;
+   project at out/molde-cards/molde-cards/): oxblood title band
+   ("MOLDE · MONDAY 9 NOV 2026" / "46 vehicles in the frame" / "39 buses,
+   7 ferries at 07:35") + chips (CLOCK 07:35 / IN FRAME 46 / TRIPS SO FAR
+   139 / FERRIES 7). `npm run check` PASSED (0 errors, 0 warnings, 47/47
+   text checks WCAG AA). Two fixes the check forced: the headline h1/sub
+   measured 1.49:1 — the still's sky band is only ~70 px, the h1 fell on the
+   dark sea, so the headline moved into a solid oxblood band (cream on
+   oxblood); the chip labels were 20 px (below the 28 px floor) and wrapped,
+   so they are 28 px, tighter spacing, "FERRIES" not "FERRIES SAILING".
+   The chips first sat at the bottom, where the FURNESET FERJEKAI dot
+   collided with "IN FRAME" — they moved under the title band, over the
+   empty fjord. All numbers from the trajectory (139 distinct agents by
+   07:35, verified by recount). Environment notes: HyperFrames refuses a
+   group-writable home — HYPERFRAMES_CACHE_DIR=/var/tmp/hf-cache (2 GB
+   tmpfs; /tmp is 512 MB and too small) + TMPDIR=~/workspace/tmp-hf-render
+   for the render temp files. GSAP + Montserrat vendored locally (no CDN).
+   VERDICT vs v2: still does NOT beat v2. The cards close half the gap
+   (headline + chips now match v2's), and the 3D map is a richer picture —
+   but v2's frame carries more evidence: the peak chart (FRAM 59 / FERRY 9
+   over time) and the bottom line (289 trips, 5,963 km in 4 hours). This
+   frame is a better picture; v2 is a better argument. Next: the chart +
+   bottom line as HyperFrames elements.
+3. Chart + bottom line: DONE 2026-11-25 (same project, re-rendered 509 KB,
+   4 s). The chart series is the instantaneous count per 30 s step, binned
+   to 5 min, recomputed from the trajectory — bus peak 59 at 07:35 and ferry
+   peak 9 at 07:20 reproduce v2's chart exactly; totals 289 trips, 5,962.7
+   km from measure.json. Chart panel (oxblood, bottom-right sea — measured
+   100% sea in that rect) with "FRAM 59 · 07:35" / "FERRY 9 · 07:20" + the
+   two lines + a "you are here" marker at 07:35; bottom line "289 trips,
+   5,963 km in 4 hours — peak 67 vehicles at 07:35" at the bottom edge.
+   `npm run check` PASSED (0 errors, 0 warnings, 59/59 WCAG AA). Two fixes:
+   the peak dot overflowed the SVG top (viewBox padded) and the bottom line
+   was 0.07 s short of its read hold (entrance moved 0.7 -> 0.2 s); the
+   first chart pass wrapped its labels and clipped the SVG (panel 190 ->
+   210 px, labels shortened to "FRAM 59 · 07:35").
+   FINAL VERDICT vs v2: the frame now carries the FULL argument (headline,
+   chips, chart, bottom line — the same numbers, verified) and a richer
+   picture, so it is a credible alternative to v2 — but not a clear beat.
+   The 3D tilt costs legibility in the centre (street labels overlap the
+   dot cluster) and the chart panel is small (the ferry line is nearly
+   invisible at this scale). Those two are the remaining gap.
 3. Framing: the 16% sky band is dead space; the next framing should trade it
    for the town shore (steeper look-down or a tighter lens).
 4. Full suite run before commit (running in background at commit time;

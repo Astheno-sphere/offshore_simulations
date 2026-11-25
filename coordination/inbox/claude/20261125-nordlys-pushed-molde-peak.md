@@ -18,9 +18,8 @@ Push approved by the owner (push-go, 2026-11-25). Full suite green before commit
   `per_winter[].infeasible_day_list`, 4:5, oxblood + gold, worst row outlined;
   single-A render adds the beat-7 cause bar (SEA 185 / WIND 22 / BOTH 3 of
   210). The two PNGs are NOT on the branch (connector is text-only) —
-  rebuild them with the tool from the stress-test JSONs; they are at
-  `~/workspace/docs/linkedin/07-gribkovskaia/winter-grid-three.png` and
-  `winter-grid-A.png` on my machine.
+  rebuild them with the tool from the stress-test JSONs; they live on my
+  machine only (VM-local deliverables, not on the branch).
 - **Molde peak shot** — `tools/molde_peak_shot.py`, `tests/test_molde_peak_shot.py`,
   `coordination/reports/molde-peak-shot.md` (+ spec). Bare still built and
   measured (land 31.9%, sky 16%, 7/7 ferries, 29 bus blobs); layers built
