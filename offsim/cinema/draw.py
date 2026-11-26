@@ -27,6 +27,8 @@ try:
 except Exception as e:  # pragma: no cover - environment dependent
     raise ImportError("offsim.cinema.draw needs skia-python (pip install -r requirements-graphics.txt): %s" % e) from e
 
+from pathlib import Path
+
 import numpy as np
 from PIL import Image
 
@@ -37,13 +39,15 @@ _TYPEFACES = {}
 
 
 def _typeface(family, weight):
-    if family != "Inter":
-        raise ValueError(f"only the bundled open font 'Inter' is available (got {family!r}); see offsim.cinema.look.FONTS")
-    key = weight
+    # Inter is bundled. Any other open font works by dropping assets/fonts/<Family>-<Weight>.ttf next to it (e.g. Montserrat-Bold.ttf, OFL).
+    path = look.font_path(weight) if family == "Inter" else str(look._FONT_DIR / f"{family}-{weight}.ttf")
+    if family != "Inter" and not Path(path).exists():
+        raise ValueError(f"font {family!r} not available: put {Path(path).name} in offsim/assets/fonts (open licence only); Inter is bundled")
+    key = (family, weight)
     if key not in _TYPEFACES:
-        tf = skia.Typeface.MakeFromFile(look.font_path(weight))
+        tf = skia.Typeface.MakeFromFile(path)
         if tf is None:
-            raise OSError(f"cannot load font {look.font_path(weight)}")
+            raise OSError(f"cannot load font {path}")
         _TYPEFACES[key] = tf
     return _TYPEFACES[key]
 

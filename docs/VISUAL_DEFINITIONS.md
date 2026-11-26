@@ -133,3 +133,31 @@ Entry form: `rule | value | source`. Status is `adopt` (apply now), `check` (ren
 ## 15. Connectors and their risk
 - `ahujasid/mcp-for-blender` (the former `blender-mcp`, MIT) exposes `execute_code`, which runs arbitrary Python in Blender, and its opt-in safe mode covers only the MCP path; the addon socket takes raw code from any local process. It has no camera tools (the "16 camera tools" claim did not verify). Not enabled by default; if ever used, on a throwaway render job only | audit of clone, 2026-11-25
 - Our own path is the headless `bpy` subprocess (`offsim/blender/`), which is the same risk class; its input is our scene JSON, never agent-authored code
+
+## 16. Studied from abhinavbwj (read in the owner's Chrome 2026-11-25; reports under coordination/reports/abhinav-*.md)
+Sources: reel on Dubai walkability (AB1), carousel on informal cities (AB2), carousel on Rotterdam urban respiration (AB3). Stills only, sizes are fractions of the frame. Status: `adopt` means our template follows it, `test` means measure on a built shot first.
+- Palette seen: AB2 and AB3 are near-black ground, one warm amber (data and lit rooms), cream for line and figures, one cool steel blue for the comparison; AB1 is mid-grey ground with white massing, red lines and yellow chips. A palette is a ground, one accent that carries data, one comparison colour. | AB2, AB3 | adopt as the shot palette roles; hex values come from `style.json` and the owner's reference frames, not from here
+- Slide and frame text system: small spaced capital kicker (accent), bold headline of 4 to 6 words with the last 2 or 3 in accent, 3 to 5 line body, one grey source line, handle bottom right; picture on the top 55 to 65 %. | AB2 | adopt
+- One template repeated across a series so the viewer learns where to look; vary only the colour map and the one-line finding. | AB3 | adopt
+- Reference above result: the real satellite or map of the window above, the simulation below, with a labelled one-line finding beside the word SIMULATION. | AB3 | adopt for every simulated frame
+- Say what the simulation is not: "simulation, not measurement", "a proxy, not X", and where the model differs from the real place. | AB3 | adopt; on our frames: "replay on assumed positions"
+- Method on the frame: domain, resolution, time step, mask sources and solver named in a readable block (his is code). Ours: parameters as `report:` refs with page or table, assumptions flagged. | AB3 | adopt
+- Colour map per physics, named and fixed: fields are the hero, not the labels. | AB3 | adopt
+- Real mask geometry: OSM footprints, roads, water, parks rasterised into the model. | AB3 | adopt where the model touches the map (heliport insets)
+- Locked camera for map frames; change comes from the field evolving or layers switching on the same view. One camera move only on a hero shot. | AB1, AB3 | adopt; supersedes "camera moves every shot"
+- Split screen "tool above, result below" with a yellow-style chip at the seam carrying one number; chip text is a 3 to 6 word clause that runs on from the previous chip. | AB1 | test as the Irina device (option A in SHOTBOOK)
+- Figure-ground maps on black: footprints in neutral grey, the studied place in accent, the comparison in blue; same window and scale for every place; value on a label chip. | AB2 | adopt
+- Computed facts carry data date, window, method line and a completeness caveat; named outside sources. | AB2 | adopt
+- Section drawing with lit interiors and small figures as the human layer (hidden-line, thin consistent stroke, flat fills, no shading). | AB2 | test (needs a figure library; see SHOTBOOK)
+- A human anchor: a named place and a year before the data. | AB2 | adopt in the hook
+- Hedge the conclusion: say where the result is mixed. | AB2 | adopt
+- Number style: the largest type on screen, bold, unit small beside it, a tiny qualifier line below; before-to-after with an arrow. | AB1 | adopt
+- Restyle one dataset instead of changing scene: satellite, full colour, oblique tilt, stripped to structure, back to satellite. The style change carries the beats. | AB5 (Pol reel) | test on the Bergen map
+- Layer build-up, then explode into labelled slabs, then fuse into one volume: land, sea, weather, plan, replay as layers. | AB4 (Hamburg reel) | test as the model-explainer shot
+- Corner counters that tick as the map fills, each with a one-line caption. | AB4 | adopt (numbers still `report:` refs)
+- Annotation by thin leader line with a dot to a small spaced-capital label, no boxes. | AB4 | adopt
+- Colour scale bar only where colour means a number (the data volume state). | AB4 | adopt
+- Title style may change by film (handwritten script in AB4, bold sans in AB2, AB5); pick one per film. | AB4, AB5 | open
+- Sound belongs to the film in his reels (minimal electronic tied to the data); ours is silent-first and unlicensed music is not allowed. | AB4, AB5 | open
+- Not seen in any of five posts: neural-network simulation. His fields are numerical solvers and network analyses. A learned surrogate would be our own research direction, not a studied one. | AB1-5 | note
+

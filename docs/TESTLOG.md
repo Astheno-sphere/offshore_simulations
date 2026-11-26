@@ -122,3 +122,11 @@ Baseline of the existing intervention shot (synthetic weather, gate PASS) is at 
 FileNotFoundError at look 15_match_reference, which needs a reference image; looks 00 to 14 were written). `ffmpeg 6.1.1 lut3d`
 applied 11_bleach_bypass and 10_blue_hour to out/baseline_intervention/intervention_event_0285.png. Both darkened and muted the frame and
 dropped the amber accent; a global look does not repair the frame. Not run: map-route, graph, breakdown templates.
+
+## 2026-11-25 — claude-eyes (claude-eyes-video), installed from moritzkremb/claude-eyes a540961
+Source review before running: MIT; subprocess only for ffmpeg, tesseract, whisper.cpp, swiftc (macOS); network only for yt-dlp URLs, a whisper
+model download from Hugging Face and the opt-in ElevenLabs call (key unset). `pip install` into /tmp venv, `eyes setup` READY (whisper.cpp missing, not needed).
+`eyes index` and `eyes dna` on out/film/psv_section.mp4 (5 s, 1080x1350, 30 fps): 1 shot, 0 cuts/min; OCR listed every text overlay; contact sheet written.
+Finding from the sheet: our own frame is a cramped dashboard of tiny low-contrast text on a dark maroon ground with a small map; confirms the owner's critique.
+OCR also read "SUPPEY" in the where-line (OCR error or real typo, unchecked). Not run: whisper, ElevenLabs, compare/report (no reference clip here), yt-dlp URLs.
+Other repos reviewed, not installed: ridxm/claude-eyes (Playwright MCP, MIT, overlaps Chrome tools), afrid1997/claude-eyes (macOS only). HandsOn (Reddit) has no repo link: unverified.

@@ -74,3 +74,23 @@ FRAME_BUDGET = {                      # read by the visual gate for `interventio
     "field_cover_min": 0.85,          # share of each panel's free area carrying streaks
     "field_static_max": 0.0,          # share of drawn field with zero frame-to-frame displacement
 }
+
+# The evidence form (docs/VISUAL_GRAMMAR.md section 10), learned from five abhinavbwj studies (coordination/reports/abhinav-*.md).
+# One real place, the real reference above the model, the method and its limits on the frame, one template per film,
+# a locked camera on map frames. Enforced for shots marked `form: evidence` by offsim/cinema/evidence.py (called from story.check).
+EVIDENCE = {
+    "required": ("reference", "finding", "limits", "method", "headline", "template"),
+    "reference_kinds": ("satellite", "map", "photo"),   # what sits above the result
+    "finding_words_max": 14,           # the one-line verdict beside the word REPLAY or SIMULATION
+    "headline_words": (3, 7),
+    "accent_words": (1, 3),            # words of the headline set in the accent colour
+    "kicker_words_max": 4,
+    "limits_min": 1,                   # what the frame says it is not
+    "method_min": 2,                   # items; each carries a `report:` ref or `assumption: true`
+    "counters_max": 3,                 # corner counters; each carries a `report:` ref
+    "restyle_states": (3, 6),          # one dataset shown in 3 to 6 styles
+    "explode_layers_min": 3,           # labelled slabs when a shot explodes the layers
+    "template_per_film": 1,            # every evidence shot of a film uses the same template id
+    "palette_roles": ("ground", "accent", "comparison"),
+    "camera_keys_forbidden": ("zoom", "pitch", "bearing", "pan", "follow", "orbit"),   # locked camera on evidence shots
+}

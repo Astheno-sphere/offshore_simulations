@@ -52,3 +52,5 @@ Artem Novitckii. Licence texts are beside the files. Not run unreviewed: vendore
 Paraphrased only, no text copied: Vincentwei1021/video-shotcraft (Apache-2.0), tomotto1296/ai-animation-skills (MIT),
 AmitSubhash/3brown1blue (MIT), alchaincyf/huashu-motion (MIT), nexu-io/openmotion (Apache-2.0), lemomo-ai/lemo-opuscar (docs CC BY-NC 4.0,
 so only ideas, never text).
+
+claude-eyes (moritzkremb/claude-eyes, MIT, copyright (c) 2026 Moritz Kremb) is installed at run time from a pinned commit, not vendored; see `skills/reference-eyes/SKILL.md`.

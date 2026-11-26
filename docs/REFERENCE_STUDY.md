@@ -119,3 +119,11 @@ scene share 0.738, static share 0.262, saturated share 0.035, acts before 0 to 9
 11 to 20 s. Read by eye from the state chips, the acts are nearer 8 / 3 / 9 s; the chip changes before the
 panel is fully dark, which is why the two readings differ and why step 2 exists. If your run of the tool on the
 same file does not return those numbers, stop and find out why before studying anything else.
+
+## Studies done with the browser route (no download)
+When a reference is a public post and no file can be saved, view it in Claude in Chrome (zoom the media region at intervals, read the page text),
+write the report under `coordination/reports/abhinav-<slug>.md` (numbers by eye are marked, nothing committed from the images), push the learned
+rules into `docs/VISUAL_DEFINITIONS.md` section 16, and when a form emerges add its budget to `offsim/cinema/rules.py` and an inspector with tests.
+This gives structure, layout, palette, type and method; it cannot give easing, shot lengths, cut types or sound: those need a file and `eyes dna`.
+Five studies so far, and the form they produced: `docs/VISUAL_GRAMMAR.md` section 10.
+

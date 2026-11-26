@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-170 tools · 38 tested · 15 wired · 10 installed · 55 candidate · 4 manual · 48 watch.
+173 tools · 39 tested · 15 wired · 10 installed · 55 candidate · 4 manual · 50 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -19,7 +19,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | simulation | 3 | 0 | 2 | 4 | 0 | 2 | 11 |
 | offshore-energy | 2 | 0 | 0 | 0 | 0 | 1 | 3 |
 | emissions | 0 | 0 | 0 | 1 | 0 | 1 | 2 |
-| render | 11 | 0 | 1 | 11 | 0 | 9 | 32 |
+| render | 12 | 0 | 1 | 11 | 0 | 11 | 35 |
 | video | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
 | motion | 2 | 0 | 0 | 5 | 0 | 4 | 11 |
 | assets | 3 | 0 | 0 | 9 | 0 | 4 | 16 |
@@ -89,6 +89,7 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [video-shotcraft (rules only)](https://github.com/Vincentwei1021/video-shotcraft) | render | candidate | here | Camera, pacing and text-floor rules (124 shot cards). Paraphrased in docs/VISUAL_DEFINITIONS.md; nothing vendored. |
 | [openmotion (method only)](https://github.com/nexu-io/openmotion) | render | watch | here | Reference video to shot list method (measure, name, rebuild). 215 MB app, v0.1, needs API keys; we keep our own tools/reference_study.py and read its method only. |
 | [raea (lint list only)](https://github.com/shinyobjectz/raea) | render | watch | here | Source-available, not open source: cannot be vendored. Only its check list (clipped text, contrast, unsafe areas, freezes, loudness) is a pointer. |
+| [claude-eyes (moritzkremb): local video indexing and editing DNA](https://github.com/moritzkremb/claude-eyes) | render | tested | here | Index a clip, contact sheets, shot detection, OCR, palette, measured editing DNA, crops, ours-vs-reference compare. Installed from pinned commit a540961, not vendored. Tested here on our psv_section clip. Reference videos are studied, never committed. |
 
 ## world
 
@@ -240,6 +241,7 @@ _Maps and 3D scenes from validated trajectories_
 | [CadQuery](https://github.com/CadQuery/cadquery) | Apache-2.0 | tested | here | now | CAD kernel for offsim/assets/cad: exact solids (PSV, S-92, bus, train, person, tree, building) + OpenCASCADE HLR linework for the films. Evidence: `requirements-cad.txt` `offsim/assets/cad/marine.py` `offsim/assets/cad/air.py` `offsim/assets/cad/land.py` `tests/test_cad_marine_air.py` `tests/test_cad_land.py` `tests/test_cad_drawing.py` |
 | [cadquery-ocp (OpenCASCADE bindings)](https://github.com/CadQuery/OCP) | Apache-2.0 (bindings to OpenCASCADE, LGPL-2.1 with exception, dynamically linked) | tested | here | now | Python bindings to the OpenCASCADE kernel: the HLRBRep_Algo hidden-line projection in offsim/assets/cad/drawing.py. Evidence: `requirements-cad.txt` `offsim/assets/cad/drawing.py` `tests/test_cad_drawing.py` |
 | [claude-animation-skills (3 skills)](https://github.com/artemnovitckii/claude-animation-skills) | MIT | candidate | here | now | HyperFrames templates for a line graph, a 3D map route and an exploded view; vendored untouched under third_party/claude-animation-skills, not yet run. Review build.py before running. |
+| [claude-eyes (moritzkremb): local video indexing and editing DNA](https://github.com/moritzkremb/claude-eyes) | MIT | tested | here | now | Index a clip, contact sheets, shot detection, OCR, palette, measured editing DNA, crops, ours-vs-reference compare. Installed from pinned commit a540961, not vendored. Tested here on our psv_section clip. Reference videos are studied, never committed. Evidence: `skills/reference-eyes/SKILL.md` `docs/TESTLOG.md` |
 | [deck.gl (TripsLayer, IconLayer, ScenegraphLayer)](https://github.com/visgl/deck.gl) | MIT | tested | here | now | 2.5D animated trails, sprite billboards that flip with heading, glTF models oriented by course; headless Chrome + SwiftShader works here (offsim/render_deck). Evidence: `offsim/render_deck/package.json` `offsim/render_deck/src/app.js` `.github/workflows/tests.yml` |
 | [deck.gl FlyToInterpolator (interpolateProps)](https://deck.gl/docs/api-reference/core/fly-to-interpolator) | MIT | candidate | here | now | Van Wijk–Nuij zoom-pan for long moves, called at normalised u (no duration/timers) from cinema/camera.py camera_fly. |
 | [deck.gl PostProcessEffect + LightingEffect](https://github.com/visgl/deck.gl/blob/master/docs/api-reference/core/post-process-effect.md) | MIT | candidate | here | now | Sun lighting and screen passes; effects disable MSAA, so set antialiasing on line layers. |
@@ -260,6 +262,8 @@ _Maps and 3D scenes from validated trajectories_
 | [WeatherLayers GL](https://github.com/weatherlayers/weatherlayers-gl) | MPL-2.0 OR WeatherLayers terms (dual) | watch | browser | next | Particle/raster/contour weather layers; deck.gl >= 9.4, EPSG:4326 input; own fps, no seeding: drafts only until byte-identical re-render passes. |
 | [Blender as Python module (bpy 5.2)](https://pypi.org/project/bpy/) | GPL | tested | actions | later | Low-poly 3D hero shots. Here: Workbench 1.4 s, Cycles 4 s per 640x360 frame. Separate process. Evidence: `offsim/assets/models/make_models.py` `docs/TESTLOG.md` |
 | [BlenderGIS](https://github.com/domlysz/BlenderGIS) | GPL-3.0 | candidate | laptop | later | Import DEM, shapefiles, OSM into Blender. |
+| [claude-eyes (afrid1997): Mac screen and camera MCP](https://github.com/afrid1997/claude-eyes) | MIT | watch | laptop | later | macOS only; the owner's laptop is Windows, so unusable. Desktop control comes from the Claude desktop app's computer use. Not installed. |
+| [claude-eyes (ridxm): Playwright MCP for UI checks](https://github.com/ridxm/claude-eyes) | MIT | watch | here | later | Headless Chromium screenshots, console and network for frontend checks. Overlaps Claude in Chrome and the HyperFrames check/preview; Chrome exists here (/usr/bin/google-chrome). Not installed. |
 | [deck.gl + MapLibre (interleaved)](https://deck.gl/docs/developer-guide/base-maps/using-with-maplibre) | BSD-3-Clause | watch | browser | later | Vector basemap and labels under deck.gl; frames must wait for MapLibre idle (untested). |
 | [deck.gl-community ParticleLayer](https://visgl.github.io/deck.gl-community/docs/modules/geo-layers/api-reference/particle-layer) | MIT | watch | browser | later | Work in progress; rAF-advanced in examples; station-based wind. |
 | [kepler.gl](https://github.com/keplergl/kepler.gl) | MIT | watch | browser | later | Drag-and-drop exploration of trajectories before scripting a video. |

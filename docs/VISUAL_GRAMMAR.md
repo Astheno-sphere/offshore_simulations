@@ -140,3 +140,26 @@ budget, or as an amendment when it is a form already held. Forms are never blend
 3. [ ] Script derivation (section 6) in `offsim/motion/narrate.py`, refusing as listed.
 4. [x] (DRAFT, demo storyboard `storyboard.intervention.yaml`) One still triptych (before, event, after) from a validated run, judged against section 2's table.
 5. [ ] Only then a 1080p render, on the VM or the `render` workflow.
+
+## 10. The evidence form (learned from five abhinavbwj studies)
+
+Source reports: `coordination/reports/abhinav-dubai-walkable-reel.md`, `abhinav-informal-cities-carousel.md`,
+`abhinav-urban-respiration-carousel.md`, `abhinav-hamburg-and-pol-reels.md`. Rules live in `rules.EVIDENCE`, enforced for shots marked
+`form: evidence` by `offsim/cinema/evidence.py` (called from `story.check`; tests `tests/test_evidence.py`). Pixels stay with `visual_gate.py`.
+
+The pattern across all five (what the reference does, not what it looks like):
+1. It argues with real data on a real place and never with decoration; the render is plain, the geography is dense.
+2. The real reference sits above the model (satellite over simulation) so the viewer can check the model against the place.
+3. The method is on the frame (domain, resolution, time step, data sources, solver); ours are `report:` refs and flagged assumptions.
+4. The frame says what it is not ("simulation, not measurement", "a proxy", where the model differs from the real place).
+5. One template is repeated across a series; only the colour map and the one-line finding change.
+6. The camera is locked on map frames; change comes from layers switching, the field evolving, or one restyle of the same data.
+7. Palette is a ground, one accent that carries data and one comparison colour.
+8. The number is the largest type on screen, unit small beside it.
+9. A named human anchor (place, year) opens the argument; the conclusion is hedged where the data is mixed.
+10. Layers build up, may explode into labelled slabs, and fuse into one volume; one dataset is restyled in 3 to 6 states.
+
+Shot metadata for `form: evidence`: `reference {kind, source}`, `finding`, `limits[]`, `method[{label, ref|assumption}]`, `headline`, `accent`,
+`kicker`, `template`, optional `counters[]`, `restyle[]`, `explode[{label}]`, `palette {ground, accent, comparison}`, `camera` empty.
+Not learned yet (needs the video files): easing, shot lengths, cut types, camera speed, sound sync.
+
