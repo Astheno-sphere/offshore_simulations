@@ -780,3 +780,42 @@ copied `report.json` the report itself says must not land. Note with the file:li
 - 2026-11-21 (2): BarentsWatch mapped and live; J1 merged (gate 1 time windows, gate 4 fleet, 25 seeded faults); N4.3 winter result awaits sourced helideck limits. Broadcast 2 in all inboxes.
 
 - 2026-11-25: OPEN (integrator): `offsim/physics/ocean.py` and `offsim/physics/jonswap.py` still duplicate each other on main (both merged 2026-11-23; the reconcile never happened). The Blender shot is not wired into the film. City-roads catalog candidate pending. [Replaces a line appended by the build agent on `agent/claude/visual-engine`, which said that branch was unmerged and its sea/bridge files not on main: stale since the 2026-11-23 merge. RESUME is integrator-only, protocol rule 6.]
+
+- 2026-11-26 (channel sync): **merged 2** — `agent/claude/visual-engine` (8 commits: the evidence form —
+  `rules.EVIDENCE`, `offsim/cinema/evidence.py` inspector wired into `story.check`, `offsim/motion/evidence.py`
+  frame builder, `tools/evidence_still.py`, `tests/test_evidence.py`, VISUAL_GRAMMAR §10; six palettes and the
+  open-font drop-in in `draw.py`/`look.py`; five abhinavbwj studies as reports; `claude-eyes` absorbed as
+  `skills/reference-eyes`) and `agent/nordlys/weekly-series` (Irina per-week unmet-flight series, 312 weeks x 3
+  limit sets). Verified against the code, not the summaries: every `rules.py` and `look.py` change is additive
+  (no existing number, tolerance, sourced value or golden frame touched); all new tests are additions, none
+  edited; GUARDS gained two rows rather than losing any; the one `status: tested` catalog row carries
+  `evidence:` paths that exist; no `out/`, no binary, no frame of any reference video, and the palettes are
+  marked estimated-by-eye in the code. The weekly series was recomputed here element by element from the three
+  tracked `stress-test*.json` files — all 936 values identical, every statistic reproduced — so it is a derived
+  result beside its sources, not committed data. Suite on the merge: **997 passed, 48 skipped, exit 0** (this
+  image needed `requirements.txt` + skia-python + cad + engines + trimesh installed first; the lower count vs
+  1055 is this image's skips, not a regression).
+- **Refused (1): `agent/nordlys/molde-peak-shot`, same reason as 2026-11-25.** `93a9123`, titled "merge refusal
+  fix", changed only two report/inbox prose files; the refused code line is untouched —
+  `tools/flesland_massing.py:28` still reads `DATA_ROOT = Path.home() / "workspace" / "offshore_simulations"`,
+  line 106 still reads `land.geojson` under it unconditionally, and `tests/test_flesland_massing.py::test_scene_counts_and_tints`
+  still fails here (`FileNotFoundError: /root/workspace/.../data/worlds/bergen/land.geojson`; 1 failed, 16 passed
+  on the trial merge). `tools/bergen_service_map.py:27` carries the same line, latent. Nothing else on the branch
+  is disputed, and the adaptive `clip_end` superset plus the argv fix stay off main until it is re-pushed.
+- Answered in inboxes: Montserrat OFL files approved into `offsim/assets/fonts` (notice in the same commit);
+  SCRIPT.md caveat 4 closed by the merged series (the P90 rule itself stays `assumption: true`); beat 2 off the
+  local Bergen world accepted provided the frame says the 20 dots are `instances.yaml` assumed positions.
+  Pointer to desktop: the series is on main; `coordination/reports/D1.md` and the AMPL objectives against
+  114 643 m / 9980.4986 are still unreported, blocking nothing.
+- Noticed while merging: `python -m pytest -q tests` **rewrites the tracked fixture**
+  `tests/fixtures/intake/synthetic_paper.pdf` (reportlab stamps a fresh CreationDate/ModDate and /ID), so every
+  run leaves the tree dirty and any `git add -A` sweeps the churn in. That is exactly how the one-line pdf diff
+  on `agent/claude/visual-engine` got there — it is a test side effect, not a change to the fixture's content.
+  Kept out of this commit. Fix next sync: generate the PDF into `tmp_path`, or set reportlab's invariant mode.
+- **Blocked, and on whom:** Nordlys — the two `DATA_ROOT` lines. Arshad — the A9 decision; `BW_CLIENT_ID` /
+  `BW_CLIENT_SECRET` as Actions secrets and `OFFSIM_MAILTO` as a repository variable; publishing
+  `world-bergen-ncs.zip` as a release asset (no release tool here). Integrator, next sync — `metocean-api` still
+  unpinned (only a comment in `requirements-weather.txt:6`); `offsim/physics/ocean.py` and
+  `offsim/physics/jonswap.py` still duplicate each other on main; the Blender shot still not wired into the film;
+  city-roads catalog candidate still pending. Audit 10's H2 merge gap still needs the human decision recorded
+  there — these two merges, like the eight before them, went in with no `why:` enforcement on the merge path.
