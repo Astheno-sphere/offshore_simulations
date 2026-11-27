@@ -43,6 +43,11 @@ on:
         required: false
         default: false
         type: boolean
+      probe:
+        description: "Only probe the DEM endpoints: print Geonorge capabilities, one small order and EMODnet coverage ids, upload the transcript as a workflow ARTIFACT (no release, nothing committed). Skips every fetch and publish step"
+        required: false
+        default: false
+        type: boolean
       ais_url:
         description: "Optional: link to a Kystverket HAIS GeoParquet/CSV (from the HAIS order e-mail) -> ais/calibration.json in the world zip"
         required: false
@@ -78,7 +83,18 @@ jobs:
       - name: Install OSM/AIS readers
         if: ${{ inputs.osm || inputs.ais_url != '' || inputs.place != '' || inputs.modes != 'sea' }}
         run: pip install -r requirements-gis.txt pandas pyarrow
+      - name: Probe the DEM endpoints (transcript only)
+        if: ${{ inputs.probe }}
+        run: python -m offsim.worlds.fetch_world --world ${{ steps.w.outputs.name }} --probe-depth --probe-out probe_transcript.txt
+      - name: Upload the probe transcript as an artifact
+        if: ${{ always() && inputs.probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dem-probe-transcript
+          path: probe_transcript.txt
+          retention-days: 14
       - name: Fetch
+        if: ${{ !inputs.probe }}
         env:
           MO_START: ${{ inputs.metocean_start }}
           MO_HOURS: ${{ inputs.metocean_hours }}
@@ -103,6 +119,7 @@ jobs:
             python -m offsim.worlds.fetch_world --world ${{ inputs.world }} --out world $args
           fi
       - name: BarentsWatch latest positions (only when the secrets exist)
+        if: ${{ !inputs.probe }}
         env:
           BW_CLIENT_ID: ${{ secrets.BARENTSWATCH_AIS_CLIENT_ID || secrets.BARENTSWATCH_CLIENT_ID || secrets.BW_CLIENT_ID }}
           BW_CLIENT_SECRET: ${{ secrets.BARENTSWATCH_AIS_CLIENT_SECRET || secrets.BARENTSWATCH_CLIENT_SECRET || secrets.BW_CLIENT_SECRET }}
@@ -111,6 +128,7 @@ jobs:
           mkdir -p world/ais
           python -m offsim.traffic.barentswatch --latest world/ais/barentswatch_latest.json
       - name: Publish release world-${{ steps.w.outputs.name }}
+        if: ${{ !inputs.probe }}
         env: {GH_TOKEN: "${{ github.token }}"}
         run: |
           cd world && zip -q -r ../world-${{ steps.w.outputs.name }}.zip . && cd ..
@@ -122,11 +140,11 @@ jobs:
             gh release create "$tag" "$tag.zip" --title "World: ${{ steps.w.outputs.name }}" --notes "$notes" --prerelease --target "$GITHUB_SHA"
           fi
       - name: Fetch raw DEM (after the main zip, so dem_raw stays out of it)
-        if: ${{ inputs.depth }}
+        if: ${{ inputs.depth && !inputs.probe }}
         timeout-minutes: 40
         run: python -m offsim.worlds.fetch_world --world ${{ steps.w.outputs.name }} --out world --depth-only
       - name: Publish release world-${{ steps.w.outputs.name }}-dem-raw
-        if: ${{ inputs.depth }}
+        if: ${{ inputs.depth && !inputs.probe }}
         env: {GH_TOKEN: "${{ github.token }}"}
         run: |
           tag=world-${{ steps.w.outputs.name }}-dem-raw
