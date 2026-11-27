@@ -134,6 +134,8 @@ def main():
         scene["style"]["site_mode"] = a.sites
     scene["assets"] = inline_assets(scene["style"])
     seconds = a.seconds or scene.get("seconds", 20)
+    for k, v in (scene.get("world_stack") or {"(scene has no world_stack)": {"present": False, "reason": "built before world_stack existed"}}).items():
+        print(f"world_stack {k:14s} " + (f"present  {v.get('detail', '')}" if v.get("present") else f"ABSENT   {v.get('reason', '')}"))
     build()
     if a.check:
         res = asyncio.run(check(scene))

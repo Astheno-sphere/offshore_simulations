@@ -16,7 +16,7 @@ import geopandas as gpd
 import pandas as pd
 
 from offsim.contract import kpis, validate
-from offsim.scene import build_scene, write
+from offsim.scene import build_scene, diagnose_world, write
 from offsim.sim.replay import replay
 from offsim.worlds.sealanes import SeaGraph
 
@@ -60,6 +60,11 @@ def run(out, world=ROOT / "data/worlds/oslofjord"):
              {"pos": list(nodes[3]), "kind": "platform", "label": "site B (synthetic)"},
              {"pos": list(NODES[0]), "label": "Moss", "height_m": 300},
              {"pos": list(NODES[1]), "label": "Horten", "height_m": 300}]
+    terrain = None                                # the demo used to skip bathymetry even when it was pulled: load it when it is there
+    tdir = Path(world) / "depth" / "fjord"
+    if (tdir / "terrain.json").exists():
+        from offsim.scene import load_terrain
+        terrain = load_terrain(tdir)
     scene = build_scene(
         traj, agents, rep, land=land, sites=sites, lanes=[[list(p) for p in legs[(0, 1)]]], accent=("CTV-1",), seconds=16, trail_s=1800, land_relief_m=60,
         camera={"fit": [[10.42, 59.12], [10.72, 59.46]], "pitch": 50, "bearing": -15},
@@ -68,7 +73,8 @@ def run(out, world=ROOT / "data/worlds/oslofjord"):
                  "legend": [["#FF5B3A", "crew transfer vessel"], ["#E8E1CF", "ferries · supply vessel"]],
                  "source": "Coastline © OpenStreetMap contributors (ODbL) · timetable, sites and demand SYNTHETIC · sprites: Fluent Emoji (MIT)",
                  "watermark": "OFFSHORE SIMULATIONS"},
-        kpi_track=[["km sailed, all vessels", [[0, f"{k['distance_km']:.0f}"]]]])
+        kpi_track=[["km sailed, all vessels", [[0, f"{k['distance_km']:.0f}"]]]],
+        terrain=terrain, absent_reasons=diagnose_world(Path(world).name))
     out = Path(out)
     write(scene, out / "scene.json")
     (out / "report.json").write_text(json.dumps({"contract": str(rep), "kpis": k}, indent=1))
