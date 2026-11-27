@@ -30,6 +30,7 @@ determinism guard reproduce them): `<out stem>.stress.<variant>.csv`.
 from __future__ import annotations
 
 import hashlib
+import io
 from pathlib import Path
 
 import numpy as np
@@ -190,3 +191,57 @@ def write_sidecars(block: dict, trajs: dict, out) -> list[str]:
         traj.to_csv(p, index=False)
         names.append(p.name)
     return names
+
+
+def load_stress_pair(report: dict, base_dir, *, draft: bool = False) -> dict:
+    """The persisted stress pair, read back from its sidecars and checked, ready for `mappanel.MapPanel.frame(delta=...)`.
+
+    `report` is the experiment result (`run_experiment.run`'s dict, or its JSON); `base_dir` is the folder holding the
+    sidecars, i.e. the folder of the `out` the experiment was run with. Raises ValueError, and returns nothing to draw, when:
+    the report says `stress_blocked`; it has no `decision.pair.stress`; it is not `reportable` and `draft` is not set (a draft
+    is allowed to draw an unreportable pair, and says so: `draft` in the result, which the panel stamps); a sidecar is missing,
+    is not one of the names the block lists for its variant, or its SHA-256 differs from `traj_sha256`; the block's agent is
+    not in a track; or the block's `pos_a`/`pos_b` are not where its own sidecars put the two tracks at `t_star_s`.
+
+    The hash is taken over the file bytes as read, and those same bytes are parsed, so what is hashed is what is drawn. This makes
+    the sidecars tamper-evident against the report block. It does not authenticate the report itself (nothing signs
+    report.json) and it does not by itself prove a picture is right: that is `tests/test_map_delta.py`.
+    """
+    if report.get("stress_blocked"):
+        raise ValueError(f"no stress pair to draw: {report['stress_blocked']}")
+    block = ((report.get("decision") or {}).get("pair") or {}).get("stress")
+    if not block:
+        raise ValueError("report has no decision.pair.stress (run the experiment with `stress: {metric: max_divergence}`)")
+    reportable = bool(report.get("reportable"))
+    if not reportable and not draft:
+        raise ValueError("report is not reportable (synthetic weather, failed ensemble or unvalidated); "
+                         "pass draft=True to render a stamped DRAFT")
+    base = Path(base_dir)
+    a, b = block["compare"]
+    listed = block.get("sidecars") or []
+    tracks = {}
+    for v in (a, b):
+        names = [n for n in listed if n.endswith(f".stress.{v}.csv")]
+        if len(names) != 1 or Path(names[0]).name != names[0]:
+            raise ValueError(f"block lists no single plain sidecar name for variant {v!r}: {listed}")
+        path = base / names[0]
+        if not path.is_file():
+            raise ValueError(f"sidecar {names[0]} is not in {base}")
+        raw = path.read_bytes()
+        got = hashlib.sha256(raw).hexdigest()
+        want = block["traj_sha256"][v]
+        if got != want:
+            raise ValueError(f"sidecar {names[0]} sha256 {got[:12]}... does not match the report's {want[:12]}...; refusing to draw it")
+        df = pd.read_csv(io.BytesIO(raw))
+        g = df[df["agent_id"].astype(str) == str(block["agent_id"])]
+        if g.empty:
+            raise ValueError(f"agent {block['agent_id']!r} is not in sidecar {names[0]}")
+        tracks[v] = _tracks(g)[g["agent_id"].iloc[0]]
+    t_star = float(block["t_star_s"])
+    for v, pos in ((a, block["pos_a"]), (b, block["pos_b"])):
+        ts, lo, la = tracks[v]
+        at = [float(np.interp(t_star, ts, lo)), float(np.interp(t_star, ts, la))]
+        if not np.allclose(at, pos, atol=1e-9, rtol=0):
+            raise ValueError(f"block disagrees with its sidecar for {v!r} at t*: {pos} vs {at}")
+    return {"compare": [a, b], "agent_id": str(block["agent_id"]), "tracks": tracks, "t_star_s": t_star,
+            "max_divergence_m": float(block["max_divergence_m"]), "draft": bool(not reportable)}

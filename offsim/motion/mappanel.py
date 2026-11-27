@@ -31,6 +31,7 @@ from PIL import Image, ImageDraw
 
 from offsim.cinema.draw import Canvas
 from offsim.cinema.look import PALETTES, font_path
+from offsim.cinema.rules import DELTA_LAYER
 
 P = PALETTES["section-plan"]
 ZOOM_RATE = 0.16                      # zoom levels per second (cap 0.35 in cinema/rules.py); 0.8 levels over 5 s keeps coast in view
@@ -39,6 +40,53 @@ ZOOM_RATE = 0.16                      # zoom levels per second (cap 0.35 in cine
 def smooth(u):
     u = min(max(u, 0.0), 1.0)
     return u * u * (3 - 2 * u)
+
+
+def delta_geometry(pair, t):
+    """The stress-pair delta at simulation time `t`, as numbers only (no drawing; the panel draws exactly this).
+
+    `pair` is `offsim.research.stress.load_stress_pair(...)`: two validated tracks of one agent, a = compare[0] (candidate) and
+    b = compare[1] (baseline). Rungs are the paired positions a(t_i)-b(t_i) on the union of both time grids over the window both
+    tracks cover, up to `t`, plus a front rung at `t` itself so the ribbon grows smoothly between samples; each track is
+    piecewise linear in lon/lat, so these rungs are the same evaluation `research.stress.divergence` maximises, and the widest
+    rung IS the report's `max_divergence_m` once `t` has passed t*. The ribbon is the ring "a forward, b reversed", a single
+    region whose width at any moment is the divergence at that moment: it carries no tunable number.
+
+    Returns {rung_t, pa, pb (n,2 lon/lat), track_a, track_b (done part of each track, ending at t), connector ((lon,lat) a, b) or None
+    until t reaches t_star_s}.
+    """
+    a, b = pair["compare"]
+    (t1, lo1, la1), (t2, lo2, la2) = pair["tracks"][a], pair["tracks"][b]
+    lo_t, hi_t = max(t1[0], t2[0]), min(t1[-1], t2[-1])
+    grid = np.union1d(t1, t2)
+    grid = grid[(grid >= lo_t) & (grid <= hi_t)]
+    if t < lo_t:
+        rt = grid[:0]
+    else:
+        tc = min(t, hi_t)
+        rt = grid[grid <= tc]
+        if len(rt) == 0 or rt[-1] < tc:
+            rt = np.append(rt, tc)
+
+    def at(tt, ts, lo, la):
+        return np.c_[np.interp(tt, ts, lo), np.interp(tt, ts, la)]
+
+    def done(ts, lo, la):
+        if t < ts[0]:
+            return np.zeros((0, 2))
+        k = ts <= t
+        pts = np.c_[lo[k], la[k]]
+        if ts[-1] > t:                       # the track is still under way: end it on the interpolated position at t
+            pts = np.vstack([pts, at(np.array([t]), ts, lo, la)])
+        return pts
+
+    star = pair["t_star_s"]
+    conn = None
+    if t >= star:
+        ts_ = np.array([star])
+        conn = (tuple(at(ts_, t1, lo1, la1)[0]), tuple(at(ts_, t2, lo2, la2)[0]))
+    return {"rung_t": rt, "pa": at(rt, t1, lo1, la1), "pb": at(rt, t2, lo2, la2),
+            "track_a": done(t1, lo1, la1), "track_b": done(t2, lo2, la2), "connector": conn}
 
 
 _ASCENT = {}
@@ -260,11 +308,64 @@ class MapPanel:
         cv.circle(mx, my, 16.8, stroke=P["accent"], width=1.0)
         cv.circle(mx, my, 4.2, fill=P["accent"])
 
-    def frame(self, u, route, done_k, marker, wind=(8.0, 0.0), label_km=None, others=None, follow=False):
+    def _draw_delta(self, cv, pj, pair, g):
+        """The ribbon (one path, one alpha), the two tracks (done part), a ring + dot at each current position, the t* connector.
+        Roles by compare order, never by name: a = compare[0] candidate, dashed accent; b = compare[1] baseline, solid ink. Dashed
+        also means "not yet sailed" on the single-vessel route, so here the colour carries the identity and the dash is secondary."""
+        D = DELTA_LAYER
+        if len(g["pa"]) >= 2:                  # a single path: overlapping per-quad alphas would compound, and a crossing would bow-tie
+            cv.polygon([pj(*q) for q in g["pa"]] + [pj(*q) for q in g["pb"][::-1]], fill=P["accent"], alpha=D["ribbon_alpha"])
+        if len(g["track_b"]) >= 2:
+            cv.line([pj(*q) for q in g["track_b"]], P["ink"], D["track_px"])
+        if len(g["track_a"]) >= 2:
+            cv.line([pj(*q) for q in g["track_a"]], P["accent"], D["track_px"], dash=D["dash_px"])
+        for key, col in (("track_b", P["ink"]), ("track_a", P["accent"])):
+            if len(g[key]):
+                mx, my = pj(*g[key][-1])
+                cv.circle(mx, my, 16.8, stroke=col, width=1.0)
+                cv.circle(mx, my, 4.2, fill=col)
+        if g["connector"] is not None:
+            (ax, ay), (bx_, by_) = (pj(*q) for q in g["connector"])
+            cv.line([(ax, ay), (bx_, by_)], P["ink"], 1.0)
+            cv.circle(ax, ay, 3.0, fill=P["accent"])
+            cv.circle(bx_, by_, 3.0, fill=P["ink"])
+
+    def _delta_legend(self, cv, pair):
+        """Two rows labelled with the experiment's own variant names (never hardcoded 'exact'/'heuristic': they are whatever the
+        experiment called them), plus a DRAFT row when the report is not reportable. No number is printed here: the divergence and
+        the statistical effect belong on the KPI card, from `report:` refs. -> the chip's box, so place labels avoid it."""
+        a, b = pair["compare"]
+        rows = [(b, P["ink"], None), (a, P["accent"], DELTA_LAYER["dash_px"])]
+        size = 13
+        w = max(cv.measure(n, ("Inter", "Regular"), size) for n, _c, _d in rows) + 44
+        if pair.get("draft"):
+            w = max(w, cv.measure("DRAFT, NOT REPORTABLE", ("Inter", "Bold"), size) + 16)
+        h = 8 + 18 * (len(rows) + (1 if pair.get("draft") else 0))
+        x0, y0 = 24, 10
+        cv.polygon([(x0, y0), (x0 + w, y0), (x0 + w, y0 + h), (x0, y0 + h)], fill=P["ground_deep"])
+        y = y0 + 4
+        for name, col, dash in rows:
+            cv.line([(x0 + 8, y + 9), (x0 + 30, y + 9)], col, DELTA_LAYER["track_px"], dash=dash)
+            _text(cv, x0 + 36, y + 1, name, size, "Regular", P["ink"])
+            y += 18
+        if pair.get("draft"):
+            _text(cv, x0 + 8, y + 1, "DRAFT, NOT REPORTABLE", size, "Bold", P["accent"])
+        return (x0, y0, x0 + w, y0 + h)
+
+    def frame(self, u, route, done_k, marker, wind=(8.0, 0.0), label_km=None, others=None, follow=False, delta=None):
         """others: extra vessels as [(name, route, done_k, marker), ...], drawn like the main one (same
         accent: they are one plan, not competing series). A vessel whose marker is outside the frame gets
         an edge indicator (chevron + name) instead of vanishing silently. follow: lock the camera centre
-        on the moving marker."""
+        on the moving marker.
+
+        delta: the stress-pair delta layer, {"pair": research.stress.load_stress_pair(...), "t": simulation seconds}. The clock is
+        SIMULATION time supplied by the caller (as `section.route_at(routes, times, run_t)` does for the route), not `u`: the layer
+        is drawn up to `t` and the t* connector only once t >= t_star_s. In delta mode the two compared tracks replace the single
+        vessel route (`route` and `done_k` are ignored, and may be None); `marker` still steers the camera, so pass the candidate's
+        current position. Refused with wind streaks on: the v9 verdict is that a second motion over the sea competes with the
+        section streaks. delta=None leaves every pixel as it was."""
+        if delta is not None and self.wind_streaks:
+            raise ValueError("delta layer needs wind_streaks=False (v9: a second motion over the sea competes with the section streaks)")
         W, H = self.size
         view = self._view(u, marker, follow=follow)
         pj = self._proj(view)
@@ -325,7 +426,10 @@ class MapPanel:
                 for (x0, y0), (x1, y1), j in zip(a, b, jump):
                     if not j:
                         cv.line([(x0, y0), (x1, y1)], (170, 140, 120, int(120 * (1 - k / 10))), 1.0)
-        self._route_and_marker(cv, pj, route, done_k, marker)
+        if delta is None:
+            self._route_and_marker(cv, pj, route, done_k, marker)
+        else:
+            self._draw_delta(cv, pj, delta["pair"], delta_geometry(delta["pair"], float(delta["t"])))
         for name_o, route_o, done_o, marker_o in others or []:
             self._route_and_marker(cv, pj, route_o, done_o, marker_o)
             mx, my = pj(*marker_o)
@@ -355,8 +459,11 @@ class MapPanel:
         cv.line([(W - 24, 36), (W - 24, 52)], P["ink"], 1.0)
         # v9: named places (OSM-verified) — drawn last, on top of the route; the scale-bar chip
         # and the north arrow are reserved so no label sits under them.
+        legend_box = self._delta_legend(cv, delta["pair"]) if delta is not None else None
         if self.places:
             occupied = [(bx - 5, by - 26, bx + _w + 5, by - 6), (W - 44, 8, W - 8, 56)]
+            if legend_box:
+                occupied.append(legend_box)
             self._place_labels(cv, pj, occupied)
         return cv.to_pil()
 

@@ -12,28 +12,29 @@ Refuses: readouts not resolving to report refs, a section without method line, a
 """
 
 
-# TODO(director): the data this layer needs now exists; the layer itself is NOT built and is not specced until you sign off.
-# `report:decision.pair.stress` is persisted by offsim/research/stress.py (opt-in `stress: {metric: max_divergence}` in
-# experiment.yaml; docs/AUDIT.md audit 13): the (year, seed) where the two compared variants' validated trajectories diverge
-# most, with where (agent_id, t_star_s, pos_a, pos_b), how typical (distribution: n_pairs, p50, p90, max) and a hash of each
-# trajectory sidecar. Where the layer goes, and why not here: this file is a spec stub (SYSTEM_PLAN spec-stub row). The live
-# diptych is story.py ALIASES {"diptych": "section"} -> section.py, plan map in mappanel.py, as a second route through
-# MapPanel.frame(u, route_xy, ...). Not touched: mappanel.py's v9 header records why the second moving layer (wind streaks)
-# was REMOVED from that panel under the follow-cam; a third motion needs that judgement made again, by you.
+# TODO(director): the stress-pair delta layer is BUILT, in offsim/motion/mappanel.py (not here), and is still waiting for your sign-off.
+# Data: `report:decision.pair.stress` (offsim/research/stress.py, audit 13), read back through `stress.load_stress_pair(report, base_dir)`,
+# which refuses a sidecar whose SHA-256 is not the report's. Drawing: `MapPanel.frame(..., delta={"pair": ..., "t": simulation_seconds})`
+# (audit 14). This file stays a spec stub (SYSTEM_PLAN spec-stub row); the live diptych is story.py ALIASES {"diptych": "section"} ->
+# section.py, plan map in mappanel.py. NOT wired into section.py or any film yet: nothing calls `delta=`.
 #
-# PROPOSED SPEC, "Stress-Test Delta Layer" (needs director sign-off; nothing below is implemented):
-#   Draws: the `compare[1]` (baseline) route solid, the `compare[0]` (candidate) route dashed, and a shaded band between
-#     the two routes over the window [t_star_s - w, t_star_s + w]: the ring made of route a over that window followed by
-#     route b reversed, a segment-to-segment polygon, nothing eyeballed. `w` is a director-set number in
-#     offsim/cinema/rules.py (this stub proposes none, and invents none). A marker pair at pos_a / pos_b with the distance
-#     `report:decision.pair.stress.max_divergence_m` between them.
-#   Numbers on screen (all `report:` refs): the KPI card MUST cite BOTH `report:decision.pair.stress.max_divergence_m`
-#     (what the picture shows) AND `report:decision.effect` with `report:decision.ci95` (what the ensemble shows). The frame
-#     says how extreme the picture is with `report:decision.pair.stress.distribution.n_pairs` and `.p50` ("worst of N, median X m").
-#   Limits line (the evidence form's required `limits`, EVIDENCE.limits_min): says this is the largest-divergence pair, selected
-#     on spatial divergence and not on the decision KPI, not the median. This is carried as a limit, NOT as `assumption: true`:
-#     in this repo that tag marks an unsourced parameter, and max_divergence_m is a measured value.
-#   Refuses: a report with `stress_blocked` or no `decision.pair.stress`; a report whose `reportable` is false.
+# What the layer does, and where it differs from the first proposal here:
+#   - The ribbon is the paired-time region between the two validated tracks (rungs a(t_i)-b(t_i) on the union time grid over the window
+#     both cover, drawn as one path). Its width at any moment is the divergence at that moment and its widest rung is
+#     `report:decision.pair.stress.max_divergence_m`. It carries no tunable number, so the band half-width `w` this stub first proposed
+#     (a time window around t*) and the metre buffer a later request asked for are both NOT used: a buffer around one route says
+#     nothing about where the other route is.
+#   - Tracks: a = compare[0] (candidate) dashed accent, b = compare[1] (baseline) solid ink; a legend chip names them with the
+#     experiment's own variant names. DIRECTOR TO DECIDE: dashed already means "not yet sailed" on the single-vessel route, so here the
+#     colour carries the identity and the dash is secondary. The layer is refused with wind streaks on (v9 verdict).
+#   - Clock: simulation time, supplied by the caller (as section.route_at does), not `u`; the t* connector appears when t >= t_star_s.
+#   - Three readability numbers (ribbon alpha, track width, dash) are `rules.DELTA_LAYER`, flagged `assumption: True`: set by eye.
+#   - The KPI card MUST cite BOTH `report:decision.pair.stress.max_divergence_m` (what the picture shows) AND `report:decision.effect` with
+#     `report:decision.ci95` (what the ensemble shows), and say how extreme the picture is with `.distribution.n_pairs` and `.p50`. The
+#     panel prints no number. The frame's `limits` line (EVIDENCE.limits_min) must say this is the largest-divergence pair, selected on
+#     spatial divergence and not on the decision KPI, not the median; a measured value is carried as a limit, not as `assumption: true`.
+#   - Refuses: `stress_blocked`, no `decision.pair.stress`, a missing or altered sidecar, and an unreportable report unless it is rendered
+#     as a stamped DRAFT.
 def layout(*a, **k):
     raise NotImplementedError("spec in offsim/motion/diptych.py")
 

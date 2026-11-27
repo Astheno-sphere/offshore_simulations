@@ -45,6 +45,17 @@ VESSEL = {
 
 HELICOPTER = {"climb_mps": (8.0, 10.0), "cruise_kn": 140.0, "descent_mps": (3.0, 5.0), "deck_hover_s": 30.0, "flare_m": 100.0}
 
+# The stress-pair delta layer in offsim/motion/mappanel.py: the ribbon between two validated tracks, the two tracks, a connector at t*.
+# why: these three numbers decide how the divergence READS on screen and nothing else. The geometry is the measured ribbon between the two
+# validated tracks and carries no tunable number; no physical corridor is drawn, so no beam or safety margin is cited and none is claimed.
+# assumption: set by eye against the section-plan palette, not measured; the director confirms or changes them (docs/AUDIT.md audit 14).
+DELTA_LAYER = {
+    "ribbon_alpha": 0.22,              # fill of the region between the two tracks (accent, low so the coast and roads stay legible)
+    "track_px": 2.0,                   # the same width the single-vessel route uses
+    "dash_px": (8.0, 5.0),             # dash of the candidate track (on, off); the baseline is solid
+    "assumption": True,
+}
+
 LOOK = {
     "sun_elevation_deg": (25.0, 45.0),  # one sun per film
     "grades": ["north-sea-steel", "golden-hour", "night-ops"],  # one grade per film, applied in ffmpeg
