@@ -71,10 +71,11 @@ def run(out, world=ROOT / "data/worlds/oslofjord"):
         overlay={"kicker": "one fjord, four schedules: who waits, who sails?",
                  "title": "Oslofjord — renderer demo",
                  "legend": [["#FF5B3A", "crew transfer vessel"], ["#E8E1CF", "ferries · supply vessel"]],
-                 "source": "Coastline © OpenStreetMap contributors (ODbL) · timetable, sites and demand SYNTHETIC · sprites: Fluent Emoji (MIT)",
+                 "source": "Coastline © OpenStreetMap contributors (ODbL) · timetable, sites and demand SYNTHETIC · vessels and sites: offsim CAD linework",
                  "watermark": "OFFSHORE SIMULATIONS"},
         kpi_track=[["km sailed, all vessels", [[0, f"{k['distance_km']:.0f}"]]]],
         terrain=terrain, absent_reasons=diagnose_world(Path(world).name))
+    scene["style"] = {"agent_mode": "lineart", "site_mode": "lineart"}    # engineering linework, not emoji billboards; the global style.json default is unchanged
     out = Path(out)
     write(scene, out / "scene.json")
     (out / "report.json").write_text(json.dumps({"contract": str(rep), "kpis": k}, indent=1))
