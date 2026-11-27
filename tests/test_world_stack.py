@@ -106,3 +106,29 @@ def test_js_and_python_draw_the_same_ribbon(pair, tmp_path):
         assert np.allclose(got["pa"], want["pa"]) and np.allclose(got["pb"], want["pb"]), t
         assert np.allclose(got["trackA"], want["track_a"]) and np.allclose(got["trackB"], want["track_b"]), t
         assert (got["connector"] is not None) == (want["connector"] is not None), t
+
+
+def test_metocean_source_is_named_and_synthetic_weather_stamps_the_frame(pair):
+    wx = {"particles": {"trips": [{}]}, "credit": "stand-in"}
+    syn = _scene(pair, "paper", weather={**wx, "provenance": "synthetic"})
+    assert syn["world_stack"]["metocean"]["source"] == "synthetic" and syn["overlay"]["stamp"] == "DRAFT, NOT REPORTABLE"
+    real = _scene(pair, "paper", weather={**wx, "provenance": "nora3"})
+    assert real["world_stack"]["metocean"]["source"] == "nora3" and "stamp" not in real["overlay"]   # real weather lifts nothing by itself
+    assert _scene(pair, "paper", weather=wx)["world_stack"]["metocean"]["source"] == "unstated"
+    assert "source" not in _scene(pair, "paper")["world_stack"]["metocean"]                        # absent layers carry a reason, not a source
+
+
+def test_the_demo_loads_fetched_weather_only(tmp_path):
+    import xarray as xr
+    from offsim.examples.oslofjord_demo import load_weather
+    tr = pd.DataFrame({"lon": [10.5, 10.6], "lat": [59.3, 59.35], "t": [0.0, 3600.0]})
+    assert load_weather(tmp_path, tr, None) is None                          # no metocean folder: nothing, never invented
+    (tmp_path / "metocean").mkdir()
+    assert load_weather(tmp_path, tr, None) is None                          # folder without NORA3 files
+    t = pd.date_range("2024-01-10", periods=3, freq="h")
+    lon, lat = np.linspace(10.0, 11.0, 6), np.linspace(59.0, 59.8, 6)
+    shape = (3, 6, 6)
+    xr.Dataset({"u10": (("time", "lat", "lon"), np.full(shape, 6.0)), "v10": (("time", "lat", "lon"), np.full(shape, 2.0))},
+               coords={"time": t, "lat": lat, "lon": lon}).to_netcdf(tmp_path / "metocean/20240110-00_48h_nora3_wind.nc")
+    wx = load_weather(tmp_path, tr, None)
+    assert wx["provenance"] == "nora3" and wx["particles"]["trips"]

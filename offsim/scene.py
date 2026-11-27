@@ -61,6 +61,8 @@ def build_scene(traj: pd.DataFrame, agents: pd.DataFrame, report: Report, *, cam
             if nm not in names:
                 legend.append([col, nm])
         overlay = {**overlay, "legend": legend}
+    if weather is not None and weather.get("provenance") == "synthetic" and not overlay.get("stamp"):
+        overlay = {**overlay, "stamp": "DRAFT, NOT REPORTABLE"}        # synthetic weather is a stand-in, never a result
     scene = {"t0": t0, "t1": t1, "land_relief_m": land_relief_m, "seconds": seconds, "trail_s": trail_s or (t1 - t0) / 6,
              "camera": camera, "overlay": {**overlay, "kpi_track": kpi_track or []},
              "world": {"land": polygons(land), "lanes": lanes or [], "sites": sites or [], "terrain": terrain},
@@ -107,6 +109,8 @@ def world_stack(scene: dict, reasons: dict | None = None) -> dict:
     for layer in WORLD_STACK_LAYERS:
         ok, detail, default = found[layer]
         out[layer] = {"present": True, "detail": detail} if ok else {"present": False, "reason": reasons.get(layer) or default}
+    if out["metocean"]["present"]:        # where the weather came from: "nora3" (fetched), "synthetic" (stand-in; stamps the frame DRAFT), or unstated
+        out["metocean"]["source"] = wx.get("provenance") or "unstated"
     return out
 
 

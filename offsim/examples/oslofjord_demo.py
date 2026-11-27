@@ -30,6 +30,28 @@ NODES = [(10.6540, 59.4330),   # 0 Moss ferry terminal
          (10.5650, 59.4280)]   # 4 mid-fjord waypoint
 
 
+def load_weather(world, traj, land):
+    """The scene's `weather` block from the world's fetched NORA3 files (data/worlds/<w>/metocean/*nora3_wind*.nc, *nora3_wave*.nc), tagged
+    provenance "nora3"; None when the folder or the files are not there (world_stack then names the absence). Never invents weather: a
+    synthetic stand-in must be built by the caller and tagged "synthetic", which stamps the frame DRAFT."""
+    mdir = Path(world) / "metocean"
+    if not mdir.is_dir():
+        return None
+    import xarray as xr
+    from offsim.weather.visual import weather_scene
+    ds = {}
+    for kind in ("wind", "wave"):
+        f = sorted(mdir.glob(f"*nora3_{kind}*.nc"))
+        if f:
+            ds[f"ds_{kind}"] = xr.open_dataset(f[0])
+    if not ds:
+        return None
+    bbox = [float(traj["lon"].min()) - 0.1, float(traj["lat"].min()) - 0.1, float(traj["lon"].max()) + 0.1, float(traj["lat"].max()) + 0.1]
+    wx = weather_scene(bbox, float(traj["t"].min()), float(traj["t"].max()), land=land, seed=0, n_particles=2500, **ds)
+    wx["provenance"] = "nora3"
+    return wx
+
+
 def run(out, world=ROOT / "data/worlds/oslofjord"):
     land = gpd.read_file(Path(world) / "land.geojson").geometry.union_all()
     sea = SeaGraph(land, bbox=(10.40, 59.10, 10.75, 59.47), spacing_m=300, clearance_m=60)
@@ -65,6 +87,7 @@ def run(out, world=ROOT / "data/worlds/oslofjord"):
     if (tdir / "terrain.json").exists():
         from offsim.scene import load_terrain
         terrain = load_terrain(tdir)
+    weather = load_weather(Path(world), traj, land)
     scene = build_scene(
         traj, agents, rep, land=land, sites=sites, lanes=[[list(p) for p in legs[(0, 1)]]], accent=("CTV-1",), seconds=16, trail_s=1800, land_relief_m=60,
         camera={"fit": [[10.42, 59.12], [10.72, 59.46]], "pitch": 50, "bearing": -15},
@@ -74,8 +97,10 @@ def run(out, world=ROOT / "data/worlds/oslofjord"):
                  "source": "Coastline © OpenStreetMap contributors (ODbL) · timetable, sites and demand SYNTHETIC · vessels and sites: offsim CAD linework",
                  "watermark": "OFFSHORE SIMULATIONS"},
         kpi_track=[["km sailed, all vessels", [[0, f"{k['distance_km']:.0f}"]]]],
-        terrain=terrain, absent_reasons=diagnose_world(Path(world).name))
-    scene["style"] = {"agent_mode": "lineart", "site_mode": "lineart"}    # engineering linework, not emoji billboards; the global style.json default is unchanged
+        terrain=terrain, weather=weather, absent_reasons=diagnose_world(Path(world).name))
+    # lineart_px / site_lineart_px are existing style knobs raised for this demo scene only: at fjord zoom the CAD symbols (34 / 30 px) read as
+    # specks. 60 / 54 px are set by eye (assumption, not sourced, not measured); the global style.json values are unchanged.
+    scene["style"] = {"agent_mode": "lineart", "site_mode": "lineart", "lineart_px": 60, "site_lineart_px": 54}    # engineering linework, not emoji billboards; the global style.json default is unchanged
     out = Path(out)
     write(scene, out / "scene.json")
     (out / "report.json").write_text(json.dumps({"contract": str(rep), "kpis": k}, indent=1))
