@@ -12,22 +12,28 @@ Refuses: readouts not resolving to report refs, a section without method line, a
 """
 
 
-# TODO(director): this stub is NOT the place for a trajectory-delta ("gap shot") layer, for two reasons.
-# 1. Wrong file. The live diptych is `story.py` ALIASES {"diptych": "section"} -> `section.py` with the plan map
-#    in `mappanel.py`. A delta layer belongs there, as a second route passed to MapPanel.frame(u, route_xy, ...).
-#    It needs a director spec first: mappanel's v9 header records why the second moving layer (wind streaks) was
-#    REMOVED from this panel -- it competed with the section streaks under the follow-cam. A third motion needs
-#    that judgement made again, not assumed.
-# 2. No number to draw yet. The two-engine comparison already exists upstream and is stricter than a bare
-#    percentage: `offsim/research/run_experiment.py` `decide_from()` writes `decision` = {kpi, compare, better,
-#    min_effect, effect, ci95, n_pairs, status}, gated by `reportable` (ens.ok and not synthetic_weather and
-#    validated) with `blocked` saying why when it is not. Those are the refs a gap shot must cite --
-#    `report:decision.effect`, `report:decision.ci95`, `report:decision.status` -- never an invented
-#    `report:gap.kpi_delta`, which would restate `decision.effect` without its interval.
-#    What is genuinely missing is a ref to the two trajectories themselves: an experiment runs seeds x winters
-#    per variant and `Ensemble.to_report()` keeps aggregate quantiles only, so "the validated exact trajectory"
-#    is not yet a single, addressable object. Which run a pair ref points at (median seed? named seed? the
-#    decision winter?) decides what the delta picture asserts. See docs/AUDIT.md audit 12.
+# TODO(director): the data this layer needs now exists; the layer itself is NOT built and is not specced until you sign off.
+# `report:decision.pair.stress` is persisted by offsim/research/stress.py (opt-in `stress: {metric: max_divergence}` in
+# experiment.yaml; docs/AUDIT.md audit 13): the (year, seed) where the two compared variants' validated trajectories diverge
+# most, with where (agent_id, t_star_s, pos_a, pos_b), how typical (distribution: n_pairs, p50, p90, max) and a hash of each
+# trajectory sidecar. Where the layer goes, and why not here: this file is a spec stub (SYSTEM_PLAN spec-stub row). The live
+# diptych is story.py ALIASES {"diptych": "section"} -> section.py, plan map in mappanel.py, as a second route through
+# MapPanel.frame(u, route_xy, ...). Not touched: mappanel.py's v9 header records why the second moving layer (wind streaks)
+# was REMOVED from that panel under the follow-cam; a third motion needs that judgement made again, by you.
+#
+# PROPOSED SPEC, "Stress-Test Delta Layer" (needs director sign-off; nothing below is implemented):
+#   Draws: the `compare[1]` (baseline) route solid, the `compare[0]` (candidate) route dashed, and a shaded band between
+#     the two routes over the window [t_star_s - w, t_star_s + w]: the ring made of route a over that window followed by
+#     route b reversed, a segment-to-segment polygon, nothing eyeballed. `w` is a director-set number in
+#     offsim/cinema/rules.py (this stub proposes none, and invents none). A marker pair at pos_a / pos_b with the distance
+#     `report:decision.pair.stress.max_divergence_m` between them.
+#   Numbers on screen (all `report:` refs): the KPI card MUST cite BOTH `report:decision.pair.stress.max_divergence_m`
+#     (what the picture shows) AND `report:decision.effect` with `report:decision.ci95` (what the ensemble shows). The frame
+#     says how extreme the picture is with `report:decision.pair.stress.distribution.n_pairs` and `.p50` ("worst of N, median X m").
+#   Limits line (the evidence form's required `limits`, EVIDENCE.limits_min): says this is the largest-divergence pair, selected
+#     on spatial divergence and not on the decision KPI, not the median. This is carried as a limit, NOT as `assumption: true`:
+#     in this repo that tag marks an unsourced parameter, and max_divergence_m is a measured value.
+#   Refuses: a report with `stress_blocked` or no `decision.pair.stress`; a report whose `reportable` is false.
 def layout(*a, **k):
     raise NotImplementedError("spec in offsim/motion/diptych.py")
 
