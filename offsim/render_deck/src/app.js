@@ -8,6 +8,7 @@ import {cameraAtFrame} from './layers/camera.js';
 import {terrainLayers} from './layers/terrain.js';
 import {weatherLayers} from './layers/weather.js';
 import {deltaLayers} from './layers/delta.js';
+import {trafficLayers} from './layers/traffic.js';
 import {displayPose, wakeLayers} from './layers/vessel.js';
 import {TripsLayer} from '@deck.gl/geo-layers';
 
@@ -163,6 +164,7 @@ window.draw = (t) => new Promise((resolve) => {
       getFillColor: hex(st.land), getLineColor: hex(st.paper, 140), stroked: true, lineWidthMinPixels: 1, material: {ambient: 0.6, diffuse: 0.5}}),
     ...weatherLayers(S.weather, t, st),
     new PathLayer({id: 'lanes', data: S.world.lanes || [], getPath: (d) => d, getColor: hex(st.faint_line), widthMinPixels: 1}),
+    ...trafficLayers(S.traffic, st),
     ...deltaLayers(S.delta, t, st),
     ...(st.site_mode === 'lineart' ? [lineLayer('site-lines', (S.world.sites || []).filter((d) => (S.assets.lineart || {})[d.kind])
       .map((d) => { const a = S.assets.lineart[d.kind], L = Math.max(a.bbox_plan[2] - a.bbox_plan[0], a.bbox_plan[3] - a.bbox_plan[1]);

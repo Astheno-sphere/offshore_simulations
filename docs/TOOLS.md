@@ -1,7 +1,7 @@
 # Tool catalog
 
 Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_build.py`; edit the YAML, not this file.
-173 tools · 39 tested · 15 wired · 10 installed · 55 candidate · 4 manual · 50 watch.
+173 tools · 39 tested · 16 wired · 10 installed · 55 candidate · 3 manual · 50 watch.
 
 **status** tested = ran here, evidence recorded · wired = called by repo code, not yet run on real data · installed = in a manifest · candidate = fits a planned step · manual = order/download by hand · watch = not on the plan yet.  
 **runs** here = Claude workspace · actions = GitHub runner (open internet) · laptop · browser.  
@@ -12,7 +12,7 @@ Generated from [`catalog/tools.yaml`](../catalog/tools.yaml) by `tools/catalog_b
 | Layer | tested | wired | installed | candidate | manual | watch | total |
 |---|---|---|---|---|---|---|---|
 | world | 6 | 3 | 2 | 6 | 3 | 8 | 28 |
-| traffic | 2 | 4 | 3 | 0 | 1 | 2 | 12 |
+| traffic | 2 | 5 | 3 | 0 | 0 | 2 | 12 |
 | metocean | 0 | 2 | 1 | 5 | 0 | 5 | 13 |
 | solver | 4 | 1 | 0 | 1 | 0 | 4 | 10 |
 | weather-routing | 0 | 0 | 0 | 1 | 0 | 3 | 4 |
@@ -41,7 +41,7 @@ Pulled = tested + wired + installed (evidence paths checked by tests/test_repo.p
 | [OpenStreetMap coastline via Overpass](https://overpass-api.de) | world | tested | actions | Land polygons for every world (offsim/worlds/fetch_world.py + coast.py). |
 | [Norwegian Offshore Directorate FactMaps (WGS84 FeatureServer)](https://factmaps.sodir.no/api/rest/services/Factmaps/FactMapsWGS84/FeatureServer) | world | wired | actions | Installations, fields, pipelines, wells on the Norwegian shelf; synced daily. Credit 'Norwegian Offshore Directorate'. |
 | [Entur national aggregated GTFS](https://developer.entur.org/stops-and-timetable-data) | traffic | wired | actions | Every bus, ferry, train and tram timetable in Norway; clipped per world, replayed as contract agents (engine gtfs). Credit: Source: Entur. |
-| [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | traffic | manual | browser | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
+| [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | traffic | wired | browser | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes; the deck.gl traffic layer draws a fixed-seed subsample of the clip saved under data/worlds/<w>/ais/ (git-ignored, never committed). |
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | traffic | tested | here | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. |
 | [PyVRP](https://github.com/PyVRP/PyVRP) | solver | tested | here | State-of-the-art HGS for CVRP/VRPTW/PDP/multi-depot/multi-trip. Wrapped in offsim/solve/pyvrp_adapter.py. |
 | [opt-model (Pyomo + HiGHS)](https://github.com/Astheno-sphere/computational_Logistics/tree/main/skills/opt-model) | solver | tested | here | Exact MIPs from papers; certifies heuristic plans on small instances (test_opt_model.py). |
@@ -133,7 +133,7 @@ _Real vessel movements (AIS) to validate simulated routes and speeds_
 | Tool | Licence | Status | Runs | Priority | Role |
 |---|---|---|---|---|---|
 | [Entur national aggregated GTFS](https://developer.entur.org/stops-and-timetable-data) | NLOD-2.0 | wired | actions | now | Every bus, ferry, train and tram timetable in Norway; clipped per world, replayed as contract agents (engine gtfs). Credit: Source: Entur. Evidence: `offsim/transit/gtfs.py` `offsim/engines/gtfs_engine.py` `offsim/worlds/fetch_world.py` `tests/test_transit.py` |
-| [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | open | manual | browser | now | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes. |
+| [Kystverket Historic AIS (HAIS)](https://hais.kystverket.no/) | open | wired | browser | now | Order PSV/ferry tracks by area, time, ship type; GeoParquet link. Validates speeds, port times, route shapes; the deck.gl traffic layer draws a fixed-seed subsample of the clip saved under data/worlds/<w>/ais/ (git-ignored, never committed). Evidence: `offsim/traffic/ais.py` `offsim/traffic/positions.py` `offsim/render_deck/src/layers/traffic.js` `tests/test_traffic_layer.py` |
 | [MovingPandas](https://github.com/movingpandas/movingpandas) | BSD-3-Clause | tested | here | now | Trajectory cleaning, stop detection, speed profiles; compares AIS with our contract rows. Evidence: `offsim/traffic/ais.py` `tests/test_traffic.py` |
 | [BarentsWatch AIS API](https://www.barentswatch.no/) | NLOD-2.0 (check) | wired | actions | next | Live/recent AIS via OAuth2 (secrets BW_CLIENT_ID/BW_CLIENT_SECRET); endpoints unverified live. Evidence: `offsim/traffic/barentswatch.py` `.github/workflows/fetch-world.yml` |
 | [Datashader](https://github.com/holoviz/datashader) | BSD-3-Clause | installed | here | next | Declared, not yet called: render millions of AIS positions as density for map panels (wire into an AIS density shot or drop). Evidence: `requirements-graphics.txt` |
