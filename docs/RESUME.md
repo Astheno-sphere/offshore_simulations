@@ -819,3 +819,50 @@ copied `report.json` the report itself says must not land. Note with the file:li
   `offsim/physics/jonswap.py` still duplicate each other on main; the Blender shot still not wired into the film;
   city-roads catalog candidate still pending. Audit 10's H2 merge gap still needs the human decision recorded
   there — these two merges, like the eight before them, went in with no `why:` enforcement on the merge path.
+
+- 2026-11-28 (channel sync): **merged 1 stack of 4 branches, fast-forward-linear, in their own order** —
+  `agent/claude/upstream-gap-definition` -> `stress-test-persistence` -> `map-panel-delta` -> `full-world-delta`
+  (11 commits, audits 12-16): the stress pair (`offsim/research/stress.py`, `report:decision.pair.stress`,
+  opt-in `stress: {metric: max_divergence}`, trajectories to git-ignored CSV sidecars pinned by `traj_sha256`),
+  the skia map-panel delta ribbon (`offsim/motion/mappanel.py`, `rules.DELTA_LAYER`), the deck.gl delta and AIS
+  layers plus `world_stack` (`offsim/motion/delta.py`, `offsim/render_deck/src/layers/{delta,traffic}.js`,
+  `offsim/traffic/positions.py`, `offsim/scene.py`), `fetch_world --probe-depth` and the `probe` workflow input,
+  and the Oslofjord demo loading terrain/NORA3 weather and CAD linework instead of emoji. Verified against the
+  code, not the audits: `rules.py` gains only `DELTA_LAYER` (three readability constants, `why:` line,
+  `assumption: True`) and touches no existing number, tolerance, sourced value or golden frame; all five test
+  files (`test_stress`, `test_map_delta`, `test_probe_depth`, `test_traffic_layer`, `test_world_stack`) are new
+  additions, no existing test edited, so no `why:` line was owed; the one catalog status change
+  (`kystverket-hais` manual -> wired) carries four `evidence:` paths that all exist and `docs/TOOLS.md` was
+  regenerated consistently (counts and both tables); no `out/`, no `data/`, no binary, no frame of any reference
+  video, and the six `director_fullworld_*` and weather stills stayed out of git as the audit says; the OSM ODbL
+  credit survives (only the now-unused Fluent Emoji credit was dropped); `diptych.py` is still the
+  NotImplementedError spec stub. Demo-scene `lineart_px` 60 / `site_lineart_px` 54 are existing knobs raised
+  scene-locally and flagged by-eye; `style.json` is unchanged. Suite on the merge: **1032 passed, 49 skipped,
+  exit 0** (requirements.txt + cad + engines + skia-python + trimesh installed in this image first).
+- **Refused (0) this sync.** `agent/nordlys/molde-peak-shot` has no new commits since 2026-11-25, so the
+  2026-11-26 refusal stands unchanged and a third note was not written: `tools/flesland_massing.py:28` and
+  `tools/bergen_service_map.py:27` still carry `DATA_ROOT = Path.home() / "workspace" / ...`.
+  `agent/claude/portfolio-showcase` (refused 2026-11-23), `agent/nordlys/vm-pile`, `live/status` and
+  `wip/cad-assets-heli` are all unchanged since their last review. No `agent/desktop/*` commits this sync, so
+  the licence-shaped-string grep had nothing to run against.
+- Pointers left: desktop — the stress pair is on main and the exact-vs-heuristic pair it was built for needs an
+  AMPL variant, which only the laptop runs locally; nordlys — the Geonorge DEM order is blocked on the
+  `/codelists/area/<uuid>` response and one small area order, which needs a networked box and the VM has one.
+  No actor asked a question this sync (the two 2026-11-25 inbox files were answered on 2026-11-26).
+- Noticed while merging: the tracked-fixture churn reported on 2026-11-26 is **still live** —
+  `python -m pytest -q tests` rewrites `tests/fixtures/intake/synthetic_paper.pdf` (fresh reportlab
+  CreationDate/ModDate and /ID). Reverted by hand again and kept out of this commit. Still unfixed; the fix is
+  to generate the PDF into `tmp_path` or set reportlab's invariant mode, and it was not done here because this
+  was a sync run, not a build run.
+- **Blocked, and on whom:** Arshad — the selection rule behind every delta picture (max spatial divergence, which
+  audit 13 records as his direction in a session and NOT as a recorded director decision; it picks the pair that
+  looks most different, not the pair where the decision KPI is worst, and `selected_on` makes the frame say so),
+  the ribbon alpha 0.22 vs 0.12 (undecidable until a DEM release lets `visual_gate.wcag_ratio` measure it), the
+  A9 decision, `BW_CLIENT_ID`/`BW_CLIENT_SECRET` as Actions secrets and `OFFSIM_MAILTO` as a repository variable,
+  publishing `world-bergen-ncs.zip` as a release asset, and Audit 10's H2 merge gap (this merge too went in with
+  no `why:` enforcement on the merge path). Nordlys — the two `DATA_ROOT` lines; the Geonorge `areas` response.
+  Desktop — `coordination/reports/D1.md` and the AMPL objectives against 114 643 m / 9980.4986; an AMPL variant
+  for a real `stress:` experiment. Integrator, next sync — the fixture churn above; `metocean-api` still unpinned
+  (`requirements-weather.txt:6`); `offsim/physics/ocean.py` and `offsim/physics/jonswap.py` still duplicate each
+  other on main; the Blender shot still not wired into the film; city-roads catalog candidate still pending;
+  nothing calls `delta=` so no film shows the new layer.

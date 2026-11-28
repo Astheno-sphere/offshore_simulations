@@ -7,6 +7,8 @@ import {GLTFLoader} from '@loaders.gl/gltf';
 import {cameraAtFrame} from './layers/camera.js';
 import {terrainLayers} from './layers/terrain.js';
 import {weatherLayers} from './layers/weather.js';
+import {deltaLayers} from './layers/delta.js';
+import {trafficLayers} from './layers/traffic.js';
 import {displayPose, wakeLayers} from './layers/vessel.js';
 import {TripsLayer} from '@deck.gl/geo-layers';
 
@@ -19,6 +21,9 @@ const root = document.documentElement.style;
 for (const [k, v] of Object.entries({ink: st.ink, water: st.water, paper: st.paper, dim: st.dim, accent: st.accent, font: st.font, serif: st.serif, mono: st.mono}))
   root.setProperty(`--${k}`, v);
 root.setProperty('--u', `${S.height / 60}px`);
+// absent world layers, named on the frame when overlay.show_stack is set (director stills and drafts): an empty map is a named absence
+const stackNote = (ws) => { const gone = Object.entries(ws || {}).filter(([, v]) => !v.present).map(([k]) => k.replace('_', ' '));
+  return gone.length ? `NOT IN THIS FRAME: ${gone.join(' · ')}` : 'ALL WORLD LAYERS PRESENT'; };
 const ov = document.getElementById('overlay');
 ov.innerHTML = `
   <div class="kicker">${S.overlay.kicker || ''}</div>
@@ -27,7 +32,9 @@ ov.innerHTML = `
   <div class="kpis" id="kpis"></div>
   <div class="legend">${(S.overlay.legend || []).map(([c, l]) => `<span><i style="background:${c}"></i>${l}</span>`).join('')}</div>
   <div class="source">${S.overlay.source || ''}</div>
-  ${S.overlay.watermark ? `<div class="watermark">${S.overlay.watermark}</div>` : ''}`;
+  ${S.overlay.watermark ? `<div class="watermark">${S.overlay.watermark}</div>` : ''}
+  ${S.overlay.stamp ? `<div class="stamp">${S.overlay.stamp}</div>` : ''}
+  ${S.overlay.show_stack ? `<div class="stack">${stackNote(S.world_stack)}</div>` : ''}`;
 
 // position of every agent at time t: linear interpolation on its contract rows
 function positions(t) {
@@ -157,6 +164,8 @@ window.draw = (t) => new Promise((resolve) => {
       getFillColor: hex(st.land), getLineColor: hex(st.paper, 140), stroked: true, lineWidthMinPixels: 1, material: {ambient: 0.6, diffuse: 0.5}}),
     ...weatherLayers(S.weather, t, st),
     new PathLayer({id: 'lanes', data: S.world.lanes || [], getPath: (d) => d, getColor: hex(st.faint_line), widthMinPixels: 1}),
+    ...trafficLayers(S.traffic, st),
+    ...deltaLayers(S.delta, t, st),
     ...(st.site_mode === 'lineart' ? [lineLayer('site-lines', (S.world.sites || []).filter((d) => (S.assets.lineart || {})[d.kind])
       .map((d) => { const a = S.assets.lineart[d.kind], L = Math.max(a.bbox_plan[2] - a.bbox_plan[0], a.bbox_plan[3] - a.bbox_plan[1]);
         return {segs: lineSegs(a, d.pos, d.yaw || 0, symbolScale(d.pos[1], L, st.site_lineart_px || 30)), colour: hex(d.accent ? st.accent : st.paper, 200)}; }), t)] : []),

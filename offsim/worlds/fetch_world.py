@@ -314,9 +314,9 @@ def _is_tiff(b):
     return b[:4] in (b"II*\x00", b"MM\x00*", b"II+\x00", b"MM\x00+")
 
 
-def emodnet_coverage_ids(base=EMODNET_WCS):
+def emodnet_coverage_ids(base=EMODNET_WCS, getter=None):
     """WCS 2.0.1 GetCapabilities -> list of coverage ids (the ids are not hard-coded: EMODnet re-versions yearly)."""
-    xml = get(f"{base}?service=WCS&version=2.0.1&request=GetCapabilities", timeout=120).decode("utf-8", "replace")
+    xml = (getter or get)(f"{base}?service=WCS&version=2.0.1&request=GetCapabilities", timeout=120).decode("utf-8", "replace")
     return re.findall(r"<(?:\w+:)?CoverageId>\s*([^<\s]+)\s*</(?:\w+:)?CoverageId>", xml)
 
 
@@ -477,6 +477,89 @@ def fetch_depth(world, out):
     return srcs
 
 
+def probe_depth(world, out=print, *, get_json=None, fetch=None, order=None, half_m=500.0, wait_s=900, poll_s=10):
+    """Print, verbatim, what the live DEM endpoints offer. It decides nothing and changes no acceptance rule: run it on a networked runner
+    (workflow `probe`), read the transcript, and only then change `kartverket_dtm` in a commit whose `why:` cites it.
+
+    (a) Geonorge /capabilities/<uuid> in full, plus the /codelists/format/<uuid> names as repr() so trailing spaces show;
+    (b) one small order (a 2 x 2 km square at the bbox centre, in the configured projection, in the FIRST format the codelist lists, verbatim):
+        its status, the delivered file list (download URLs without their query string), and the first 4 bytes of the first file
+        (TIFF magic is II*\\x00 or MM\\x00*; a zip's first member is looked into as well);
+    (c) EMODnet GetCapabilities coverage ids (all of them), the one the picker would choose, and one DescribeCoverage.
+    Every section is wrapped: a failing section prints its exception and the next one still runs. Returns the transcript lines."""
+    import datetime
+
+    get_json = get_json or _geonorge_json
+    fetch = fetch or get
+    order = order or geonorge_order_files
+    lines = []
+
+    def say(*a):
+        t = " ".join(str(x) for x in a)
+        lines.append(t)
+        out(t)
+
+    cfg = yaml.safe_load((HERE / f"{world}.yaml").read_text())
+    dcfg = cfg.get("depth") or {}
+    kc = dcfg.get("kartverket_dtm") or {}
+    uuid = kc.get("metadata_uuid")
+    say(f"PROBE depth {world} at {datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')}")
+    say(f"bbox {cfg['bbox']}  uuid {uuid!r}  endpoint {GEONORGE_DL}")
+    say("== (a) Geonorge capabilities, verbatim ==")
+    fmts = []
+    try:
+        say("/capabilities/" + str(uuid) + ":", json.dumps(get_json(f"/capabilities/{uuid}"), ensure_ascii=False, indent=1))
+        fmts = [f.get("name", "") for f in get_json(f"/codelists/format/{uuid}") or []]
+        say("/codelists/format names (repr, trailing spaces shown):", [repr(n) for n in fmts])
+    except Exception as ex:                                     # noqa: BLE001  a probe reports, it does not stop
+        say("SECTION (a) FAILED:", type(ex).__name__, ex)
+    say("== (b) one small order ==")
+    try:
+        if not fmts:
+            raise RuntimeError("no format names from (a); nothing to order")
+        from pyproj import Transformer
+        code = str(kc.get("projection_code", "25832"))
+        w, s_, e, n = cfg["bbox"]
+        cx, cy = Transformer.from_crs(4326, int(code), always_xy=True).transform((w + e) / 2, (s_ + n) / 2)
+        ring = [(cx - half_m, cy - half_m), (cx + half_m, cy - half_m), (cx + half_m, cy + half_m), (cx - half_m, cy + half_m), (cx - half_m, cy - half_m)]
+        line = {"coordinates": " ".join(f"{x:.0f} {y:.0f}" for x, y in ring), "coordinatesystem": code, "projections": [{"code": code}],
+                "formats": [{"name": fmts[0]}], "usagePurpose": ["Visualisering"]}
+        say("order line:", json.dumps(line))
+        receipt = order(uuid, line, wait_s=wait_s, poll_s=poll_s)
+        files = receipt.get("files") or []
+        say("order", receipt.get("referenceNumber"), "files:", json.dumps(
+            [{"name": f.get("fileName") or f.get("name"), "status": f.get("status"),
+              "url": str(f.get("downloadUrl") or "").split("?")[0]} for f in files], ensure_ascii=False))
+        if files and files[0].get("downloadUrl"):
+            blob = fetch(files[0]["downloadUrl"], timeout=900)
+            say("first file: %d bytes, first 4 bytes %r (hex %s), is_tiff=%s, is_zip=%s" % (
+                len(blob), blob[:4], blob[:4].hex(), _is_tiff(blob), zipfile.is_zipfile(io.BytesIO(blob))))
+            if zipfile.is_zipfile(io.BytesIO(blob)):
+                with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                    say("zip members:", z.namelist())
+                    if z.namelist():
+                        head = z.read(z.namelist()[0])[:4]
+                        say("first member first 4 bytes %r (hex %s), is_tiff=%s" % (head, head.hex(), _is_tiff(head)))
+    except Exception as ex:                                     # noqa: BLE001
+        say("SECTION (b) FAILED:", type(ex).__name__, ex)
+    say("== (c) EMODnet WCS ==")
+    try:
+        base = (dcfg.get("emodnet") or {}).get("url", EMODNET_WCS)
+        ids = emodnet_coverage_ids(base, fetch)
+        say("coverage ids (%d):" % len(ids), ids)
+        try:
+            say("picker would choose:", emodnet_pick_coverage(ids))
+        except Exception as ex:                                 # noqa: BLE001
+            say("picker refuses:", type(ex).__name__, ex)
+        cov = emodnet_pick_coverage(ids, None) if any(re.fullmatch(r"emodnet__mean(_\d{4})?", i) for i in ids) else (ids[0] if ids else None)
+        if cov:
+            say("DescribeCoverage", cov, ":", fetch(f"{base}?service=WCS&version=2.0.1&request=DescribeCoverage&coverageId="
+                                                     f"{urllib.parse.quote(cov)}", timeout=120).decode("utf-8", "replace")[:4000])
+    except Exception as ex:                                     # noqa: BLE001
+        say("SECTION (c) FAILED:", type(ex).__name__, ex)
+    return lines
+
+
 REPO = "Astheno-sphere/offshore_simulations"
 
 
@@ -518,6 +601,9 @@ if __name__ == "__main__":
                     help="metocean-api backend: stop cleanly after this long; re-run to resume (default 120)")
     ap.add_argument("--depth", action="store_true",
                     help="also fetch raw DEM (EMODnet, Kartverket DTM) into <out>/dem_raw; with --pull: pull world-<name>-dem-raw")
+    ap.add_argument("--probe-depth", action="store_true",
+                    help="print what the live Geonorge and EMODnet DEM endpoints offer (verbatim) and stop; changes no acceptance rule")
+    ap.add_argument("--probe-out", metavar="FILE", help="with --probe-depth: also write the transcript to FILE")
     ap.add_argument("--osm", action="store_true", help="also download the Geofabrik pbf and write osm/<layer>.geojson (needs pyrosm)")
     ap.add_argument("--osm-pbf", metavar="FILE", help="use this local .osm.pbf instead of downloading (implies --osm)")
     ap.add_argument("--ais", metavar="PATH", help="process a Kystverket HAIS GeoParquet/CSV into ais/calibration.json")
@@ -530,6 +616,13 @@ if __name__ == "__main__":
     ap.add_argument("--gtfs", action="store_true", help="download Entur aggregated GTFS and clip it to the bbox -> <out>/gtfs")
     ap.add_argument("--gtfs-zip", metavar="FILE", help="use this local GTFS zip instead of downloading (implies --gtfs)")
     a = ap.parse_args()
+    if a.probe_depth:
+        if not a.world:
+            ap.error("--probe-depth needs --world")
+        lines = probe_depth(a.world)
+        if a.probe_out:
+            Path(a.probe_out).write_text("\n".join(lines) + "\n")
+        raise SystemExit(0)
     if a.pull:
         pull(a.pull, a.out, raw_dem=a.depth)
     else:

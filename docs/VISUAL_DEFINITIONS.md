@@ -161,3 +161,13 @@ Sources: reel on Dubai walkability (AB1), carousel on informal cities (AB2), car
 - Sound belongs to the film in his reels (minimal electronic tied to the data); ours is silent-first and unlicensed music is not allowed. | AB4, AB5 | open
 - Not seen in any of five posts: neural-network simulation. His fields are numerical solvers and network analyses. A learned surrogate would be our own research direction, not a studied one. | AB1-5 | note
 
+
+## 17. Learned building the full-world delta layer and the world stack (2026-11-27; code on `agent/claude/full-world-delta`, audit 15)
+Every line here was checked against a render or a test in this repo. No frame from any reference video is stored here or anywhere in the repo.
+- A map with no layers behind it is an empty map, so the frame names what is missing: `scene["world_stack"]` lists coast, lanes, dem_hillshade, isobaths, metocean, ais as present or absent with a reason, and `overlay.show_stack` prints the absences on the frame. Presence is read from the scene's content. | adopt for every full-world frame
+- Annotation sits above terrain: the stress-pair ribbon, tracks and connector are drawn with `depthTest: false`, so the baked hillshade never hides or tints them. The ribbon is one polygon at one alpha. | adopt
+- A draft result says so on the frame (`DRAFT, NOT REPORTABLE`, from the pair's draft flag); a stress pair is drawn only over the run it came from (`motion.delta.belongs_to`). | adopt
+- Vessel and site symbols: the Fluent-emoji billboards (`agent_mode: sprite`) read as toys beside OSM linework. `lineart` (CAD linework from `assets/lineart`) is the engineering look; the Oslofjord demo now sets it in its scene `style`, leaving the global `style.json` default alone (a stale test in `tests/test_sealanes_assets.py` still pins the default to sprite, model or dot). | test: the lineart ferry and platform are small at fjord zoom, so the symbol scale needs a pass
+- AIS is shown as density from a fetched clip only, a fixed-seed subsample with no time, so it never implies when a vessel was where. Without a clip the layer is absent and the stack says why. | adopt
+- Ribbon alpha: 0.22 is in `rules.DELTA_LAYER` as an `assumption`. A reviewer's note (not a measurement, not adopted in `rules.py`) argued 0.12 would vanish into the `#haze` ramp and that a second treatment should be a line-only edge. Arshad or the director decides; the stills `out/director_fullworld_a12_*` and `a22_*` (not committed) are the comparison. | open
+- Still missing on the real map until the data is fetched: bathymetry and hillshade (needs release `world-oslofjord-dem-raw`, workflow `fetch-world` with `depth: true`), NORA3 weather, AIS positions, OSM beyond the coast (`osm: true`). | open

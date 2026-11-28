@@ -14,6 +14,9 @@
   that positive = better (`better: lower|higher`), fed to experiment.decide(effect, ci, min_effect) ->
   supported | not supported | inconclusive. If the ensemble has any contract failure the status is None and
   `blocked` says why; nothing may be narrated. Synthetic weather sets reportable False.
+- Opt-in `stress: {metric: max_divergence}` in experiment.yaml (offsim/research/stress.py): re-simulates the two compared
+  variants and persists the (year, seed) pair with the largest spatial divergence at `decision.pair.stress`, plus the
+  distribution over all pairs. Without the key the result is unchanged. A failed guard sets `stress_blocked`.
 """
 from __future__ import annotations
 
@@ -74,11 +77,17 @@ def run(experiment_path, engine_name: str | None = None, *, build: Callable | No
         except ImportError as e:
             raise NotImplementedError("no builder: pass build=(experiment, variant)->(problem, plan, world, engine); "
                                       "offsim.pipeline.build_variant will supply it") from e
+    stress_spec = ex.extra.get("stress")
+    if stress_spec is not None:                # fail fast on a typo, before any ensemble compute
+        from offsim.research.stress import METRICS
+        if not isinstance(stress_spec, dict) or stress_spec.get("metric") not in METRICS:
+            raise ValueError(f"stress must be {{metric: one of {METRICS}}}, got {stress_spec!r}")
     weather = (load_weather or default_load_weather)(ex)
     seeds = seeds_from(ex.ensemble["seeds"])
-    parts = []
+    parts, built = [], {}
     for name in ex.variants:
-        problem, plan, world, engine = build(ex, name)
+        built[name] = build(ex, name)          # kept: the stress pass must reuse this plan, not re-solve
+        problem, plan, world, engine = built[name]
         parts.append(run_ensemble(problem, None, world, engine, weather, seeds, variants={name: plan},
                                   workers=workers))
     ens = Ensemble.merge(*parts)
@@ -90,9 +99,21 @@ def run(experiment_path, engine_name: str | None = None, *, build: Callable | No
                 ens.compare(k, *ex.decision["compare"][:2])
     else:
         result["blocked"] = f"ensemble failed: {len(ens.failures)} failure(s); see ensemble.failures"
+    stress_trajs = {}
+    if stress_spec is not None and result["decision"] is not None:
+        from offsim.research.stress import find_stress
+        block, stress_trajs, why = find_stress(ex, built, weather, ens, stress_spec["metric"])
+        if block is not None:
+            result["decision"]["pair"] = {"stress": block}
+        else:
+            result["stress_blocked"] = why
     result["ensemble"] = ens.to_report()
     result["reportable"] = bool(ens.ok and not result["ensemble"]["synthetic_weather"]
                                 and result["ensemble"]["validated"])
     if out:
+        if stress_trajs:
+            from offsim.research.stress import write_sidecars
+            result["decision"]["pair"]["stress"]["sidecars"] = write_sidecars(
+                result["decision"]["pair"]["stress"], stress_trajs, out)
         Path(out).write_text(json.dumps(result, indent=2))
     return result
